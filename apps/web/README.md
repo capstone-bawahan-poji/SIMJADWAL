@@ -204,7 +204,13 @@ sail artisan migrate --seed
 - `migrate` membuat semua tabel di database `simjadwal`.
 - `--seed` mengisi data referensi: permission, role, fakultas dan prodi, slot waktu, ruangan, jenis constraint, dan akun superadmin. Di luar production, seeder juga membuat akun demo untuk setiap role.
 
-Data master demo (dosen, mata kuliah, pengampu) dibaca dari file CSV di `database/seeders/data/<slug-prodi>/`. Folder ini kosong di repo. Kalau tidak ada CSV, seeder hanya menampilkan peringatan dan melewati bagian itu. Aplikasi tetap bisa jalan. Minta file CSV ke anggota tim kalau butuh data contoh.
+Data master demo (dosen, mata kuliah, pengampu, preferensi dosen) dibaca dari `database/seeders/data/master/<slug-prodi>.json`, satu file per prodi untuk 26 prodi. Slot waktu dan ruangan dibaca dari `database/seeders/data/reference/`.
+
+- 8 prodi FSTI (Aktuaria, Bisnis Digital, Fisika, Informatika, Matematika, Sistem Informasi, Statistika, Teknik Elektro) memakai daftar mata kuliah asli semester ganjil. Nama dosen dianonimkan menjadi `Dosen <Prodi> NN`.
+- 18 prodi lain berisi data dummy (`Mata Kuliah <Prodi> NN`) sampai data aslinya tersedia.
+- Semester mata kuliah diacak (1/3/5/7), dan preferensi dosen juga dummy.
+
+Untuk mengganti data satu prodi, edit atau ganti file JSON prodi tersebut, lalu jalankan `sail artisan migrate:fresh --seed`.
 
 ### 7. Instal dependency frontend
 
@@ -269,15 +275,15 @@ Akun ini dibuat oleh seeder.
 | Role | Email | Password |
 |---|---|---|
 | Super Admin | `superadmin@penjadwalan.test` | nilai `SUPERADMIN_PASSWORD` di `.env` |
-| Admin Fakultas (FSTI) | `admin.fsti@penjadwalan.test` | `password` |
-| Admin Prodi (Informatika) | `admin.if@penjadwalan.test` | `password` |
+| Admin Fakultas | `admin.fsti@`, `admin.fpb@`, `admin.frti@penjadwalan.test` | `password` |
+| Admin Prodi | `admin.<kode-prodi>@penjadwalan.test`, mis. `admin.if@`, `admin.si@` | `password` |
 | Mahasiswa | `mahasiswa.if@penjadwalan.test` | `password` |
-| Dosen | `dosen.ccu@penjadwalan.test` | `password` |
+| Dosen | `dosen.if01@penjadwalan.test` (terhubung ke dosen `IF01`) | `password` |
 
 Catatan:
 
 - Password akun demo diambil dari `SEED_DEFAULT_PASSWORD` di `.env` (default `password`).
-- Akun dosen hanya dibuat kalau data dosen berkode `CCU` ada di CSV `database/seeders/data/informatika/lecturers.csv`.
+- `<kode-prodi>` = field `prefix` di file JSON prodi. Contoh: `ak`, `bd`, `fi`, `if`, `ma`, `si`, `st`, `te`, `tb` (FSTI); `pk`, `kl`, `tl`, `sp`, `tt`, `sl`, `pw`, `ar`, `dk`, `gm` (FPB); `ms`, `ti`, `lg`, `mm`, `tp`, `tk`, `rk` (FRTI).
 - Tidak ada halaman registrasi. Akun baru dibuat oleh admin dari dalam aplikasi.
 
 ## Perintah yang sering dipakai
@@ -442,7 +448,7 @@ apps/web/
 ├── database/
 │   ├── migrations/           # skema tabel
 │   ├── factories/            # data palsu untuk test
-│   └── seeders/              # data awal (Reference/, Demo/, data/*.csv)
+│   └── seeders/              # data awal (Reference/, Demo/, data/*.json)
 ├── resources/js/
 │   ├── Pages/                # halaman Vue, dipanggil dari controller via Inertia::render()
 │   ├── Components/           # komponen Vue yang dipakai ulang
