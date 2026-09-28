@@ -1,0 +1,451 @@
+{
+    "prefix": "TI",
+    "lecturers": [
+        {
+            "code": "TI01",
+            "name": "Dosen Teknik Industri 01"
+        },
+        {
+            "code": "TI02",
+            "name": "Dosen Teknik Industri 02"
+        },
+        {
+            "code": "TI03",
+            "name": "Dosen Teknik Industri 03"
+        },
+        {
+            "code": "TI04",
+            "name": "Dosen Teknik Industri 04"
+        },
+        {
+            "code": "TI05",
+            "name": "Dosen Teknik Industri 05"
+        },
+        {
+            "code": "TI06",
+            "name": "Dosen Teknik Industri 06"
+        },
+        {
+            "code": "TI07",
+            "name": "Dosen Teknik Industri 07"
+        },
+        {
+            "code": "TI08",
+            "name": "Dosen Teknik Industri 08"
+        },
+        {
+            "code": "TI09",
+            "name": "Dosen Teknik Industri 09"
+        },
+        {
+            "code": "TI10",
+            "name": "Dosen Teknik Industri 10"
+        }
+    ],
+    "courses": [
+        {
+            "code": "TI2514001",
+            "name": "Mata Kuliah Teknik Industri 01",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TI07"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TI05"
+                }
+            ]
+        },
+        {
+            "code": "TI2514002",
+            "name": "Mata Kuliah Teknik Industri 02",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TI02"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TI06"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "TI03"
+                }
+            ]
+        },
+        {
+            "code": "TI2514003",
+            "name": "Mata Kuliah Teknik Industri 03",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TI10"
+                }
+            ]
+        },
+        {
+            "code": "TI2514004",
+            "name": "Mata Kuliah Teknik Industri 04",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TI08"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TI04"
+                }
+            ]
+        },
+        {
+            "code": "TI2514005",
+            "name": "Mata Kuliah Teknik Industri 05",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TI09"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TI01"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "TI05"
+                }
+            ]
+        },
+        {
+            "code": "TI2514006",
+            "name": "Mata Kuliah Teknik Industri 06",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TI04"
+                }
+            ]
+        },
+        {
+            "code": "TI2514007",
+            "name": "Mata Kuliah Teknik Industri 07",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TI03"
+                }
+            ]
+        },
+        {
+            "code": "TI2514008",
+            "name": "Mata Kuliah Teknik Industri 08",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TI06"
+                }
+            ]
+        },
+        {
+            "code": "TI2514009",
+            "name": "Mata Kuliah Teknik Industri 09",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TI09"
+                }
+            ]
+        },
+        {
+            "code": "TI2514010",
+            "name": "Mata Kuliah Teknik Industri 10",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TI10"
+                }
+            ]
+        },
+        {
+            "code": "TI2514011",
+            "name": "Mata Kuliah Teknik Industri 11",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TI07"
+                }
+            ]
+        },
+        {
+            "code": "TI2514012",
+            "name": "Mata Kuliah Teknik Industri 12",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TI02"
+                }
+            ]
+        },
+        {
+            "code": "TI2514013",
+            "name": "Mata Kuliah Teknik Industri 13",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TI01"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TI08"
+                }
+            ]
+        },
+        {
+            "code": "TI2514014",
+            "name": "Mata Kuliah Teknik Industri 14",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TI05"
+                }
+            ]
+        },
+        {
+            "code": "TI2514015",
+            "name": "Mata Kuliah Teknik Industri 15",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TI02"
+                }
+            ]
+        },
+        {
+            "code": "TI2514016",
+            "name": "Mata Kuliah Teknik Industri 16",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TI01"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TI09"
+                }
+            ]
+        },
+        {
+            "code": "TI2514017",
+            "name": "Mata Kuliah Teknik Industri 17",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TI10"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TI07"
+                }
+            ]
+        },
+        {
+            "code": "TI2514018",
+            "name": "Mata Kuliah Teknik Industri 18",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TI08"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TI06"
+                }
+            ]
+        },
+        {
+            "code": "TI2514019",
+            "name": "Mata Kuliah Teknik Industri 19",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TI04"
+                }
+            ]
+        },
+        {
+            "code": "TI2514020",
+            "name": "Mata Kuliah Teknik Industri 20",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TI03"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TI01"
+                }
+            ]
+        },
+        {
+            "code": "TI2514021",
+            "name": "Mata Kuliah Teknik Industri 21",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TI03"
+                }
+            ]
+        },
+        {
+            "code": "TI2514022",
+            "name": "Mata Kuliah Teknik Industri 22",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TI08"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TI09"
+                }
+            ]
+        }
+    ],
+    "preferences": [
+        {
+            "lecturer_code": "TI02",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 1
+        },
+        {
+            "lecturer_code": "TI04",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 4
+        },
+        {
+            "lecturer_code": "TI05",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 4
+        },
+        {
+            "lecturer_code": "TI05",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 2
+        },
+        {
+            "lecturer_code": "TI05",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 4
+        },
+        {
+            "lecturer_code": "TI06",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 1
+        },
+        {
+            "lecturer_code": "TI06",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 2
+        },
+        {
+            "lecturer_code": "TI06",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 4
+        },
+        {
+            "lecturer_code": "TI06",
+            "constraint_code": "SC_HINDARI",
+            "day": 1,
+            "session": 4
+        },
+        {
+            "lecturer_code": "TI07",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 2
+        },
+        {
+            "lecturer_code": "TI07",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 4
+        },
+        {
+            "lecturer_code": "TI07",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 2
+        },
+        {
+            "lecturer_code": "TI09",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 2
+        },
+        {
+            "lecturer_code": "TI09",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 2
+        },
+        {
+            "lecturer_code": "TI09",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 1
+        }
+    ]
+}

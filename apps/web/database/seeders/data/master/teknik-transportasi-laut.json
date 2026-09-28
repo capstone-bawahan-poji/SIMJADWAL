@@ -1,0 +1,471 @@
+{
+    "prefix": "TT",
+    "lecturers": [
+        {
+            "code": "TT01",
+            "name": "Dosen Teknik Transportasi Laut 01"
+        },
+        {
+            "code": "TT02",
+            "name": "Dosen Teknik Transportasi Laut 02"
+        },
+        {
+            "code": "TT03",
+            "name": "Dosen Teknik Transportasi Laut 03"
+        },
+        {
+            "code": "TT04",
+            "name": "Dosen Teknik Transportasi Laut 04"
+        },
+        {
+            "code": "TT05",
+            "name": "Dosen Teknik Transportasi Laut 05"
+        },
+        {
+            "code": "TT06",
+            "name": "Dosen Teknik Transportasi Laut 06"
+        },
+        {
+            "code": "TT07",
+            "name": "Dosen Teknik Transportasi Laut 07"
+        },
+        {
+            "code": "TT08",
+            "name": "Dosen Teknik Transportasi Laut 08"
+        },
+        {
+            "code": "TT09",
+            "name": "Dosen Teknik Transportasi Laut 09"
+        },
+        {
+            "code": "TT10",
+            "name": "Dosen Teknik Transportasi Laut 10"
+        }
+    ],
+    "courses": [
+        {
+            "code": "TT2514001",
+            "name": "Mata Kuliah Teknik Transportasi Laut 01",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TT01"
+                }
+            ]
+        },
+        {
+            "code": "TT2514002",
+            "name": "Mata Kuliah Teknik Transportasi Laut 02",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TT02"
+                }
+            ]
+        },
+        {
+            "code": "TT2514003",
+            "name": "Mata Kuliah Teknik Transportasi Laut 03",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TT05"
+                }
+            ]
+        },
+        {
+            "code": "TT2514004",
+            "name": "Mata Kuliah Teknik Transportasi Laut 04",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TT06"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TT07"
+                }
+            ]
+        },
+        {
+            "code": "TT2514005",
+            "name": "Mata Kuliah Teknik Transportasi Laut 05",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TT08"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TT09"
+                }
+            ]
+        },
+        {
+            "code": "TT2514006",
+            "name": "Mata Kuliah Teknik Transportasi Laut 06",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TT03"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TT04"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "TT10"
+                }
+            ]
+        },
+        {
+            "code": "TT2514007",
+            "name": "Mata Kuliah Teknik Transportasi Laut 07",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TT09"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TT10"
+                }
+            ]
+        },
+        {
+            "code": "TT2514008",
+            "name": "Mata Kuliah Teknik Transportasi Laut 08",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TT01"
+                }
+            ]
+        },
+        {
+            "code": "TT2514009",
+            "name": "Mata Kuliah Teknik Transportasi Laut 09",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TT03"
+                }
+            ]
+        },
+        {
+            "code": "TT2514010",
+            "name": "Mata Kuliah Teknik Transportasi Laut 10",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TT05"
+                }
+            ]
+        },
+        {
+            "code": "TT2514011",
+            "name": "Mata Kuliah Teknik Transportasi Laut 11",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TT04"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TT06"
+                }
+            ]
+        },
+        {
+            "code": "TT2514012",
+            "name": "Mata Kuliah Teknik Transportasi Laut 12",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TT07"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TT02"
+                }
+            ]
+        },
+        {
+            "code": "TT2514013",
+            "name": "Mata Kuliah Teknik Transportasi Laut 13",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TT08"
+                }
+            ]
+        },
+        {
+            "code": "TT2514014",
+            "name": "Mata Kuliah Teknik Transportasi Laut 14",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TT03"
+                }
+            ]
+        },
+        {
+            "code": "TT2514015",
+            "name": "Mata Kuliah Teknik Transportasi Laut 15",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TT07"
+                }
+            ]
+        },
+        {
+            "code": "TT2514016",
+            "name": "Mata Kuliah Teknik Transportasi Laut 16",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TT10"
+                }
+            ]
+        },
+        {
+            "code": "TT2514017",
+            "name": "Mata Kuliah Teknik Transportasi Laut 17",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TT01"
+                }
+            ]
+        },
+        {
+            "code": "TT2514018",
+            "name": "Mata Kuliah Teknik Transportasi Laut 18",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TT05"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TT09"
+                }
+            ]
+        },
+        {
+            "code": "TT2514019",
+            "name": "Mata Kuliah Teknik Transportasi Laut 19",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TT06"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TT02"
+                }
+            ]
+        },
+        {
+            "code": "TT2514020",
+            "name": "Mata Kuliah Teknik Transportasi Laut 20",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TT08"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TT04"
+                }
+            ]
+        },
+        {
+            "code": "TT2514021",
+            "name": "Mata Kuliah Teknik Transportasi Laut 21",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TT04"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TT09"
+                }
+            ]
+        },
+        {
+            "code": "TT2514022",
+            "name": "Mata Kuliah Teknik Transportasi Laut 22",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TT10"
+                }
+            ]
+        }
+    ],
+    "preferences": [
+        {
+            "lecturer_code": "TT01",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 3
+        },
+        {
+            "lecturer_code": "TT01",
+            "constraint_code": "SC_HINDARI",
+            "day": 3,
+            "session": 3
+        },
+        {
+            "lecturer_code": "TT01",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 3
+        },
+        {
+            "lecturer_code": "TT03",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 1
+        },
+        {
+            "lecturer_code": "TT03",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 4
+        },
+        {
+            "lecturer_code": "TT03",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 1
+        },
+        {
+            "lecturer_code": "TT03",
+            "constraint_code": "SC_HINDARI",
+            "day": 3,
+            "session": 3
+        },
+        {
+            "lecturer_code": "TT05",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 1
+        },
+        {
+            "lecturer_code": "TT05",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 3
+        },
+        {
+            "lecturer_code": "TT05",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 2
+        },
+        {
+            "lecturer_code": "TT06",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 1
+        },
+        {
+            "lecturer_code": "TT06",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 4
+        },
+        {
+            "lecturer_code": "TT06",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 2
+        },
+        {
+            "lecturer_code": "TT09",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 3
+        },
+        {
+            "lecturer_code": "TT09",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 4
+        },
+        {
+            "lecturer_code": "TT09",
+            "constraint_code": "SC_HINDARI",
+            "day": 4,
+            "session": 4
+        },
+        {
+            "lecturer_code": "TT09",
+            "constraint_code": "SC_HINDARI",
+            "day": 1,
+            "session": 4
+        },
+        {
+            "lecturer_code": "TT09",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 3
+        },
+        {
+            "lecturer_code": "TT10",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 3
+        }
+    ]
+}

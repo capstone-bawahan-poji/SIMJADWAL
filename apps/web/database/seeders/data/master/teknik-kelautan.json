@@ -1,0 +1,495 @@
+{
+    "prefix": "KL",
+    "lecturers": [
+        {
+            "code": "KL01",
+            "name": "Dosen Teknik Kelautan 01"
+        },
+        {
+            "code": "KL02",
+            "name": "Dosen Teknik Kelautan 02"
+        },
+        {
+            "code": "KL03",
+            "name": "Dosen Teknik Kelautan 03"
+        },
+        {
+            "code": "KL04",
+            "name": "Dosen Teknik Kelautan 04"
+        },
+        {
+            "code": "KL05",
+            "name": "Dosen Teknik Kelautan 05"
+        },
+        {
+            "code": "KL06",
+            "name": "Dosen Teknik Kelautan 06"
+        },
+        {
+            "code": "KL07",
+            "name": "Dosen Teknik Kelautan 07"
+        },
+        {
+            "code": "KL08",
+            "name": "Dosen Teknik Kelautan 08"
+        },
+        {
+            "code": "KL09",
+            "name": "Dosen Teknik Kelautan 09"
+        },
+        {
+            "code": "KL10",
+            "name": "Dosen Teknik Kelautan 10"
+        }
+    ],
+    "courses": [
+        {
+            "code": "KL2514001",
+            "name": "Mata Kuliah Teknik Kelautan 01",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "KL09"
+                }
+            ]
+        },
+        {
+            "code": "KL2514002",
+            "name": "Mata Kuliah Teknik Kelautan 02",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "KL10"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "KL01"
+                }
+            ]
+        },
+        {
+            "code": "KL2514003",
+            "name": "Mata Kuliah Teknik Kelautan 03",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "KL05"
+                }
+            ]
+        },
+        {
+            "code": "KL2514004",
+            "name": "Mata Kuliah Teknik Kelautan 04",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "KL06"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "KL03"
+                }
+            ]
+        },
+        {
+            "code": "KL2514005",
+            "name": "Mata Kuliah Teknik Kelautan 05",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "KL02"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "KL08"
+                }
+            ]
+        },
+        {
+            "code": "KL2514006",
+            "name": "Mata Kuliah Teknik Kelautan 06",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "KL07"
+                }
+            ]
+        },
+        {
+            "code": "KL2514007",
+            "name": "Mata Kuliah Teknik Kelautan 07",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "KL04"
+                }
+            ]
+        },
+        {
+            "code": "KL2514008",
+            "name": "Mata Kuliah Teknik Kelautan 08",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "KL04"
+                }
+            ]
+        },
+        {
+            "code": "KL2514009",
+            "name": "Mata Kuliah Teknik Kelautan 09",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "KL07"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "KL05"
+                }
+            ]
+        },
+        {
+            "code": "KL2514010",
+            "name": "Mata Kuliah Teknik Kelautan 10",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "KL03"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "KL08"
+                }
+            ]
+        },
+        {
+            "code": "KL2514011",
+            "name": "Mata Kuliah Teknik Kelautan 11",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "KL10"
+                }
+            ]
+        },
+        {
+            "code": "KL2514012",
+            "name": "Mata Kuliah Teknik Kelautan 12",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "KL02"
+                }
+            ]
+        },
+        {
+            "code": "KL2514013",
+            "name": "Mata Kuliah Teknik Kelautan 13",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "KL06"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "KL09"
+                }
+            ]
+        },
+        {
+            "code": "KL2514014",
+            "name": "Mata Kuliah Teknik Kelautan 14",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "KL01"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "KL01"
+                }
+            ]
+        },
+        {
+            "code": "KL2514015",
+            "name": "Mata Kuliah Teknik Kelautan 15",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "KL08"
+                }
+            ]
+        },
+        {
+            "code": "KL2514016",
+            "name": "Mata Kuliah Teknik Kelautan 16",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "KL04"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "KL07"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "KL02"
+                }
+            ]
+        },
+        {
+            "code": "KL2514017",
+            "name": "Mata Kuliah Teknik Kelautan 17",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "KL06"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "KL10"
+                }
+            ]
+        },
+        {
+            "code": "KL2514018",
+            "name": "Mata Kuliah Teknik Kelautan 18",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "KL05"
+                }
+            ]
+        },
+        {
+            "code": "KL2514019",
+            "name": "Mata Kuliah Teknik Kelautan 19",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "KL03"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "KL09"
+                }
+            ]
+        },
+        {
+            "code": "KL2514020",
+            "name": "Mata Kuliah Teknik Kelautan 20",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "KL08"
+                }
+            ]
+        },
+        {
+            "code": "KL2514021",
+            "name": "Mata Kuliah Teknik Kelautan 21",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "KL01"
+                }
+            ]
+        },
+        {
+            "code": "KL2514022",
+            "name": "Mata Kuliah Teknik Kelautan 22",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "KL10"
+                }
+            ]
+        }
+    ],
+    "preferences": [
+        {
+            "lecturer_code": "KL01",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 1
+        },
+        {
+            "lecturer_code": "KL01",
+            "constraint_code": "SC_HINDARI",
+            "day": 1,
+            "session": 2
+        },
+        {
+            "lecturer_code": "KL03",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 1
+        },
+        {
+            "lecturer_code": "KL03",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 1
+        },
+        {
+            "lecturer_code": "KL03",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 3
+        },
+        {
+            "lecturer_code": "KL03",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 4
+        },
+        {
+            "lecturer_code": "KL04",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 4
+        },
+        {
+            "lecturer_code": "KL04",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 1
+        },
+        {
+            "lecturer_code": "KL04",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 2
+        },
+        {
+            "lecturer_code": "KL04",
+            "constraint_code": "SC_HINDARI",
+            "day": 4,
+            "session": 3
+        },
+        {
+            "lecturer_code": "KL06",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 4
+        },
+        {
+            "lecturer_code": "KL06",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 1
+        },
+        {
+            "lecturer_code": "KL06",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 3
+        },
+        {
+            "lecturer_code": "KL07",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 3
+        },
+        {
+            "lecturer_code": "KL07",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 1
+        },
+        {
+            "lecturer_code": "KL07",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 4
+        },
+        {
+            "lecturer_code": "KL07",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 1
+        },
+        {
+            "lecturer_code": "KL09",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 4
+        },
+        {
+            "lecturer_code": "KL09",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 3
+        },
+        {
+            "lecturer_code": "KL09",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 1
+        },
+        {
+            "lecturer_code": "KL10",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 3
+        },
+        {
+            "lecturer_code": "KL10",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 2
+        },
+        {
+            "lecturer_code": "KL10",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 3
+        }
+    ]
+}

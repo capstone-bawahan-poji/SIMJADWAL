@@ -1,0 +1,399 @@
+{
+    "prefix": "ST",
+    "lecturers": [
+        {
+            "code": "ST01",
+            "name": "Dosen Statistika 01"
+        },
+        {
+            "code": "ST02",
+            "name": "Dosen Statistika 02"
+        },
+        {
+            "code": "ST03",
+            "name": "Dosen Statistika 03"
+        },
+        {
+            "code": "ST04",
+            "name": "Dosen Statistika 04"
+        },
+        {
+            "code": "ST05",
+            "name": "Dosen Statistika 05"
+        },
+        {
+            "code": "ST06",
+            "name": "Dosen Statistika 06"
+        },
+        {
+            "code": "ST07",
+            "name": "Dosen Statistika 07"
+        },
+        {
+            "code": "ST08",
+            "name": "Dosen Statistika 08"
+        },
+        {
+            "code": "ST09",
+            "name": "Dosen Statistika 09"
+        }
+    ],
+    "courses": [
+        {
+            "code": "ST2514001",
+            "name": "Aljabar Linier",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "ST01"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "ST02"
+                }
+            ]
+        },
+        {
+            "code": "ST2514002",
+            "name": "Komputasi Statistika",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "ST03"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "ST04"
+                }
+            ]
+        },
+        {
+            "code": "ST2514003",
+            "name": "Komputasi Statistika Lanjut",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "ST05"
+                }
+            ]
+        },
+        {
+            "code": "ST2514004",
+            "name": "Statistika Matematika 1",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "ST01"
+                }
+            ]
+        },
+        {
+            "code": "ST2514006",
+            "name": "Analisis Regresi",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "ST03"
+                }
+            ]
+        },
+        {
+            "code": "ST2514007",
+            "name": "Metode Numerik",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "ST06"
+                }
+            ]
+        },
+        {
+            "code": "ST2514008",
+            "name": "Official Statistics",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "ST07"
+                }
+            ]
+        },
+        {
+            "code": "ST2514010",
+            "name": "Riset Operasi",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "ST06"
+                }
+            ]
+        },
+        {
+            "code": "ST2514011",
+            "name": "Desain Eksperimen",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "ST08"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "ST03"
+                }
+            ]
+        },
+        {
+            "code": "ST2514019",
+            "name": "Analisis Survival",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "ST09"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "ST09"
+                }
+            ]
+        },
+        {
+            "code": "ST2514020",
+            "name": "Analisis Runtun Waktu",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "ST05"
+                }
+            ]
+        },
+        {
+            "code": "ST2514021",
+            "name": "Data Mining",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "ST03"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "ST04"
+                }
+            ]
+        },
+        {
+            "code": "ST2514022",
+            "name": "Pengantar Ekonometrika",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "ST05"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "ST02"
+                }
+            ]
+        },
+        {
+            "code": "ST2514023",
+            "name": "Matematika Keuangan",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "ST08"
+                }
+            ]
+        },
+        {
+            "code": "ST2514024",
+            "name": "Analisis Data Statistik",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "ST04"
+                }
+            ]
+        },
+        {
+            "code": "ST2514027",
+            "name": "Teknik Simulasi",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "ST07"
+                }
+            ]
+        },
+        {
+            "code": "ST2515007",
+            "name": "Statistika Kebencanaan",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "ST07"
+                }
+            ]
+        },
+        {
+            "code": "ST2515008",
+            "name": "Statistika Lingkungan",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "ST02"
+                }
+            ]
+        }
+    ],
+    "preferences": [
+        {
+            "lecturer_code": "ST01",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 3
+        },
+        {
+            "lecturer_code": "ST02",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 2
+        },
+        {
+            "lecturer_code": "ST02",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 4
+        },
+        {
+            "lecturer_code": "ST02",
+            "constraint_code": "SC_HINDARI",
+            "day": 3,
+            "session": 4
+        },
+        {
+            "lecturer_code": "ST03",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 2
+        },
+        {
+            "lecturer_code": "ST03",
+            "constraint_code": "SC_HINDARI",
+            "day": 4,
+            "session": 1
+        },
+        {
+            "lecturer_code": "ST03",
+            "constraint_code": "SC_HINDARI",
+            "day": 3,
+            "session": 2
+        },
+        {
+            "lecturer_code": "ST07",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 1
+        },
+        {
+            "lecturer_code": "ST07",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 3
+        },
+        {
+            "lecturer_code": "ST07",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 4
+        },
+        {
+            "lecturer_code": "ST07",
+            "constraint_code": "SC_HINDARI",
+            "day": 4,
+            "session": 1
+        },
+        {
+            "lecturer_code": "ST08",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 2
+        },
+        {
+            "lecturer_code": "ST08",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 2
+        },
+        {
+            "lecturer_code": "ST08",
+            "constraint_code": "SC_HINDARI",
+            "day": 4,
+            "session": 3
+        },
+        {
+            "lecturer_code": "ST09",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 2
+        },
+        {
+            "lecturer_code": "ST09",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 2
+        },
+        {
+            "lecturer_code": "ST09",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 3
+        },
+        {
+            "lecturer_code": "ST09",
+            "constraint_code": "SC_HINDARI",
+            "day": 4,
+            "session": 2
+        },
+        {
+            "lecturer_code": "ST09",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 1
+        }
+    ]
+}

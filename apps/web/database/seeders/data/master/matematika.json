@@ -1,0 +1,405 @@
+{
+    "prefix": "MA",
+    "lecturers": [
+        {
+            "code": "MA01",
+            "name": "Dosen Matematika 01"
+        },
+        {
+            "code": "MA02",
+            "name": "Dosen Matematika 02"
+        },
+        {
+            "code": "MA03",
+            "name": "Dosen Matematika 03"
+        },
+        {
+            "code": "MA04",
+            "name": "Dosen Matematika 04"
+        },
+        {
+            "code": "MA05",
+            "name": "Dosen Matematika 05"
+        },
+        {
+            "code": "MA06",
+            "name": "Dosen Matematika 06"
+        },
+        {
+            "code": "MA07",
+            "name": "Dosen Matematika 07"
+        },
+        {
+            "code": "MA08",
+            "name": "Dosen Matematika 08"
+        }
+    ],
+    "courses": [
+        {
+            "code": "MA2514001",
+            "name": "Logika Matematika",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MA01"
+                }
+            ]
+        },
+        {
+            "code": "MA2514002",
+            "name": "Geometri Analitik",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MA02"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "MA02"
+                }
+            ]
+        },
+        {
+            "code": "MA2514006",
+            "name": "Kalkulus Peubah Banyak",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MA03"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "MA03"
+                }
+            ]
+        },
+        {
+            "code": "MA2514007",
+            "name": "Struktur Aljabar I",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MA04"
+                }
+            ]
+        },
+        {
+            "code": "MA2514008",
+            "name": "Riset Operasi I",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MA05"
+                }
+            ]
+        },
+        {
+            "code": "MA2514009",
+            "name": "Persamaan Diferensial Biasa",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MA05"
+                }
+            ]
+        },
+        {
+            "code": "MA2514014",
+            "name": "Persamaan Diferensial Parsial",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MA06"
+                }
+            ]
+        },
+        {
+            "code": "MA2514016",
+            "name": "Fungsi Peubah Kompleks",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MA02"
+                }
+            ]
+        },
+        {
+            "code": "MA2514017",
+            "name": "Aljabar Linier",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MA04"
+                }
+            ]
+        },
+        {
+            "code": "MA2514018",
+            "name": "Analisis Real II",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MA06"
+                }
+            ]
+        },
+        {
+            "code": "MA2514019",
+            "name": "Pengantar Statistika Matematika",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MA07"
+                }
+            ]
+        },
+        {
+            "code": "MA2514020",
+            "name": "Metode Numerik",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MA08"
+                }
+            ]
+        },
+        {
+            "code": "MA2514026",
+            "name": "Matematika Industri Lingkungan",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MA01"
+                }
+            ]
+        },
+        {
+            "code": "MA2515028",
+            "name": "Pengantar Analisis Fungsional",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MA06"
+                }
+            ]
+        },
+        {
+            "code": "MA2515029",
+            "name": "Pengantar Geometri Diferensial",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MA06"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "MA06"
+                }
+            ]
+        },
+        {
+            "code": "MA2515033",
+            "name": "Pengantar Logika Fuzzy",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MA04"
+                }
+            ]
+        },
+        {
+            "code": "MA2515035",
+            "name": "Aljabar Maxplus dan Penerapannya",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MA03"
+                }
+            ]
+        },
+        {
+            "code": "MA2515037",
+            "name": "Riset Operasi II",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MA07"
+                }
+            ]
+        },
+        {
+            "code": "MA2515040",
+            "name": "Sistem Dinamika Kontinu",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MA01"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "MA01"
+                }
+            ]
+        },
+        {
+            "code": "MA2515051",
+            "name": "Analisis Regresi",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MA08"
+                }
+            ]
+        },
+        {
+            "code": "MA2515065",
+            "name": "Matematika Ekonomi dan Bisnis",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MA07"
+                }
+            ]
+        }
+    ],
+    "preferences": [
+        {
+            "lecturer_code": "MA01",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 3
+        },
+        {
+            "lecturer_code": "MA01",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 3
+        },
+        {
+            "lecturer_code": "MA01",
+            "constraint_code": "SC_HINDARI",
+            "day": 3,
+            "session": 2
+        },
+        {
+            "lecturer_code": "MA01",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 2
+        },
+        {
+            "lecturer_code": "MA02",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 3
+        },
+        {
+            "lecturer_code": "MA02",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 2
+        },
+        {
+            "lecturer_code": "MA02",
+            "constraint_code": "SC_HINDARI",
+            "day": 1,
+            "session": 1
+        },
+        {
+            "lecturer_code": "MA02",
+            "constraint_code": "SC_HINDARI",
+            "day": 1,
+            "session": 4
+        },
+        {
+            "lecturer_code": "MA06",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 2
+        },
+        {
+            "lecturer_code": "MA06",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 1
+        },
+        {
+            "lecturer_code": "MA06",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 3
+        },
+        {
+            "lecturer_code": "MA06",
+            "constraint_code": "SC_HINDARI",
+            "day": 1,
+            "session": 3
+        },
+        {
+            "lecturer_code": "MA06",
+            "constraint_code": "SC_HINDARI",
+            "day": 3,
+            "session": 4
+        },
+        {
+            "lecturer_code": "MA07",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 3
+        },
+        {
+            "lecturer_code": "MA07",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 1
+        },
+        {
+            "lecturer_code": "MA07",
+            "constraint_code": "SC_HINDARI",
+            "day": 1,
+            "session": 1
+        }
+    ]
+}

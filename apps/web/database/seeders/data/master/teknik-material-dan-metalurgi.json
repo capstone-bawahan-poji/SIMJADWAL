@@ -1,0 +1,391 @@
+{
+    "prefix": "MM",
+    "lecturers": [
+        {
+            "code": "MM01",
+            "name": "Dosen Teknik Material dan Metalurgi 01"
+        },
+        {
+            "code": "MM02",
+            "name": "Dosen Teknik Material dan Metalurgi 02"
+        },
+        {
+            "code": "MM03",
+            "name": "Dosen Teknik Material dan Metalurgi 03"
+        },
+        {
+            "code": "MM04",
+            "name": "Dosen Teknik Material dan Metalurgi 04"
+        },
+        {
+            "code": "MM05",
+            "name": "Dosen Teknik Material dan Metalurgi 05"
+        },
+        {
+            "code": "MM06",
+            "name": "Dosen Teknik Material dan Metalurgi 06"
+        },
+        {
+            "code": "MM07",
+            "name": "Dosen Teknik Material dan Metalurgi 07"
+        },
+        {
+            "code": "MM08",
+            "name": "Dosen Teknik Material dan Metalurgi 08"
+        },
+        {
+            "code": "MM09",
+            "name": "Dosen Teknik Material dan Metalurgi 09"
+        },
+        {
+            "code": "MM10",
+            "name": "Dosen Teknik Material dan Metalurgi 10"
+        }
+    ],
+    "courses": [
+        {
+            "code": "MM2514001",
+            "name": "Mata Kuliah Teknik Material dan Metalurgi 01",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MM10"
+                }
+            ]
+        },
+        {
+            "code": "MM2514002",
+            "name": "Mata Kuliah Teknik Material dan Metalurgi 02",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MM05"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "MM09"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "MM01"
+                }
+            ]
+        },
+        {
+            "code": "MM2514003",
+            "name": "Mata Kuliah Teknik Material dan Metalurgi 03",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MM08"
+                }
+            ]
+        },
+        {
+            "code": "MM2514004",
+            "name": "Mata Kuliah Teknik Material dan Metalurgi 04",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MM07"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "MM03"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "MM04"
+                }
+            ]
+        },
+        {
+            "code": "MM2514005",
+            "name": "Mata Kuliah Teknik Material dan Metalurgi 05",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MM02"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "MM06"
+                }
+            ]
+        },
+        {
+            "code": "MM2514006",
+            "name": "Mata Kuliah Teknik Material dan Metalurgi 06",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MM06"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "MM10"
+                }
+            ]
+        },
+        {
+            "code": "MM2514007",
+            "name": "Mata Kuliah Teknik Material dan Metalurgi 07",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MM02"
+                }
+            ]
+        },
+        {
+            "code": "MM2514008",
+            "name": "Mata Kuliah Teknik Material dan Metalurgi 08",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MM03"
+                }
+            ]
+        },
+        {
+            "code": "MM2514009",
+            "name": "Mata Kuliah Teknik Material dan Metalurgi 09",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MM05"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "MM01"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "MM08"
+                }
+            ]
+        },
+        {
+            "code": "MM2514010",
+            "name": "Mata Kuliah Teknik Material dan Metalurgi 10",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MM09"
+                }
+            ]
+        },
+        {
+            "code": "MM2514011",
+            "name": "Mata Kuliah Teknik Material dan Metalurgi 11",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MM07"
+                }
+            ]
+        },
+        {
+            "code": "MM2514012",
+            "name": "Mata Kuliah Teknik Material dan Metalurgi 12",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MM04"
+                }
+            ]
+        },
+        {
+            "code": "MM2514013",
+            "name": "Mata Kuliah Teknik Material dan Metalurgi 13",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MM03"
+                }
+            ]
+        },
+        {
+            "code": "MM2514014",
+            "name": "Mata Kuliah Teknik Material dan Metalurgi 14",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MM05"
+                }
+            ]
+        },
+        {
+            "code": "MM2514015",
+            "name": "Mata Kuliah Teknik Material dan Metalurgi 15",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MM09"
+                }
+            ]
+        },
+        {
+            "code": "MM2514016",
+            "name": "Mata Kuliah Teknik Material dan Metalurgi 16",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MM04"
+                }
+            ]
+        },
+        {
+            "code": "MM2514017",
+            "name": "Mata Kuliah Teknik Material dan Metalurgi 17",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MM08"
+                }
+            ]
+        },
+        {
+            "code": "MM2514018",
+            "name": "Mata Kuliah Teknik Material dan Metalurgi 18",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MM02"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "MM01"
+                }
+            ]
+        },
+        {
+            "code": "MM2514019",
+            "name": "Mata Kuliah Teknik Material dan Metalurgi 19",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MM06"
+                }
+            ]
+        },
+        {
+            "code": "MM2514020",
+            "name": "Mata Kuliah Teknik Material dan Metalurgi 20",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MM07"
+                }
+            ]
+        },
+        {
+            "code": "MM2514021",
+            "name": "Mata Kuliah Teknik Material dan Metalurgi 21",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MM10"
+                }
+            ]
+        },
+        {
+            "code": "MM2514022",
+            "name": "Mata Kuliah Teknik Material dan Metalurgi 22",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "MM08"
+                }
+            ]
+        }
+    ],
+    "preferences": [
+        {
+            "lecturer_code": "MM02",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 3
+        },
+        {
+            "lecturer_code": "MM02",
+            "constraint_code": "SC_HINDARI",
+            "day": 4,
+            "session": 2
+        },
+        {
+            "lecturer_code": "MM09",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 2
+        },
+        {
+            "lecturer_code": "MM09",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 2
+        },
+        {
+            "lecturer_code": "MM09",
+            "constraint_code": "SC_HINDARI",
+            "day": 3,
+            "session": 4
+        },
+        {
+            "lecturer_code": "MM10",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 4
+        },
+        {
+            "lecturer_code": "MM10",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 1
+        }
+    ]
+}

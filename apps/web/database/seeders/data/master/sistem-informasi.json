@@ -1,0 +1,583 @@
+{
+    "prefix": "SI",
+    "lecturers": [
+        {
+            "code": "SI01",
+            "name": "Dosen Sistem Informasi 01"
+        },
+        {
+            "code": "SI02",
+            "name": "Dosen Sistem Informasi 02"
+        },
+        {
+            "code": "SI03",
+            "name": "Dosen Sistem Informasi 03"
+        },
+        {
+            "code": "SI04",
+            "name": "Dosen Sistem Informasi 04"
+        },
+        {
+            "code": "SI05",
+            "name": "Dosen Sistem Informasi 05"
+        },
+        {
+            "code": "SI06",
+            "name": "Dosen Sistem Informasi 06"
+        },
+        {
+            "code": "SI07",
+            "name": "Dosen Sistem Informasi 07"
+        },
+        {
+            "code": "SI08",
+            "name": "Dosen Sistem Informasi 08"
+        },
+        {
+            "code": "SI09",
+            "name": "Dosen Sistem Informasi 09"
+        },
+        {
+            "code": "SI10",
+            "name": "Dosen Sistem Informasi 10"
+        },
+        {
+            "code": "SI11",
+            "name": "Dosen Sistem Informasi 11"
+        },
+        {
+            "code": "SI12",
+            "name": "Dosen Sistem Informasi 12"
+        },
+        {
+            "code": "SI13",
+            "name": "Dosen Sistem Informasi 13"
+        }
+    ],
+    "courses": [
+        {
+            "code": "SI2514001",
+            "name": "Konsep Sistem Informasi",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SI01"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SI01"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "SI02"
+                },
+                {
+                    "class_number": 4,
+                    "lecturer_code": "SI02"
+                }
+            ]
+        },
+        {
+            "code": "SI2514002",
+            "name": "Manajemen dan Organisasi",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SI03"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SI03"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "SI04"
+                }
+            ]
+        },
+        {
+            "code": "SI2514003",
+            "name": "Infrastruktur TI",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SI05"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SI05"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "SI05"
+                }
+            ]
+        },
+        {
+            "code": "SI2514004",
+            "name": "Matematika Diskrit 1",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SI06"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SI07"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "SI07"
+                }
+            ]
+        },
+        {
+            "code": "SI2514005",
+            "name": "Kemampuan Interpersonal dan Kepemimpinan",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SI08"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SI08"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "SI08"
+                }
+            ]
+        },
+        {
+            "code": "SI2514009",
+            "name": "Matematika Diskrit 2",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SI06"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SI06"
+                }
+            ]
+        },
+        {
+            "code": "SI2514010",
+            "name": "Basis Data",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SI09"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SI09"
+                }
+            ]
+        },
+        {
+            "code": "SI2514011",
+            "name": "Desain dan Manajemen Jaringan Komputer",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SI10"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SI11"
+                }
+            ]
+        },
+        {
+            "code": "SI2514012",
+            "name": "Pemrograman Lanjut",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SI02"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SI09"
+                }
+            ]
+        },
+        {
+            "code": "SI2514013",
+            "name": "Statistika Sistem Informasi",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SI04"
+                }
+            ]
+        },
+        {
+            "code": "SI2514014",
+            "name": "Desain Proses Bisnis",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SI12"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SI12"
+                }
+            ]
+        },
+        {
+            "code": "SI2514015",
+            "name": "Interaksi Manusia dan Komputer",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SI01"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SI01"
+                }
+            ]
+        },
+        {
+            "code": "SI2514016",
+            "name": "Administrasi Basis Data",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SI09"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SI09"
+                }
+            ]
+        },
+        {
+            "code": "SI2514017",
+            "name": "Keamanan Sistem Informasi",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SI08"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SI13"
+                }
+            ]
+        },
+        {
+            "code": "SI2514019",
+            "name": "Manajemen Risiko TI",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SI02"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SI02"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "SI10"
+                },
+                {
+                    "class_number": 4,
+                    "lecturer_code": "SI10"
+                }
+            ]
+        },
+        {
+            "code": "SI2514020",
+            "name": "Penggalian Data",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SI07"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SI07"
+                }
+            ]
+        },
+        {
+            "code": "SI2514023",
+            "name": "Perencanaan Strategis Sistem Informasi",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SI03"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SI03"
+                }
+            ]
+        },
+        {
+            "code": "SI2514026",
+            "name": "Perencanaan Arsitektur Teknologi Informasi",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SI13"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SI13"
+                }
+            ]
+        },
+        {
+            "code": "SI2514027",
+            "name": "Komputasi Awan",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SI11"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SI11"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "SI11"
+                }
+            ]
+        },
+        {
+            "code": "SI2514030",
+            "name": "Tata Kelola dan Manajemen TI",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SI13"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SI13"
+                }
+            ]
+        },
+        {
+            "code": "SI2514034",
+            "name": "Pengantar Manajemen Risiko",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SI10"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SI10"
+                }
+            ]
+        },
+        {
+            "code": "SI2514035",
+            "name": "Audit Sistem Informasi",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SI12"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SI12"
+                }
+            ]
+        },
+        {
+            "code": "SI2514036",
+            "name": "Etika Profesi Sistem Informasi",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SI06"
+                }
+            ]
+        },
+        {
+            "code": "SI2515044",
+            "name": "Manajemen Kualitas SI",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SI08"
+                }
+            ]
+        },
+        {
+            "code": "SI2515045",
+            "name": "Pemrograman Mobile",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SI11"
+                }
+            ]
+        }
+    ],
+    "preferences": [
+        {
+            "lecturer_code": "SI01",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 2
+        },
+        {
+            "lecturer_code": "SI01",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 1
+        },
+        {
+            "lecturer_code": "SI01",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 3
+        },
+        {
+            "lecturer_code": "SI01",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 1
+        },
+        {
+            "lecturer_code": "SI02",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 2
+        },
+        {
+            "lecturer_code": "SI02",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 2
+        },
+        {
+            "lecturer_code": "SI02",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 3
+        },
+        {
+            "lecturer_code": "SI02",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 4
+        },
+        {
+            "lecturer_code": "SI02",
+            "constraint_code": "SC_HINDARI",
+            "day": 4,
+            "session": 4
+        },
+        {
+            "lecturer_code": "SI03",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 3
+        },
+        {
+            "lecturer_code": "SI03",
+            "constraint_code": "SC_HINDARI",
+            "day": 4,
+            "session": 4
+        },
+        {
+            "lecturer_code": "SI03",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 2
+        },
+        {
+            "lecturer_code": "SI06",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 3
+        },
+        {
+            "lecturer_code": "SI06",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 1
+        },
+        {
+            "lecturer_code": "SI07",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 2
+        },
+        {
+            "lecturer_code": "SI07",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 3
+        },
+        {
+            "lecturer_code": "SI07",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 3
+        }
+    ]
+}

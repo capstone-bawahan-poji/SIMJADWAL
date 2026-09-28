@@ -1,0 +1,459 @@
+{
+    "prefix": "TP",
+    "lecturers": [
+        {
+            "code": "TP01",
+            "name": "Dosen Teknologi Pangan 01"
+        },
+        {
+            "code": "TP02",
+            "name": "Dosen Teknologi Pangan 02"
+        },
+        {
+            "code": "TP03",
+            "name": "Dosen Teknologi Pangan 03"
+        },
+        {
+            "code": "TP04",
+            "name": "Dosen Teknologi Pangan 04"
+        },
+        {
+            "code": "TP05",
+            "name": "Dosen Teknologi Pangan 05"
+        },
+        {
+            "code": "TP06",
+            "name": "Dosen Teknologi Pangan 06"
+        },
+        {
+            "code": "TP07",
+            "name": "Dosen Teknologi Pangan 07"
+        },
+        {
+            "code": "TP08",
+            "name": "Dosen Teknologi Pangan 08"
+        },
+        {
+            "code": "TP09",
+            "name": "Dosen Teknologi Pangan 09"
+        },
+        {
+            "code": "TP10",
+            "name": "Dosen Teknologi Pangan 10"
+        }
+    ],
+    "courses": [
+        {
+            "code": "TP2514001",
+            "name": "Mata Kuliah Teknologi Pangan 01",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TP09"
+                }
+            ]
+        },
+        {
+            "code": "TP2514002",
+            "name": "Mata Kuliah Teknologi Pangan 02",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TP08"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TP05"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "TP02"
+                }
+            ]
+        },
+        {
+            "code": "TP2514003",
+            "name": "Mata Kuliah Teknologi Pangan 03",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TP07"
+                }
+            ]
+        },
+        {
+            "code": "TP2514004",
+            "name": "Mata Kuliah Teknologi Pangan 04",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TP04"
+                }
+            ]
+        },
+        {
+            "code": "TP2514005",
+            "name": "Mata Kuliah Teknologi Pangan 05",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TP10"
+                }
+            ]
+        },
+        {
+            "code": "TP2514006",
+            "name": "Mata Kuliah Teknologi Pangan 06",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TP03"
+                }
+            ]
+        },
+        {
+            "code": "TP2514007",
+            "name": "Mata Kuliah Teknologi Pangan 07",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TP06"
+                }
+            ]
+        },
+        {
+            "code": "TP2514008",
+            "name": "Mata Kuliah Teknologi Pangan 08",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TP01"
+                }
+            ]
+        },
+        {
+            "code": "TP2514009",
+            "name": "Mata Kuliah Teknologi Pangan 09",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TP10"
+                }
+            ]
+        },
+        {
+            "code": "TP2514010",
+            "name": "Mata Kuliah Teknologi Pangan 10",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TP04"
+                }
+            ]
+        },
+        {
+            "code": "TP2514011",
+            "name": "Mata Kuliah Teknologi Pangan 11",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TP07"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TP06"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "TP01"
+                }
+            ]
+        },
+        {
+            "code": "TP2514012",
+            "name": "Mata Kuliah Teknologi Pangan 12",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TP03"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TP05"
+                }
+            ]
+        },
+        {
+            "code": "TP2514013",
+            "name": "Mata Kuliah Teknologi Pangan 13",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TP09"
+                }
+            ]
+        },
+        {
+            "code": "TP2514014",
+            "name": "Mata Kuliah Teknologi Pangan 14",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TP08"
+                }
+            ]
+        },
+        {
+            "code": "TP2514015",
+            "name": "Mata Kuliah Teknologi Pangan 15",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TP02"
+                }
+            ]
+        },
+        {
+            "code": "TP2514016",
+            "name": "Mata Kuliah Teknologi Pangan 16",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TP05"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TP02"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "TP01"
+                }
+            ]
+        },
+        {
+            "code": "TP2514017",
+            "name": "Mata Kuliah Teknologi Pangan 17",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TP06"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TP09"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "TP10"
+                }
+            ]
+        },
+        {
+            "code": "TP2514018",
+            "name": "Mata Kuliah Teknologi Pangan 18",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TP04"
+                }
+            ]
+        },
+        {
+            "code": "TP2514019",
+            "name": "Mata Kuliah Teknologi Pangan 19",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TP07"
+                }
+            ]
+        },
+        {
+            "code": "TP2514020",
+            "name": "Mata Kuliah Teknologi Pangan 20",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TP08"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TP03"
+                }
+            ]
+        },
+        {
+            "code": "TP2514021",
+            "name": "Mata Kuliah Teknologi Pangan 21",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TP04"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TP03"
+                }
+            ]
+        },
+        {
+            "code": "TP2514022",
+            "name": "Mata Kuliah Teknologi Pangan 22",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TP05"
+                }
+            ]
+        }
+    ],
+    "preferences": [
+        {
+            "lecturer_code": "TP03",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 3
+        },
+        {
+            "lecturer_code": "TP04",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 1
+        },
+        {
+            "lecturer_code": "TP04",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 1
+        },
+        {
+            "lecturer_code": "TP04",
+            "constraint_code": "SC_HINDARI",
+            "day": 3,
+            "session": 3
+        },
+        {
+            "lecturer_code": "TP04",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 1
+        },
+        {
+            "lecturer_code": "TP05",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 2
+        },
+        {
+            "lecturer_code": "TP05",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 1
+        },
+        {
+            "lecturer_code": "TP05",
+            "constraint_code": "SC_HINDARI",
+            "day": 1,
+            "session": 3
+        },
+        {
+            "lecturer_code": "TP05",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 3
+        },
+        {
+            "lecturer_code": "TP06",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 1
+        },
+        {
+            "lecturer_code": "TP06",
+            "constraint_code": "SC_HINDARI",
+            "day": 3,
+            "session": 1
+        },
+        {
+            "lecturer_code": "TP06",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 2
+        },
+        {
+            "lecturer_code": "TP06",
+            "constraint_code": "SC_HINDARI",
+            "day": 1,
+            "session": 3
+        },
+        {
+            "lecturer_code": "TP08",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 1
+        },
+        {
+            "lecturer_code": "TP08",
+            "constraint_code": "SC_HINDARI",
+            "day": 4,
+            "session": 1
+        },
+        {
+            "lecturer_code": "TP09",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 2
+        },
+        {
+            "lecturer_code": "TP10",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 1
+        }
+    ]
+}

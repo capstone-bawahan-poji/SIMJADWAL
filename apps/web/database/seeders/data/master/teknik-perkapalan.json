@@ -1,0 +1,479 @@
+{
+    "prefix": "PK",
+    "lecturers": [
+        {
+            "code": "PK01",
+            "name": "Dosen Teknik Perkapalan 01"
+        },
+        {
+            "code": "PK02",
+            "name": "Dosen Teknik Perkapalan 02"
+        },
+        {
+            "code": "PK03",
+            "name": "Dosen Teknik Perkapalan 03"
+        },
+        {
+            "code": "PK04",
+            "name": "Dosen Teknik Perkapalan 04"
+        },
+        {
+            "code": "PK05",
+            "name": "Dosen Teknik Perkapalan 05"
+        },
+        {
+            "code": "PK06",
+            "name": "Dosen Teknik Perkapalan 06"
+        },
+        {
+            "code": "PK07",
+            "name": "Dosen Teknik Perkapalan 07"
+        },
+        {
+            "code": "PK08",
+            "name": "Dosen Teknik Perkapalan 08"
+        },
+        {
+            "code": "PK09",
+            "name": "Dosen Teknik Perkapalan 09"
+        },
+        {
+            "code": "PK10",
+            "name": "Dosen Teknik Perkapalan 10"
+        }
+    ],
+    "courses": [
+        {
+            "code": "PK2514001",
+            "name": "Mata Kuliah Teknik Perkapalan 01",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PK07"
+                }
+            ]
+        },
+        {
+            "code": "PK2514002",
+            "name": "Mata Kuliah Teknik Perkapalan 02",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PK01"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "PK05"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "PK08"
+                }
+            ]
+        },
+        {
+            "code": "PK2514003",
+            "name": "Mata Kuliah Teknik Perkapalan 03",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PK10"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "PK04"
+                }
+            ]
+        },
+        {
+            "code": "PK2514004",
+            "name": "Mata Kuliah Teknik Perkapalan 04",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PK09"
+                }
+            ]
+        },
+        {
+            "code": "PK2514005",
+            "name": "Mata Kuliah Teknik Perkapalan 05",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PK06"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "PK03"
+                }
+            ]
+        },
+        {
+            "code": "PK2514006",
+            "name": "Mata Kuliah Teknik Perkapalan 06",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PK02"
+                }
+            ]
+        },
+        {
+            "code": "PK2514007",
+            "name": "Mata Kuliah Teknik Perkapalan 07",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PK10"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "PK08"
+                }
+            ]
+        },
+        {
+            "code": "PK2514008",
+            "name": "Mata Kuliah Teknik Perkapalan 08",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PK04"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "PK06"
+                }
+            ]
+        },
+        {
+            "code": "PK2514009",
+            "name": "Mata Kuliah Teknik Perkapalan 09",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PK02"
+                }
+            ]
+        },
+        {
+            "code": "PK2514010",
+            "name": "Mata Kuliah Teknik Perkapalan 10",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PK09"
+                }
+            ]
+        },
+        {
+            "code": "PK2514011",
+            "name": "Mata Kuliah Teknik Perkapalan 11",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PK05"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "PK07"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "PK03"
+                }
+            ]
+        },
+        {
+            "code": "PK2514012",
+            "name": "Mata Kuliah Teknik Perkapalan 12",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PK01"
+                }
+            ]
+        },
+        {
+            "code": "PK2514013",
+            "name": "Mata Kuliah Teknik Perkapalan 13",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PK02"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "PK07"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "PK03"
+                }
+            ]
+        },
+        {
+            "code": "PK2514014",
+            "name": "Mata Kuliah Teknik Perkapalan 14",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PK10"
+                }
+            ]
+        },
+        {
+            "code": "PK2514015",
+            "name": "Mata Kuliah Teknik Perkapalan 15",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PK09"
+                }
+            ]
+        },
+        {
+            "code": "PK2514016",
+            "name": "Mata Kuliah Teknik Perkapalan 16",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PK04"
+                }
+            ]
+        },
+        {
+            "code": "PK2514017",
+            "name": "Mata Kuliah Teknik Perkapalan 17",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PK05"
+                }
+            ]
+        },
+        {
+            "code": "PK2514018",
+            "name": "Mata Kuliah Teknik Perkapalan 18",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PK06"
+                }
+            ]
+        },
+        {
+            "code": "PK2514019",
+            "name": "Mata Kuliah Teknik Perkapalan 19",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PK01"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "PK08"
+                }
+            ]
+        },
+        {
+            "code": "PK2514020",
+            "name": "Mata Kuliah Teknik Perkapalan 20",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PK08"
+                }
+            ]
+        },
+        {
+            "code": "PK2514021",
+            "name": "Mata Kuliah Teknik Perkapalan 21",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PK01"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "PK04"
+                }
+            ]
+        },
+        {
+            "code": "PK2514022",
+            "name": "Mata Kuliah Teknik Perkapalan 22",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PK05"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "PK03"
+                }
+            ]
+        }
+    ],
+    "preferences": [
+        {
+            "lecturer_code": "PK01",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 2
+        },
+        {
+            "lecturer_code": "PK01",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 2
+        },
+        {
+            "lecturer_code": "PK01",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 4
+        },
+        {
+            "lecturer_code": "PK03",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 2
+        },
+        {
+            "lecturer_code": "PK03",
+            "constraint_code": "SC_HINDARI",
+            "day": 1,
+            "session": 1
+        },
+        {
+            "lecturer_code": "PK04",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 1
+        },
+        {
+            "lecturer_code": "PK04",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 4
+        },
+        {
+            "lecturer_code": "PK04",
+            "constraint_code": "SC_HINDARI",
+            "day": 1,
+            "session": 4
+        },
+        {
+            "lecturer_code": "PK04",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 2
+        },
+        {
+            "lecturer_code": "PK06",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 2
+        },
+        {
+            "lecturer_code": "PK06",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 1
+        },
+        {
+            "lecturer_code": "PK06",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 3
+        },
+        {
+            "lecturer_code": "PK07",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 4
+        },
+        {
+            "lecturer_code": "PK07",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 3
+        },
+        {
+            "lecturer_code": "PK07",
+            "constraint_code": "SC_HINDARI",
+            "day": 1,
+            "session": 3
+        },
+        {
+            "lecturer_code": "PK08",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 4
+        },
+        {
+            "lecturer_code": "PK08",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 4
+        },
+        {
+            "lecturer_code": "PK08",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 1
+        },
+        {
+            "lecturer_code": "PK08",
+            "constraint_code": "SC_HINDARI",
+            "day": 4,
+            "session": 2
+        }
+    ]
+}

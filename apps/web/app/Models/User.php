@@ -2,20 +2,31 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
+use App\Enums\Account\Role;
+use App\Models\MasterData\Faculty;
+use App\Models\MasterData\Lecturer;
+use App\Models\MasterData\StudyProgram;
+use App\Policies\Account\UserPolicy;
 use Database\Factories\UserFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Hidden;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
+use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'email', 'password'])]
+#[Fillable(['name', 'email', 'password', 'faculty_id', 'study_program_id', 'is_active'])]
 #[Hidden(['password', 'remember_token'])]
+#[UsePolicy(UserPolicy::class)]
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, HasRoles, Notifiable;
 
     /**
      * Get the attributes that should be cast.
@@ -25,8 +36,46 @@ class User extends Authenticatable
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
             'password' => 'hashed',
+            'is_active' => 'boolean',
         ];
+    }
+
+    /**
+     * The single role of the user. Each account holds exactly one spatie role.
+     *
+     * @return Attribute<Role|null, never>
+     */
+    protected function role(): Attribute
+    {
+        return Attribute::get(fn () => Role::tryFrom((string) $this->roles->first()?->name));
+    }
+
+    /**
+     * Id of the linked lecturer record (dosen accounts only).
+     *
+     * @return Attribute<int|null, never>
+     */
+    protected function lecturerId(): Attribute
+    {
+        return Attribute::get(fn () => $this->lecturer?->id);
+    }
+
+    /** @return BelongsTo<Faculty, $this> */
+    public function faculty(): BelongsTo
+    {
+        return $this->belongsTo(Faculty::class);
+    }
+
+    /** @return BelongsTo<StudyProgram, $this> */
+    public function studyProgram(): BelongsTo
+    {
+        return $this->belongsTo(StudyProgram::class);
+    }
+
+    /** @return HasOne<Lecturer, $this> */
+    public function lecturer(): HasOne
+    {
+        return $this->hasOne(Lecturer::class);
     }
 }

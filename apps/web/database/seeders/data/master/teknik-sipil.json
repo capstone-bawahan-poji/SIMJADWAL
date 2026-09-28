@@ -1,0 +1,433 @@
+{
+    "prefix": "SL",
+    "lecturers": [
+        {
+            "code": "SL01",
+            "name": "Dosen Teknik Sipil 01"
+        },
+        {
+            "code": "SL02",
+            "name": "Dosen Teknik Sipil 02"
+        },
+        {
+            "code": "SL03",
+            "name": "Dosen Teknik Sipil 03"
+        },
+        {
+            "code": "SL04",
+            "name": "Dosen Teknik Sipil 04"
+        },
+        {
+            "code": "SL05",
+            "name": "Dosen Teknik Sipil 05"
+        },
+        {
+            "code": "SL06",
+            "name": "Dosen Teknik Sipil 06"
+        },
+        {
+            "code": "SL07",
+            "name": "Dosen Teknik Sipil 07"
+        },
+        {
+            "code": "SL08",
+            "name": "Dosen Teknik Sipil 08"
+        },
+        {
+            "code": "SL09",
+            "name": "Dosen Teknik Sipil 09"
+        },
+        {
+            "code": "SL10",
+            "name": "Dosen Teknik Sipil 10"
+        }
+    ],
+    "courses": [
+        {
+            "code": "SL2514001",
+            "name": "Mata Kuliah Teknik Sipil 01",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SL09"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SL06"
+                }
+            ]
+        },
+        {
+            "code": "SL2514002",
+            "name": "Mata Kuliah Teknik Sipil 02",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SL07"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SL10"
+                }
+            ]
+        },
+        {
+            "code": "SL2514003",
+            "name": "Mata Kuliah Teknik Sipil 03",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SL03"
+                }
+            ]
+        },
+        {
+            "code": "SL2514004",
+            "name": "Mata Kuliah Teknik Sipil 04",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SL05"
+                }
+            ]
+        },
+        {
+            "code": "SL2514005",
+            "name": "Mata Kuliah Teknik Sipil 05",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SL04"
+                }
+            ]
+        },
+        {
+            "code": "SL2514006",
+            "name": "Mata Kuliah Teknik Sipil 06",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SL08"
+                }
+            ]
+        },
+        {
+            "code": "SL2514007",
+            "name": "Mata Kuliah Teknik Sipil 07",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SL01"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SL02"
+                }
+            ]
+        },
+        {
+            "code": "SL2514008",
+            "name": "Mata Kuliah Teknik Sipil 08",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SL02"
+                }
+            ]
+        },
+        {
+            "code": "SL2514009",
+            "name": "Mata Kuliah Teknik Sipil 09",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SL03"
+                }
+            ]
+        },
+        {
+            "code": "SL2514010",
+            "name": "Mata Kuliah Teknik Sipil 10",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SL10"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SL06"
+                }
+            ]
+        },
+        {
+            "code": "SL2514011",
+            "name": "Mata Kuliah Teknik Sipil 11",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SL08"
+                }
+            ]
+        },
+        {
+            "code": "SL2514012",
+            "name": "Mata Kuliah Teknik Sipil 12",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SL05"
+                }
+            ]
+        },
+        {
+            "code": "SL2514013",
+            "name": "Mata Kuliah Teknik Sipil 13",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SL01"
+                }
+            ]
+        },
+        {
+            "code": "SL2514014",
+            "name": "Mata Kuliah Teknik Sipil 14",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SL04"
+                }
+            ]
+        },
+        {
+            "code": "SL2514015",
+            "name": "Mata Kuliah Teknik Sipil 15",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SL09"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SL07"
+                }
+            ]
+        },
+        {
+            "code": "SL2514016",
+            "name": "Mata Kuliah Teknik Sipil 16",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SL02"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SL10"
+                }
+            ]
+        },
+        {
+            "code": "SL2514017",
+            "name": "Mata Kuliah Teknik Sipil 17",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SL05"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SL04"
+                }
+            ]
+        },
+        {
+            "code": "SL2514018",
+            "name": "Mata Kuliah Teknik Sipil 18",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SL09"
+                }
+            ]
+        },
+        {
+            "code": "SL2514019",
+            "name": "Mata Kuliah Teknik Sipil 19",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SL07"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SL06"
+                }
+            ]
+        },
+        {
+            "code": "SL2514020",
+            "name": "Mata Kuliah Teknik Sipil 20",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SL01"
+                }
+            ]
+        },
+        {
+            "code": "SL2514021",
+            "name": "Mata Kuliah Teknik Sipil 21",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SL08"
+                }
+            ]
+        },
+        {
+            "code": "SL2514022",
+            "name": "Mata Kuliah Teknik Sipil 22",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "SL03"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "SL07"
+                }
+            ]
+        }
+    ],
+    "preferences": [
+        {
+            "lecturer_code": "SL01",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 2
+        },
+        {
+            "lecturer_code": "SL02",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 3
+        },
+        {
+            "lecturer_code": "SL02",
+            "constraint_code": "SC_HINDARI",
+            "day": 3,
+            "session": 1
+        },
+        {
+            "lecturer_code": "SL02",
+            "constraint_code": "SC_HINDARI",
+            "day": 4,
+            "session": 1
+        },
+        {
+            "lecturer_code": "SL05",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 2
+        },
+        {
+            "lecturer_code": "SL05",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 2
+        },
+        {
+            "lecturer_code": "SL07",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 4
+        },
+        {
+            "lecturer_code": "SL07",
+            "constraint_code": "SC_HINDARI",
+            "day": 3,
+            "session": 4
+        },
+        {
+            "lecturer_code": "SL07",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 2
+        },
+        {
+            "lecturer_code": "SL08",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 4
+        },
+        {
+            "lecturer_code": "SL08",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 3
+        },
+        {
+            "lecturer_code": "SL10",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 2
+        },
+        {
+            "lecturer_code": "SL10",
+            "constraint_code": "SC_HINDARI",
+            "day": 3,
+            "session": 3
+        },
+        {
+            "lecturer_code": "SL10",
+            "constraint_code": "SC_HINDARI",
+            "day": 3,
+            "session": 2
+        }
+    ]
+}

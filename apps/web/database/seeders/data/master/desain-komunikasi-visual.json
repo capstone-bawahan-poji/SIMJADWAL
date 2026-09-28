@@ -1,0 +1,511 @@
+{
+    "prefix": "DK",
+    "lecturers": [
+        {
+            "code": "DK01",
+            "name": "Dosen Desain Komunikasi Visual 01"
+        },
+        {
+            "code": "DK02",
+            "name": "Dosen Desain Komunikasi Visual 02"
+        },
+        {
+            "code": "DK03",
+            "name": "Dosen Desain Komunikasi Visual 03"
+        },
+        {
+            "code": "DK04",
+            "name": "Dosen Desain Komunikasi Visual 04"
+        },
+        {
+            "code": "DK05",
+            "name": "Dosen Desain Komunikasi Visual 05"
+        },
+        {
+            "code": "DK06",
+            "name": "Dosen Desain Komunikasi Visual 06"
+        },
+        {
+            "code": "DK07",
+            "name": "Dosen Desain Komunikasi Visual 07"
+        },
+        {
+            "code": "DK08",
+            "name": "Dosen Desain Komunikasi Visual 08"
+        },
+        {
+            "code": "DK09",
+            "name": "Dosen Desain Komunikasi Visual 09"
+        },
+        {
+            "code": "DK10",
+            "name": "Dosen Desain Komunikasi Visual 10"
+        }
+    ],
+    "courses": [
+        {
+            "code": "DK2514001",
+            "name": "Mata Kuliah Desain Komunikasi Visual 01",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "DK01"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "DK07"
+                }
+            ]
+        },
+        {
+            "code": "DK2514002",
+            "name": "Mata Kuliah Desain Komunikasi Visual 02",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "DK03"
+                }
+            ]
+        },
+        {
+            "code": "DK2514003",
+            "name": "Mata Kuliah Desain Komunikasi Visual 03",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "DK10"
+                }
+            ]
+        },
+        {
+            "code": "DK2514004",
+            "name": "Mata Kuliah Desain Komunikasi Visual 04",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "DK04"
+                }
+            ]
+        },
+        {
+            "code": "DK2514005",
+            "name": "Mata Kuliah Desain Komunikasi Visual 05",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "DK08"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "DK05"
+                }
+            ]
+        },
+        {
+            "code": "DK2514006",
+            "name": "Mata Kuliah Desain Komunikasi Visual 06",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "DK09"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "DK02"
+                }
+            ]
+        },
+        {
+            "code": "DK2514007",
+            "name": "Mata Kuliah Desain Komunikasi Visual 07",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "DK06"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "DK04"
+                }
+            ]
+        },
+        {
+            "code": "DK2514008",
+            "name": "Mata Kuliah Desain Komunikasi Visual 08",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "DK05"
+                }
+            ]
+        },
+        {
+            "code": "DK2514009",
+            "name": "Mata Kuliah Desain Komunikasi Visual 09",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "DK06"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "DK03"
+                }
+            ]
+        },
+        {
+            "code": "DK2514010",
+            "name": "Mata Kuliah Desain Komunikasi Visual 10",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "DK07"
+                }
+            ]
+        },
+        {
+            "code": "DK2514011",
+            "name": "Mata Kuliah Desain Komunikasi Visual 11",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "DK08"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "DK10"
+                }
+            ]
+        },
+        {
+            "code": "DK2514012",
+            "name": "Mata Kuliah Desain Komunikasi Visual 12",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "DK02"
+                }
+            ]
+        },
+        {
+            "code": "DK2514013",
+            "name": "Mata Kuliah Desain Komunikasi Visual 13",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "DK09"
+                }
+            ]
+        },
+        {
+            "code": "DK2514014",
+            "name": "Mata Kuliah Desain Komunikasi Visual 14",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "DK01"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "DK06"
+                }
+            ]
+        },
+        {
+            "code": "DK2514015",
+            "name": "Mata Kuliah Desain Komunikasi Visual 15",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "DK02"
+                }
+            ]
+        },
+        {
+            "code": "DK2514016",
+            "name": "Mata Kuliah Desain Komunikasi Visual 16",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "DK09"
+                }
+            ]
+        },
+        {
+            "code": "DK2514017",
+            "name": "Mata Kuliah Desain Komunikasi Visual 17",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "DK04"
+                }
+            ]
+        },
+        {
+            "code": "DK2514018",
+            "name": "Mata Kuliah Desain Komunikasi Visual 18",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "DK08"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "DK07"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "DK05"
+                }
+            ]
+        },
+        {
+            "code": "DK2514019",
+            "name": "Mata Kuliah Desain Komunikasi Visual 19",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "DK03"
+                }
+            ]
+        },
+        {
+            "code": "DK2514020",
+            "name": "Mata Kuliah Desain Komunikasi Visual 20",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "DK01"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "DK10"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "DK10"
+                }
+            ]
+        },
+        {
+            "code": "DK2514021",
+            "name": "Mata Kuliah Desain Komunikasi Visual 21",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "DK08"
+                }
+            ]
+        },
+        {
+            "code": "DK2514022",
+            "name": "Mata Kuliah Desain Komunikasi Visual 22",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "DK03"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "DK05"
+                }
+            ]
+        }
+    ],
+    "preferences": [
+        {
+            "lecturer_code": "DK01",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 3
+        },
+        {
+            "lecturer_code": "DK01",
+            "constraint_code": "SC_HINDARI",
+            "day": 1,
+            "session": 2
+        },
+        {
+            "lecturer_code": "DK02",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 4
+        },
+        {
+            "lecturer_code": "DK02",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 4
+        },
+        {
+            "lecturer_code": "DK02",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 1
+        },
+        {
+            "lecturer_code": "DK04",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 3
+        },
+        {
+            "lecturer_code": "DK04",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 2
+        },
+        {
+            "lecturer_code": "DK04",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 2
+        },
+        {
+            "lecturer_code": "DK04",
+            "constraint_code": "SC_HINDARI",
+            "day": 1,
+            "session": 2
+        },
+        {
+            "lecturer_code": "DK05",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 4
+        },
+        {
+            "lecturer_code": "DK05",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 1
+        },
+        {
+            "lecturer_code": "DK05",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 4
+        },
+        {
+            "lecturer_code": "DK05",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 3
+        },
+        {
+            "lecturer_code": "DK07",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 3
+        },
+        {
+            "lecturer_code": "DK07",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 1
+        },
+        {
+            "lecturer_code": "DK07",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 2
+        },
+        {
+            "lecturer_code": "DK07",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 4
+        },
+        {
+            "lecturer_code": "DK07",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 1
+        },
+        {
+            "lecturer_code": "DK08",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 4
+        },
+        {
+            "lecturer_code": "DK08",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 2
+        },
+        {
+            "lecturer_code": "DK08",
+            "constraint_code": "SC_HINDARI",
+            "day": 4,
+            "session": 4
+        },
+        {
+            "lecturer_code": "DK10",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 3
+        },
+        {
+            "lecturer_code": "DK10",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 1
+        },
+        {
+            "lecturer_code": "DK10",
+            "constraint_code": "SC_HINDARI",
+            "day": 4,
+            "session": 3
+        },
+        {
+            "lecturer_code": "DK10",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 4
+        }
+    ]
+}

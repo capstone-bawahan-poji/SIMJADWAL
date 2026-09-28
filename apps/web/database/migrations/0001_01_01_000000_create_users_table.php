@@ -8,15 +8,18 @@ return new class extends Migration
 {
     /**
      * Run the migrations.
+     *
+     * Scope columns (faculty_id, study_program_id) are added in
+     * add_scope_columns_to_users_table, after their parent tables exist.
      */
     public function up(): void
     {
         Schema::create('users', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->timestamp('email_verified_at')->nullable();
+            $table->string('name', 150);
+            $table->string('email', 150)->unique();
             $table->string('password');
+            $table->boolean('is_active')->default(true);
             $table->rememberToken();
             $table->timestamps();
         });
