@@ -13,7 +13,16 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ['Figtree', ...defaultTheme.fontFamily.sans],
+                sans: ['"Plus Jakarta Sans"', ...defaultTheme.fontFamily.sans],
+                display: ['Quicksand', ...defaultTheme.fontFamily.sans],
+            },
+            colors: {
+                // Brand navy from docs/ui. Use `primary` in components, never a raw hex.
+                primary: {
+                    DEFAULT: '#1e3a8a',
+                    hover: '#1e40af',
+                    foreground: '#ffffff',
+                },
             },
         },
     },
