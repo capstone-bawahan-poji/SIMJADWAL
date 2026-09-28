@@ -42,6 +42,50 @@ class AuthenticationTest extends TestCase
         $this->assertGuest();
     }
 
+    public function test_inactive_users_can_not_authenticate(): void
+    {
+        $user = User::factory()->inactive()->create();
+
+        $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ])->assertSessionHasErrors('email');
+
+        $this->assertGuest();
+    }
+
+    public function test_login_is_locked_after_five_failed_attempts(): void
+    {
+        $this->freezeTime();
+
+        $user = User::factory()->create();
+
+        foreach (range(1, 5) as $_) {
+            $this->post('/login', ['email' => $user->email, 'password' => 'wrong-password']);
+        }
+
+        $this->post('/login', [
+            'email' => $user->email,
+            'password' => 'password',
+        ])->assertSessionHasErrors(['email' => __('auth.throttle', ['seconds' => 60, 'minutes' => 1])]);
+
+        $this->assertGuest();
+    }
+
+    /**
+     * Guards the case where an admin deactivates an account that is still logged in on the web.
+     */
+    public function test_deactivated_users_are_logged_out_on_next_request(): void
+    {
+        $user = User::factory()->create();
+        $this->actingAs($user);
+
+        $user->update(['is_active' => false]);
+
+        $this->get('/dashboard')->assertRedirect(route('login'));
+        $this->assertGuest();
+    }
+
     public function test_users_can_logout(): void
     {
         $user = User::factory()->create();

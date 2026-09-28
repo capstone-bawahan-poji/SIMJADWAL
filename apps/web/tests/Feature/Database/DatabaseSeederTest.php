@@ -32,7 +32,7 @@ class DatabaseSeederTest extends TestCase
         $this->assertSame(20, TimeSlot::count());
         $this->assertSame(54, Room::count());
         $this->assertSame(7, ConstraintType::count());
-        $this->assertTrue(User::where('email', 'superadmin@penjadwalan.test')->first()->hasRole('superadmin'));
+        $this->assertTrue(User::where('email', 'superadmin@example.test')->first()->hasRole('superadmin'));
     }
 
     /**
@@ -60,7 +60,6 @@ class DatabaseSeederTest extends TestCase
         $this->assertSame(26, Course::where('study_program_id', $informatics->id)->count());
         $this->assertSame(51, CourseLecturer::whereRelation('course', 'study_program_id', $informatics->id)->count());
 
-        // Lecturers teaching in each program with real data, same as the source course list.
         $teaching = ['Ilmu Aktuaria' => 9, 'Bisnis Digital' => 9, 'Fisika' => 11, 'Informatika' => 13,
             'Matematika' => 8, 'Sistem Informasi' => 13, 'Statistika' => 9, 'Teknik Elektro' => 12];
 
@@ -80,8 +79,8 @@ class DatabaseSeederTest extends TestCase
 
         $this->assertSame(3, User::query()->role(Role::FACULTY_ADMIN->value)->whereNotNull('faculty_id')->count());
         $this->assertSame(26, User::query()->role(Role::STUDY_PROGRAM_ADMIN->value)->distinct()->count('study_program_id'));
-        $this->assertSame('Informatika', User::where('email', 'admin.if@penjadwalan.test')->first()->studyProgram->name);
-        $this->assertSame('IF01', User::where('email', 'dosen.if01@penjadwalan.test')->first()->lecturer->code);
+        $this->assertSame('Informatika', User::where('email', 'admin.if@example.test')->first()->studyProgram->name);
+        $this->assertSame('IF01', User::where('email', 'dosen.if01@example.test')->first()->lecturer->code);
     }
 
     public function test_reseeding_demo_data_is_idempotent(): void
