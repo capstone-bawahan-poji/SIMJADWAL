@@ -7,7 +7,7 @@ return [
     */
 
     'superadmin' => [
-        'email' => env('SUPERADMIN_EMAIL', 'superadmin@penjadwalan.test'),
+        'email' => env('SUPERADMIN_EMAIL', 'superadmin@example.test'),
         'password' => env('SUPERADMIN_PASSWORD'),
     ],
 
