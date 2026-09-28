@@ -1,0 +1,533 @@
+{
+    "prefix": "BD",
+    "lecturers": [
+        {
+            "code": "BD01",
+            "name": "Dosen Bisnis Digital 01"
+        },
+        {
+            "code": "BD02",
+            "name": "Dosen Bisnis Digital 02"
+        },
+        {
+            "code": "BD03",
+            "name": "Dosen Bisnis Digital 03"
+        },
+        {
+            "code": "BD04",
+            "name": "Dosen Bisnis Digital 04"
+        },
+        {
+            "code": "BD05",
+            "name": "Dosen Bisnis Digital 05"
+        },
+        {
+            "code": "BD06",
+            "name": "Dosen Bisnis Digital 06"
+        },
+        {
+            "code": "BD07",
+            "name": "Dosen Bisnis Digital 07"
+        },
+        {
+            "code": "BD08",
+            "name": "Dosen Bisnis Digital 08"
+        },
+        {
+            "code": "BD09",
+            "name": "Dosen Bisnis Digital 09"
+        }
+    ],
+    "courses": [
+        {
+            "code": "BD2514001",
+            "name": "Akuntansi Bisnis",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "BD01"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "BD01"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "BD01"
+                }
+            ]
+        },
+        {
+            "code": "BD2514002",
+            "name": "Pengantar Bisnis Digital",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "BD02"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "BD02"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "BD02"
+                }
+            ]
+        },
+        {
+            "code": "BD2514003",
+            "name": "Ekonomi",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "BD03"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "BD03"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "BD03"
+                }
+            ]
+        },
+        {
+            "code": "BD2514004",
+            "name": "Manajemen Organisasi",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "BD04"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "BD04"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "BD04"
+                }
+            ]
+        },
+        {
+            "code": "BD2514005",
+            "name": "Analisis dan Visualisasi Data Bisnis",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "BD05"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "BD06"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "BD06"
+                }
+            ]
+        },
+        {
+            "code": "BD2514007",
+            "name": "Bisnis Proses Manajemen",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "BD03"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "BD03"
+                }
+            ]
+        },
+        {
+            "code": "BD2514011",
+            "name": "Manajemen Sumber Daya Manusia",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "BD06"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "BD06"
+                }
+            ]
+        },
+        {
+            "code": "BD2514012",
+            "name": "Akuntansi Manajerial",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "BD07"
+                }
+            ]
+        },
+        {
+            "code": "BD2514013",
+            "name": "Design Thinking Inovasi",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "BD02"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "BD08"
+                }
+            ]
+        },
+        {
+            "code": "BD2514014",
+            "name": "Perilaku Konsumen",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "BD08"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "BD08"
+                }
+            ]
+        },
+        {
+            "code": "BD2514015",
+            "name": "Pemrograman WEB",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "BD09"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "BD09"
+                }
+            ]
+        },
+        {
+            "code": "BD2514016",
+            "name": "Statistika Inferensial",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "BD05"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "BD05"
+                }
+            ]
+        },
+        {
+            "code": "BD2514018",
+            "name": "Manajemen Risiko",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "BD03"
+                }
+            ]
+        },
+        {
+            "code": "BD2514022",
+            "name": "Analisis Data Multivariat",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "BD06"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "BD06"
+                }
+            ]
+        },
+        {
+            "code": "BD2514024",
+            "name": "Manajemen Rantai Pasok",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "BD02"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "BD02"
+                }
+            ]
+        },
+        {
+            "code": "BD2514025",
+            "name": "Valuasi Bisnis",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "BD07"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "BD07"
+                }
+            ]
+        },
+        {
+            "code": "BD2514026",
+            "name": "Manajemen Sosial Media",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "BD08"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "BD04"
+                }
+            ]
+        },
+        {
+            "code": "BD2514027",
+            "name": "Keamanan Sistem Informasi",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "BD09"
+                }
+            ]
+        },
+        {
+            "code": "BD2514028",
+            "name": "Kecerdasan Buatan",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "BD05"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "BD05"
+                }
+            ]
+        },
+        {
+            "code": "BD2514036",
+            "name": "Studi Kelayakan Bisnis",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "BD02"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "BD03"
+                }
+            ]
+        },
+        {
+            "code": "BD2514037",
+            "name": "Manajemen Strategi",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "BD03"
+                }
+            ]
+        },
+        {
+            "code": "BD2514038",
+            "name": "Analisis Big Data",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "BD09"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "BD09"
+                }
+            ]
+        },
+        {
+            "code": "BD2515040",
+            "name": "Manajemen Hubungan Pelanggan",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "BD04"
+                }
+            ]
+        },
+        {
+            "code": "BD2515042",
+            "name": "Gamifikasi",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "BD09"
+                }
+            ]
+        },
+        {
+            "code": "BD2515052",
+            "name": "Kepemimpinan dan Keahlian Interpersonal",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "BD08"
+                }
+            ]
+        }
+    ],
+    "preferences": [
+        {
+            "lecturer_code": "BD02",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 2
+        },
+        {
+            "lecturer_code": "BD02",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 2
+        },
+        {
+            "lecturer_code": "BD03",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 2
+        },
+        {
+            "lecturer_code": "BD04",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 1
+        },
+        {
+            "lecturer_code": "BD04",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 4
+        },
+        {
+            "lecturer_code": "BD04",
+            "constraint_code": "SC_HINDARI",
+            "day": 4,
+            "session": 2
+        },
+        {
+            "lecturer_code": "BD05",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 4
+        },
+        {
+            "lecturer_code": "BD05",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 1
+        },
+        {
+            "lecturer_code": "BD05",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 4
+        },
+        {
+            "lecturer_code": "BD07",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 3
+        },
+        {
+            "lecturer_code": "BD07",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 1
+        },
+        {
+            "lecturer_code": "BD08",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 2
+        },
+        {
+            "lecturer_code": "BD08",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 4
+        },
+        {
+            "lecturer_code": "BD09",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 4
+        },
+        {
+            "lecturer_code": "BD09",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 4
+        },
+        {
+            "lecturer_code": "BD09",
+            "constraint_code": "SC_HINDARI",
+            "day": 4,
+            "session": 1
+        }
+    ]
+}

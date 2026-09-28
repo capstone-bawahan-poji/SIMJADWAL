@@ -1,0 +1,509 @@
+{
+    "prefix": "TE",
+    "lecturers": [
+        {
+            "code": "TE01",
+            "name": "Dosen Teknik Elektro 01"
+        },
+        {
+            "code": "TE02",
+            "name": "Dosen Teknik Elektro 02"
+        },
+        {
+            "code": "TE03",
+            "name": "Dosen Teknik Elektro 03"
+        },
+        {
+            "code": "TE04",
+            "name": "Dosen Teknik Elektro 04"
+        },
+        {
+            "code": "TE05",
+            "name": "Dosen Teknik Elektro 05"
+        },
+        {
+            "code": "TE06",
+            "name": "Dosen Teknik Elektro 06"
+        },
+        {
+            "code": "TE07",
+            "name": "Dosen Teknik Elektro 07"
+        },
+        {
+            "code": "TE08",
+            "name": "Dosen Teknik Elektro 08"
+        },
+        {
+            "code": "TE09",
+            "name": "Dosen Teknik Elektro 09"
+        },
+        {
+            "code": "TE10",
+            "name": "Dosen Teknik Elektro 10"
+        },
+        {
+            "code": "TE11",
+            "name": "Dosen Teknik Elektro 11"
+        }
+    ],
+    "courses": [
+        {
+            "code": "TE2514001",
+            "name": "Aljabar Linear",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TE01"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TE02"
+                }
+            ]
+        },
+        {
+            "code": "TE2514004",
+            "name": "Rangkaian Listrik DC",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "IF04"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TE03"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "TE04"
+                }
+            ]
+        },
+        {
+            "code": "TE2514005",
+            "name": "Elektromagnetika",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TE05"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TE04"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "TE05"
+                }
+            ]
+        },
+        {
+            "code": "TE2514006",
+            "name": "Persamaan Diferensial",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TE01"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TE01"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "TE01"
+                },
+                {
+                    "class_number": 4,
+                    "lecturer_code": "TE01"
+                }
+            ]
+        },
+        {
+            "code": "TE2514007",
+            "name": "Metode Numerik",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TE06"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TE02"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "TE03"
+                }
+            ]
+        },
+        {
+            "code": "TE2514008",
+            "name": "Rangkaian Digital",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TE03"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TE03"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "TE03"
+                }
+            ]
+        },
+        {
+            "code": "TE2514010",
+            "name": "Rangkaian dan Piranti Semikonduktor",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TE06"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TE06"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "TE06"
+                }
+            ]
+        },
+        {
+            "code": "TE2514011",
+            "name": "Sinyal dan Sistem",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TE07"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TE07"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "TE07"
+                }
+            ]
+        },
+        {
+            "code": "TE2514015",
+            "name": "Sistem Komunikasi",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TE08"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TE08"
+                }
+            ]
+        },
+        {
+            "code": "TE2514016",
+            "name": "Sistem Kontrol",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TE04"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TE04"
+                }
+            ]
+        },
+        {
+            "code": "TE2514017",
+            "name": "Sistem Tenaga Listrik",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TE09"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TE09"
+                }
+            ]
+        },
+        {
+            "code": "TE2514018",
+            "name": "Sistem Tertanam",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TE02"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TE02"
+                }
+            ]
+        },
+        {
+            "code": "TE2514019",
+            "name": "Elektronika Daya",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TE10"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TE09"
+                }
+            ]
+        },
+        {
+            "code": "TE2514020",
+            "name": "Instrumentasi",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TE11"
+                }
+            ]
+        },
+        {
+            "code": "TE2514021",
+            "name": "Komunikasi Nirkabel",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TE08"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TE08"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "TE08"
+                },
+                {
+                    "class_number": 4,
+                    "lecturer_code": "TE08"
+                }
+            ]
+        },
+        {
+            "code": "TE2514023",
+            "name": "Manajemen Proyek dan Keselamatan Kerja",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TE11"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TE11"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "TE11"
+                }
+            ]
+        },
+        {
+            "code": "TE2514024",
+            "name": "Pengolahan Sinyal Digital",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TE06"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TE02"
+                }
+            ]
+        },
+        {
+            "code": "TE2514025",
+            "name": "Wireless Sensor Networks dan Internet of Things",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TE05"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "IF04"
+                }
+            ]
+        },
+        {
+            "code": "TE2514026",
+            "name": "Metodologi Penelitian",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TE04"
+                }
+            ]
+        },
+        {
+            "code": "TE2514029",
+            "name": "Robotika",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TE06"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TE04"
+                }
+            ]
+        },
+        {
+            "code": "TE2514030",
+            "name": "Sistem Energi Baru dan Terbarukan",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TE10"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TE10"
+                }
+            ]
+        },
+        {
+            "code": "TE2515010",
+            "name": "Kualitas Daya Listrik",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TE01"
+                }
+            ]
+        },
+        {
+            "code": "TE2515022",
+            "name": "Sistem Pengaturan Cerdas",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TE07"
+                }
+            ]
+        }
+    ],
+    "preferences": [
+        {
+            "lecturer_code": "TE02",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 3
+        },
+        {
+            "lecturer_code": "TE02",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 4
+        },
+        {
+            "lecturer_code": "TE08",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 1
+        },
+        {
+            "lecturer_code": "TE08",
+            "constraint_code": "SC_HINDARI",
+            "day": 4,
+            "session": 3
+        },
+        {
+            "lecturer_code": "TE10",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 4
+        },
+        {
+            "lecturer_code": "TE10",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 3
+        },
+        {
+            "lecturer_code": "TE11",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 1
+        },
+        {
+            "lecturer_code": "TE11",
+            "constraint_code": "SC_HINDARI",
+            "day": 1,
+            "session": 1
+        },
+        {
+            "lecturer_code": "TE11",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 4
+        },
+        {
+            "lecturer_code": "TE11",
+            "constraint_code": "SC_HINDARI",
+            "day": 3,
+            "session": 4
+        }
+    ]
+}

@@ -1,0 +1,497 @@
+{
+    "prefix": "TL",
+    "lecturers": [
+        {
+            "code": "TL01",
+            "name": "Dosen Teknik Lingkungan 01"
+        },
+        {
+            "code": "TL02",
+            "name": "Dosen Teknik Lingkungan 02"
+        },
+        {
+            "code": "TL03",
+            "name": "Dosen Teknik Lingkungan 03"
+        },
+        {
+            "code": "TL04",
+            "name": "Dosen Teknik Lingkungan 04"
+        },
+        {
+            "code": "TL05",
+            "name": "Dosen Teknik Lingkungan 05"
+        },
+        {
+            "code": "TL06",
+            "name": "Dosen Teknik Lingkungan 06"
+        },
+        {
+            "code": "TL07",
+            "name": "Dosen Teknik Lingkungan 07"
+        },
+        {
+            "code": "TL08",
+            "name": "Dosen Teknik Lingkungan 08"
+        },
+        {
+            "code": "TL09",
+            "name": "Dosen Teknik Lingkungan 09"
+        },
+        {
+            "code": "TL10",
+            "name": "Dosen Teknik Lingkungan 10"
+        }
+    ],
+    "courses": [
+        {
+            "code": "TL2514001",
+            "name": "Mata Kuliah Teknik Lingkungan 01",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TL10"
+                }
+            ]
+        },
+        {
+            "code": "TL2514002",
+            "name": "Mata Kuliah Teknik Lingkungan 02",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TL06"
+                }
+            ]
+        },
+        {
+            "code": "TL2514003",
+            "name": "Mata Kuliah Teknik Lingkungan 03",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TL04"
+                }
+            ]
+        },
+        {
+            "code": "TL2514004",
+            "name": "Mata Kuliah Teknik Lingkungan 04",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TL09"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TL01"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "TL08"
+                }
+            ]
+        },
+        {
+            "code": "TL2514005",
+            "name": "Mata Kuliah Teknik Lingkungan 05",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TL07"
+                }
+            ]
+        },
+        {
+            "code": "TL2514006",
+            "name": "Mata Kuliah Teknik Lingkungan 06",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TL02"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TL05"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "TL03"
+                }
+            ]
+        },
+        {
+            "code": "TL2514007",
+            "name": "Mata Kuliah Teknik Lingkungan 07",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TL02"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TL08"
+                }
+            ]
+        },
+        {
+            "code": "TL2514008",
+            "name": "Mata Kuliah Teknik Lingkungan 08",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TL05"
+                }
+            ]
+        },
+        {
+            "code": "TL2514009",
+            "name": "Mata Kuliah Teknik Lingkungan 09",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TL10"
+                }
+            ]
+        },
+        {
+            "code": "TL2514010",
+            "name": "Mata Kuliah Teknik Lingkungan 10",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TL06"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TL07"
+                }
+            ]
+        },
+        {
+            "code": "TL2514011",
+            "name": "Mata Kuliah Teknik Lingkungan 11",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TL04"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TL03"
+                }
+            ]
+        },
+        {
+            "code": "TL2514012",
+            "name": "Mata Kuliah Teknik Lingkungan 12",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TL01"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TL09"
+                }
+            ]
+        },
+        {
+            "code": "TL2514013",
+            "name": "Mata Kuliah Teknik Lingkungan 13",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TL05"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TL06"
+                }
+            ]
+        },
+        {
+            "code": "TL2514014",
+            "name": "Mata Kuliah Teknik Lingkungan 14",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TL10"
+                }
+            ]
+        },
+        {
+            "code": "TL2514015",
+            "name": "Mata Kuliah Teknik Lingkungan 15",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TL02"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TL03"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "TL01"
+                }
+            ]
+        },
+        {
+            "code": "TL2514016",
+            "name": "Mata Kuliah Teknik Lingkungan 16",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TL09"
+                }
+            ]
+        },
+        {
+            "code": "TL2514017",
+            "name": "Mata Kuliah Teknik Lingkungan 17",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TL07"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TL04"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "TL08"
+                }
+            ]
+        },
+        {
+            "code": "TL2514018",
+            "name": "Mata Kuliah Teknik Lingkungan 18",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TL10"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TL05"
+                }
+            ]
+        },
+        {
+            "code": "TL2514019",
+            "name": "Mata Kuliah Teknik Lingkungan 19",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TL07"
+                }
+            ]
+        },
+        {
+            "code": "TL2514020",
+            "name": "Mata Kuliah Teknik Lingkungan 20",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TL04"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TL02"
+                }
+            ]
+        },
+        {
+            "code": "TL2514021",
+            "name": "Mata Kuliah Teknik Lingkungan 21",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TL08"
+                }
+            ]
+        },
+        {
+            "code": "TL2514022",
+            "name": "Mata Kuliah Teknik Lingkungan 22",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TL06"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TL09"
+                }
+            ]
+        }
+    ],
+    "preferences": [
+        {
+            "lecturer_code": "TL02",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 1
+        },
+        {
+            "lecturer_code": "TL02",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 2
+        },
+        {
+            "lecturer_code": "TL02",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 1
+        },
+        {
+            "lecturer_code": "TL03",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 4
+        },
+        {
+            "lecturer_code": "TL03",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 2
+        },
+        {
+            "lecturer_code": "TL03",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 4
+        },
+        {
+            "lecturer_code": "TL04",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 4
+        },
+        {
+            "lecturer_code": "TL05",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 4
+        },
+        {
+            "lecturer_code": "TL05",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 4
+        },
+        {
+            "lecturer_code": "TL05",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 4
+        },
+        {
+            "lecturer_code": "TL05",
+            "constraint_code": "SC_HINDARI",
+            "day": 4,
+            "session": 3
+        },
+        {
+            "lecturer_code": "TL07",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 1
+        },
+        {
+            "lecturer_code": "TL07",
+            "constraint_code": "SC_HINDARI",
+            "day": 1,
+            "session": 4
+        },
+        {
+            "lecturer_code": "TL09",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 2
+        },
+        {
+            "lecturer_code": "TL09",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 4
+        },
+        {
+            "lecturer_code": "TL09",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 1
+        },
+        {
+            "lecturer_code": "TL10",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 2
+        },
+        {
+            "lecturer_code": "TL10",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 2
+        },
+        {
+            "lecturer_code": "TL10",
+            "constraint_code": "SC_HINDARI",
+            "day": 3,
+            "session": 4
+        },
+        {
+            "lecturer_code": "TL10",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 1
+        }
+    ]
+}
