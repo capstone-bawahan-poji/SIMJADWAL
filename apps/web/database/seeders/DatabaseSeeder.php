@@ -2,24 +2,39 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use Database\Seeders\Demo\DemoAccountSeeder;
+use Database\Seeders\Demo\MasterDataSeeder;
+use Database\Seeders\Reference\ConstraintTypeSeeder;
+use Database\Seeders\Reference\FacultyStudyProgramSeeder;
+use Database\Seeders\Reference\PermissionSeeder;
+use Database\Seeders\Reference\RoleSeeder;
+use Database\Seeders\Reference\RoomSeeder;
+use Database\Seeders\Reference\SuperadminSeeder;
+use Database\Seeders\Reference\TimeSlotSeeder;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder
 {
-    use WithoutModelEvents;
-
     /**
-     * Seed the application's database.
+     * Reference data always; demo data outside production. Every seeder is safe to re-run.
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        $this->call([
+            PermissionSeeder::class,
+            RoleSeeder::class,
+            FacultyStudyProgramSeeder::class,
+            TimeSlotSeeder::class,
+            RoomSeeder::class,
+            ConstraintTypeSeeder::class,
+            SuperadminSeeder::class,
         ]);
+
+        if (! app()->isProduction()) {
+            $this->call([
+                MasterDataSeeder::class,
+                DemoAccountSeeder::class,
+            ]);
+        }
     }
 }
