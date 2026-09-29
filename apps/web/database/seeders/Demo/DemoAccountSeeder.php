@@ -26,27 +26,27 @@ class DemoAccountSeeder extends Seeder
         foreach (self::FACULTY_ABBREVIATIONS as $name => $abbreviation) {
             $faculty = Faculty::query()->where('name', $name)->firstOrFail();
 
-            $this->account("admin.{$abbreviation}@penjadwalan.test", 'Admin '.strtoupper($abbreviation), Role::FACULTY_ADMIN, ['faculty_id' => $faculty->id]);
+            $this->account("admin.{$abbreviation}@example.test", 'Admin '.strtoupper($abbreviation), Role::FACULTY_ADMIN, ['faculty_id' => $faculty->id]);
         }
 
         foreach (MasterDataSeeder::programs() as ['program' => $program, 'data' => $data]) {
             $prefix = strtolower($data['prefix']);
 
-            $this->account("admin.{$prefix}@penjadwalan.test", "Admin {$program->name}", Role::STUDY_PROGRAM_ADMIN, ['study_program_id' => $program->id]);
+            $this->account("admin.{$prefix}@example.test", "Admin {$program->name}", Role::STUDY_PROGRAM_ADMIN, ['study_program_id' => $program->id]);
         }
 
         $informatics = StudyProgram::query()->where('name', 'Informatika')->firstOrFail();
-        $this->account('mahasiswa.if@penjadwalan.test', 'Mahasiswa Informatika', Role::STUDENT, ['study_program_id' => $informatics->id]);
+        $this->account('mahasiswa.if@example.test', 'Mahasiswa Informatika', Role::STUDENT, ['study_program_id' => $informatics->id]);
 
         $lecturer = Lecturer::query()->where('code', 'IF01')->first();
 
         if ($lecturer === null) {
-            $this->command?->warn('Lecturer IF01 not found, skipping dosen.if01@penjadwalan.test. Add data/master/informatika.json.');
+            $this->command?->warn('Lecturer IF01 not found, skipping dosen.if01@example.test. Add data/master/informatika.json.');
 
             return;
         }
 
-        $user = $this->account('dosen.if01@penjadwalan.test', $lecturer->name, Role::LECTURER);
+        $user = $this->account('dosen.if01@example.test', $lecturer->name, Role::LECTURER);
         $lecturer->update(['user_id' => $user->id]);
     }
 
