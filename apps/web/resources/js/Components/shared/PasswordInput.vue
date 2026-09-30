@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Input from '@/components/ui/Input.vue';
+import Input from '@/Components/ui/Input.vue';
 import { Eye, EyeOff, LockKeyhole } from 'lucide-vue-next';
 import { ref } from 'vue';
 
