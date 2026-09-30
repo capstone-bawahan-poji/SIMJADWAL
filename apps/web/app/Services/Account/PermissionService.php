@@ -11,6 +11,7 @@ use App\Permissions\MasterData\LecturerPermissions;
 use App\Permissions\MasterData\RoomPermissions;
 use App\Permissions\MasterData\StudyProgramPermissions;
 use App\Permissions\MasterData\TimeSlotPermissions;
+use App\Permissions\MasterData\TpbPermissions;
 
 readonly class PermissionService
 {
@@ -30,6 +31,7 @@ readonly class PermissionService
             LecturerPermissions::class,
             CoursePermissions::class,
             CourseLecturerPermissions::class,
+            TpbPermissions::class,
         ];
     }
 

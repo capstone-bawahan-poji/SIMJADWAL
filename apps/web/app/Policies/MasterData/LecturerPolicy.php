@@ -9,8 +9,8 @@ use App\Permissions\MasterData\LecturerPermissions;
 use Illuminate\Auth\Access\Response;
 
 /**
- * Lecturers are visible faculty-wide (teaching assignments may pick any lecturer in the faculty),
- * but only the homebase study program may change them.
+ * Lecturers are readable across faculties, because a class may be taught by a lecturer
+ * of another faculty. Only the homebase program (or its faculty admin) may change them.
  */
 class LecturerPolicy extends StudyProgramOwnedPolicy
 {
@@ -21,8 +21,7 @@ class LecturerPolicy extends StudyProgramOwnedPolicy
 
     public function view(User $user, Lecturer $lecturer): bool
     {
-        return $user->can(LecturerPermissions::VIEW)
-            && $this->orgScope->canAccessFaculty($user, $lecturer->studyProgram->faculty_id);
+        return $user->can(LecturerPermissions::VIEW);
     }
 
     /**

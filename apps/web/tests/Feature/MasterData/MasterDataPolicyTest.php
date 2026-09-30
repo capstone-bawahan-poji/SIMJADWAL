@@ -66,7 +66,21 @@ class MasterDataPolicyTest extends TestCase
         $this->assertSame('CONSTRAINTS_LOCKED', $response->code());
     }
 
-    public function test_lecturers_are_visible_faculty_wide_but_managed_by_homebase(): void
+    public function test_faculty_admin_may_change_submitted_programs_of_own_faculty(): void
+    {
+        $studyProgram = StudyProgram::factory()->submitted()->create();
+        $admin = User::factory()->facultyAdmin($studyProgram->faculty)->create();
+        $course = Course::factory()->create(['study_program_id' => $studyProgram->id]);
+
+        $this->assertTrue(Gate::forUser($admin)->allows('update', $course));
+        $this->assertTrue(Gate::forUser($admin)->allows('create', [Lecturer::class, $studyProgram]));
+        $this->assertFalse(Gate::forUser($admin)->allows('update', Course::factory()->create()));
+    }
+
+    /**
+     * A class may be taught by a lecturer of another faculty, so every admin reads all lecturers.
+     */
+    public function test_lecturers_are_readable_across_faculties_but_managed_by_homebase(): void
     {
         $faculty = Faculty::factory()->create();
         $ownProgram = StudyProgram::factory()->create(['faculty_id' => $faculty->id]);
@@ -76,7 +90,24 @@ class MasterDataPolicyTest extends TestCase
 
         $this->assertTrue(Gate::forUser($admin)->allows('view', $siblingLecturer));
         $this->assertFalse(Gate::forUser($admin)->allows('update', $siblingLecturer));
-        $this->assertFalse(Gate::forUser($admin)->allows('view', Lecturer::factory()->create()));
+        $this->assertTrue(Gate::forUser($admin)->allows('view', Lecturer::factory()->create()));
+    }
+
+    public function test_tpb_courses_are_managed_by_tpb_admin_only(): void
+    {
+        $tpbAdmin = User::factory()->tpbAdmin()->create();
+        $programAdmin = User::factory()->studyProgramAdmin()->create();
+        $tpbCourse = Course::factory()->tpb()->create();
+        $regular = Course::factory()->create();
+
+        $this->assertTrue(Gate::forUser($tpbAdmin)->allows('create', [Course::class, null]));
+        $this->assertTrue(Gate::forUser($tpbAdmin)->allows('update', $tpbCourse));
+        $this->assertTrue(Gate::forUser($tpbAdmin)->allows('view', $regular));
+        $this->assertFalse(Gate::forUser($tpbAdmin)->allows('update', $regular));
+
+        $this->assertTrue(Gate::forUser($programAdmin)->allows('view', $tpbCourse));
+        $this->assertFalse(Gate::forUser($programAdmin)->allows('update', $tpbCourse));
+        $this->assertFalse(Gate::forUser($programAdmin)->allows('create', [Course::class, null]));
     }
 
     public function test_superadmin_bypasses_scope(): void

@@ -73,6 +73,21 @@ class UserManagementTest extends TestCase
             ->assertJsonPath('data.study_program_id', null);
     }
 
+    public function test_create_tpb_admin_takes_no_scope(): void
+    {
+        Sanctum::actingAs($this->superAdmin);
+
+        $this->postJson('/api/v1/users', $this->payload(['role' => 'admin_tpb', 'faculty_id' => Faculty::factory()->create()->id]))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('faculty_id');
+
+        $this->postJson('/api/v1/users', $this->payload(['role' => 'admin_tpb']))
+            ->assertCreated()
+            ->assertJsonPath('data.role', 'admin_tpb')
+            ->assertJsonPath('data.faculty_id', null)
+            ->assertJsonPath('data.study_program_id', null);
+    }
+
     public function test_create_lecturer_account_links_free_lecturer_only(): void
     {
         Sanctum::actingAs($this->superAdmin);

@@ -22,11 +22,23 @@ interface ResolvesOrgScope
      */
     public function studyProgramId(User $user): ?int;
 
+    /**
+     * Reads data of every faculty (superadmin, TPB admin). Writes still need canAccess*().
+     */
+    public function readsAllFaculties(User $user): bool;
+
+    /**
+     * May still change a study program's data after it was submitted and locked.
+     */
+    public function canBypassSubmissionLock(User $user): bool;
+
     public function canAccessFaculty(User $user, ?int $facultyId): bool;
 
     public function canAccessStudyProgram(User $user, StudyProgram $studyProgram): bool;
 
     /**
+     * Limits a read query to the user's faculty. No-op for users who read all faculties.
+     *
      * @template TModel of \Illuminate\Database\Eloquent\Model
      *
      * @param  Builder<TModel>  $query
@@ -35,6 +47,8 @@ interface ResolvesOrgScope
     public function applyFacultyScope(Builder $query, User $user, string $column = 'faculty_id'): Builder;
 
     /**
+     * Limits a read query to the user's study programs. No-op for users who read all faculties.
+     *
      * @template TModel of \Illuminate\Database\Eloquent\Model
      *
      * @param  Builder<TModel>  $query

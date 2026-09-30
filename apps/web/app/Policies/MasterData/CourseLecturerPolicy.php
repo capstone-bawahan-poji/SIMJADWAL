@@ -6,10 +6,12 @@ use App\Models\MasterData\Course;
 use App\Models\MasterData\CourseLecturer;
 use App\Models\User;
 use App\Permissions\MasterData\CourseLecturerPermissions;
+use App\Permissions\MasterData\TpbPermissions;
 use Illuminate\Auth\Access\Response;
 
 /**
- * A teaching assignment belongs to the study program of its course.
+ * A teaching assignment follows its course: the course's study program for regular
+ * courses, TPB permissions for TPB classes.
  */
 class CourseLecturerPolicy extends StudyProgramOwnedPolicy
 {
@@ -20,8 +22,10 @@ class CourseLecturerPolicy extends StudyProgramOwnedPolicy
 
     public function view(User $user, CourseLecturer $courseLecturer): bool
     {
+        $course = $courseLecturer->course;
+
         return $user->can(CourseLecturerPermissions::VIEW)
-            && $this->orgScope->canAccessStudyProgram($user, $courseLecturer->course->studyProgram);
+            && ($course->is_tpb || $this->canRead($user, $course->studyProgram));
     }
 
     /**
@@ -29,16 +33,23 @@ class CourseLecturerPolicy extends StudyProgramOwnedPolicy
      */
     public function create(User $user, Course $course): Response
     {
-        return $this->canWrite($user, CourseLecturerPermissions::CREATE, $course->studyProgram);
+        return $this->write($user, $course, TpbPermissions::CREATE, CourseLecturerPermissions::CREATE);
     }
 
     public function update(User $user, CourseLecturer $courseLecturer): Response
     {
-        return $this->canWrite($user, CourseLecturerPermissions::UPDATE, $courseLecturer->course->studyProgram);
+        return $this->write($user, $courseLecturer->course, TpbPermissions::UPDATE, CourseLecturerPermissions::UPDATE);
     }
 
     public function delete(User $user, CourseLecturer $courseLecturer): Response
     {
-        return $this->canWrite($user, CourseLecturerPermissions::DELETE, $courseLecturer->course->studyProgram);
+        return $this->write($user, $courseLecturer->course, TpbPermissions::DELETE, CourseLecturerPermissions::DELETE);
+    }
+
+    private function write(User $user, Course $course, TpbPermissions $tpb, CourseLecturerPermissions $regular): Response
+    {
+        return $course->is_tpb
+            ? $this->allowIf($user->can($tpb))
+            : $this->canWrite($user, $regular, $course->studyProgram);
     }
 }

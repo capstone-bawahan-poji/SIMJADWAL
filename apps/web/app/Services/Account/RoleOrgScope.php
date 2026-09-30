@@ -29,6 +29,16 @@ readonly class RoleOrgScope implements ResolvesOrgScope
         };
     }
 
+    public function readsAllFaculties(User $user): bool
+    {
+        return in_array($user->role, [Role::SUPER_ADMIN, Role::TPB_ADMIN], true);
+    }
+
+    public function canBypassSubmissionLock(User $user): bool
+    {
+        return in_array($user->role, [Role::SUPER_ADMIN, Role::FACULTY_ADMIN], true);
+    }
+
     public function canAccessFaculty(User $user, ?int $facultyId): bool
     {
         if ($user->role === Role::SUPER_ADMIN) {
@@ -52,7 +62,7 @@ readonly class RoleOrgScope implements ResolvesOrgScope
 
     public function applyFacultyScope(Builder $query, User $user, string $column = 'faculty_id'): Builder
     {
-        if ($user->role === Role::SUPER_ADMIN) {
+        if ($this->readsAllFaculties($user)) {
             return $query;
         }
 
@@ -61,8 +71,11 @@ readonly class RoleOrgScope implements ResolvesOrgScope
 
     public function applyStudyProgramScope(Builder $query, User $user, string $column = 'study_program_id'): Builder
     {
+        if ($this->readsAllFaculties($user)) {
+            return $query;
+        }
+
         return match ($user->role) {
-            Role::SUPER_ADMIN => $query,
             Role::FACULTY_ADMIN => $query->whereIn(
                 $query->qualifyColumn($column),
                 StudyProgram::query()->select('id')->where('faculty_id', $user->faculty_id),
