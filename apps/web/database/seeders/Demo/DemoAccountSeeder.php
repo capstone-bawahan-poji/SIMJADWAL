@@ -11,7 +11,7 @@ use Illuminate\Database\Seeder;
 
 /**
  * Demo accounts for testing and the thesis demo (DATABASE.md §10.8): one admin per faculty,
- * one admin per study program (email from the program prefix in data/master), plus one student and one lecturer.
+ * one admin per study program (email from the program prefix in data/master), one TPB admin, plus one student and one lecturer.
  */
 class DemoAccountSeeder extends Seeder
 {
@@ -34,6 +34,8 @@ class DemoAccountSeeder extends Seeder
 
             $this->account("admin.{$prefix}@example.test", "Admin {$program->name}", Role::STUDY_PROGRAM_ADMIN, ['study_program_id' => $program->id]);
         }
+
+        $this->account('admin.tpb@example.test', 'Admin TPB', Role::TPB_ADMIN);
 
         $informatics = StudyProgram::query()->where('name', 'Informatika')->firstOrFail();
         $this->account('mahasiswa.if@example.test', 'Mahasiswa Informatika', Role::STUDENT, ['study_program_id' => $informatics->id]);
