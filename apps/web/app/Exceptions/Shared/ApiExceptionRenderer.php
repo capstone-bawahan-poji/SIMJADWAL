@@ -34,6 +34,8 @@ class ApiExceptionRenderer
             $e instanceof ValidationException => $this->json($e->getMessage(), 'VALIDATION_FAILED', 422, $e->errors()),
             $e instanceof AuthenticationException => $this->json(__('Unauthenticated.'), 'UNAUTHENTICATED', 401),
             $e instanceof AuthorizationException => $this->authorization($e),
+            // Laravel turns a policy denial with a status (e.g. 409 CONSTRAINTS_LOCKED) into an HttpException first.
+            $e instanceof HttpExceptionInterface && $e->getPrevious() instanceof AuthorizationException => $this->authorization($e->getPrevious()),
             $e instanceof ModelNotFoundException,
             $e instanceof NotFoundHttpException => $this->json(__('Not found.'), 'NOT_FOUND', 404),
             $e instanceof ThrottleRequestsException => $this->json(__('Too many requests.'), 'TOO_MANY_REQUESTS', 429)

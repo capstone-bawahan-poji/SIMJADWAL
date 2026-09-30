@@ -37,9 +37,9 @@ class ApiException extends RuntimeException
     /**
      * @param  array<string, int>  $references  entity => count
      */
-    public static function resourceInUse(array $references = []): self
+    public static function resourceInUse(array $references = [], ?string $message = null): self
     {
-        return new self(__('The resource is still referenced by other data.'), 'RESOURCE_IN_USE', 409, ['references' => $references]);
+        return new self($message ?? __('The resource is still referenced by other data.'), 'RESOURCE_IN_USE', 409, ['references' => $references]);
     }
 
     public static function constraintsLocked(): self
