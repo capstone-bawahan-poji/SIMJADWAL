@@ -14,6 +14,9 @@ return new class extends Migration
             $table->foreignId('course_id')->index()->constrained()->restrictOnDelete();
             $table->smallInteger('class_number');
             $table->foreignId('lecturer_id')->index()->constrained()->restrictOnDelete();
+            // TPB classes only: the group fixes the slot, the room is allocated by hand.
+            $table->foreignId('tpb_group_id')->nullable()->index()->constrained()->restrictOnDelete();
+            $table->foreignId('room_id')->nullable()->index()->constrained()->restrictOnDelete();
             $table->timestamps();
 
             $table->unique(['course_id', 'class_number']);

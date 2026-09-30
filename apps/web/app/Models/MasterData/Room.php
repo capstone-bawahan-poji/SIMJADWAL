@@ -11,16 +11,17 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * faculty_id NULL = room shared across faculties.
  */
-#[Fillable(['faculty_id', 'name', 'capacity'])]
+#[Fillable(['faculty_id', 'code', 'name', 'capacity'])]
 #[UsePolicy(RoomPolicy::class)]
 class Room extends Model
 {
     /** @use HasFactory<RoomFactory> */
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected function casts(): array
     {
@@ -38,6 +39,12 @@ class Room extends Model
     public function faculty(): BelongsTo
     {
         return $this->belongsTo(Faculty::class);
+    }
+
+    /** @return HasMany<CourseLecturer, $this> TPB classes placed in this room */
+    public function courseLecturers(): HasMany
+    {
+        return $this->hasMany(CourseLecturer::class);
     }
 
     /** @return HasMany<ScheduleDetail, $this> */

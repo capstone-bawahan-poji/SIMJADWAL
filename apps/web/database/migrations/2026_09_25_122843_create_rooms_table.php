@@ -12,10 +12,14 @@ return new class extends Migration
         Schema::create('rooms', function (Blueprint $table) {
             $table->id();
             $table->foreignId('faculty_id')->nullable()->index()->constrained()->restrictOnDelete();
-            $table->string('name', 100)->unique();
+            $table->string('code', 20);
+            $table->string('name', 100)->nullable();
             $table->integer('capacity');
             $table->timestamps();
+            $table->softDeletes();
         });
+
+        DB::statement('CREATE UNIQUE INDEX uq_rooms_code ON rooms (code) WHERE deleted_at IS NULL');
 
         DB::statement('ALTER TABLE rooms ADD CONSTRAINT chk_rooms_capacity CHECK (capacity > 0)');
     }

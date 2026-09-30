@@ -23,4 +23,9 @@ class CourseFactory extends Factory
             'class_capacity' => 40,
         ];
     }
+
+    public function tpb(): static
+    {
+        return $this->state(fn () => ['study_program_id' => null, 'is_tpb' => true, 'semester' => 1]);
+    }
 }

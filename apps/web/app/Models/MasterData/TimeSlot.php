@@ -9,6 +9,7 @@ use App\Policies\MasterData\TimeSlotPolicy;
 use Database\Factories\MasterData\TimeSlotFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
+use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
@@ -32,10 +33,32 @@ class TimeSlot extends Model
         ];
     }
 
+    /**
+     * PostgreSQL returns TIME as HH:MM:SS. The API and validation use HH:MM.
+     *
+     * @return Attribute<string, string>
+     */
+    protected function startTime(): Attribute
+    {
+        return Attribute::get(fn (string $value) => substr($value, 0, 5));
+    }
+
+    /** @return Attribute<string, string> */
+    protected function endTime(): Attribute
+    {
+        return Attribute::get(fn (string $value) => substr($value, 0, 5));
+    }
+
     /** @return HasMany<LecturerPreference, $this> */
     public function lecturerPreferences(): HasMany
     {
         return $this->hasMany(LecturerPreference::class);
+    }
+
+    /** @return HasMany<TpbGroup, $this> */
+    public function tpbGroups(): HasMany
+    {
+        return $this->hasMany(TpbGroup::class);
     }
 
     /** @return HasMany<ScheduleDetail, $this> */

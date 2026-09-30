@@ -11,13 +11,14 @@ use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['name'])]
+#[Fillable(['code', 'name'])]
 #[UsePolicy(FacultyPolicy::class)]
 class Faculty extends Model
 {
     /** @use HasFactory<FacultyFactory> */
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     /** @return HasMany<StudyProgram, $this> */
     public function studyPrograms(): HasMany

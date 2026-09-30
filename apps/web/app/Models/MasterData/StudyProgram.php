@@ -11,14 +11,16 @@ use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['faculty_id', 'name', 'constraint_status', 'constraint_submitted_at'])]
+#[Fillable(['faculty_id', 'code', 'name', 'constraint_status', 'constraint_submitted_at'])]
 #[UsePolicy(StudyProgramPolicy::class)]
 class StudyProgram extends Model
 {
     /** @use HasFactory<StudyProgramFactory> */
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $attributes = [
         'constraint_status' => 'draft',
@@ -62,5 +64,11 @@ class StudyProgram extends Model
     public function users(): HasMany
     {
         return $this->hasMany(User::class);
+    }
+
+    /** @return BelongsToMany<TpbGroup, $this> */
+    public function tpbGroups(): BelongsToMany
+    {
+        return $this->belongsToMany(TpbGroup::class, 'tpb_group_study_programs')->withTimestamps();
     }
 }

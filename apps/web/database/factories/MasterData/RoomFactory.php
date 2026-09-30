@@ -15,7 +15,8 @@ class RoomFactory extends Factory
     {
         return [
             'faculty_id' => Faculty::factory(),
-            'name' => fake()->unique()->regexify('[A-Z][1-4]0[1-9]'),
+            'code' => fake()->unique()->regexify('[A-Z][1-4]0[1-9]'),
+            'name' => null,
             'capacity' => 40,
         ];
     }

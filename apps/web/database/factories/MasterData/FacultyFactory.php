@@ -13,6 +13,7 @@ class FacultyFactory extends Factory
     public function definition(): array
     {
         return [
+            'code' => fake()->unique()->regexify('F[A-Z]{4}'),
             'name' => 'Fakultas '.fake()->unique()->words(3, true),
         ];
     }
