@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import Label from '@/components/ui/Label.vue';
+import Label from '@/Components/ui/Label.vue';
 
 defineProps<{
     id: string;

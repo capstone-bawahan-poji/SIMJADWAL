@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import AuthLayout from '@/layouts/AuthLayout.vue';
-import AppLogo from '@/components/shared/AppLogo.vue';
-import FormField from '@/components/shared/FormField.vue';
-import PasswordInput from '@/components/shared/PasswordInput.vue';
-import Alert from '@/components/ui/Alert.vue';
-import Button from '@/components/ui/Button.vue';
-import Card from '@/components/ui/Card.vue';
-import Input from '@/components/ui/Input.vue';
+import AuthLayout from '@/Layouts/AuthLayout.vue';
+import AppLogo from '@/Components/shared/AppLogo.vue';
+import FormField from '@/Components/shared/FormField.vue';
+import PasswordInput from '@/Components/shared/PasswordInput.vue';
+import Alert from '@/Components/ui/Alert.vue';
+import Button from '@/Components/ui/Button.vue';
+import Card from '@/Components/ui/Card.vue';
+import Input from '@/Components/ui/Input.vue';
 import { Head, Link, useForm } from '@inertiajs/vue3';
 import { UserRound } from 'lucide-vue-next';
 
