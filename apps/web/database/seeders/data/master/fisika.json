@@ -1,0 +1,419 @@
+{
+    "prefix": "FI",
+    "lecturers": [
+        {
+            "code": "FI01",
+            "name": "Dosen Fisika 01"
+        },
+        {
+            "code": "FI02",
+            "name": "Dosen Fisika 02"
+        },
+        {
+            "code": "FI03",
+            "name": "Dosen Fisika 03"
+        },
+        {
+            "code": "FI04",
+            "name": "Dosen Fisika 04"
+        },
+        {
+            "code": "FI05",
+            "name": "Dosen Fisika 05"
+        },
+        {
+            "code": "FI06",
+            "name": "Dosen Fisika 06"
+        },
+        {
+            "code": "FI07",
+            "name": "Dosen Fisika 07"
+        },
+        {
+            "code": "FI08",
+            "name": "Dosen Fisika 08"
+        },
+        {
+            "code": "FI09",
+            "name": "Dosen Fisika 09"
+        },
+        {
+            "code": "FI10",
+            "name": "Dosen Fisika 10"
+        },
+        {
+            "code": "FI11",
+            "name": "Dosen Fisika 11"
+        }
+    ],
+    "courses": [
+        {
+            "code": "FI2514101",
+            "name": "Metode Pengukuran dan Analisis Data",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "FI01"
+                }
+            ]
+        },
+        {
+            "code": "FI2514102",
+            "name": "Aljabar Linier Elementer",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "FI02"
+                }
+            ]
+        },
+        {
+            "code": "FI2514103",
+            "name": "Biologi Umum",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "FI03"
+                }
+            ]
+        },
+        {
+            "code": "FI2514306",
+            "name": "Fisika Matematika 1",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "FI04"
+                }
+            ]
+        },
+        {
+            "code": "FI2514307",
+            "name": "Mekanika Klasik 2",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "FI05"
+                }
+            ]
+        },
+        {
+            "code": "FI2514308",
+            "name": "Gelombang",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "FI02"
+                }
+            ]
+        },
+        {
+            "code": "FI2514309",
+            "name": "Elektronika",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "FI06"
+                }
+            ]
+        },
+        {
+            "code": "FI2514310",
+            "name": "Fisika Modern",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "FI07"
+                }
+            ]
+        },
+        {
+            "code": "FI2514311",
+            "name": "Fisika Fluida",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "FI08"
+                }
+            ]
+        },
+        {
+            "code": "FI2514415",
+            "name": "Pengantar Fisika Kuantum",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "FI07"
+                }
+            ]
+        },
+        {
+            "code": "FI2514417",
+            "name": "Optik",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "FI09"
+                }
+            ]
+        },
+        {
+            "code": "FI2514518",
+            "name": "Fisika Statistik",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "FI10"
+                }
+            ]
+        },
+        {
+            "code": "FI2514519",
+            "name": "Fisika Kuantum",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "FI10"
+                }
+            ]
+        },
+        {
+            "code": "FI2514520",
+            "name": "Teknologi Fisika",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "FI09"
+                }
+            ]
+        },
+        {
+            "code": "FI2514521",
+            "name": "Eksperimen Fisika",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "FI11"
+                }
+            ]
+        },
+        {
+            "code": "FI2514522",
+            "name": "Fisika Instrumentasi",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "FI06"
+                }
+            ]
+        },
+        {
+            "code": "FI2514523",
+            "name": "Metodologi Penelitian",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "FI02"
+                }
+            ]
+        },
+        {
+            "code": "FI2514726",
+            "name": "Fisika Energi",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "FI01"
+                }
+            ]
+        },
+        {
+            "code": "FI2515101",
+            "name": "Anatomi dan Fisiologi",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "FI08"
+                }
+            ]
+        },
+        {
+            "code": "FI2515103",
+            "name": "Fisika Kesehatan dan Proteksi Radiasi",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "FI08"
+                }
+            ]
+        },
+        {
+            "code": "FI2515213",
+            "name": "Semikonduktor",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "FI05"
+                }
+            ]
+        },
+        {
+            "code": "FI2515324",
+            "name": "Fisika Batuan",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "FI09"
+                }
+            ]
+        },
+        {
+            "code": "FI2515325",
+            "name": "Survey dan Pemetaan",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "FI11"
+                }
+            ]
+        },
+        {
+            "code": "FI2515331",
+            "name": "Mitigasi Bencana",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "FI02"
+                }
+            ]
+        },
+        {
+            "code": "FI2515434",
+            "name": "Sensor dan Transduser",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "FI03"
+                }
+            ]
+        },
+        {
+            "code": "FI2515437",
+            "name": "Mikrokontroler",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "FI04"
+                }
+            ]
+        }
+    ],
+    "preferences": [
+        {
+            "lecturer_code": "FI05",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 4
+        },
+        {
+            "lecturer_code": "FI06",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 4
+        },
+        {
+            "lecturer_code": "FI06",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 3
+        },
+        {
+            "lecturer_code": "FI06",
+            "constraint_code": "SC_HINDARI",
+            "day": 4,
+            "session": 2
+        },
+        {
+            "lecturer_code": "FI06",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 4
+        },
+        {
+            "lecturer_code": "FI06",
+            "constraint_code": "SC_HINDARI",
+            "day": 1,
+            "session": 2
+        },
+        {
+            "lecturer_code": "FI07",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 4
+        },
+        {
+            "lecturer_code": "FI08",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 3
+        },
+        {
+            "lecturer_code": "FI08",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 1
+        }
+    ]
+}

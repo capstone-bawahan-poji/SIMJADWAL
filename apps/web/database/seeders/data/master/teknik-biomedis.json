@@ -1,0 +1,467 @@
+{
+    "prefix": "TB",
+    "lecturers": [
+        {
+            "code": "TB01",
+            "name": "Dosen Teknik Biomedis 01"
+        },
+        {
+            "code": "TB02",
+            "name": "Dosen Teknik Biomedis 02"
+        },
+        {
+            "code": "TB03",
+            "name": "Dosen Teknik Biomedis 03"
+        },
+        {
+            "code": "TB04",
+            "name": "Dosen Teknik Biomedis 04"
+        },
+        {
+            "code": "TB05",
+            "name": "Dosen Teknik Biomedis 05"
+        },
+        {
+            "code": "TB06",
+            "name": "Dosen Teknik Biomedis 06"
+        },
+        {
+            "code": "TB07",
+            "name": "Dosen Teknik Biomedis 07"
+        },
+        {
+            "code": "TB08",
+            "name": "Dosen Teknik Biomedis 08"
+        },
+        {
+            "code": "TB09",
+            "name": "Dosen Teknik Biomedis 09"
+        },
+        {
+            "code": "TB10",
+            "name": "Dosen Teknik Biomedis 10"
+        }
+    ],
+    "courses": [
+        {
+            "code": "TB2514001",
+            "name": "Mata Kuliah Teknik Biomedis 01",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TB02"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TB10"
+                }
+            ]
+        },
+        {
+            "code": "TB2514002",
+            "name": "Mata Kuliah Teknik Biomedis 02",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TB04"
+                }
+            ]
+        },
+        {
+            "code": "TB2514003",
+            "name": "Mata Kuliah Teknik Biomedis 03",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TB07"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TB06"
+                }
+            ]
+        },
+        {
+            "code": "TB2514004",
+            "name": "Mata Kuliah Teknik Biomedis 04",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TB01"
+                }
+            ]
+        },
+        {
+            "code": "TB2514005",
+            "name": "Mata Kuliah Teknik Biomedis 05",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TB03"
+                }
+            ]
+        },
+        {
+            "code": "TB2514006",
+            "name": "Mata Kuliah Teknik Biomedis 06",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TB09"
+                }
+            ]
+        },
+        {
+            "code": "TB2514007",
+            "name": "Mata Kuliah Teknik Biomedis 07",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TB08"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TB05"
+                }
+            ]
+        },
+        {
+            "code": "TB2514008",
+            "name": "Mata Kuliah Teknik Biomedis 08",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TB01"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TB10"
+                }
+            ]
+        },
+        {
+            "code": "TB2514009",
+            "name": "Mata Kuliah Teknik Biomedis 09",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TB05"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TB04"
+                }
+            ]
+        },
+        {
+            "code": "TB2514010",
+            "name": "Mata Kuliah Teknik Biomedis 10",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TB06"
+                }
+            ]
+        },
+        {
+            "code": "TB2514011",
+            "name": "Mata Kuliah Teknik Biomedis 11",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TB02"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TB07"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "TB08"
+                }
+            ]
+        },
+        {
+            "code": "TB2514012",
+            "name": "Mata Kuliah Teknik Biomedis 12",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TB09"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TB03"
+                }
+            ]
+        },
+        {
+            "code": "TB2514013",
+            "name": "Mata Kuliah Teknik Biomedis 13",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TB06"
+                }
+            ]
+        },
+        {
+            "code": "TB2514014",
+            "name": "Mata Kuliah Teknik Biomedis 14",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TB04"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TB09"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "TB02"
+                }
+            ]
+        },
+        {
+            "code": "TB2514015",
+            "name": "Mata Kuliah Teknik Biomedis 15",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TB07"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TB08"
+                }
+            ]
+        },
+        {
+            "code": "TB2514016",
+            "name": "Mata Kuliah Teknik Biomedis 16",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TB10"
+                }
+            ]
+        },
+        {
+            "code": "TB2514017",
+            "name": "Mata Kuliah Teknik Biomedis 17",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TB03"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TB05"
+                }
+            ]
+        },
+        {
+            "code": "TB2514018",
+            "name": "Mata Kuliah Teknik Biomedis 18",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TB01"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "TB09"
+                }
+            ]
+        },
+        {
+            "code": "TB2514019",
+            "name": "Mata Kuliah Teknik Biomedis 19",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TB05"
+                }
+            ]
+        },
+        {
+            "code": "TB2514020",
+            "name": "Mata Kuliah Teknik Biomedis 20",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TB02"
+                }
+            ]
+        },
+        {
+            "code": "TB2514021",
+            "name": "Mata Kuliah Teknik Biomedis 21",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TB07"
+                }
+            ]
+        },
+        {
+            "code": "TB2514022",
+            "name": "Mata Kuliah Teknik Biomedis 22",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "TB08"
+                }
+            ]
+        }
+    ],
+    "preferences": [
+        {
+            "lecturer_code": "TB02",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 4
+        },
+        {
+            "lecturer_code": "TB02",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 2
+        },
+        {
+            "lecturer_code": "TB02",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 1
+        },
+        {
+            "lecturer_code": "TB04",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 3
+        },
+        {
+            "lecturer_code": "TB04",
+            "constraint_code": "SC_HINDARI",
+            "day": 4,
+            "session": 2
+        },
+        {
+            "lecturer_code": "TB06",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 3
+        },
+        {
+            "lecturer_code": "TB06",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 1
+        },
+        {
+            "lecturer_code": "TB06",
+            "constraint_code": "SC_HINDARI",
+            "day": 1,
+            "session": 4
+        },
+        {
+            "lecturer_code": "TB07",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 3
+        },
+        {
+            "lecturer_code": "TB07",
+            "constraint_code": "SC_HINDARI",
+            "day": 4,
+            "session": 2
+        },
+        {
+            "lecturer_code": "TB07",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 4
+        },
+        {
+            "lecturer_code": "TB07",
+            "constraint_code": "SC_HINDARI",
+            "day": 3,
+            "session": 2
+        },
+        {
+            "lecturer_code": "TB07",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 1
+        },
+        {
+            "lecturer_code": "TB08",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 4
+        },
+        {
+            "lecturer_code": "TB08",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 2
+        },
+        {
+            "lecturer_code": "TB08",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 2
+        },
+        {
+            "lecturer_code": "TB08",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 3
+        }
+    ]
+}

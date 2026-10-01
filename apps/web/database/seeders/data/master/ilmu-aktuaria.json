@@ -1,0 +1,349 @@
+{
+    "prefix": "AK",
+    "lecturers": [
+        {
+            "code": "AK01",
+            "name": "Dosen Ilmu Aktuaria 01"
+        },
+        {
+            "code": "AK02",
+            "name": "Dosen Ilmu Aktuaria 02"
+        },
+        {
+            "code": "AK03",
+            "name": "Dosen Ilmu Aktuaria 03"
+        },
+        {
+            "code": "AK04",
+            "name": "Dosen Ilmu Aktuaria 04"
+        },
+        {
+            "code": "AK05",
+            "name": "Dosen Ilmu Aktuaria 05"
+        },
+        {
+            "code": "AK06",
+            "name": "Dosen Ilmu Aktuaria 06"
+        },
+        {
+            "code": "AK07",
+            "name": "Dosen Ilmu Aktuaria 07"
+        },
+        {
+            "code": "AK08",
+            "name": "Dosen Ilmu Aktuaria 08"
+        },
+        {
+            "code": "AK09",
+            "name": "Dosen Ilmu Aktuaria 09"
+        }
+    ],
+    "courses": [
+        {
+            "code": "AK2514001",
+            "name": "Logika dan Himpunan",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "AK01"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "AK01"
+                }
+            ]
+        },
+        {
+            "code": "AK2514002",
+            "name": "Ekonomi Mikro",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "AK02"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "AK02"
+                }
+            ]
+        },
+        {
+            "code": "AK2514005",
+            "name": "Matematika Keuangan 1",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "AK03"
+                }
+            ]
+        },
+        {
+            "code": "AK2514006",
+            "name": "Metode Numerik",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "AK04"
+                }
+            ]
+        },
+        {
+            "code": "AK2514007",
+            "name": "Teori Peluang",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "AK04"
+                }
+            ]
+        },
+        {
+            "code": "AK2514009",
+            "name": "Matematika Lanjut",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "AK05"
+                }
+            ]
+        },
+        {
+            "code": "AK2514011",
+            "name": "Pengantar Analisis Real",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "AK05"
+                }
+            ]
+        },
+        {
+            "code": "AK2514012",
+            "name": "Model Linier",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "AK01"
+                }
+            ]
+        },
+        {
+            "code": "AK2514018",
+            "name": "Pengantar Manajemen Risiko",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "AK06"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "AK06"
+                }
+            ]
+        },
+        {
+            "code": "AK2514019",
+            "name": "Ilmu Data",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "AK07"
+                }
+            ]
+        },
+        {
+            "code": "AK2514022",
+            "name": "Proses Stokastik",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "AK03"
+                }
+            ]
+        },
+        {
+            "code": "AK2514023",
+            "name": "Matematika Aktuaria 2",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "AK08"
+                }
+            ]
+        },
+        {
+            "code": "AK2514024",
+            "name": "Akuntansi",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "AK02"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "AK02"
+                }
+            ]
+        },
+        {
+            "code": "AK2514025",
+            "name": "Teori Risiko Aktuaria 2",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "AK06"
+                }
+            ]
+        },
+        {
+            "code": "AK2514027",
+            "name": "Analisis Risiko Lingkungan",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "AK06"
+                }
+            ]
+        },
+        {
+            "code": "AK2514029",
+            "name": "Metodologi Penelitian",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "AK06"
+                }
+            ]
+        },
+        {
+            "code": "AK2515006",
+            "name": "Teori Dana Pensiun",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "AK08"
+                }
+            ]
+        },
+        {
+            "code": "AK2515007",
+            "name": "Riset Operasi",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "AK05"
+                }
+            ]
+        },
+        {
+            "code": "AK2515008",
+            "name": "Pemodelan Keuangan Derivatif",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "AK03"
+                }
+            ]
+        },
+        {
+            "code": "AK2515011",
+            "name": "Pembelajaran Mesin",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "AK07"
+                }
+            ]
+        },
+        {
+            "code": "AK2515015",
+            "name": "Matematika Keuangan Syariah",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "AK09"
+                }
+            ]
+        }
+    ],
+    "preferences": [
+        {
+            "lecturer_code": "AK02",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 4
+        },
+        {
+            "lecturer_code": "AK03",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 2
+        },
+        {
+            "lecturer_code": "AK07",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 1
+        },
+        {
+            "lecturer_code": "AK07",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 3
+        },
+        {
+            "lecturer_code": "AK09",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 1
+        },
+        {
+            "lecturer_code": "AK09",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 2
+        }
+    ]
+}

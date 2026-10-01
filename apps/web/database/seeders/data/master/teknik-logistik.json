@@ -1,0 +1,473 @@
+{
+    "prefix": "LG",
+    "lecturers": [
+        {
+            "code": "LG01",
+            "name": "Dosen Teknik Logistik 01"
+        },
+        {
+            "code": "LG02",
+            "name": "Dosen Teknik Logistik 02"
+        },
+        {
+            "code": "LG03",
+            "name": "Dosen Teknik Logistik 03"
+        },
+        {
+            "code": "LG04",
+            "name": "Dosen Teknik Logistik 04"
+        },
+        {
+            "code": "LG05",
+            "name": "Dosen Teknik Logistik 05"
+        },
+        {
+            "code": "LG06",
+            "name": "Dosen Teknik Logistik 06"
+        },
+        {
+            "code": "LG07",
+            "name": "Dosen Teknik Logistik 07"
+        },
+        {
+            "code": "LG08",
+            "name": "Dosen Teknik Logistik 08"
+        },
+        {
+            "code": "LG09",
+            "name": "Dosen Teknik Logistik 09"
+        },
+        {
+            "code": "LG10",
+            "name": "Dosen Teknik Logistik 10"
+        }
+    ],
+    "courses": [
+        {
+            "code": "LG2514001",
+            "name": "Mata Kuliah Teknik Logistik 01",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "LG03"
+                }
+            ]
+        },
+        {
+            "code": "LG2514002",
+            "name": "Mata Kuliah Teknik Logistik 02",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "LG02"
+                }
+            ]
+        },
+        {
+            "code": "LG2514003",
+            "name": "Mata Kuliah Teknik Logistik 03",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "LG04"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "LG06"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "LG10"
+                }
+            ]
+        },
+        {
+            "code": "LG2514004",
+            "name": "Mata Kuliah Teknik Logistik 04",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "LG09"
+                }
+            ]
+        },
+        {
+            "code": "LG2514005",
+            "name": "Mata Kuliah Teknik Logistik 05",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "LG05"
+                }
+            ]
+        },
+        {
+            "code": "LG2514006",
+            "name": "Mata Kuliah Teknik Logistik 06",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "LG01"
+                }
+            ]
+        },
+        {
+            "code": "LG2514007",
+            "name": "Mata Kuliah Teknik Logistik 07",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "LG08"
+                }
+            ]
+        },
+        {
+            "code": "LG2514008",
+            "name": "Mata Kuliah Teknik Logistik 08",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "LG07"
+                }
+            ]
+        },
+        {
+            "code": "LG2514009",
+            "name": "Mata Kuliah Teknik Logistik 09",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "LG10"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "LG07"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "LG02"
+                }
+            ]
+        },
+        {
+            "code": "LG2514010",
+            "name": "Mata Kuliah Teknik Logistik 10",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "LG09"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "LG04"
+                }
+            ]
+        },
+        {
+            "code": "LG2514011",
+            "name": "Mata Kuliah Teknik Logistik 11",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "LG03"
+                }
+            ]
+        },
+        {
+            "code": "LG2514012",
+            "name": "Mata Kuliah Teknik Logistik 12",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "LG06"
+                }
+            ]
+        },
+        {
+            "code": "LG2514013",
+            "name": "Mata Kuliah Teknik Logistik 13",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "LG08"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "LG05"
+                }
+            ]
+        },
+        {
+            "code": "LG2514014",
+            "name": "Mata Kuliah Teknik Logistik 14",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "LG01"
+                }
+            ]
+        },
+        {
+            "code": "LG2514015",
+            "name": "Mata Kuliah Teknik Logistik 15",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "LG10"
+                }
+            ]
+        },
+        {
+            "code": "LG2514016",
+            "name": "Mata Kuliah Teknik Logistik 16",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "LG07"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "LG03"
+                }
+            ]
+        },
+        {
+            "code": "LG2514017",
+            "name": "Mata Kuliah Teknik Logistik 17",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "LG06"
+                }
+            ]
+        },
+        {
+            "code": "LG2514018",
+            "name": "Mata Kuliah Teknik Logistik 18",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "LG09"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "LG05"
+                }
+            ]
+        },
+        {
+            "code": "LG2514019",
+            "name": "Mata Kuliah Teknik Logistik 19",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "LG04"
+                }
+            ]
+        },
+        {
+            "code": "LG2514020",
+            "name": "Mata Kuliah Teknik Logistik 20",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "LG01"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "LG08"
+                }
+            ]
+        },
+        {
+            "code": "LG2514021",
+            "name": "Mata Kuliah Teknik Logistik 21",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "LG02"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "LG09"
+                }
+            ]
+        },
+        {
+            "code": "LG2514022",
+            "name": "Mata Kuliah Teknik Logistik 22",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "LG05"
+                }
+            ]
+        }
+    ],
+    "preferences": [
+        {
+            "lecturer_code": "LG01",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 2
+        },
+        {
+            "lecturer_code": "LG01",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 2
+        },
+        {
+            "lecturer_code": "LG01",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 4
+        },
+        {
+            "lecturer_code": "LG01",
+            "constraint_code": "SC_HINDARI",
+            "day": 4,
+            "session": 1
+        },
+        {
+            "lecturer_code": "LG01",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 3
+        },
+        {
+            "lecturer_code": "LG02",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 3
+        },
+        {
+            "lecturer_code": "LG02",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 4
+        },
+        {
+            "lecturer_code": "LG03",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 2
+        },
+        {
+            "lecturer_code": "LG03",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 3
+        },
+        {
+            "lecturer_code": "LG03",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 4
+        },
+        {
+            "lecturer_code": "LG03",
+            "constraint_code": "SC_HINDARI",
+            "day": 3,
+            "session": 1
+        },
+        {
+            "lecturer_code": "LG04",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 1
+        },
+        {
+            "lecturer_code": "LG06",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 1
+        },
+        {
+            "lecturer_code": "LG06",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 3
+        },
+        {
+            "lecturer_code": "LG07",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 3
+        },
+        {
+            "lecturer_code": "LG07",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 2
+        },
+        {
+            "lecturer_code": "LG07",
+            "constraint_code": "SC_HINDARI",
+            "day": 3,
+            "session": 3
+        },
+        {
+            "lecturer_code": "LG10",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 2
+        },
+        {
+            "lecturer_code": "LG10",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 3
+        },
+        {
+            "lecturer_code": "LG10",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 1
+        }
+    ]
+}

@@ -1,0 +1,599 @@
+{
+    "prefix": "IF",
+    "lecturers": [
+        {
+            "code": "IF01",
+            "name": "Dosen Informatika 01"
+        },
+        {
+            "code": "IF02",
+            "name": "Dosen Informatika 02"
+        },
+        {
+            "code": "IF03",
+            "name": "Dosen Informatika 03"
+        },
+        {
+            "code": "IF04",
+            "name": "Dosen Informatika 04"
+        },
+        {
+            "code": "IF05",
+            "name": "Dosen Informatika 05"
+        },
+        {
+            "code": "IF06",
+            "name": "Dosen Informatika 06"
+        },
+        {
+            "code": "IF07",
+            "name": "Dosen Informatika 07"
+        },
+        {
+            "code": "IF08",
+            "name": "Dosen Informatika 08"
+        },
+        {
+            "code": "IF09",
+            "name": "Dosen Informatika 09"
+        },
+        {
+            "code": "IF10",
+            "name": "Dosen Informatika 10"
+        },
+        {
+            "code": "IF11",
+            "name": "Dosen Informatika 11"
+        },
+        {
+            "code": "IF12",
+            "name": "Dosen Informatika 12"
+        },
+        {
+            "code": "IF13",
+            "name": "Dosen Informatika 13"
+        }
+    ],
+    "courses": [
+        {
+            "code": "IF2514101",
+            "name": "Matematika Diskrit",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "IF01"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "IF01"
+                }
+            ]
+        },
+        {
+            "code": "IF2514102",
+            "name": "Pengantar Informatika",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "IF02"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "IF02"
+                }
+            ]
+        },
+        {
+            "code": "IF2514103",
+            "name": "Sistem Digital",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "IF03"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "IF03"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "IF03"
+                }
+            ]
+        },
+        {
+            "code": "IF2514201",
+            "name": "Aljabar Linier dan Geometri",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "IF01"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "IF01"
+                }
+            ]
+        },
+        {
+            "code": "IF2514301",
+            "name": "Arsitektur Komputer",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "IF04"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "IF05"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "IF04"
+                }
+            ]
+        },
+        {
+            "code": "IF2514302",
+            "name": "Pengantar Kecerdasan Artifisial",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "IF06"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "IF07"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "IF06"
+                }
+            ]
+        },
+        {
+            "code": "IF2514303",
+            "name": "Sistem Operasi",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "IF08"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "IF08"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "IF08"
+                }
+            ]
+        },
+        {
+            "code": "IF2514305",
+            "name": "Struktur Data",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "IF02"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "IF02"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "IF09"
+                }
+            ]
+        },
+        {
+            "code": "IF2514501",
+            "name": "Desain Web",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "IF10"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "IF10"
+                }
+            ]
+        },
+        {
+            "code": "IF2514502",
+            "name": "Interaksi Manusia dan Komputer",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "IF11"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "IF11"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "IF11"
+                }
+            ]
+        },
+        {
+            "code": "IF2514503",
+            "name": "Implementasi dan Pengujian Perangkat Lunak",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "IF12"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "IF12"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "IF12"
+                }
+            ]
+        },
+        {
+            "code": "IF2514504",
+            "name": "Manajemen Basis Data",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "IF09"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "IF09"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "IF09"
+                }
+            ]
+        },
+        {
+            "code": "IF2514505",
+            "name": "Pengolahan Citra Digital",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "IF13"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "IF13"
+                }
+            ]
+        },
+        {
+            "code": "IF2514506",
+            "name": "Pemrograman Fungsional",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "IF07"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "IF07"
+                }
+            ]
+        },
+        {
+            "code": "IF2514601",
+            "name": "Deep Learning",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "IF03"
+                }
+            ]
+        },
+        {
+            "code": "IF2514604",
+            "name": "Sistem Paralel dan Terdistribusi",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "IF05"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "IF05"
+                }
+            ]
+        },
+        {
+            "code": "IF2514701",
+            "name": "Capstone Project",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "IF01"
+                }
+            ]
+        },
+        {
+            "code": "IF2514702",
+            "name": "Keprofesian Informatika",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "IF12"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "IF08"
+                }
+            ]
+        },
+        {
+            "code": "IF2514704",
+            "name": "Pengembangan Aplikasi Perangkat Bergerak",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "IF10"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "IF10"
+                }
+            ]
+        },
+        {
+            "code": "IF2515002",
+            "name": "Kapita Selekta",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "IF11"
+                }
+            ]
+        },
+        {
+            "code": "IF2515102",
+            "name": "Keamanan Siber",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "IF08"
+                }
+            ]
+        },
+        {
+            "code": "IF2515203",
+            "name": "Kecerdasan Web",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "IF07"
+                }
+            ]
+        },
+        {
+            "code": "IF2515206",
+            "name": "Pemrosesan Bahasa Alami",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "IF06"
+                }
+            ]
+        },
+        {
+            "code": "IF2515301",
+            "name": "Manajemen Proyek TIK",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "IF05"
+                }
+            ]
+        },
+        {
+            "code": "IF2515403",
+            "name": "Sains Data",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "IF01"
+                }
+            ]
+        },
+        {
+            "code": "IF2515404",
+            "name": "Visi Komputer",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "IF13"
+                }
+            ]
+        }
+    ],
+    "preferences": [
+        {
+            "lecturer_code": "IF01",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 4
+        },
+        {
+            "lecturer_code": "IF01",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 4
+        },
+        {
+            "lecturer_code": "IF01",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 1
+        },
+        {
+            "lecturer_code": "IF01",
+            "constraint_code": "SC_HINDARI",
+            "day": 1,
+            "session": 1
+        },
+        {
+            "lecturer_code": "IF02",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 2
+        },
+        {
+            "lecturer_code": "IF02",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 1
+        },
+        {
+            "lecturer_code": "IF02",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 4
+        },
+        {
+            "lecturer_code": "IF04",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 1
+        },
+        {
+            "lecturer_code": "IF04",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 4
+        },
+        {
+            "lecturer_code": "IF08",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 1
+        },
+        {
+            "lecturer_code": "IF08",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 2
+        },
+        {
+            "lecturer_code": "IF09",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 4
+        },
+        {
+            "lecturer_code": "IF09",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 4
+        },
+        {
+            "lecturer_code": "IF09",
+            "constraint_code": "SC_HINDARI",
+            "day": 4,
+            "session": 1
+        },
+        {
+            "lecturer_code": "IF10",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 4
+        },
+        {
+            "lecturer_code": "IF10",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 4
+        },
+        {
+            "lecturer_code": "IF10",
+            "constraint_code": "SC_HINDARI",
+            "day": 3,
+            "session": 1
+        },
+        {
+            "lecturer_code": "IF10",
+            "constraint_code": "SC_HINDARI",
+            "day": 4,
+            "session": 2
+        },
+        {
+            "lecturer_code": "IF11",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 3
+        },
+        {
+            "lecturer_code": "IF11",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 2
+        },
+        {
+            "lecturer_code": "IF11",
+            "constraint_code": "SC_HINDARI",
+            "day": 3,
+            "session": 1
+        }
+    ]
+}

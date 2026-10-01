@@ -1,0 +1,503 @@
+{
+    "prefix": "RK",
+    "lecturers": [
+        {
+            "code": "RK01",
+            "name": "Dosen Rekayasa Keselamatan 01"
+        },
+        {
+            "code": "RK02",
+            "name": "Dosen Rekayasa Keselamatan 02"
+        },
+        {
+            "code": "RK03",
+            "name": "Dosen Rekayasa Keselamatan 03"
+        },
+        {
+            "code": "RK04",
+            "name": "Dosen Rekayasa Keselamatan 04"
+        },
+        {
+            "code": "RK05",
+            "name": "Dosen Rekayasa Keselamatan 05"
+        },
+        {
+            "code": "RK06",
+            "name": "Dosen Rekayasa Keselamatan 06"
+        },
+        {
+            "code": "RK07",
+            "name": "Dosen Rekayasa Keselamatan 07"
+        },
+        {
+            "code": "RK08",
+            "name": "Dosen Rekayasa Keselamatan 08"
+        },
+        {
+            "code": "RK09",
+            "name": "Dosen Rekayasa Keselamatan 09"
+        },
+        {
+            "code": "RK10",
+            "name": "Dosen Rekayasa Keselamatan 10"
+        }
+    ],
+    "courses": [
+        {
+            "code": "RK2514012",
+            "name": "Dasar Simulasi dan Komputasi Keselamatan",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "IF02"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "IF04"
+                }
+            ]
+        },
+        {
+            "code": "RK2514002",
+            "name": "Mata Kuliah Rekayasa Keselamatan 02",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "RK07"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "RK02"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "RK04"
+                }
+            ]
+        },
+        {
+            "code": "RK2514003",
+            "name": "Mata Kuliah Rekayasa Keselamatan 03",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "RK08"
+                }
+            ]
+        },
+        {
+            "code": "RK2514004",
+            "name": "Mata Kuliah Rekayasa Keselamatan 04",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "RK05"
+                }
+            ]
+        },
+        {
+            "code": "RK2514005",
+            "name": "Mata Kuliah Rekayasa Keselamatan 05",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "RK01"
+                }
+            ]
+        },
+        {
+            "code": "RK2514006",
+            "name": "Mata Kuliah Rekayasa Keselamatan 06",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "RK06"
+                }
+            ]
+        },
+        {
+            "code": "RK2514007",
+            "name": "Mata Kuliah Rekayasa Keselamatan 07",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "RK03"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "RK10"
+                }
+            ]
+        },
+        {
+            "code": "RK2514008",
+            "name": "Mata Kuliah Rekayasa Keselamatan 08",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "RK09"
+                }
+            ]
+        },
+        {
+            "code": "RK2514009",
+            "name": "Mata Kuliah Rekayasa Keselamatan 09",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "RK05"
+                }
+            ]
+        },
+        {
+            "code": "RK2514010",
+            "name": "Mata Kuliah Rekayasa Keselamatan 10",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "RK01"
+                }
+            ]
+        },
+        {
+            "code": "RK2514011",
+            "name": "Mata Kuliah Rekayasa Keselamatan 11",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "RK02"
+                }
+            ]
+        },
+        {
+            "code": "RK2514012",
+            "name": "Mata Kuliah Rekayasa Keselamatan 12",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "RK03"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "RK06"
+                }
+            ]
+        },
+        {
+            "code": "RK2514013",
+            "name": "Mata Kuliah Rekayasa Keselamatan 13",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "RK04"
+                }
+            ]
+        },
+        {
+            "code": "RK2514014",
+            "name": "Mata Kuliah Rekayasa Keselamatan 14",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "RK09"
+                }
+            ]
+        },
+        {
+            "code": "RK2514015",
+            "name": "Mata Kuliah Rekayasa Keselamatan 15",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "RK08"
+                }
+            ]
+        },
+        {
+            "code": "RK2514016",
+            "name": "Mata Kuliah Rekayasa Keselamatan 16",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "RK07"
+                }
+            ]
+        },
+        {
+            "code": "RK2514017",
+            "name": "Mata Kuliah Rekayasa Keselamatan 17",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "RK10"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "RK01"
+                }
+            ]
+        },
+        {
+            "code": "RK2514018",
+            "name": "Mata Kuliah Rekayasa Keselamatan 18",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "RK07"
+                }
+            ]
+        },
+        {
+            "code": "RK2514019",
+            "name": "Mata Kuliah Rekayasa Keselamatan 19",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "RK09"
+                }
+            ]
+        },
+        {
+            "code": "RK2514020",
+            "name": "Mata Kuliah Rekayasa Keselamatan 20",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "RK03"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "RK04"
+                }
+            ]
+        },
+        {
+            "code": "RK2514021",
+            "name": "Mata Kuliah Rekayasa Keselamatan 21",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "RK06"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "RK08"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "RK02"
+                }
+            ]
+        },
+        {
+            "code": "RK2514022",
+            "name": "Mata Kuliah Rekayasa Keselamatan 22",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "RK10"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "RK05"
+                }
+            ]
+        }
+    ],
+    "preferences": [
+        {
+            "lecturer_code": "RK01",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 3
+        },
+        {
+            "lecturer_code": "RK01",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 2
+        },
+        {
+            "lecturer_code": "RK04",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 2
+        },
+        {
+            "lecturer_code": "RK04",
+            "constraint_code": "SC_HINDARI",
+            "day": 1,
+            "session": 1
+        },
+        {
+            "lecturer_code": "RK04",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 4
+        },
+        {
+            "lecturer_code": "RK04",
+            "constraint_code": "SC_HINDARI",
+            "day": 3,
+            "session": 3
+        },
+        {
+            "lecturer_code": "RK06",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 2
+        },
+        {
+            "lecturer_code": "RK06",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 1
+        },
+        {
+            "lecturer_code": "RK06",
+            "constraint_code": "SC_HINDARI",
+            "day": 3,
+            "session": 2
+        },
+        {
+            "lecturer_code": "RK06",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 1
+        },
+        {
+            "lecturer_code": "RK07",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 1
+        },
+        {
+            "lecturer_code": "RK07",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 3
+        },
+        {
+            "lecturer_code": "RK07",
+            "constraint_code": "SC_HINDARI",
+            "day": 1,
+            "session": 4
+        },
+        {
+            "lecturer_code": "RK07",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 4
+        },
+        {
+            "lecturer_code": "RK07",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 2
+        },
+        {
+            "lecturer_code": "RK08",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 4
+        },
+        {
+            "lecturer_code": "RK08",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 1
+        },
+        {
+            "lecturer_code": "RK08",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 2
+        },
+        {
+            "lecturer_code": "RK09",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 1
+        },
+        {
+            "lecturer_code": "RK09",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 3
+        },
+        {
+            "lecturer_code": "RK09",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 2
+        },
+        {
+            "lecturer_code": "RK10",
+            "constraint_code": "SC_INGIN",
+            "day": 5,
+            "session": 1
+        },
+        {
+            "lecturer_code": "RK10",
+            "constraint_code": "SC_HINDARI",
+            "day": 3,
+            "session": 1
+        },
+        {
+            "lecturer_code": "RK10",
+            "constraint_code": "SC_HINDARI",
+            "day": 5,
+            "session": 4
+        },
+        {
+            "lecturer_code": "RK10",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 2
+        }
+    ]
+}

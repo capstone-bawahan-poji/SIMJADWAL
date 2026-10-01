@@ -1,0 +1,433 @@
+{
+    "prefix": "PW",
+    "lecturers": [
+        {
+            "code": "PW01",
+            "name": "Dosen Perencanaan Wilayah dan Kota 01"
+        },
+        {
+            "code": "PW02",
+            "name": "Dosen Perencanaan Wilayah dan Kota 02"
+        },
+        {
+            "code": "PW03",
+            "name": "Dosen Perencanaan Wilayah dan Kota 03"
+        },
+        {
+            "code": "PW04",
+            "name": "Dosen Perencanaan Wilayah dan Kota 04"
+        },
+        {
+            "code": "PW05",
+            "name": "Dosen Perencanaan Wilayah dan Kota 05"
+        },
+        {
+            "code": "PW06",
+            "name": "Dosen Perencanaan Wilayah dan Kota 06"
+        },
+        {
+            "code": "PW07",
+            "name": "Dosen Perencanaan Wilayah dan Kota 07"
+        },
+        {
+            "code": "PW08",
+            "name": "Dosen Perencanaan Wilayah dan Kota 08"
+        },
+        {
+            "code": "PW09",
+            "name": "Dosen Perencanaan Wilayah dan Kota 09"
+        },
+        {
+            "code": "PW10",
+            "name": "Dosen Perencanaan Wilayah dan Kota 10"
+        }
+    ],
+    "courses": [
+        {
+            "code": "PW2514001",
+            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 01",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PW03"
+                }
+            ]
+        },
+        {
+            "code": "PW2514002",
+            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 02",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PW07"
+                }
+            ]
+        },
+        {
+            "code": "PW2514003",
+            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 03",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PW04"
+                }
+            ]
+        },
+        {
+            "code": "PW2514004",
+            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 04",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PW01"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "PW09"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "PW02"
+                }
+            ]
+        },
+        {
+            "code": "PW2514005",
+            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 05",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PW05"
+                }
+            ]
+        },
+        {
+            "code": "PW2514006",
+            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 06",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PW08"
+                }
+            ]
+        },
+        {
+            "code": "PW2514007",
+            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 07",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PW06"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "PW10"
+                }
+            ]
+        },
+        {
+            "code": "PW2514008",
+            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 08",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PW07"
+                }
+            ]
+        },
+        {
+            "code": "PW2514009",
+            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 09",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PW10"
+                }
+            ]
+        },
+        {
+            "code": "PW2514010",
+            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 10",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PW09"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "PW06"
+                }
+            ]
+        },
+        {
+            "code": "PW2514011",
+            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 11",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PW03"
+                }
+            ]
+        },
+        {
+            "code": "PW2514012",
+            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 12",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PW04"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "PW05"
+                }
+            ]
+        },
+        {
+            "code": "PW2514013",
+            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 13",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PW08"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "PW01"
+                }
+            ]
+        },
+        {
+            "code": "PW2514014",
+            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 14",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PW02"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "PW03"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_code": "PW05"
+                }
+            ]
+        },
+        {
+            "code": "PW2514015",
+            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 15",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PW07"
+                }
+            ]
+        },
+        {
+            "code": "PW2514016",
+            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 16",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PW09"
+                }
+            ]
+        },
+        {
+            "code": "PW2514017",
+            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 17",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PW02"
+                }
+            ]
+        },
+        {
+            "code": "PW2514018",
+            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 18",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PW10"
+                }
+            ]
+        },
+        {
+            "code": "PW2514019",
+            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 19",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PW08"
+                }
+            ]
+        },
+        {
+            "code": "PW2514020",
+            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 20",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PW01"
+                },
+                {
+                    "class_number": 2,
+                    "lecturer_code": "PW04"
+                }
+            ]
+        },
+        {
+            "code": "PW2514021",
+            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 21",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PW06"
+                }
+            ]
+        },
+        {
+            "code": "PW2514022",
+            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 22",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_code": "PW06"
+                }
+            ]
+        }
+    ],
+    "preferences": [
+        {
+            "lecturer_code": "PW01",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 1
+        },
+        {
+            "lecturer_code": "PW01",
+            "constraint_code": "SC_HINDARI",
+            "day": 1,
+            "session": 3
+        },
+        {
+            "lecturer_code": "PW01",
+            "constraint_code": "SC_HINDARI",
+            "day": 2,
+            "session": 3
+        },
+        {
+            "lecturer_code": "PW03",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 4
+        },
+        {
+            "lecturer_code": "PW03",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 1
+        },
+        {
+            "lecturer_code": "PW03",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 3
+        },
+        {
+            "lecturer_code": "PW03",
+            "constraint_code": "SC_HINDARI",
+            "day": 4,
+            "session": 1
+        },
+        {
+            "lecturer_code": "PW06",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 2
+        },
+        {
+            "lecturer_code": "PW06",
+            "constraint_code": "SC_INGIN",
+            "day": 3,
+            "session": 1
+        },
+        {
+            "lecturer_code": "PW08",
+            "constraint_code": "SC_INGIN",
+            "day": 1,
+            "session": 3
+        },
+        {
+            "lecturer_code": "PW08",
+            "constraint_code": "SC_INGIN",
+            "day": 2,
+            "session": 1
+        },
+        {
+            "lecturer_code": "PW10",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 1
+        },
+        {
+            "lecturer_code": "PW10",
+            "constraint_code": "SC_INGIN",
+            "day": 4,
+            "session": 3
+        },
+        {
+            "lecturer_code": "PW10",
+            "constraint_code": "SC_HINDARI",
+            "day": 3,
+            "session": 2
+        }
+    ]
+}
