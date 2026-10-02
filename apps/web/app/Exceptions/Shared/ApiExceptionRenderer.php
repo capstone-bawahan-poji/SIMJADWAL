@@ -44,6 +44,7 @@ class ApiExceptionRenderer
                 __('The resource is still referenced by other data.'), 'RESOURCE_IN_USE', 409,
             ),
             $e instanceof HttpExceptionInterface && $e->getStatusCode() === 403 => $this->json(__('Forbidden.'), 'FORBIDDEN', 403),
+            $e instanceof HttpExceptionInterface && $e->getStatusCode() === 419 => $this->json(__('Your session has expired. Please reload the page.'), 'SESSION_EXPIRED', 419),
             default => null,
         };
     }
