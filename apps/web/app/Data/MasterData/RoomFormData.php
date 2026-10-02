@@ -14,6 +14,8 @@ class RoomFormData extends Data
         public ?int $facultyId,
         public string $code,
         public ?string $name,
+        public ?string $building,
+        public ?int $floor,
         public int $capacity,
     ) {}
 
@@ -26,6 +28,8 @@ class RoomFormData extends Data
             facultyId: $facultyId,
             code: $input['code'] ?? $current?->code,
             name: array_key_exists('name', $input) ? $input['name'] : $current?->name,
+            building: array_key_exists('building', $input) ? $input['building'] : $current?->building,
+            floor: array_key_exists('floor', $input) ? $input['floor'] : $current?->floor,
             capacity: (int) ($input['capacity'] ?? $current?->capacity),
         );
     }

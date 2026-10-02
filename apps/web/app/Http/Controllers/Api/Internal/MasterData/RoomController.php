@@ -44,6 +44,7 @@ class RoomController extends ApiController implements HasMiddleware
             search: $v['q'] ?? null,
             facultyId: isset($v['faculty_id']) ? (int) $v['faculty_id'] : null,
             shared: isset($v['shared']) ? (bool) $v['shared'] : null,
+            inUse: isset($v['in_use']) ? (bool) $v['in_use'] : null,
             perPage: (int) ($v['per_page'] ?? Query::DEFAULT_PER_PAGE),
         ));
     }
@@ -53,10 +54,6 @@ class RoomController extends ApiController implements HasMiddleware
         return $this->response($this->roomService->getRoom($room));
     }
 
-    /**
-     * Without faculty_id a faculty admin creates a room of their own faculty,
-     * and superadmin a shared one.
-     */
     public function store(StoreRoomRequest $request): JsonResponse
     {
         $v = $request->validated();

@@ -13,6 +13,7 @@ class ListRoomRequest extends FormRequest
             'q' => ['nullable', 'string', 'max:100'],
             'faculty_id' => ['nullable', 'integer'],
             'shared' => ['nullable', 'boolean'],
+            'in_use' => ['nullable', 'boolean'],
             'page' => ['nullable', 'integer', 'min:1'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:'.Query::MAX_PER_PAGE],
         ];

@@ -19,6 +19,8 @@ class StoreRoomRequest extends FormRequest
             'faculty_id' => ['sometimes', 'nullable', 'integer', Rule::exists(Faculty::class, 'id')->withoutTrashed()],
             'code' => ['required', 'string', 'max:20', Rule::unique(Room::class, 'code')->withoutTrashed()],
             'name' => ['nullable', 'string', 'max:100'],
+            'building' => ['nullable', 'string', 'max:50'],
+            'floor' => ['nullable', 'integer', 'between:0,50'],
             'capacity' => ['required', 'integer', 'between:1,10000'],
         ];
     }

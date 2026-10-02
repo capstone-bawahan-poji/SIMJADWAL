@@ -14,6 +14,8 @@ return new class extends Migration
             $table->foreignId('faculty_id')->nullable()->index()->constrained()->restrictOnDelete();
             $table->string('code', 20);
             $table->string('name', 100)->nullable();
+            $table->string('building', 50)->nullable();
+            $table->smallInteger('floor')->nullable();
             $table->integer('capacity');
             $table->timestamps();
             $table->softDeletes();

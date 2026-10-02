@@ -22,6 +22,8 @@ class UpdateRoomRequest extends FormRequest
             'faculty_id' => ['sometimes', 'nullable', 'integer', Rule::exists(Faculty::class, 'id')->withoutTrashed()],
             'code' => ['sometimes', 'required', 'string', 'max:20', Rule::unique(Room::class, 'code')->withoutTrashed()->ignore($room)],
             'name' => ['sometimes', 'nullable', 'string', 'max:100'],
+            'building' => ['sometimes', 'nullable', 'string', 'max:50'],
+            'floor' => ['sometimes', 'nullable', 'integer', 'between:0,50'],
             'capacity' => ['sometimes', 'required', 'integer', 'between:1,10000'],
         ];
     }

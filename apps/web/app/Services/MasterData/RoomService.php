@@ -26,7 +26,7 @@ readonly class RoomService
     /**
      * @return LengthAwarePaginator<int, RoomData>
      */
-    public function getRooms(User $actor, ?string $search, ?int $facultyId, ?bool $shared, int $perPage): LengthAwarePaginator
+    public function getRooms(User $actor, ?string $search, ?int $facultyId, ?bool $shared, ?bool $inUse, int $perPage): LengthAwarePaginator
     {
         return RoomData::prepareQuery($this->room->newQuery())
             ->unless($this->orgScope->readsAllFaculties($actor), fn (Builder $query) => $query->where(fn (Builder $query) => $query
@@ -34,9 +34,11 @@ readonly class RoomService
                 ->orWhere(fn (Builder $query) => $this->orgScope->applyFacultyScope($query, $actor))))
             ->when($search, fn (Builder $query) => $query->where(fn (Builder $query) => $query
                 ->whereLike('code', "%{$search}%")
-                ->orWhereLike('name', "%{$search}%")))
+                ->orWhereLike('name', "%{$search}%")
+                ->orWhereLike('building', "%{$search}%")))
             ->when($facultyId, fn (Builder $query) => $query->where('faculty_id', $facultyId))
             ->when($shared !== null, fn (Builder $query) => $shared ? $query->whereNull('faculty_id') : $query->whereNotNull('faculty_id'))
+            ->when($inUse !== null, fn (Builder $query) => $inUse ? $query->has('activeScheduleDetails') : $query->doesntHave('activeScheduleDetails'))
             ->orderBy('code')
             ->paginate($perPage)
             ->through(fn (Room $room) => RoomData::from($room));
@@ -87,6 +89,8 @@ readonly class RoomService
             'faculty_id' => $data->facultyId,
             'code' => $data->code,
             'name' => $data->name,
+            'building' => $data->building,
+            'floor' => $data->floor,
             'capacity' => $data->capacity,
         ];
     }
