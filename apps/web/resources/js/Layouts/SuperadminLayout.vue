@@ -1,20 +1,18 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { computed } from 'vue';
 import AppLogo from '@/Components/shared/AppLogo.vue';
+import GlobalSearch from '@/Components/shared/GlobalSearch.vue';
 import { Link, usePage } from '@inertiajs/vue3';
+import { initials, ROLE_LABELS } from '@/lib/labels';
 
 const page = usePage();
-const userName = computed(() => (page.props.auth as any)?.user?.name ?? 'Superadmin');
-const userInitials = computed(() =>
-    userName.value
-        .split(' ')
-        .slice(0, 2)
-        .map((n: string) => n[0])
-        .join('')
-        .toUpperCase(),
-);
+const user = computed(() => page.props.auth.user);
+const userName = computed(() => user.value?.name ?? '');
+const userInitials = computed(() => initials(userName.value));
+const roleLabel = computed(() => (user.value?.role ? ROLE_LABELS[user.value.role] : ''));
+const isSuperAdmin = computed(() => user.value?.role === 'superadmin');
 
-const navItems = [
+const allNavItems = [
     {
         label: 'Dashboard',
         href: route('dashboard'),
@@ -47,6 +45,13 @@ const navItems = [
     },
 ];
 
+const profileIcon = `<path d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" stroke-linecap="round" stroke-linejoin="round"/>`;
+
+const navItems = computed(() => [
+    ...allNavItems.filter((item) => isSuperAdmin.value || item.routeName === 'dashboard'),
+    { label: 'Profil Saya', href: route('profile.edit'), routeName: 'profile.edit', icon: profileIcon },
+]);
+
 function isActive(routeName: string) {
     try {
         return route().current(routeName);
@@ -67,7 +72,7 @@ function isActive(routeName: string) {
                 </div>
                 <div class="min-w-0">
                     <h1 class="text-sm font-bold text-gray-900 tracking-tight leading-tight truncate">Sistem Penjadwalan Mata Kuliah</h1>
-                    <p class="text-xs font-medium text-gray-400 mt-0.5">Superadmin Portal</p>
+                    <p class="text-xs font-medium text-gray-400 mt-0.5">{{ isSuperAdmin ? 'Superadmin Portal' : roleLabel }}</p>
                 </div>
             </div>
 
@@ -108,7 +113,7 @@ function isActive(routeName: string) {
                     </div>
                     <div class="min-w-0 flex-1">
                         <p class="text-xs font-bold text-gray-900 truncate">{{ userName }}</p>
-                        <p class="text-[11px] text-gray-400 truncate">Biro Administrasi Sistem</p>
+                        <p class="text-[11px] text-gray-400 truncate">{{ roleLabel }}</p>
                     </div>
                     <Link
                         :href="route('logout')"
@@ -129,25 +134,15 @@ function isActive(routeName: string) {
         <div class="pl-72 min-h-screen flex flex-col">
             <!-- Topbar -->
             <header class="fixed top-0 left-72 right-0 h-16 bg-white/80 backdrop-blur-xl border-b border-gray-100 z-40 flex items-center justify-between px-6">
-                <!-- Search -->
-                <div class="w-full max-w-sm relative">
-                    <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-gray-400">
-                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
-                            <path d="M21 21l-5.197-5.197m0 0A7.5 7.5 0 105.196 5.196a7.5 7.5 0 0010.607 10.607z" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                    </span>
-                    <input
-                        class="w-full pl-10 pr-4 py-2.5 bg-gray-50 rounded-xl text-xs placeholder:text-gray-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all border border-gray-100"
-                        placeholder="Cari nama fakultas, prodi, kode entitas..."
-                        type="text"
-                    >
-                </div>
+                <!-- Search: superadmin only, the results open superadmin pages -->
+                <GlobalSearch v-if="isSuperAdmin" />
+                <div v-else />
 
                 <!-- Right side -->
                 <div class="flex items-center gap-4 shrink-0">
                     <div class="text-right hidden sm:block">
                         <p class="text-xs font-bold text-gray-900 leading-tight">{{ userName }}</p>
-                        <p class="text-[11px] font-medium text-gray-400 leading-tight">Superadmin</p>
+                        <p class="text-[11px] font-medium text-gray-400 leading-tight">{{ roleLabel }}</p>
                     </div>
                     <div class="relative">
                         <div class="w-10 h-10 rounded-full bg-primary text-white flex items-center justify-center font-bold text-xs shadow-sm">

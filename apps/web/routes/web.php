@@ -14,7 +14,7 @@ Route::redirect('/', '/login');
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
-    Route::prefix('superadmin')->name('superadmin.')->group(function () {
+    Route::middleware('role:superadmin')->prefix('superadmin')->name('superadmin.')->group(function () {
         Route::get('/faculty-program', function () {
             return inertia('Superadmin/MasterData/FacultyProgram/Index');
         })->name('faculty-program.index');
