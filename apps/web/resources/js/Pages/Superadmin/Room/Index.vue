@@ -1,8 +1,142 @@
 <script setup lang="ts">
 import SuperadminLayout from '@/Layouts/SuperadminLayout.vue';
 import { Head } from '@inertiajs/vue3';
+import { UserRound } from 'lucide-vue-next';
+import { computed, onMounted, ref, watch } from 'vue';
 import Button from '@/Components/ui/Button.vue';
 import Card from '@/Components/ui/Card.vue';
+import Modal from '@/Components/Modal.vue';
+import Alert from '@/Components/ui/Alert.vue';
+import ConfirmDialog from '@/Components/ui/ConfirmDialog.vue';
+import Pagination from '@/Components/ui/Pagination.vue';
+import { destroy } from '@/lib/api';
+import { queryParam } from '@/lib/query';
+import { countOf, useCollection, usePaginatedList } from '@/composables/useApiList';
+import { useApiForm } from '@/composables/useApiForm';
+import type { FacultySummary, Room } from '@/types/models';
+
+/** Owner filter: a faculty id, or "shared" for rooms without a faculty. */
+type Owner = number | 'shared' | '';
+
+const fieldClass = 'w-full rounded-xl border-gray-200 bg-gray-50 text-gray-900 text-sm focus:border-primary focus:ring-primary';
+
+const { items: faculties } = useCollection<FacultySummary>('faculties');
+
+const owner = ref<Owner>('');
+const { filters, items: rooms, pagination, page, loading, error: listError, reload } = usePaginatedList<Room, {
+    q: string;
+    faculty_id: number | '';
+    shared: boolean | '';
+    in_use: boolean | '';
+}>('rooms', { q: queryParam('q'), faculty_id: '', shared: '', in_use: '' });
+
+watch(owner, (value) => {
+    filters.faculty_id = typeof value === 'number' ? value : '';
+    filters.shared = value === 'shared' ? true : '';
+});
+
+const metrics = ref({ total: 0, available: 0, inUse: 0 });
+
+async function loadMetrics(): Promise<void> {
+    try {
+        const [total, inUse] = await Promise.all([countOf('rooms'), countOf('rooms', { in_use: true })]);
+        metrics.value = { total, available: total - inUse, inUse };
+    } catch {
+        // The table shows the error; the cards keep their last values.
+    }
+}
+
+onMounted(loadMetrics);
+
+const flash = ref<string | null>(null);
+
+function refresh(message: string): void {
+    flash.value = message;
+    void reload();
+    void loadMetrics();
+}
+
+// Create / edit modal.
+const isModalOpen = ref(false);
+const editing = ref<Room | null>(null);
+const form = useApiForm(() => ({
+    code: '',
+    name: '',
+    building: '',
+    floor: '' as number | '',
+    capacity: 40 as number | '',
+    faculty_id: '' as number | '',
+}));
+
+const title = computed(() => (editing.value ? `Ubah Ruangan ${editing.value.code}` : 'Tambah Ruangan'));
+
+function openCreate(): void {
+    editing.value = null;
+    form.reset({ faculty_id: typeof owner.value === 'number' ? owner.value : '' });
+    isModalOpen.value = true;
+}
+
+function openEdit(room: Room): void {
+    editing.value = room;
+    form.reset({
+        code: room.code,
+        name: room.name ?? '',
+        building: room.building ?? '',
+        floor: room.floor ?? '',
+        capacity: room.capacity,
+        faculty_id: room.faculty_id ?? '',
+    });
+    isModalOpen.value = true;
+}
+
+async function save(): Promise<void> {
+    const payload = {
+        code: form.data.code,
+        name: form.data.name || null,
+        building: form.data.building || null,
+        floor: form.data.floor === '' ? null : form.data.floor,
+        capacity: form.data.capacity,
+        // Empty = shared room.
+        faculty_id: form.data.faculty_id || null,
+    };
+    const saved = editing.value
+        ? await form.submit<Room>('patch', `rooms/${editing.value.id}`, payload)
+        : await form.submit<Room>('post', 'rooms', payload);
+
+    if (saved) {
+        isModalOpen.value = false;
+        refresh(`Ruangan ${saved.code} ${editing.value ? 'diperbarui' : 'ditambahkan'}.`);
+    }
+}
+
+// Delete; refused with 409 while TPB classes or active schedules use the room.
+const deleteTarget = ref<Room | null>(null);
+const deleteProcessing = ref(false);
+const deleteError = ref<string | null>(null);
+
+function askDelete(room: Room): void {
+    deleteTarget.value = room;
+    deleteError.value = null;
+}
+
+async function confirmDelete(): Promise<void> {
+    const room = deleteTarget.value;
+
+    if (!room) return;
+
+    deleteProcessing.value = true;
+    const error = await destroy(`rooms/${room.id}`);
+    deleteProcessing.value = false;
+
+    if (error) {
+        deleteError.value = error.message;
+
+        return;
+    }
+
+    deleteTarget.value = null;
+    refresh(`Ruangan ${room.code} dihapus.`);
+}
 </script>
 
 <template>
@@ -16,46 +150,37 @@ import Card from '@/Components/ui/Card.vue';
                     <h2 class="text-2xl font-bold text-gray-900 tracking-tight">Data Ruangan</h2>
                 </div>
                 <div class="flex items-center gap-3">
-                    <Button variant="ghost" class="border border-gray-200 bg-white hover:bg-gray-50 text-gray-700">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75"></path></svg>
-                        Filter & Gedung
-                    </Button>
-                    <Button variant="ghost" class="border border-gray-200 bg-white hover:bg-gray-50 text-gray-700">
-                        <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"></path></svg>
-                        Ekspor Data
+                    <Button @click="openCreate" class="bg-primary hover:bg-primary-hover text-white">
+                        + Tambah Ruangan
                     </Button>
                 </div>
             </div>
 
+            <Alert v-if="flash" variant="success" :title="flash" dismissible @dismiss="flash = null" />
+
             <!-- Metrics grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
                 <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
                     <div class="flex items-center gap-2 mb-2">
                         <span class="w-2 h-2 rounded-full bg-blue-600"></span>
                         <p class="text-[11px] font-bold uppercase tracking-wider text-gray-500">Total Ruangan</p>
                     </div>
-                    <h3 class="text-2xl font-black text-gray-900">48 <span class="text-xs font-semibold text-gray-500">Ruangan</span></h3>
+                    <h3 class="text-2xl font-black text-gray-900">{{ metrics.total }} <span class="text-xs font-semibold text-gray-500">Ruangan</span></h3>
                 </div>
                 <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
                     <div class="flex items-center gap-2 mb-2">
                         <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
                         <p class="text-[11px] font-bold uppercase tracking-wider text-gray-500">Ruang Tersedia</p>
                     </div>
-                    <h3 class="text-2xl font-black text-gray-900">36 <span class="text-xs font-semibold text-gray-500">Ruang</span></h3>
+                    <h3 class="text-2xl font-black text-gray-900">{{ metrics.available }} <span class="text-xs font-semibold text-gray-500">Ruang</span></h3>
                 </div>
                 <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
                     <div class="flex items-center gap-2 mb-2">
                         <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                        <p class="text-[11px] font-bold uppercase tracking-wider text-gray-500">Sedang Dipakai</p>
+                        <p class="text-[11px] font-bold uppercase tracking-wider text-gray-500">Digunakan</p>
                     </div>
-                    <h3 class="text-2xl font-black text-gray-900">12 <span class="text-xs font-semibold text-gray-500">Ruang</span></h3>
-                </div>
-                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
-                    <div class="flex items-center gap-2 mb-2">
-                        <span class="w-2 h-2 rounded-full bg-primary"></span>
-                        <p class="text-[11px] font-bold uppercase tracking-wider text-gray-500">Total Kapasitas</p>
-                    </div>
-                    <h3 class="text-2xl font-black text-gray-900">2.850 <span class="text-xs font-semibold text-gray-500">Kursi</span></h3>
+                    <h3 class="text-2xl font-black text-gray-900">{{ metrics.inUse }} <span class="text-xs font-semibold text-gray-500">Ruang</span></h3>
+                    <p class="text-[11px] text-gray-400 mt-1">Terpakai di jadwal aktif</p>
                 </div>
             </div>
 
@@ -64,24 +189,28 @@ import Card from '@/Components/ui/Card.vue';
                 <!-- Toolbar -->
                 <div class="p-5 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white rounded-t-2xl">
                     <div class="flex flex-wrap gap-3">
-                        <select class="rounded-xl border-gray-200 text-xs font-semibold focus:border-primary focus:ring-primary text-gray-700 bg-gray-50 w-48">
-                            <option>Semua Fakultas</option>
-                            <option>Fakultas Sains Teknologi Informasi</option>
+                        <select v-model="owner" class="rounded-xl border-gray-200 text-xs font-semibold focus:border-primary focus:ring-primary text-gray-700 bg-gray-50 w-56" aria-label="Filter pemilik">
+                            <option value="">Semua Pemilik</option>
+                            <option value="shared">Ruang Bersama</option>
+                            <option v-for="faculty in faculties" :key="faculty.id" :value="faculty.id">{{ faculty.name }}</option>
                         </select>
-                        <select class="rounded-xl border-gray-200 text-xs font-semibold focus:border-primary focus:ring-primary text-gray-700 bg-gray-50 w-40">
-                            <option>Semua Status</option>
-                            <option>Tersedia</option>
-                            <option>Sedang Dipakai</option>
+                        <select v-model="filters.in_use" class="rounded-xl border-gray-200 text-xs font-semibold focus:border-primary focus:ring-primary text-gray-700 bg-gray-50 w-40" aria-label="Filter status">
+                            <option value="">Semua Status</option>
+                            <option :value="false">Tersedia</option>
+                            <option :value="true">Digunakan</option>
                         </select>
                     </div>
                     <div class="w-full md:w-64">
                         <input
-                            type="text"
-                            placeholder="Cari nama ruangan..."
+                            v-model="filters.q"
+                            type="search"
+                            placeholder="Cari kode, nama, atau gedung..."
                             class="w-full rounded-xl border-gray-200 text-xs focus:border-primary focus:ring-primary placeholder-gray-400 bg-gray-50"
                         />
                     </div>
                 </div>
+
+                <Alert v-if="listError" :title="listError.message" class="m-5" />
 
                 <!-- Table -->
                 <div class="overflow-x-auto w-full">
@@ -92,129 +221,53 @@ import Card from '@/Components/ui/Card.vue';
                                 <th class="py-4 px-6">Gedung & Lantai</th>
                                 <th class="py-4 px-6">Kapasitas</th>
                                 <th class="py-4 px-6">Fakultas Pemilik</th>
-                                <th class="py-4 px-6">Fasilitas Utama</th>
                                 <th class="py-4 px-6">Status</th>
                                 <th class="py-4 px-6 text-center">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100 text-xs text-gray-700">
-                            <!-- Ruang 1 -->
-                            <tr class="hover:bg-gray-50/60 transition-colors">
+                        <tbody class="divide-y divide-gray-100 text-xs text-gray-700" :class="{ 'opacity-60': loading }">
+                            <tr v-if="!loading && rooms.length === 0">
+                                <td colspan="6" class="py-10 px-6 text-center text-sm text-gray-500">Tidak ada ruangan yang cocok dengan filter.</td>
+                            </tr>
+                            <tr v-for="room in rooms" :key="room.id" class="hover:bg-gray-50/60 transition-colors">
                                 <td class="py-4 px-6">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-xs shrink-0">R1</div>
+                                        <div class="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-[10px] shrink-0">{{ room.code }}</div>
                                         <div>
-                                            <p class="font-bold text-gray-900">Ruang A206</p>
-                                            <p class="text-[11px] text-gray-400">KODE: RUANG-201</p>
+                                            <p class="font-bold text-gray-900">{{ room.name ?? `Ruang ${room.code}` }}</p>
+                                            <p class="text-[11px] text-gray-400">KODE: {{ room.code }}</p>
                                         </div>
                                     </div>
                                 </td>
                                 <td class="py-4 px-6">
-                                    <p class="font-semibold text-gray-800">Gedung A</p>
-                                    <p class="text-[11px] text-gray-400">Lantai 2 - Sayap Barat</p>
+                                    <p class="font-semibold text-gray-800">{{ room.building ?? '-' }}</p>
+                                    <p v-if="room.floor !== null" class="text-[11px] text-gray-400">Lantai {{ room.floor }}</p>
                                 </td>
                                 <td class="py-4 px-6">
                                     <span class="inline-flex items-center gap-1.5 font-bold text-gray-800 bg-gray-100 px-2.5 py-1 rounded-md">
-                                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"></path></svg>
-                                        45 Kursi
+                                        <UserRound class="w-3.5 h-3.5 text-gray-400" aria-hidden="true" />
+                                        {{ room.capacity }} Kursi
                                     </span>
                                 </td>
-                                <td class="py-4 px-6 font-medium text-gray-700">Fakultas Sains Teknologi Informasi</td>
+                                <td class="py-4 px-6 font-medium text-gray-700">{{ room.faculty?.name ?? 'Ruang Bersama' }}</td>
                                 <td class="py-4 px-6">
-                                    <div class="flex flex-wrap gap-1">
-                                        <span class="px-2 py-0.5 rounded bg-gray-100 text-[10px] font-medium text-gray-600">Proyektor</span>
-                                        <span class="px-2 py-0.5 rounded bg-gray-100 text-[10px] font-medium text-gray-600">AC</span>
-                                    </div>
-                                </td>
-                                <td class="py-4 px-6">
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-green-50 text-green-700 border border-green-100">
+                                    <span
+                                        v-if="room.is_in_use"
+                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-100"
+                                    >
+                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Digunakan
+                                    </span>
+                                    <span
+                                        v-else
+                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-green-50 text-green-700 border border-green-100"
+                                    >
                                         <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>Tersedia
                                     </span>
                                 </td>
                                 <td class="py-4 px-6 text-center">
                                     <div class="flex justify-center gap-2">
-                                        <button class="p-1.5 rounded hover:bg-primary/10 text-gray-400 hover:text-primary transition-colors">Edit</button>
-                                        <button class="p-1.5 rounded hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors">Hapus</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <!-- Ruang 2 -->
-                            <tr class="hover:bg-gray-50/60 transition-colors">
-                                <td class="py-4 px-6">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-9 h-9 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs shrink-0">LK</div>
-                                        <div>
-                                            <p class="font-bold text-gray-900">Lab Komputer 1</p>
-                                            <p class="text-[11px] text-gray-400">KODE: LAB-FTI-01</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="py-4 px-6">
-                                    <p class="font-semibold text-gray-800">Gedung Laboratorium 1</p>
-                                    <p class="text-[11px] text-gray-400">Lantai 2</p>
-                                </td>
-                                <td class="py-4 px-6">
-                                    <span class="inline-flex items-center gap-1.5 font-bold text-gray-800 bg-gray-100 px-2.5 py-1 rounded-md">
-                                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17.25v1.007a3 3 0 01-.879 2.122L7.5 21h9l-.621-.621A3 3 0 0115 18.257V17.25m6-12V15a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 15V5.25m18 0A2.25 2.25 0 0018.75 3H5.25A2.25 2.25 0 003 5.25m18 0H3"></path></svg>
-                                        35 PC
-                                    </span>
-                                </td>
-                                <td class="py-4 px-6 font-medium text-gray-700">Fakultas Sains Teknologi Informasi</td>
-                                <td class="py-4 px-6">
-                                    <div class="flex flex-wrap gap-1">
-                                        <span class="px-2 py-0.5 rounded bg-gray-100 text-[10px] font-medium text-gray-600">35 PC High-End</span>
-                                        <span class="px-2 py-0.5 rounded bg-gray-100 text-[10px] font-medium text-gray-600">LAN</span>
-                                    </div>
-                                </td>
-                                <td class="py-4 px-6">
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-100">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Dipakai (TI-2A)
-                                    </span>
-                                </td>
-                                <td class="py-4 px-6 text-center">
-                                    <div class="flex justify-center gap-2">
-                                        <button class="p-1.5 rounded hover:bg-primary/10 text-gray-400 hover:text-primary transition-colors">Edit</button>
-                                        <button class="p-1.5 rounded hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors">Hapus</button>
-                                    </div>
-                                </td>
-                            </tr>
-                            <!-- Ruang 3 -->
-                            <tr class="hover:bg-gray-50/60 transition-colors">
-                                <td class="py-4 px-6">
-                                    <div class="flex items-center gap-3">
-                                        <div class="w-9 h-9 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center font-bold text-xs shrink-0">AU</div>
-                                        <div>
-                                            <p class="font-bold text-gray-900">Auditorium Gedung A</p>
-                                            <p class="text-[11px] text-gray-400">KODE: AUD-GD-01</p>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="py-4 px-6">
-                                    <p class="font-semibold text-gray-800">Gedung A</p>
-                                    <p class="text-[11px] text-gray-400">Lantai 3</p>
-                                </td>
-                                <td class="py-4 px-6">
-                                    <span class="inline-flex items-center gap-1.5 font-bold text-gray-800 bg-gray-100 px-2.5 py-1 rounded-md">
-                                        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z"></path></svg>
-                                        250 Kursi
-                                    </span>
-                                </td>
-                                <td class="py-4 px-6 font-medium text-gray-700">-</td>
-                                <td class="py-4 px-6">
-                                    <div class="flex flex-wrap gap-1">
-                                        <span class="px-2 py-0.5 rounded bg-gray-100 text-[10px] font-medium text-gray-600">Dual Proyektor</span>
-                                        <span class="px-2 py-0.5 rounded bg-gray-100 text-[10px] font-medium text-gray-600">Mic</span>
-                                    </div>
-                                </td>
-                                <td class="py-4 px-6">
-                                    <span class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-green-50 text-green-700 border border-green-100">
-                                        <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>Tersedia
-                                    </span>
-                                </td>
-                                <td class="py-4 px-6 text-center">
-                                    <div class="flex justify-center gap-2">
-                                        <button class="p-1.5 rounded hover:bg-primary/10 text-gray-400 hover:text-primary transition-colors">Edit</button>
-                                        <button class="p-1.5 rounded hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors">Hapus</button>
+                                        <button v-if="room.can_update" type="button" class="p-1.5 rounded hover:bg-primary/10 text-gray-400 hover:text-primary transition-colors" @click="openEdit(room)">Edit</button>
+                                        <button v-if="room.can_delete" type="button" class="p-1.5 rounded hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors" @click="askDelete(room)">Hapus</button>
                                     </div>
                                 </td>
                             </tr>
@@ -222,20 +275,75 @@ import Card from '@/Components/ui/Card.vue';
                     </table>
                 </div>
 
-                <!-- Pagination -->
-                <div class="p-4 border-t border-gray-100 bg-gray-50/40 flex flex-col sm:flex-row justify-between items-center gap-4 text-xs rounded-b-2xl text-gray-500">
-                    <p class="font-medium">Menampilkan <span class="font-bold text-gray-800">1</span> hingga <span class="font-bold text-gray-800">6</span> dari <span class="font-bold text-gray-800">48</span> ruangan</p>
-                    <div class="flex gap-1">
-                        <Button variant="ghost" disabled class="bg-white border-gray-200 text-xs px-3 py-1.5">Sebelumnya</Button>
-                        <Button class="text-xs w-8 p-0 bg-primary text-white font-bold">1</Button>
-                        <Button variant="ghost" class="bg-white border-gray-200 text-xs w-8 p-0 hover:bg-gray-100 font-semibold text-gray-600">2</Button>
-                        <Button variant="ghost" class="bg-white border-gray-200 text-xs w-8 p-0 hover:bg-gray-100 font-semibold text-gray-600">3</Button>
-                        <span class="px-2 text-gray-400 self-center">...</span>
-                        <Button variant="ghost" class="bg-white border-gray-200 text-xs w-8 p-0 hover:bg-gray-100 font-semibold text-gray-600">8</Button>
-                        <Button variant="ghost" class="bg-white border-gray-200 text-xs px-3 py-1.5 font-semibold text-gray-700 hover:bg-gray-50">Selanjutnya</Button>
-                    </div>
-                </div>
+                <Pagination v-model:page="page" :pagination="pagination" label="ruangan" />
             </Card>
         </div>
+
+        <!-- Create / Edit Modal -->
+        <Modal :show="isModalOpen" @close="isModalOpen = false" maxWidth="2xl">
+            <div class="flex justify-between items-center p-6 border-b border-gray-100 bg-gray-50 rounded-t-lg">
+                <div>
+                    <h2 class="text-lg font-bold text-gray-900">{{ title }}</h2>
+                    <p class="text-sm text-gray-500">Ruangan tanpa fakultas pemilik dipakai bersama semua fakultas</p>
+                </div>
+                <button type="button" @click="isModalOpen = false" class="text-gray-400 hover:text-gray-900 transition">Tutup</button>
+            </div>
+            <form @submit.prevent="save" class="p-6 space-y-6">
+                <Alert v-if="form.failure.value" :title="form.failure.value.message" />
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label for="room-code" class="block text-sm font-semibold text-gray-900 mb-1.5">Kode Ruangan</label>
+                        <input id="room-code" v-model="form.data.code" type="text" placeholder="Contoh: E101" :class="fieldClass" required />
+                        <p v-if="form.errors.value.code" class="mt-1 text-xs text-red-600">{{ form.errors.value.code }}</p>
+                    </div>
+                    <div>
+                        <label for="room-name" class="block text-sm font-semibold text-gray-900 mb-1.5">Nama Ruangan (opsional)</label>
+                        <input id="room-name" v-model="form.data.name" type="text" placeholder="Contoh: Lab Komputer" :class="fieldClass" />
+                        <p v-if="form.errors.value.name" class="mt-1 text-xs text-red-600">{{ form.errors.value.name }}</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label for="room-building" class="block text-sm font-semibold text-gray-900 mb-1.5">Gedung</label>
+                        <input id="room-building" v-model="form.data.building" type="text" placeholder="Contoh: Gedung E" :class="fieldClass" />
+                        <p v-if="form.errors.value.building" class="mt-1 text-xs text-red-600">{{ form.errors.value.building }}</p>
+                    </div>
+                    <div>
+                        <label for="room-floor" class="block text-sm font-semibold text-gray-900 mb-1.5">Lantai</label>
+                        <input id="room-floor" v-model.number="form.data.floor" type="number" min="0" max="50" placeholder="1" :class="fieldClass" />
+                        <p v-if="form.errors.value.floor" class="mt-1 text-xs text-red-600">{{ form.errors.value.floor }}</p>
+                    </div>
+                    <div>
+                        <label for="room-capacity" class="block text-sm font-semibold text-gray-900 mb-1.5">Kapasitas (kursi)</label>
+                        <input id="room-capacity" v-model.number="form.data.capacity" type="number" min="1" :class="fieldClass" required />
+                        <p v-if="form.errors.value.capacity" class="mt-1 text-xs text-red-600">{{ form.errors.value.capacity }}</p>
+                    </div>
+                </div>
+                <div>
+                    <label for="room-faculty" class="block text-sm font-semibold text-gray-900 mb-1.5">Fakultas Pemilik</label>
+                    <select id="room-faculty" v-model="form.data.faculty_id" :class="fieldClass">
+                        <option value="">Ruang Bersama (semua fakultas)</option>
+                        <option v-for="faculty in faculties" :key="faculty.id" :value="faculty.id">{{ faculty.name }}</option>
+                    </select>
+                    <p v-if="form.errors.value.faculty_id" class="mt-1 text-xs text-red-600">{{ form.errors.value.faculty_id }}</p>
+                </div>
+                <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                    <Button type="button" @click="isModalOpen = false" variant="ghost" class="bg-gray-100 hover:bg-gray-200">Batal</Button>
+                    <Button type="submit" :loading="form.processing.value">Simpan Ruangan</Button>
+                </div>
+            </form>
+        </Modal>
+
+        <ConfirmDialog
+            :show="deleteTarget !== null"
+            title="Hapus ruangan?"
+            :processing="deleteProcessing"
+            :error="deleteError"
+            @confirm="confirmDelete"
+            @close="deleteTarget = null"
+        >
+            Ruangan <strong>{{ deleteTarget?.code }}</strong> akan dihapus. Penghapusan ditolak selama ruangan masih dipakai kelas TPB atau jadwal aktif.
+        </ConfirmDialog>
     </SuperadminLayout>
 </template>

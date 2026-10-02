@@ -1,11 +1,124 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import SuperadminLayout from '@/Layouts/SuperadminLayout.vue';
 import { Head } from '@inertiajs/vue3';
+import { Pencil, Trash2 } from 'lucide-vue-next';
 import Button from '@/Components/ui/Button.vue';
 import Card from '@/Components/ui/Card.vue';
+import Modal from '@/Components/Modal.vue';
+import Alert from '@/Components/ui/Alert.vue';
+import ConfirmDialog from '@/Components/ui/ConfirmDialog.vue';
+import { destroy } from '@/lib/api';
+import { formatTime, SKS_MINUTES, slotCode } from '@/lib/labels';
+import { useCollection } from '@/composables/useApiList';
+import { useApiForm } from '@/composables/useApiForm';
+import type { TimeSlot } from '@/types/models';
 
-const viewMode = ref('table');
+const DAYS = [
+    { value: 1, label: 'Senin' },
+    { value: 2, label: 'Selasa' },
+    { value: 3, label: 'Rabu' },
+    { value: 4, label: 'Kamis' },
+    { value: 5, label: 'Jumat' },
+];
+
+const fieldClass = 'w-full rounded-xl border-gray-200 bg-gray-50 text-gray-900 text-sm focus:border-primary focus:ring-primary';
+
+const viewMode = ref<'table' | 'grid'>('table');
+const { items: slots, loading, error: listError, reload } = useCollection<TimeSlot>('time-slots');
+
+const slotAt = computed(() => new Map(slots.value.map((slot) => [`${slot.day}-${slot.session}`, slot])));
+const sessions = computed(() => [...new Set(slots.value.map((slot) => slot.session))].sort((a, b) => a - b));
+const activeDays = computed(() => new Set(slots.value.map((slot) => slot.day)).size);
+
+function sessionSummary(session: number): { time: string; sks: number; days: number } | null {
+    const inSession = slots.value.filter((slot) => slot.session === session);
+
+    if (inSession.length === 0) return null;
+
+    const counts = new Map<string, { slot: TimeSlot; count: number }>();
+
+    for (const slot of inSession) {
+        const key = `${slot.start_time}-${slot.end_time}-${slot.type}`;
+        counts.set(key, { slot, count: (counts.get(key)?.count ?? 0) + 1 });
+    }
+
+    const common = [...counts.values()].sort((a, b) => b.count - a.count)[0].slot;
+
+    return { time: timeRange(common), sks: common.type, days: inSession.length };
+}
+
+function timeRange(slot: TimeSlot): string {
+    return `${formatTime(slot.start_time)} - ${formatTime(slot.end_time)} WITA`;
+}
+
+function sksLabel(sks: number): string {
+    return `${sks} SKS (${sks * SKS_MINUTES} Menit)`;
+}
+
+const flash = ref<string | null>(null);
+
+function refresh(message: string): void {
+    flash.value = message;
+    void reload();
+}
+
+// Create / edit modal.
+const isModalOpen = ref(false);
+const editing = ref<TimeSlot | null>(null);
+const form = useApiForm(() => ({ day: 1, session: 1, start_time: '07:30', end_time: '10:00', type: 3 as 2 | 3 }));
+
+function openCreate(day?: number, session?: number): void {
+    editing.value = null;
+    form.reset({ day: day ?? 1, session: session ?? (sessions.value.at(-1) ?? 0) + 1 });
+    isModalOpen.value = true;
+}
+
+function openEdit(slot: TimeSlot): void {
+    editing.value = slot;
+    form.reset({ day: slot.day, session: slot.session, start_time: slot.start_time.slice(0, 5), end_time: slot.end_time.slice(0, 5), type: slot.type });
+    isModalOpen.value = true;
+}
+
+async function save(): Promise<void> {
+    const saved = editing.value
+        ? await form.submit<TimeSlot>('patch', `time-slots/${editing.value.id}`)
+        : await form.submit<TimeSlot>('post', 'time-slots');
+
+    if (saved) {
+        isModalOpen.value = false;
+        refresh(`Slot ${slotCode(saved)} ${editing.value ? 'diperbarui' : 'ditambahkan'}.`);
+    }
+}
+
+// Delete; a slot already used by preferences, TPB groups or schedules is refused (409).
+const deleteTarget = ref<TimeSlot | null>(null);
+const deleteProcessing = ref(false);
+const deleteError = ref<string | null>(null);
+
+function askDelete(slot: TimeSlot): void {
+    deleteTarget.value = slot;
+    deleteError.value = null;
+}
+
+async function confirmDelete(): Promise<void> {
+    const slot = deleteTarget.value;
+
+    if (!slot) return;
+
+    deleteProcessing.value = true;
+    const error = await destroy(`time-slots/${slot.id}`);
+    deleteProcessing.value = false;
+
+    if (error) {
+        deleteError.value = error.message;
+
+        return;
+    }
+
+    deleteTarget.value = null;
+    refresh(`Slot ${slotCode(slot)} dihapus.`);
+}
 </script>
 
 <template>
@@ -20,41 +133,29 @@ const viewMode = ref('table');
                         <h2 class="text-2xl font-bold text-gray-900 tracking-tight">Data Jadwal</h2>
                     </div>
                 </div>
-                
+
                 <!-- Action Buttons -->
                 <div class="flex flex-wrap items-center gap-2.5">
-                    <Button variant="ghost" class="bg-white border-gray-200 text-gray-700 shadow-sm hover:bg-gray-50">
-                        <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-                        Filter Hari Aktif
-                    </Button>
-                    <Button variant="ghost" class="bg-white border-gray-200 text-gray-700 shadow-sm hover:bg-gray-50">
-                        <svg class="w-4 h-4 mr-2 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-                        Reset Default
-                    </Button>
+                    <Button @click="openCreate()" class="bg-primary hover:bg-primary-hover text-white">+ Tambah Slot</Button>
                 </div>
             </div>
 
+            <Alert v-if="flash" variant="success" :title="flash" dismissible @dismiss="flash = null" />
+            <Alert v-if="listError" :title="listError.message" />
+
             <!-- Summary Cards -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                <!-- Card 1 -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
                 <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-center">
-                    <p class="text-[11px] font-bold tracking-wider text-gray-400 uppercase">Total Slot Aktif</p>
-                    <h3 class="text-2xl font-extrabold text-gray-900 mt-1">20 <span class="text-xs font-semibold text-gray-400">Slot</span></h3>
+                    <p class="text-[11px] font-bold tracking-wider text-gray-400 uppercase">Total Slot</p>
+                    <h3 class="text-2xl font-extrabold text-gray-900 mt-1">{{ slots.length }} <span class="text-xs font-semibold text-gray-400">Slot</span></h3>
                 </div>
-                <!-- Card 2 -->
                 <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-center">
                     <p class="text-[11px] font-bold tracking-wider text-gray-400 uppercase">Hari Operasional</p>
-                    <h3 class="text-2xl font-extrabold text-gray-900 mt-1">5 <span class="text-xs font-semibold text-gray-400">Hari</span></h3>
+                    <h3 class="text-2xl font-extrabold text-gray-900 mt-1">{{ activeDays }} <span class="text-xs font-semibold text-gray-400">Hari</span></h3>
                 </div>
-                <!-- Card 3 -->
                 <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-center">
                     <p class="text-[11px] font-bold tracking-wider text-gray-400 uppercase">Sesi per Hari</p>
-                    <h3 class="text-2xl font-extrabold text-gray-900 mt-1">4 <span class="text-xs font-semibold text-gray-400">Sesi</span></h3>
-                </div>
-                <!-- Card 4 -->
-                <div class="bg-white p-5 rounded-2xl border border-gray-100 shadow-sm flex flex-col justify-center">
-                    <p class="text-[11px] font-bold tracking-wider text-gray-400 uppercase">Slot Diedit Manual</p>
-                    <h3 class="text-2xl font-extrabold text-gray-900 mt-1">3 <span class="text-xs font-semibold text-gray-900">Slot Kustom</span></h3>
+                    <h3 class="text-2xl font-extrabold text-gray-900 mt-1">{{ sessions.length }} <span class="text-xs font-semibold text-gray-400">Sesi</span></h3>
                 </div>
             </div>
 
@@ -64,245 +165,158 @@ const viewMode = ref('table');
                     <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-5">
                         <div>
                             <h3 class="font-bold text-base text-gray-900">Matriks Slot Waktu Mingguan</h3>
-                            <p class="text-xs text-gray-400 mt-0.5">Atur jam mulai, selesai, dan tipe sesi per kombinasi hari</p>
+                            <p class="text-xs text-gray-400 mt-0.5">Atur jam mulai, selesai, dan panjang sesi (1 SKS = {{ SKS_MINUTES }} menit) per kombinasi hari</p>
                         </div>
                         <div class="flex items-center gap-2">
                             <div class="flex items-center bg-gray-50 border border-gray-200 rounded-xl p-1 text-xs">
                                 <button @click="viewMode = 'grid'" :class="['px-3 py-1.5 rounded-lg font-medium transition-colors', viewMode === 'grid' ? 'bg-white font-semibold text-primary shadow-sm' : 'text-gray-500 hover:text-gray-800']" type="button">Tampilan Grid</button>
                                 <button @click="viewMode = 'table'" :class="['px-3 py-1.5 rounded-lg font-medium transition-colors', viewMode === 'table' ? 'bg-white font-semibold text-primary shadow-sm' : 'text-gray-500 hover:text-gray-800']" type="button">Tampilan Tabel</button>
                             </div>
-                            <button class="p-2 border border-gray-200 rounded-xl text-gray-500 hover:bg-gray-50 transition-colors" title="Download Jadwal Matriks">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg>
-                            </button>
                         </div>
                     </div>
                 </div>
 
-                <div v-if="viewMode === 'table'" class="overflow-x-auto p-5 lg:p-6 pt-0 bg-white">
+                <div v-if="!loading && slots.length === 0" class="p-10 text-center text-sm text-gray-500 bg-white">
+                    Belum ada slot waktu. Tambahkan slot pertama.
+                </div>
+
+                <div v-else-if="viewMode === 'table'" class="overflow-x-auto p-5 lg:p-6 pt-0 bg-white" :class="{ 'opacity-60': loading }">
                     <table class="w-full text-left border-separate border-spacing-2.5 min-w-[1100px] mt-6">
                         <thead>
                             <tr>
                                 <th class="w-44 p-3 font-semibold text-xs text-gray-400 uppercase tracking-wider bg-gray-50 rounded-xl text-center">Sesi / Jam</th>
-                                <th class="p-3 font-bold text-xs text-gray-700 uppercase tracking-wider bg-gray-50 rounded-xl text-center">Senin</th>
-                                <th class="p-3 font-bold text-xs text-gray-700 uppercase tracking-wider bg-gray-50 rounded-xl text-center">Selasa</th>
-                                <th class="p-3 font-bold text-xs text-gray-700 uppercase tracking-wider bg-gray-50 rounded-xl text-center">Rabu</th>
-                                <th class="p-3 font-bold text-xs text-gray-700 uppercase tracking-wider bg-gray-50 rounded-xl text-center">Kamis</th>
-                                <th class="p-3 font-bold text-xs text-gray-700 uppercase tracking-wider bg-gray-50 rounded-xl text-center">Jumat</th>
+                                <th v-for="day in DAYS" :key="day.value" class="p-3 font-bold text-xs text-gray-700 uppercase tracking-wider bg-gray-50 rounded-xl text-center">{{ day.label }}</th>
                             </tr>
                         </thead>
                         <tbody>
-                            <!-- ROW 1 -->
-                            <tr>
+                            <tr v-for="session in sessions" :key="session">
                                 <td class="bg-gray-50 p-3.5 rounded-xl border border-gray-100 text-center align-middle">
-                                    <span class="inline-block px-2.5 py-1 text-[11px] font-bold text-primary bg-primary/10 rounded-lg">Sesi 1</span>
-                                    <p class="text-xs font-bold text-gray-800 mt-1.5">07.30 - 10.00 WIB</p>
-                                    <p class="text-[10px] text-gray-400 mt-0.5 font-medium">2 SKS (100 Menit)</p>
+                                    <span class="inline-block px-2.5 py-1 text-[11px] font-bold text-primary bg-primary/10 rounded-lg">Sesi {{ session }}</span>
+                                    <template v-if="sessionSummary(session)">
+                                        <p class="text-xs font-bold text-gray-800 mt-1.5">{{ sessionSummary(session)?.time }}</p>
+                                        <p class="text-[10px] text-gray-400 mt-0.5 font-medium">{{ sksLabel(sessionSummary(session)?.sks ?? 0) }}</p>
+                                    </template>
                                 </td>
-                                <!-- Monday to Wednesday (Default) -->
-                                <template v-for="day in ['SEN', 'SEL', 'RAB']" :key="day">
-                                    <td>
-                                        <div class="group relative p-3.5 bg-gray-50/50 hover:bg-white rounded-xl border border-gray-100 hover:border-primary/30 hover:shadow-sm transition-all">
-                                            <div class="flex items-center justify-between">
-                                                <span class="text-xs font-bold text-gray-800">{{day}}-01</span>
-                                                <span class="text-[10px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">Default</span>
-                                            </div>
-                                            <p class="text-xs font-semibold text-gray-700 mt-2">07.30 - 10.00 WIB</p>
-                                            <p class="text-[11px] text-gray-400 mt-0.5">2 SKS • Reguler</p>
-                                            <div class="mt-2.5 pt-2 border-t border-gray-100 flex items-center justify-between text-gray-400 group-hover:text-gray-600">
-                                                <span class="text-[10px] font-medium text-green-600">● Aktif</span>
-                                                <button class="hover:text-primary p-0.5" title="Edit Slot"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </template>
-                                <!-- Thursday (Manual) -->
-                                <td>
-                                    <div class="group relative p-3.5 bg-amber-50/40 hover:bg-amber-50/70 rounded-xl border border-amber-200/80 hover:border-amber-300 hover:shadow-sm transition-all">
-                                        <div class="flex items-center justify-between">
-                                            <span class="text-xs font-bold text-amber-900">KAM-01</span>
-                                            <span class="text-[10px] font-bold text-amber-700 bg-amber-100/90 px-2 py-0.5 rounded-md flex items-center gap-1">
-                                                <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
-                                                Diedit Manual
-                                            </span>
-                                        </div>
-                                        <p class="text-xs font-bold text-amber-950 mt-2">07.30 - 10.00 WIB</p>
-                                        <p class="text-[11px] text-amber-800/80 mt-0.5">2 SKS • Jam Khusus Praktikum</p>
-                                        <div class="mt-2.5 pt-2 border-t border-amber-200/50 flex items-center justify-between text-amber-700">
-                                            <span class="text-[10px] font-semibold text-green-600">● Aktif</span>
-                                            <button class="hover:text-amber-900 p-0.5"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button>
+                                <td v-for="day in DAYS" :key="day.value">
+                                    <div
+                                        v-if="slotAt.get(`${day.value}-${session}`)"
+                                        class="group relative p-3.5 bg-gray-50/50 hover:bg-white rounded-xl border border-gray-100 hover:border-primary/30 hover:shadow-sm transition-all"
+                                    >
+                                        <span class="text-xs font-bold text-gray-800">{{ slotCode(slotAt.get(`${day.value}-${session}`)!) }}</span>
+                                        <p class="text-xs font-semibold text-gray-700 mt-2">{{ timeRange(slotAt.get(`${day.value}-${session}`)!) }}</p>
+                                        <p class="text-[11px] text-gray-400 mt-0.5">{{ sksLabel(slotAt.get(`${day.value}-${session}`)!.type) }}</p>
+                                        <div class="mt-2.5 pt-2 border-t border-gray-100 flex items-center justify-end gap-1 text-gray-400 group-hover:text-gray-600">
+                                            <button
+                                                v-if="slotAt.get(`${day.value}-${session}`)!.can_update"
+                                                type="button"
+                                                class="hover:text-primary p-0.5"
+                                                title="Edit Slot"
+                                                @click="openEdit(slotAt.get(`${day.value}-${session}`)!)"
+                                            >
+                                                <Pencil class="w-3.5 h-3.5" aria-hidden="true" />
+                                            </button>
+                                            <button
+                                                v-if="slotAt.get(`${day.value}-${session}`)!.can_delete"
+                                                type="button"
+                                                class="hover:text-red-600 p-0.5"
+                                                title="Hapus Slot"
+                                                @click="askDelete(slotAt.get(`${day.value}-${session}`)!)"
+                                            >
+                                                <Trash2 class="w-3.5 h-3.5" aria-hidden="true" />
+                                            </button>
                                         </div>
                                     </div>
+                                    <button
+                                        v-else
+                                        type="button"
+                                        class="w-full h-full min-h-[110px] rounded-xl border border-dashed border-gray-200 text-xs font-semibold text-gray-400 hover:border-primary/40 hover:text-primary transition-colors"
+                                        @click="openCreate(day.value, session)"
+                                    >
+                                        + Tambah
+                                    </button>
                                 </td>
-                                <!-- Friday (Default) -->
-                                <td>
-                                    <div class="group relative p-3.5 bg-gray-50/50 hover:bg-white rounded-xl border border-gray-100 hover:border-primary/30 hover:shadow-sm transition-all">
-                                        <div class="flex items-center justify-between">
-                                            <span class="text-xs font-bold text-gray-800">JUM-01</span>
-                                            <span class="text-[10px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">Default</span>
-                                        </div>
-                                        <p class="text-xs font-semibold text-gray-700 mt-2">07.30 - 10.00 WIB</p>
-                                        <p class="text-[11px] text-gray-400 mt-0.5">2 SKS • Reguler</p>
-                                        <div class="mt-2.5 pt-2 border-t border-gray-100 flex items-center justify-between text-gray-400 group-hover:text-gray-600">
-                                            <span class="text-[10px] font-medium text-green-600">● Aktif</span>
-                                            <button class="hover:text-primary p-0.5"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <!-- ROW 2 -->
-                            <tr>
-                                <td class="bg-gray-50 p-3.5 rounded-xl border border-gray-100 text-center align-middle">
-                                    <span class="inline-block px-2.5 py-1 text-[11px] font-bold text-primary bg-primary/10 rounded-lg">Sesi 2</span>
-                                    <p class="text-xs font-bold text-gray-800 mt-1.5">10.20 - 12.00 WIB</p>
-                                    <p class="text-[10px] text-gray-400 mt-0.5 font-medium">3 SKS (150 Menit)</p>
-                                </td>
-                                <!-- Monday to Thursday (Default) -->
-                                <template v-for="day in ['SEN', 'SEL', 'RAB', 'KAM']" :key="day">
-                                    <td>
-                                        <div class="group relative p-3.5 bg-gray-50/50 hover:bg-white rounded-xl border border-gray-100 hover:border-primary/30 hover:shadow-sm transition-all">
-                                            <div class="flex items-center justify-between">
-                                                <span class="text-xs font-bold text-gray-800">{{day}}-02</span>
-                                                <span class="text-[10px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">Default</span>
-                                            </div>
-                                            <p class="text-xs font-semibold text-gray-700 mt-2">10.20 - 12.00 WIB</p>
-                                            <p class="text-[11px] text-gray-400 mt-0.5">3 SKS • Reguler</p>
-                                            <div class="mt-2.5 pt-2 border-t border-gray-100 flex items-center justify-between text-gray-400 group-hover:text-gray-600">
-                                                <span class="text-[10px] font-medium text-green-600">● Aktif</span>
-                                                <button class="hover:text-primary p-0.5"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </template>
-                                <!-- Friday (Manual) -->
-                                <td>
-                                    <div class="group relative p-3.5 bg-amber-50/40 hover:bg-amber-50/70 rounded-xl border border-amber-200/80 hover:border-amber-300 hover:shadow-sm transition-all">
-                                        <div class="flex items-center justify-between">
-                                            <span class="text-xs font-bold text-amber-900">JUM-02</span>
-                                            <span class="text-[10px] font-bold text-amber-700 bg-amber-100/90 px-2 py-0.5 rounded-md flex items-center gap-1">
-                                                <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
-                                                Diedit Manual
-                                            </span>
-                                        </div>
-                                        <p class="text-xs font-bold text-amber-950 mt-2">10.20 - 12.00 WIB</p>
-                                        <p class="text-[11px] text-amber-800/80 mt-0.5">2 SKS • Jeda Sholat Jumat</p>
-                                        <div class="mt-2.5 pt-2 border-t border-amber-200/50 flex items-center justify-between text-amber-700">
-                                            <span class="text-[10px] font-semibold text-green-600">● Aktif</span>
-                                            <button class="hover:text-amber-900 p-0.5"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button>
-                                        </div>
-                                    </div>
-                                </td>
-                            </tr>
-
-                            <!-- ROW 3 -->
-                            <tr>
-                                <td class="bg-gray-50 p-3.5 rounded-xl border border-gray-100 text-center align-middle">
-                                    <span class="inline-block px-2.5 py-1 text-[11px] font-bold text-primary bg-primary/10 rounded-lg">Sesi 3</span>
-                                    <p class="text-xs font-bold text-gray-800 mt-1.5">13.00 - 15.30 WIB</p>
-                                    <p class="text-[10px] text-gray-400 mt-0.5 font-medium">3 SKS (150 Menit)</p>
-                                </td>
-                                <!-- Monday to Tuesday (Default) -->
-                                <template v-for="day in ['SEN', 'SEL']" :key="day">
-                                    <td>
-                                        <div class="group relative p-3.5 bg-gray-50/50 hover:bg-white rounded-xl border border-gray-100 hover:border-primary/30 hover:shadow-sm transition-all">
-                                            <div class="flex items-center justify-between">
-                                                <span class="text-xs font-bold text-gray-800">{{day}}-03</span>
-                                                <span class="text-[10px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">Default</span>
-                                            </div>
-                                            <p class="text-xs font-semibold text-gray-700 mt-2">13.00 - 15.30 WIB</p>
-                                            <p class="text-[11px] text-gray-400 mt-0.5">3 SKS • Reguler</p>
-                                            <div class="mt-2.5 pt-2 border-t border-gray-100 flex items-center justify-between text-gray-400 group-hover:text-gray-600">
-                                                <span class="text-[10px] font-medium text-green-600">● Aktif</span>
-                                                <button class="hover:text-primary p-0.5"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </template>
-                                <!-- Wednesday (Manual) -->
-                                <td>
-                                    <div class="group relative p-3.5 bg-amber-50/40 hover:bg-amber-50/70 rounded-xl border border-amber-200/80 hover:border-amber-300 hover:shadow-sm transition-all">
-                                        <div class="flex items-center justify-between">
-                                            <span class="text-xs font-bold text-amber-900">RAB-03</span>
-                                            <span class="text-[10px] font-bold text-amber-700 bg-amber-100/90 px-2 py-0.5 rounded-md flex items-center gap-1">
-                                                <svg class="w-2.5 h-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5"></path></svg>
-                                                Diedit Manual
-                                            </span>
-                                        </div>
-                                        <p class="text-xs font-bold text-amber-950 mt-2">13.00 - 15.30 WIB</p>
-                                        <p class="text-[11px] text-amber-800/80 mt-0.5">3 SKS • Penyesuaian Dzuhur</p>
-                                        <div class="mt-2.5 pt-2 border-t border-amber-200/50 flex items-center justify-between text-amber-700">
-                                            <span class="text-[10px] font-semibold text-green-600">● Aktif</span>
-                                            <button class="hover:text-amber-900 p-0.5"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button>
-                                        </div>
-                                    </div>
-                                </td>
-                                <!-- Thursday & Friday (Default) -->
-                                <template v-for="day in ['KAM', 'JUM']" :key="day">
-                                    <td>
-                                        <div class="group relative p-3.5 bg-gray-50/50 hover:bg-white rounded-xl border border-gray-100 hover:border-primary/30 hover:shadow-sm transition-all">
-                                            <div class="flex items-center justify-between">
-                                                <span class="text-xs font-bold text-gray-800">{{day}}-03</span>
-                                                <span class="text-[10px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">Default</span>
-                                            </div>
-                                            <p class="text-xs font-semibold text-gray-700 mt-2">13.00 - 15.30 WIB</p>
-                                            <p class="text-[11px] text-gray-400 mt-0.5">3 SKS • Reguler</p>
-                                            <div class="mt-2.5 pt-2 border-t border-gray-100 flex items-center justify-between text-gray-400 group-hover:text-gray-600">
-                                                <span class="text-[10px] font-medium text-green-600">● Aktif</span>
-                                                <button class="hover:text-primary p-0.5"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </template>
-                            </tr>
-
-                            <!-- ROW 4 -->
-                            <tr>
-                                <td class="bg-gray-50 p-3.5 rounded-xl border border-gray-100 text-center align-middle">
-                                    <span class="inline-block px-2.5 py-1 text-[11px] font-bold text-primary bg-primary/10 rounded-lg">Sesi 4</span>
-                                    <p class="text-xs font-bold text-gray-800 mt-1.5">15.50 - 17.30 WIB</p>
-                                    <p class="text-[10px] text-gray-400 mt-0.5 font-medium">2 SKS (100 Menit)</p>
-                                </td>
-                                <!-- All Days (Default) -->
-                                <template v-for="day in ['SEN', 'SEL', 'RAB', 'KAM', 'JUM']" :key="day">
-                                    <td>
-                                        <div class="group relative p-3.5 bg-gray-50/50 hover:bg-white rounded-xl border border-gray-100 hover:border-primary/30 hover:shadow-sm transition-all">
-                                            <div class="flex items-center justify-between">
-                                                <span class="text-xs font-bold text-gray-800">{{day}}-04</span>
-                                                <span class="text-[10px] font-semibold text-gray-500 bg-gray-100 px-2 py-0.5 rounded-md">Default</span>
-                                            </div>
-                                            <p class="text-xs font-semibold text-gray-700 mt-2">15.50 - 17.30 WIB</p>
-                                            <p class="text-[11px] text-gray-400 mt-0.5">2 SKS • Reguler</p>
-                                            <div class="mt-2.5 pt-2 border-t border-gray-100 flex items-center justify-between text-gray-400 group-hover:text-gray-600">
-                                                <span class="text-[10px] font-medium text-green-600">● Aktif</span>
-                                                <button class="hover:text-primary p-0.5"><svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"></path></svg></button>
-                                            </div>
-                                        </div>
-                                    </td>
-                                </template>
                             </tr>
                         </tbody>
                     </table>
                 </div>
 
                 <div v-else class="p-5 lg:p-6 pt-0 bg-white grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-6">
-                    <div v-for="i in 4" :key="i" class="border border-gray-100 rounded-xl p-5 bg-gray-50/50 flex flex-col gap-3 hover:border-primary/30 transition-colors">
+                    <div v-for="session in sessions" :key="session" class="border border-gray-100 rounded-xl p-5 bg-gray-50/50 flex flex-col gap-3 hover:border-primary/30 transition-colors">
                         <div class="flex items-center justify-between">
-                            <span class="inline-block px-2.5 py-1 text-[11px] font-bold text-primary bg-primary/10 rounded-lg">Sesi {{ i }}</span>
-                            <span class="text-[10px] font-semibold text-gray-500 bg-white border border-gray-200 px-2 py-0.5 rounded-md">Default 5 Hari</span>
+                            <span class="inline-block px-2.5 py-1 text-[11px] font-bold text-primary bg-primary/10 rounded-lg">Sesi {{ session }}</span>
+                            <span class="text-[10px] font-semibold text-gray-500 bg-white border border-gray-200 px-2 py-0.5 rounded-md">{{ sessionSummary(session)?.days }} Hari</span>
                         </div>
                         <div class="mt-1">
-                            <p class="text-sm font-bold text-gray-900">
-                                {{ i === 1 ? '07.30 - 10.00 WIB' : i === 2 ? '10.20 - 12.00 WIB' : i === 3 ? '13.00 - 15.30 WIB' : '15.50 - 17.30 WIB' }}
-                            </p>
-                            <p class="text-[11px] text-gray-500 mt-0.5">{{ i === 1 || i === 4 ? '2 SKS (100 Menit)' : '3 SKS (150 Menit)' }}</p>
-                        </div>
-                        <div class="mt-3 pt-3 border-t border-gray-100 flex items-center justify-between">
-                            <span class="text-[10px] font-medium text-green-600">● 5 Slot Aktif</span>
-                            <button class="text-primary text-[11px] font-semibold hover:underline">Edit Sesi</button>
+                            <p class="text-sm font-bold text-gray-900">{{ sessionSummary(session)?.time }}</p>
+                            <p class="text-[11px] text-gray-500 mt-0.5">{{ sksLabel(sessionSummary(session)?.sks ?? 0) }}</p>
                         </div>
                     </div>
                 </div>
             </Card>
         </div>
+
+        <!-- Create / Edit Modal -->
+        <Modal :show="isModalOpen" @close="isModalOpen = false" maxWidth="lg">
+            <div class="flex justify-between items-center p-6 border-b border-gray-100 bg-gray-50 rounded-t-lg">
+                <div>
+                    <h2 class="text-lg font-bold text-gray-900">{{ editing ? `Ubah Slot ${slotCode(editing)}` : 'Tambah Slot Waktu' }}</h2>
+                    <p class="text-sm text-gray-500">Slot yang sudah dipakai preferensi, grup TPB, atau jadwal tidak dapat diubah</p>
+                </div>
+                <button type="button" @click="isModalOpen = false" class="text-gray-400 hover:text-gray-900 transition">Tutup</button>
+            </div>
+            <form @submit.prevent="save" class="p-6 space-y-6">
+                <Alert v-if="form.failure.value" :title="form.failure.value.message" />
+
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label for="slot-day" class="block text-sm font-semibold text-gray-900 mb-1.5">Hari</label>
+                        <select id="slot-day" v-model.number="form.data.day" :class="fieldClass">
+                            <option v-for="day in DAYS" :key="day.value" :value="day.value">{{ day.label }}</option>
+                        </select>
+                        <p v-if="form.errors.value.day" class="mt-1 text-xs text-red-600">{{ form.errors.value.day }}</p>
+                    </div>
+                    <div>
+                        <label for="slot-session" class="block text-sm font-semibold text-gray-900 mb-1.5">Sesi ke-</label>
+                        <input id="slot-session" v-model.number="form.data.session" type="number" min="1" max="10" :class="fieldClass" required />
+                        <p v-if="form.errors.value.session" class="mt-1 text-xs text-red-600">{{ form.errors.value.session }}</p>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-6">
+                    <div>
+                        <label for="slot-start" class="block text-sm font-semibold text-gray-900 mb-1.5">Jam Mulai</label>
+                        <input id="slot-start" v-model="form.data.start_time" type="time" :class="fieldClass" required />
+                        <p v-if="form.errors.value.start_time" class="mt-1 text-xs text-red-600">{{ form.errors.value.start_time }}</p>
+                    </div>
+                    <div>
+                        <label for="slot-end" class="block text-sm font-semibold text-gray-900 mb-1.5">Jam Selesai</label>
+                        <input id="slot-end" v-model="form.data.end_time" type="time" :class="fieldClass" required />
+                        <p v-if="form.errors.value.end_time" class="mt-1 text-xs text-red-600">{{ form.errors.value.end_time }}</p>
+                    </div>
+                </div>
+                <div>
+                    <label for="slot-type" class="block text-sm font-semibold text-gray-900 mb-1.5">Panjang Sesi</label>
+                    <select id="slot-type" v-model.number="form.data.type" :class="fieldClass">
+                        <option :value="2">{{ sksLabel(2) }}</option>
+                        <option :value="3">{{ sksLabel(3) }}</option>
+                    </select>
+                    <p v-if="form.errors.value.type" class="mt-1 text-xs text-red-600">{{ form.errors.value.type }}</p>
+                </div>
+                <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
+                    <Button type="button" @click="isModalOpen = false" variant="ghost" class="bg-gray-100 hover:bg-gray-200">Batal</Button>
+                    <Button type="submit" :loading="form.processing.value">Simpan Slot</Button>
+                </div>
+            </form>
+        </Modal>
+
+        <ConfirmDialog
+            :show="deleteTarget !== null"
+            title="Hapus slot waktu?"
+            :processing="deleteProcessing"
+            :error="deleteError"
+            @confirm="confirmDelete"
+            @close="deleteTarget = null"
+        >
+            Slot <strong>{{ deleteTarget ? slotCode(deleteTarget) : '' }}</strong> akan dihapus. Penghapusan ditolak selama slot masih dipakai.
+        </ConfirmDialog>
     </SuperadminLayout>
 </template>
