@@ -18,19 +18,32 @@ readonly class UserService
         private User $user,
         private Lecturer $lecturer,
         private DatabaseManager $db,
+        private ActivityLogService $activityLog,
     ) {}
 
     /**
+     * faculty_id and study_program_id match the account's own scope or, for lecturers, the
+     * homebase of the linked lecturer. Superadmin and TPB admin accounts have no scope.
+     *
      * @return LengthAwarePaginator<int, UserData>
      */
-    public function getUsers(?string $search, ?Role $role, ?bool $isActive, int $perPage): LengthAwarePaginator
+    public function getUsers(?string $search, ?Role $role, ?bool $isActive, ?int $facultyId, ?int $studyProgramId, int $perPage): LengthAwarePaginator
     {
         $users = UserData::prepareQuery($this->user->newQuery())
             ->when($search, fn (Builder $query) => $query->where(fn (Builder $query) => $query
                 ->whereLike('name', "%{$search}%")
-                ->orWhereLike('email', "%{$search}%")))
+                ->orWhereLike('email', "%{$search}%")
+                ->orWhereLike('identity_number', "%{$search}%")
+                ->orWhereRelation('lecturer', 'nip', 'like', "%{$search}%")))
             ->when($role, fn (Builder $query) => $query->role($role->value))
             ->when($isActive !== null, fn (Builder $query) => $query->where('is_active', $isActive))
+            ->when($facultyId, fn (Builder $query) => $query->where(fn (Builder $query) => $query
+                ->where('faculty_id', $facultyId)
+                ->orWhereRelation('studyProgram', 'faculty_id', $facultyId)
+                ->orWhereRelation('lecturer.studyProgram', 'faculty_id', $facultyId)))
+            ->when($studyProgramId, fn (Builder $query) => $query->where(fn (Builder $query) => $query
+                ->where('study_program_id', $studyProgramId)
+                ->orWhereRelation('lecturer', 'study_program_id', $studyProgramId)))
             ->orderBy('name')
             ->paginate($perPage);
 
@@ -48,13 +61,15 @@ readonly class UserService
             $user = $this->user->newQuery()->create([
                 'name' => $data->name,
                 'email' => $data->email,
-                'password' => $data->password,
+                'identity_number' => $data->identityNumber,
+                'password' => $data->password ?? config('accounts.default_password'),
                 'faculty_id' => $data->facultyId,
                 'study_program_id' => $data->studyProgramId,
             ]);
 
             $user->syncRoles([$data->role->value]);
             $this->syncLecturer($user, $data->lecturerId);
+            $this->activityLog->userCreated($user);
 
             return $user;
         });
@@ -65,9 +80,12 @@ readonly class UserService
     public function updateUser(User $user, UserFormData $data): UserData
     {
         $this->db->transaction(function () use ($user, $data) {
+            $before = $this->activityLog->snapshot($user);
+
             $user->fill([
                 'name' => $data->name,
                 'email' => $data->email,
+                'identity_number' => $data->identityNumber,
                 'faculty_id' => $data->facultyId,
                 'study_program_id' => $data->studyProgramId,
             ]);
@@ -79,6 +97,7 @@ readonly class UserService
             $user->save();
             $user->syncRoles([$data->role->value]);
             $this->syncLecturer($user, $data->lecturerId);
+            $this->activityLog->userUpdated($user, $before, passwordChanged: $data->password !== null);
         });
 
         return $this->getUser($user->fresh());
@@ -105,7 +124,9 @@ readonly class UserService
         }
 
         $this->db->transaction(function () use ($user, $isActive) {
+            $wasActive = $user->is_active;
             $user->update(['is_active' => $isActive]);
+            $this->activityLog->userStatusChanged($user, $wasActive);
 
             if (! $isActive) {
                 $user->tokens()->delete();

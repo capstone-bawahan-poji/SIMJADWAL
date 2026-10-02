@@ -43,6 +43,8 @@ class UserController extends ApiController implements HasMiddleware
             search: $v['q'] ?? null,
             role: isset($v['role']) ? Role::from($v['role']) : null,
             isActive: isset($v['is_active']) ? (bool) $v['is_active'] : null,
+            facultyId: isset($v['faculty_id']) ? (int) $v['faculty_id'] : null,
+            studyProgramId: isset($v['study_program_id']) ? (int) $v['study_program_id'] : null,
             perPage: (int) ($v['per_page'] ?? Query::DEFAULT_PER_PAGE),
         ));
     }
@@ -58,7 +60,8 @@ class UserController extends ApiController implements HasMiddleware
         $formData = new UserFormData(
             name: $v['name'],
             email: $v['email'],
-            password: $v['password'],
+            identityNumber: $v['identity_number'] ?? null,
+            password: $v['password'] ?? null,
             role: Role::from($v['role']),
             facultyId: isset($v['faculty_id']) ? (int) $v['faculty_id'] : null,
             studyProgramId: isset($v['study_program_id']) ? (int) $v['study_program_id'] : null,
@@ -77,6 +80,7 @@ class UserController extends ApiController implements HasMiddleware
         $formData = new UserFormData(
             name: $v['name'] ?? $user->name,
             email: $v['email'] ?? $user->email,
+            identityNumber: $role->requiresLecturer() ? null : (array_key_exists('identity_number', $v) ? $v['identity_number'] : $user->getRawOriginal('identity_number')),
             password: $v['password'] ?? null,
             role: $role,
             facultyId: $role->requiresFaculty() ? (int) ($v['faculty_id'] ?? $user->faculty_id) : null,

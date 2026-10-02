@@ -15,6 +15,8 @@ class ListUserRequest extends FormRequest
             'q' => ['nullable', 'string', 'max:150'],
             'role' => ['nullable', Rule::enum(Role::class)],
             'is_active' => ['nullable', 'boolean'],
+            'faculty_id' => ['nullable', 'integer'],
+            'study_program_id' => ['nullable', 'integer'],
             'page' => ['nullable', 'integer', 'min:1'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:'.Query::MAX_PER_PAGE],
         ];
