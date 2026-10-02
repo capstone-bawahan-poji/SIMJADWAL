@@ -3,9 +3,11 @@
 namespace App\Services\Account;
 
 use App\Extensions\Permissions\Permissionable;
+use App\Permissions\Account\ActivityLogPermissions;
 use App\Permissions\Account\UserPermissions;
 use App\Permissions\MasterData\CourseLecturerPermissions;
 use App\Permissions\MasterData\CoursePermissions;
+use App\Permissions\MasterData\DepartmentPermissions;
 use App\Permissions\MasterData\FacultyPermissions;
 use App\Permissions\MasterData\LecturerPermissions;
 use App\Permissions\MasterData\RoomPermissions;
@@ -24,7 +26,9 @@ readonly class PermissionService
     {
         return [
             UserPermissions::class,
+            ActivityLogPermissions::class,
             FacultyPermissions::class,
+            DepartmentPermissions::class,
             StudyProgramPermissions::class,
             TimeSlotPermissions::class,
             RoomPermissions::class,
