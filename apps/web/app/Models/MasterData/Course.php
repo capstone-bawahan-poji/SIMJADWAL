@@ -12,17 +12,23 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['study_program_id', 'code', 'name', 'sks', 'semester', 'parallel_class_count', 'class_capacity'])]
+/**
+ * Regular courses belong to one study program. TPB/MKWU courses (is_tpb) have no program:
+ * the TPB admin splits their classes into groups (TpbGroup) shared by several programs.
+ */
+#[Fillable(['study_program_id', 'is_tpb', 'code', 'name', 'sks', 'semester', 'parallel_class_count', 'class_capacity'])]
 #[UsePolicy(CoursePolicy::class)]
 class Course extends Model
 {
     /** @use HasFactory<CourseFactory> */
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected function casts(): array
     {
         return [
+            'is_tpb' => 'boolean',
             'sks' => 'integer',
             'semester' => 'integer',
             'parallel_class_count' => 'integer',
@@ -60,6 +66,12 @@ class Course extends Model
     public function courseLecturers(): HasMany
     {
         return $this->hasMany(CourseLecturer::class);
+    }
+
+    /** @return HasMany<TpbGroup, $this> */
+    public function tpbGroups(): HasMany
+    {
+        return $this->hasMany(TpbGroup::class);
     }
 
     /** @return HasMany<ScheduleDetail, $this> */

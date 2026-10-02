@@ -1,8 +1,28 @@
 <?php
 
+use App\Http\Controllers\Api\Internal\Account\ActivityLogController as InternalActivityLogController;
 use App\Http\Controllers\Api\Internal\Account\UserController as InternalUserController;
+use App\Http\Controllers\Api\Internal\MasterData\CourseController as InternalCourseController;
+use App\Http\Controllers\Api\Internal\MasterData\DepartmentController as InternalDepartmentController;
+use App\Http\Controllers\Api\Internal\MasterData\FacultyController as InternalFacultyController;
+use App\Http\Controllers\Api\Internal\MasterData\LecturerController as InternalLecturerController;
+use App\Http\Controllers\Api\Internal\MasterData\RoomController as InternalRoomController;
+use App\Http\Controllers\Api\Internal\MasterData\StudyProgramController as InternalStudyProgramController;
+use App\Http\Controllers\Api\Internal\MasterData\TeachingAssignmentController as InternalTeachingAssignmentController;
+use App\Http\Controllers\Api\Internal\MasterData\TimeSlotController as InternalTimeSlotController;
+use App\Http\Controllers\Api\Internal\MasterData\TpbGroupController as InternalTpbGroupController;
+use App\Http\Controllers\Api\V1\Account\ActivityLogController as V1ActivityLogController;
 use App\Http\Controllers\Api\V1\Account\AuthController as V1AuthController;
 use App\Http\Controllers\Api\V1\Account\UserController as V1UserController;
+use App\Http\Controllers\Api\V1\MasterData\CourseController as V1CourseController;
+use App\Http\Controllers\Api\V1\MasterData\DepartmentController as V1DepartmentController;
+use App\Http\Controllers\Api\V1\MasterData\FacultyController as V1FacultyController;
+use App\Http\Controllers\Api\V1\MasterData\LecturerController as V1LecturerController;
+use App\Http\Controllers\Api\V1\MasterData\RoomController as V1RoomController;
+use App\Http\Controllers\Api\V1\MasterData\StudyProgramController as V1StudyProgramController;
+use App\Http\Controllers\Api\V1\MasterData\TeachingAssignmentController as V1TeachingAssignmentController;
+use App\Http\Controllers\Api\V1\MasterData\TimeSlotController as V1TimeSlotController;
+use App\Http\Controllers\Api\V1\MasterData\TpbGroupController as V1TpbGroupController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,6 +35,19 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(['web', 'auth'])->prefix('internal')->name('api.internal.')->group(function () {
     Route::apiResource('users', InternalUserController::class)->except(['destroy']);
     Route::patch('users/{user}/status', [InternalUserController::class, 'updateStatus'])->name('users.status');
+    Route::get('activity-logs', [InternalActivityLogController::class, 'index'])->name('activity-logs.index');
+
+    //masterdata
+    Route::apiResource('faculties', InternalFacultyController::class);
+    Route::apiResource('departments', InternalDepartmentController::class);
+    Route::apiResource('study-programs', InternalStudyProgramController::class)->parameters(['study-programs' => 'studyProgram']);
+    Route::get('study-programs/{studyProgram}/tpb-blocked-slots', [InternalStudyProgramController::class, 'tpbBlockedSlots'])->name('study-programs.tpb-blocked-slots');
+    Route::apiResource('time-slots', InternalTimeSlotController::class)->parameters(['time-slots' => 'timeSlot']);
+    Route::apiResource('rooms', InternalRoomController::class);
+    Route::apiResource('lecturers', InternalLecturerController::class);
+    Route::apiResource('courses', InternalCourseController::class);
+    Route::apiResource('teaching-assignments', InternalTeachingAssignmentController::class)->parameters(['teaching-assignments' => 'courseLecturer']);
+    Route::apiResource('tpb-groups', InternalTpbGroupController::class)->parameters(['tpb-groups' => 'tpbGroup']);
 });
 
 Route::prefix('v1')->name('api.v1.')->group(function () {
@@ -32,5 +65,18 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     Route::middleware(['auth:sanctum', 'active'])->group(function () {
         Route::apiResource('users', V1UserController::class)->except(['destroy']);
         Route::patch('users/{user}/status', [V1UserController::class, 'updateStatus'])->name('users.status');
+        Route::get('activity-logs', [V1ActivityLogController::class, 'index'])->name('activity-logs.index');
+
+        //masterrdsata
+        Route::apiResource('faculties', V1FacultyController::class);
+        Route::apiResource('departments', V1DepartmentController::class);
+        Route::apiResource('study-programs', V1StudyProgramController::class)->parameters(['study-programs' => 'studyProgram']);
+        Route::get('study-programs/{studyProgram}/tpb-blocked-slots', [V1StudyProgramController::class, 'tpbBlockedSlots'])->name('study-programs.tpb-blocked-slots');
+        Route::apiResource('time-slots', V1TimeSlotController::class)->parameters(['time-slots' => 'timeSlot']);
+        Route::apiResource('rooms', V1RoomController::class);
+        Route::apiResource('lecturers', V1LecturerController::class);
+        Route::apiResource('courses', V1CourseController::class);
+        Route::apiResource('teaching-assignments', V1TeachingAssignmentController::class)->parameters(['teaching-assignments' => 'courseLecturer']);
+        Route::apiResource('tpb-groups', V1TpbGroupController::class)->parameters(['tpb-groups' => 'tpbGroup']);
     });
 });

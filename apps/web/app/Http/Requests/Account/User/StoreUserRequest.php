@@ -16,7 +16,7 @@ class StoreUserRequest extends FormRequest
         return [
             'name' => ['required', 'string', 'max:150'],
             'email' => ['required', 'string', 'lowercase', 'email', 'max:150', Rule::unique(User::class)],
-            'password' => ['required', 'string', Password::defaults()],
+            'password' => ['nullable', 'string', Password::defaults()],
             'role' => ['required', Rule::enum(Role::class)],
             ...UserScopeRules::for(Role::tryFrom((string) $this->input('role'))),
         ];

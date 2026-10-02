@@ -9,6 +9,7 @@ use App\Models\Constraint\ConstraintType;
 use App\Models\Constraint\LecturerPreference;
 use App\Models\MasterData\Course;
 use App\Models\MasterData\CourseLecturer;
+use App\Models\MasterData\Department;
 use App\Models\MasterData\Faculty;
 use App\Models\MasterData\Lecturer;
 use App\Models\MasterData\Room;
@@ -38,6 +39,26 @@ class DatabaseSeederTest extends TestCase
     /**
      * Re-seeding must not overwrite constraint weights a faculty admin already changed.
      */
+    public function test_reference_data_carries_codes_and_campus_slot_hours(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+
+        $this->assertSame(['FPB', 'FRTI', 'FSTI'], Faculty::orderBy('code')->pluck('code')->all());
+        $this->assertSame('Informatika', StudyProgram::where('code', 'IF')->value('name'));
+        $this->assertSame(54, Room::whereNull('faculty_id')->whereNotNull('code')->count());
+        $this->assertSame(['Gedung E', 1], [Room::where('code', 'E101')->value('building'), Room::where('code', 'E101')->value('floor')]);
+        $this->assertSame(6, Department::count());
+        $this->assertSame(
+            ['IF' => 'JTEIB', 'TL' => 'JTK', 'GM' => 'JTSP', 'TI' => 'JTI', 'TP' => 'JRI'],
+            collect(['IF', 'TL', 'GM', 'TI', 'TP'])->mapWithKeys(fn (string $code) => [$code => StudyProgram::where('code', $code)->first()->department->code])->all(),
+        );
+        $this->assertSame(0, StudyProgram::whereNull('department_id')->count());
+        $this->assertSame(
+            [['07:30', '10:00'], ['10:20', '12:00'], ['13:00', '15:30'], ['15:50', '17:30']],
+            TimeSlot::where('day', 1)->orderBy('session')->get()->map(fn (TimeSlot $slot) => [$slot->start_time, $slot->end_time])->all(),
+        );
+    }
+
     public function test_reseeding_keeps_edited_weights(): void
     {
         $this->seed(DatabaseSeeder::class);
@@ -80,7 +101,8 @@ class DatabaseSeederTest extends TestCase
         $this->assertSame(3, User::query()->role(Role::FACULTY_ADMIN->value)->whereNotNull('faculty_id')->count());
         $this->assertSame(26, User::query()->role(Role::STUDY_PROGRAM_ADMIN->value)->distinct()->count('study_program_id'));
         $this->assertSame('Informatika', User::where('email', 'admin.if@example.test')->first()->studyProgram->name);
-        $this->assertSame('IF01', User::where('email', 'dosen.if01@example.test')->first()->lecturer->code);
+        $this->assertSame('Dosen Informatika 01', User::where('email', 'dosen.if01@example.test')->first()->lecturer->name);
+        $this->assertTrue(User::where('email', 'admin.tpb@example.test')->first()->hasRole(Role::TPB_ADMIN->value));
     }
 
     public function test_reseeding_demo_data_is_idempotent(): void

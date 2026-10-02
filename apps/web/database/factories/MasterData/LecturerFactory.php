@@ -16,7 +16,7 @@ class LecturerFactory extends Factory
         return [
             'user_id' => null,
             'study_program_id' => StudyProgram::factory(),
-            'code' => fake()->unique()->regexify('[A-Z]{3}[0-9]{2}'),
+            'nip' => fake()->unique()->numerify('19##########0#####'),
             'name' => fake()->name(),
             'title' => fake()->randomElement(['S.Kom., M.Kom.', 'S.T., M.T.', 'Dr.', null]),
         ];

@@ -55,6 +55,11 @@ class UserFactory extends Factory
             ->withRole(Role::FACULTY_ADMIN);
     }
 
+    public function tpbAdmin(): static
+    {
+        return $this->withRole(Role::TPB_ADMIN);
+    }
+
     public function studyProgramAdmin(?StudyProgram $studyProgram = null): static
     {
         return $this->state(fn () => ['study_program_id' => $studyProgram ?? StudyProgram::factory()])

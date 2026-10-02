@@ -7,24 +7,27 @@ use App\Policies\MasterData\RoomPolicy;
 use Database\Factories\MasterData\RoomFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\UsePolicy;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
  * faculty_id NULL = room shared across faculties.
  */
-#[Fillable(['faculty_id', 'name', 'capacity'])]
+#[Fillable(['faculty_id', 'code', 'name', 'building', 'floor', 'capacity'])]
 #[UsePolicy(RoomPolicy::class)]
 class Room extends Model
 {
     /** @use HasFactory<RoomFactory> */
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected function casts(): array
     {
         return [
+            'floor' => 'integer',
             'capacity' => 'integer',
         ];
     }
@@ -40,9 +43,25 @@ class Room extends Model
         return $this->belongsTo(Faculty::class);
     }
 
+    /** @return HasMany<CourseLecturer, $this> TPB classes placed in this room */
+    public function courseLecturers(): HasMany
+    {
+        return $this->hasMany(CourseLecturer::class);
+    }
+
     /** @return HasMany<ScheduleDetail, $this> */
     public function scheduleDetails(): HasMany
     {
         return $this->hasMany(ScheduleDetail::class);
+    }
+
+    /**
+     * Schedule rows of active (published) runs. Any row means the room is in use this period.
+     *
+     * @return HasMany<ScheduleDetail, $this>
+     */
+    public function activeScheduleDetails(): HasMany
+    {
+        return $this->scheduleDetails()->whereHas('schedulingRun', fn (Builder $query) => $query->active());
     }
 }

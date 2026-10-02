@@ -9,10 +9,12 @@ class UserFormData extends Data
 {
     /**
      * Scope ids that do not belong to the role must already be null (see UserScopeRules).
+     * A null password on create means the default password.
      */
     public function __construct(
         public string $name,
         public string $email,
+        public ?string $identityNumber,
         public ?string $password,
         public Role $role,
         public ?int $facultyId,

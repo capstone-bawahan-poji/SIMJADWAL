@@ -2,43 +2,43 @@
     "prefix": "TK",
     "lecturers": [
         {
-            "code": "TK01",
+            "nip": "198001012010011164",
             "name": "Dosen Teknik Kimia 01"
         },
         {
-            "code": "TK02",
+            "nip": "198001012010011165",
             "name": "Dosen Teknik Kimia 02"
         },
         {
-            "code": "TK03",
+            "nip": "198001012010011166",
             "name": "Dosen Teknik Kimia 03"
         },
         {
-            "code": "TK04",
+            "nip": "198001012010011167",
             "name": "Dosen Teknik Kimia 04"
         },
         {
-            "code": "TK05",
+            "nip": "198001012010011168",
             "name": "Dosen Teknik Kimia 05"
         },
         {
-            "code": "TK06",
+            "nip": "198001012010011169",
             "name": "Dosen Teknik Kimia 06"
         },
         {
-            "code": "TK07",
+            "nip": "198001012010011170",
             "name": "Dosen Teknik Kimia 07"
         },
         {
-            "code": "TK08",
+            "nip": "198001012010011171",
             "name": "Dosen Teknik Kimia 08"
         },
         {
-            "code": "TK09",
+            "nip": "198001012010011172",
             "name": "Dosen Teknik Kimia 09"
         },
         {
-            "code": "TK10",
+            "nip": "198001012010011173",
             "name": "Dosen Teknik Kimia 10"
         }
     ],
@@ -51,11 +51,11 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_code": "TK04"
+                    "lecturer_nip": "198001012010011167"
                 },
                 {
                     "class_number": 2,
-                    "lecturer_code": "TK10"
+                    "lecturer_nip": "198001012010011173"
                 }
             ]
         },
@@ -67,7 +67,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_code": "TK03"
+                    "lecturer_nip": "198001012010011166"
                 }
             ]
         },
@@ -79,7 +79,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_code": "TK09"
+                    "lecturer_nip": "198001012010011172"
                 }
             ]
         },
@@ -91,7 +91,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_code": "TK01"
+                    "lecturer_nip": "198001012010011164"
                 }
             ]
         },
@@ -103,11 +103,11 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_code": "TK06"
+                    "lecturer_nip": "198001012010011169"
                 },
                 {
                     "class_number": 2,
-                    "lecturer_code": "TK08"
+                    "lecturer_nip": "198001012010011171"
                 }
             ]
         },
@@ -119,11 +119,11 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_code": "TK07"
+                    "lecturer_nip": "198001012010011170"
                 },
                 {
                     "class_number": 2,
-                    "lecturer_code": "TK05"
+                    "lecturer_nip": "198001012010011168"
                 }
             ]
         },
@@ -135,7 +135,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_code": "TK02"
+                    "lecturer_nip": "198001012010011165"
                 }
             ]
         },
@@ -147,7 +147,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_code": "TK10"
+                    "lecturer_nip": "198001012010011173"
                 }
             ]
         },
@@ -159,7 +159,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_code": "TK08"
+                    "lecturer_nip": "198001012010011171"
                 }
             ]
         },
@@ -171,7 +171,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_code": "TK07"
+                    "lecturer_nip": "198001012010011170"
                 }
             ]
         },
@@ -183,11 +183,11 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_code": "TK03"
+                    "lecturer_nip": "198001012010011166"
                 },
                 {
                     "class_number": 2,
-                    "lecturer_code": "TK01"
+                    "lecturer_nip": "198001012010011164"
                 }
             ]
         },
@@ -199,7 +199,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_code": "TK09"
+                    "lecturer_nip": "198001012010011172"
                 }
             ]
         },
@@ -211,7 +211,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_code": "TK05"
+                    "lecturer_nip": "198001012010011168"
                 }
             ]
         },
@@ -223,7 +223,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_code": "TK02"
+                    "lecturer_nip": "198001012010011165"
                 }
             ]
         },
@@ -235,11 +235,11 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_code": "TK06"
+                    "lecturer_nip": "198001012010011169"
                 },
                 {
                     "class_number": 2,
-                    "lecturer_code": "TK04"
+                    "lecturer_nip": "198001012010011167"
                 }
             ]
         },
@@ -251,7 +251,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_code": "TK05"
+                    "lecturer_nip": "198001012010011168"
                 }
             ]
         },
@@ -263,15 +263,15 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_code": "TK01"
+                    "lecturer_nip": "198001012010011164"
                 },
                 {
                     "class_number": 2,
-                    "lecturer_code": "TK06"
+                    "lecturer_nip": "198001012010011169"
                 },
                 {
                     "class_number": 3,
-                    "lecturer_code": "TK04"
+                    "lecturer_nip": "198001012010011167"
                 }
             ]
         },
@@ -283,7 +283,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_code": "TK09"
+                    "lecturer_nip": "198001012010011172"
                 }
             ]
         },
@@ -295,7 +295,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_code": "TK07"
+                    "lecturer_nip": "198001012010011170"
                 }
             ]
         },
@@ -307,7 +307,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_code": "TK08"
+                    "lecturer_nip": "198001012010011171"
                 }
             ]
         },
@@ -319,7 +319,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_code": "TK03"
+                    "lecturer_nip": "198001012010011166"
                 }
             ]
         },
@@ -331,130 +331,130 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_code": "TK02"
+                    "lecturer_nip": "198001012010011165"
                 },
                 {
                     "class_number": 2,
-                    "lecturer_code": "TK10"
+                    "lecturer_nip": "198001012010011173"
                 },
                 {
                     "class_number": 3,
-                    "lecturer_code": "TK06"
+                    "lecturer_nip": "198001012010011169"
                 }
             ]
         }
     ],
     "preferences": [
         {
-            "lecturer_code": "TK01",
+            "lecturer_nip": "198001012010011164",
             "constraint_code": "SC_INGIN",
             "day": 3,
             "session": 3
         },
         {
-            "lecturer_code": "TK01",
+            "lecturer_nip": "198001012010011164",
             "constraint_code": "SC_HINDARI",
             "day": 3,
             "session": 1
         },
         {
-            "lecturer_code": "TK01",
+            "lecturer_nip": "198001012010011164",
             "constraint_code": "SC_HINDARI",
             "day": 1,
             "session": 3
         },
         {
-            "lecturer_code": "TK01",
+            "lecturer_nip": "198001012010011164",
             "constraint_code": "SC_HINDARI",
             "day": 3,
             "session": 2
         },
         {
-            "lecturer_code": "TK01",
+            "lecturer_nip": "198001012010011164",
             "constraint_code": "SC_HINDARI",
             "day": 1,
             "session": 1
         },
         {
-            "lecturer_code": "TK04",
+            "lecturer_nip": "198001012010011167",
             "constraint_code": "SC_INGIN",
             "day": 2,
             "session": 4
         },
         {
-            "lecturer_code": "TK04",
+            "lecturer_nip": "198001012010011167",
             "constraint_code": "SC_INGIN",
             "day": 5,
             "session": 1
         },
         {
-            "lecturer_code": "TK04",
+            "lecturer_nip": "198001012010011167",
             "constraint_code": "SC_INGIN",
             "day": 1,
             "session": 3
         },
         {
-            "lecturer_code": "TK04",
+            "lecturer_nip": "198001012010011167",
             "constraint_code": "SC_HINDARI",
             "day": 1,
             "session": 2
         },
         {
-            "lecturer_code": "TK05",
+            "lecturer_nip": "198001012010011168",
             "constraint_code": "SC_INGIN",
             "day": 3,
             "session": 2
         },
         {
-            "lecturer_code": "TK05",
+            "lecturer_nip": "198001012010011168",
             "constraint_code": "SC_INGIN",
             "day": 4,
             "session": 2
         },
         {
-            "lecturer_code": "TK05",
+            "lecturer_nip": "198001012010011168",
             "constraint_code": "SC_HINDARI",
             "day": 1,
             "session": 3
         },
         {
-            "lecturer_code": "TK06",
+            "lecturer_nip": "198001012010011169",
             "constraint_code": "SC_INGIN",
             "day": 4,
             "session": 2
         },
         {
-            "lecturer_code": "TK06",
+            "lecturer_nip": "198001012010011169",
             "constraint_code": "SC_INGIN",
             "day": 5,
             "session": 1
         },
         {
-            "lecturer_code": "TK07",
+            "lecturer_nip": "198001012010011170",
             "constraint_code": "SC_INGIN",
             "day": 3,
             "session": 4
         },
         {
-            "lecturer_code": "TK07",
+            "lecturer_nip": "198001012010011170",
             "constraint_code": "SC_HINDARI",
             "day": 2,
             "session": 1
         },
         {
-            "lecturer_code": "TK09",
+            "lecturer_nip": "198001012010011172",
             "constraint_code": "SC_INGIN",
             "day": 1,
             "session": 2
         },
         {
-            "lecturer_code": "TK09",
+            "lecturer_nip": "198001012010011172",
             "constraint_code": "SC_HINDARI",
             "day": 3,
             "session": 3
         },
         {
-            "lecturer_code": "TK10",
+            "lecturer_nip": "198001012010011173",
             "constraint_code": "SC_INGIN",
             "day": 5,
             "session": 3

@@ -16,6 +16,7 @@ class StudyProgramFactory extends Factory
     {
         return [
             'faculty_id' => Faculty::factory(),
+            'code' => fake()->unique()->regexify('[A-Z]{3}[0-9]'),
             'name' => 'Program '.fake()->unique()->words(3, true),
             'constraint_status' => ConstraintStatus::DRAFT,
         ];

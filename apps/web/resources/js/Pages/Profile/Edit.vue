@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import AuthenticatedLayout from '@/layouts/AuthenticatedLayout.vue';
+import SuperadminLayout from '@/Layouts/SuperadminLayout.vue';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm.vue';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm.vue';
 import { Head } from '@inertiajs/vue3';
@@ -10,34 +10,19 @@ defineProps<{
 </script>
 
 <template>
-    <Head title="Profile" />
+    <Head title="Profil Saya" />
 
-    <AuthenticatedLayout>
-        <template #header>
-            <h2
-                class="text-xl font-semibold leading-tight text-gray-800"
-            >
-                Profile
-            </h2>
-        </template>
+    <SuperadminLayout>
+        <div class="p-6 md:p-8 max-w-4xl w-full mx-auto space-y-6">
+            <h2 class="text-2xl font-bold text-gray-900 tracking-tight">Profil Saya</h2>
 
-        <div class="py-12">
-            <div class="mx-auto max-w-7xl space-y-6 sm:px-6 lg:px-8">
-                <div
-                    class="bg-white p-4 shadow sm:rounded-lg sm:p-8"
-                >
-                    <UpdateProfileInformationForm
-                        :status="status"
-                        class="max-w-xl"
-                    />
-                </div>
+            <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm sm:p-8">
+                <UpdateProfileInformationForm :status="status" class="max-w-xl" />
+            </div>
 
-                <div
-                    class="bg-white p-4 shadow sm:rounded-lg sm:p-8"
-                >
-                    <UpdatePasswordForm class="max-w-xl" />
-                </div>
+            <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm sm:p-8">
+                <UpdatePasswordForm class="max-w-xl" />
             </div>
         </div>
-    </AuthenticatedLayout>
+    </SuperadminLayout>
 </template>

@@ -20,7 +20,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Spatie\Permission\Traits\HasRoles;
 
-#[Fillable(['name', 'email', 'password', 'faculty_id', 'study_program_id', 'is_active'])]
+#[Fillable(['name', 'email', 'identity_number', 'password', 'faculty_id', 'study_program_id', 'is_active'])]
 #[Hidden(['password', 'remember_token'])]
 #[UsePolicy(UserPolicy::class)]
 class User extends Authenticatable
@@ -49,6 +49,16 @@ class User extends Authenticatable
     protected function role(): Attribute
     {
         return Attribute::get(fn () => Role::tryFrom((string) $this->roles->first()?->name));
+    }
+
+    /**
+     * NIP or NIM. A lecturer account shows the NIP of its lecturer record, so the number lives in one place.
+     *
+     * @return Attribute<string|null, never>
+     */
+    protected function identityNumber(): Attribute
+    {
+        return Attribute::get(fn (?string $value) => $this->lecturer?->nip ?? $value);
     }
 
     /**

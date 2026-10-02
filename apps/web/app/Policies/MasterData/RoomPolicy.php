@@ -23,7 +23,9 @@ class RoomPolicy
     public function view(User $user, Room $room): bool
     {
         return $user->can(RoomPermissions::VIEW)
-            && ($room->isShared() || $this->orgScope->canAccessFaculty($user, $room->faculty_id));
+            && ($room->isShared()
+                || $this->orgScope->readsAllFaculties($user)
+                || $this->orgScope->canAccessFaculty($user, $room->faculty_id));
     }
 
     /**
