@@ -9,7 +9,7 @@ class LecturerFormData extends Data
 {
     public function __construct(
         public int $studyProgramId,
-        public string $code,
+        public string $nip,
         public string $name,
         public ?string $title,
     ) {}
@@ -21,7 +21,7 @@ class LecturerFormData extends Data
     {
         return new self(
             studyProgramId: (int) ($input['study_program_id'] ?? $current?->study_program_id),
-            code: $input['code'] ?? $current?->code,
+            nip: $input['nip'] ?? $current?->nip,
             name: $input['name'] ?? $current?->name,
             title: array_key_exists('title', $input) ? $input['title'] : $current?->title,
         );

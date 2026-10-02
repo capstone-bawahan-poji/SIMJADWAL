@@ -34,25 +34,25 @@ class LecturerApiTest extends TestCase
     {
         Sanctum::actingAs(User::factory()->studyProgramAdmin($this->program)->create());
 
-        $this->postJson('/api/v1/lecturers', ['study_program_id' => $this->program->id, 'code' => 'IF99', 'name' => 'Dosen Baru', 'title' => 'S.Kom.'])
+        $this->postJson('/api/v1/lecturers', ['study_program_id' => $this->program->id, 'nip' => '198501012010011001', 'name' => 'Dosen Baru', 'title' => 'S.Kom.'])
             ->assertCreated()
-            ->assertJsonPath('data.code', 'IF99')
+            ->assertJsonPath('data.nip', '198501012010011001')
             ->assertJsonPath('data.study_program.code', $this->program->code)
             ->assertJsonPath('data.can_update', true);
 
-        $this->postJson('/api/v1/lecturers', ['study_program_id' => StudyProgram::factory()->create()->id, 'code' => 'XX01', 'name' => 'Dosen Lain'])
+        $this->postJson('/api/v1/lecturers', ['study_program_id' => StudyProgram::factory()->create()->id, 'nip' => '198501012010011002', 'name' => 'Dosen Lain'])
             ->assertForbidden();
     }
 
     public function test_validation_messages_are_indonesian(): void
     {
-        Lecturer::factory()->create(['code' => 'IF01']);
+        Lecturer::factory()->create(['nip' => '198501012010011003']);
         Sanctum::actingAs(User::factory()->studyProgramAdmin($this->program)->create());
 
-        $this->postJson('/api/v1/lecturers', ['study_program_id' => $this->program->id, 'code' => 'IF01'])
+        $this->postJson('/api/v1/lecturers', ['study_program_id' => $this->program->id, 'nip' => '198501012010011003'])
             ->assertUnprocessable()
             ->assertJsonPath('code', 'VALIDATION_FAILED')
-            ->assertJsonPath('errors.code.0', 'Kode sudah digunakan.')
+            ->assertJsonPath('errors.nip.0', 'NIP sudah digunakan.')
             ->assertJsonPath('errors.name.0', 'Nama wajib diisi.');
     }
 
@@ -118,8 +118,8 @@ class LecturerApiTest extends TestCase
         $this->deleteJson("/api/v1/lecturers/{$lecturer->id}")->assertNoContent();
         $this->assertSoftDeleted($lecturer);
 
-        // The code of a deleted lecturer can be used again.
-        $this->postJson('/api/v1/lecturers', ['study_program_id' => $this->program->id, 'code' => $lecturer->code, 'name' => 'Pengganti'])
+        // The NIP of a deleted lecturer can be used again.
+        $this->postJson('/api/v1/lecturers', ['study_program_id' => $this->program->id, 'nip' => $lecturer->nip, 'name' => 'Pengganti'])
             ->assertCreated();
     }
 

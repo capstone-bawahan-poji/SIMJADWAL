@@ -38,7 +38,7 @@ class TeachingAssignmentApiTest extends TestCase
         $this->postJson('/api/v1/teaching-assignments', ['course_id' => $this->course->id, 'class_number' => 2, 'lecturer_id' => $outsider->id])
             ->assertCreated()
             ->assertJsonPath('data.class_label', 'B')
-            ->assertJsonPath('data.lecturer.code', $outsider->code)
+            ->assertJsonPath('data.lecturer.nip', $outsider->nip)
             ->assertJsonPath('data.room', null);
     }
 

@@ -20,12 +20,12 @@ use RuntimeException;
  * Loads anonymized demo master data from database/seeders/data/master/{Str::slug(study program name)}.json:
  *
  *   prefix       two-letter program code, also used for admin account emails
- *   lecturers    [{code, name}]
- *   courses      [{code, name, sks, semester, classes: [{class_number, lecturer_code}]}]
- *   preferences  [{lecturer_code, constraint_code, day, session}]
+ *   lecturers    [{nip, name}]
+ *   courses      [{code, name, sks, semester, classes: [{class_number, lecturer_nip}]}]
+ *   preferences  [{lecturer_nip, constraint_code, day, session}]
  *
  * Two passes, because a lecturer may teach in another program: all lecturers and courses first,
- * then teaching assignments and preferences with a global lecturer_code lookup.
+ * then teaching assignments and preferences with a global lecturer_nip lookup.
  * Every seeded program is marked as submitted.
  */
 class MasterDataSeeder extends Seeder
@@ -39,7 +39,7 @@ class MasterDataSeeder extends Seeder
             $this->seedCourses($data['courses'], $studyProgram);
         }
 
-        $lecturerIds = Lecturer::query()->pluck('id', 'code');
+        $lecturerIds = Lecturer::query()->pluck('id', 'nip');
         $courseIds = Course::query()->pluck('id', 'code');
         $timeSlotIds = TimeSlot::query()->get()->mapWithKeys(fn (TimeSlot $slot) => ["{$slot->day->value}-{$slot->session}" => $slot->id]);
         $constraintTypeIds = ConstraintType::query()->pluck('id', 'code');
@@ -78,13 +78,13 @@ class MasterDataSeeder extends Seeder
     }
 
     /**
-     * @param  list<array{code: string, name: string}>  $lecturers
+     * @param  list<array{nip: string, name: string}>  $lecturers
      */
     private function seedLecturers(array $lecturers, StudyProgram $studyProgram): void
     {
         foreach ($lecturers as $lecturer) {
             Lecturer::query()->updateOrCreate(
-                ['code' => $lecturer['code']],
+                ['nip' => $lecturer['nip']],
                 ['study_program_id' => $studyProgram->id, 'name' => $lecturer['name'], 'title' => null],
             );
         }
@@ -121,7 +121,7 @@ class MasterDataSeeder extends Seeder
             foreach ($course['classes'] as $class) {
                 CourseLecturer::query()->updateOrCreate(
                     ['course_id' => $this->id($courseIds, $course['code'], 'Course'), 'class_number' => $class['class_number']],
-                    ['lecturer_id' => $this->id($lecturerIds, $class['lecturer_code'], 'Lecturer')],
+                    ['lecturer_id' => $this->id($lecturerIds, $class['lecturer_nip'], 'Lecturer')],
                 );
             }
         }
@@ -144,7 +144,7 @@ class MasterDataSeeder extends Seeder
 
             LecturerPreference::query()->updateOrCreate(
                 [
-                    'lecturer_id' => $this->id($lecturerIds, $preference['lecturer_code'], 'Lecturer'),
+                    'lecturer_id' => $this->id($lecturerIds, $preference['lecturer_nip'], 'Lecturer'),
                     'time_slot_id' => $this->id($timeSlotIds, "{$preference['day']}-{$preference['session']}", 'Time slot'),
                 ],
                 ['constraint_type_id' => $constraintTypeIds[$code->value]],

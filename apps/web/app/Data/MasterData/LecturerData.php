@@ -16,7 +16,7 @@ class LecturerData extends BaseData
         public int $id,
         public int $studyProgramId,
         public ?int $userId,
-        public string $code,
+        public string $nip,
         public string $name,
         public ?string $title,
         public StudyProgramSummaryData $studyProgram,

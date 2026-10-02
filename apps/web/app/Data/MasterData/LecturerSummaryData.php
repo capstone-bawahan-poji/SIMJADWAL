@@ -14,7 +14,7 @@ class LecturerSummaryData extends BaseData
     public function __construct(
         public int $id,
         public int $studyProgramId,
-        public string $code,
+        public string $nip,
         public string $name,
         public ?string $title,
     ) {}

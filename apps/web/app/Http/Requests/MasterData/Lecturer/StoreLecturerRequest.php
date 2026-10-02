@@ -13,7 +13,7 @@ class StoreLecturerRequest extends FormRequest
     {
         return [
             'study_program_id' => ['required', 'integer', Rule::exists(StudyProgram::class, 'id')->withoutTrashed()],
-            'code' => ['required', 'string', 'max:10', Rule::unique(Lecturer::class, 'code')->withoutTrashed()],
+            'nip' => ['required', 'string', 'digits_between:8,20', Rule::unique(Lecturer::class, 'nip')->withoutTrashed()],
             'name' => ['required', 'string', 'max:150'],
             'title' => ['nullable', 'string', 'max:50'],
         ];

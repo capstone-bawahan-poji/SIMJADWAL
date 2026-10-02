@@ -15,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['user_id', 'study_program_id', 'code', 'name', 'title'])]
+#[Fillable(['user_id', 'study_program_id', 'nip', 'name', 'title'])]
 #[UsePolicy(LecturerPolicy::class)]
 class Lecturer extends Model
 {

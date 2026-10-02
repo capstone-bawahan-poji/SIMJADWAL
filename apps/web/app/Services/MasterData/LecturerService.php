@@ -28,11 +28,11 @@ readonly class LecturerService
     {
         return LecturerData::prepareQuery($this->lecturer->newQuery())
             ->when($search, fn (Builder $query) => $query->where(fn (Builder $query) => $query
-                ->whereLike('code', "%{$search}%")
+                ->whereLike('nip', "%{$search}%")
                 ->orWhereLike('name', "%{$search}%")))
             ->when($facultyId, fn (Builder $query) => $query->whereRelation('studyProgram', 'faculty_id', $facultyId))
             ->when($studyProgramId, fn (Builder $query) => $query->where('study_program_id', $studyProgramId))
-            ->orderBy('code')
+            ->orderBy('name')
             ->paginate($perPage)
             ->through(fn (Lecturer $lecturer) => LecturerData::from($lecturer));
     }
@@ -46,7 +46,7 @@ readonly class LecturerService
     {
         $lecturer = $this->lecturer->newQuery()->create([
             'study_program_id' => $data->studyProgramId,
-            'code' => $data->code,
+            'nip' => $data->nip,
             'name' => $data->name,
             'title' => $data->title,
         ]);
@@ -56,9 +56,6 @@ readonly class LecturerService
 
     public function updateLecturer(Lecturer $lecturer, LecturerFormData $data): LecturerData
     {
-        // MVP: a lecturer with assignments, preferences or schedules keeps its homebase.
-        // Next step if needed: allow moving within the same faculty, where mappings stay valid
-        // and the preferences simply follow the lecturer to the new program.
         if ($data->studyProgramId !== $lecturer->study_program_id && $this->hasRelations($lecturer)) {
             throw ApiException::validation(['study_program_id' => [
                 __('A lecturer with teaching assignments, preferences or schedules cannot move to another study program yet.'),
@@ -67,7 +64,7 @@ readonly class LecturerService
 
         $lecturer->update([
             'study_program_id' => $data->studyProgramId,
-            'code' => $data->code,
+            'nip' => $data->nip,
             'name' => $data->name,
             'title' => $data->title,
         ]);

@@ -40,10 +40,11 @@ class DemoAccountSeeder extends Seeder
         $informatics = StudyProgram::query()->where('name', 'Informatika')->firstOrFail();
         $this->account('mahasiswa.if@example.test', 'Mahasiswa Informatika', Role::STUDENT, ['study_program_id' => $informatics->id]);
 
-        $lecturer = Lecturer::query()->where('code', 'IF01')->first();
+        // First lecturer of data/master/informatika.json ("Dosen Informatika 01").
+        $lecturer = Lecturer::query()->where('study_program_id', $informatics->id)->orderBy('nip')->first();
 
         if ($lecturer === null) {
-            $this->command?->warn('Lecturer IF01 not found, skipping dosen.if01@example.test. Add data/master/informatika.json.');
+            $this->command?->warn('No Informatika lecturer found, skipping dosen.if01@example.test. Add data/master/informatika.json.');
 
             return;
         }
