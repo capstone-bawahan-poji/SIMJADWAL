@@ -2,6 +2,7 @@
 
 namespace App\Data\MasterData;
 
+use App\Data\Account\UserSummaryData;
 use App\Data\BaseData;
 use App\Enums\Constraint\ConstraintStatus;
 use App\Extensions\Data\FromPolicy;
@@ -17,11 +18,14 @@ class StudyProgramData extends BaseData
     public function __construct(
         public int $id,
         public int $facultyId,
+        public ?int $departmentId,
         public string $code,
         public string $name,
         public ConstraintStatus $constraintStatus,
         public ?CarbonImmutable $constraintSubmittedAt,
         public FacultySummaryData $faculty,
+        public ?DepartmentSummaryData $department,
+        public ?UserSummaryData $coordinator,
         #[FromPolicy('update')]
         public bool $canUpdate = false,
         #[FromPolicy('delete')]
@@ -30,6 +34,6 @@ class StudyProgramData extends BaseData
 
     public static function relations(): array
     {
-        return ['faculty'];
+        return ['faculty', 'department', 'coordinator.lecturer'];
     }
 }

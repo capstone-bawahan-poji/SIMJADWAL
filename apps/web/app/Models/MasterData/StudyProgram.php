@@ -2,6 +2,7 @@
 
 namespace App\Models\MasterData;
 
+use App\Enums\Account\Role;
 use App\Enums\Constraint\ConstraintStatus;
 use App\Models\User;
 use App\Policies\MasterData\StudyProgramPolicy;
@@ -13,9 +14,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['faculty_id', 'code', 'name', 'constraint_status', 'constraint_submitted_at'])]
+#[Fillable(['faculty_id', 'department_id', 'code', 'name', 'constraint_status', 'constraint_submitted_at'])]
 #[UsePolicy(StudyProgramPolicy::class)]
 class StudyProgram extends Model
 {
@@ -48,6 +50,12 @@ class StudyProgram extends Model
         return $this->belongsTo(Faculty::class);
     }
 
+    /** @return BelongsTo<Department, $this> */
+    public function department(): BelongsTo
+    {
+        return $this->belongsTo(Department::class);
+    }
+
     /** @return HasMany<Lecturer, $this> */
     public function lecturers(): HasMany
     {
@@ -64,6 +72,16 @@ class StudyProgram extends Model
     public function users(): HasMany
     {
         return $this->hasMany(User::class);
+    }
+
+    /**
+     * The program admin (Koor Prodi). Normally one account per program.
+     *
+     * @return HasOne<User, $this>
+     */
+    public function coordinator(): HasOne
+    {
+        return $this->hasOne(User::class)->role(Role::STUDY_PROGRAM_ADMIN->value);
     }
 
     /** @return BelongsToMany<TpbGroup, $this> */

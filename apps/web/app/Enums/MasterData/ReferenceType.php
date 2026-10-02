@@ -11,6 +11,7 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 #[TypeScript]
 enum ReferenceType: string
 {
+    case DEPARTMENTS = 'departments';
     case STUDY_PROGRAMS = 'study_programs';
     case LECTURERS = 'lecturers';
     case COURSES = 'courses';
@@ -25,6 +26,7 @@ enum ReferenceType: string
     public function label(): string
     {
         return match ($this) {
+            self::DEPARTMENTS => __('Department'),
             self::STUDY_PROGRAMS => __('Study Program'),
             self::LECTURERS => __('Lecturer'),
             self::COURSES => __('Course'),

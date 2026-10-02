@@ -12,6 +12,7 @@ return new class extends Migration
         Schema::create('study_programs', function (Blueprint $table) {
             $table->id();
             $table->foreignId('faculty_id')->index()->constrained()->restrictOnDelete();
+            $table->foreignId('department_id')->nullable()->index()->constrained()->restrictOnDelete();
             $table->string('code', 20);
             $table->string('name', 150);
             $table->string('constraint_status', 10)->default('draft');

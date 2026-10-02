@@ -53,6 +53,7 @@ readonly class FacultyService
     public function deleteFaculty(Faculty $faculty): void
     {
         $this->referenceGuard->ensureUnused([
+            ReferenceType::DEPARTMENTS->value => $faculty->departments()->count(),
             ReferenceType::STUDY_PROGRAMS->value => $faculty->studyPrograms()->count(),
             ReferenceType::ROOMS->value => $faculty->rooms()->count(),
             ReferenceType::USERS->value => $faculty->users()->count(),

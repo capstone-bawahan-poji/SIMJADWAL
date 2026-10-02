@@ -20,6 +20,12 @@ class Faculty extends Model
     /** @use HasFactory<FacultyFactory> */
     use HasFactory, SoftDeletes;
 
+    /** @return HasMany<Department, $this> */
+    public function departments(): HasMany
+    {
+        return $this->hasMany(Department::class);
+    }
+
     /** @return HasMany<StudyProgram, $this> */
     public function studyPrograms(): HasMany
     {

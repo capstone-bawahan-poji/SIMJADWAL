@@ -2,14 +2,13 @@
 
 namespace App\Data\MasterData;
 
-use App\Models\MasterData\StudyProgram;
+use App\Models\MasterData\Department;
 use Spatie\LaravelData\Data;
 
-class StudyProgramFormData extends Data
+class DepartmentFormData extends Data
 {
     public function __construct(
         public int $facultyId,
-        public ?int $departmentId,
         public string $code,
         public string $name,
     ) {}
@@ -17,11 +16,10 @@ class StudyProgramFormData extends Data
     /**
      * @param  array<string, mixed>  $input  validated request; on PATCH absent fields keep $current values
      */
-    public static function fromInput(array $input, ?StudyProgram $current = null): self
+    public static function fromInput(array $input, ?Department $current = null): self
     {
         return new self(
             facultyId: (int) ($input['faculty_id'] ?? $current?->faculty_id),
-            departmentId: array_key_exists('department_id', $input) ? $input['department_id'] : $current?->department_id,
             code: $input['code'] ?? $current?->code,
             name: $input['name'] ?? $current?->name,
         );

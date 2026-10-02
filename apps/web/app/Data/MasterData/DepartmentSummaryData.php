@@ -9,12 +9,11 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript]
 #[MapName(SnakeCaseMapper::class)]
-class StudyProgramSummaryData extends BaseData
+class DepartmentSummaryData extends BaseData
 {
     public function __construct(
         public int $id,
         public int $facultyId,
-        public ?int $departmentId,
         public string $code,
         public string $name,
     ) {}

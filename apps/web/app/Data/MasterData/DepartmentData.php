@@ -10,13 +10,14 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 #[TypeScript]
 #[MapName(SnakeCaseMapper::class)]
-class FacultyData extends BaseData
+class DepartmentData extends BaseData
 {
     public function __construct(
         public int $id,
+        public int $facultyId,
         public string $code,
         public string $name,
-        public int $departmentsCount,
+        public FacultySummaryData $faculty,
         public int $studyProgramsCount,
         #[FromPolicy('update')]
         public bool $canUpdate = false,
@@ -24,8 +25,13 @@ class FacultyData extends BaseData
         public bool $canDelete = false,
     ) {}
 
+    public static function relations(): array
+    {
+        return ['faculty'];
+    }
+
     public static function countRelations(): array
     {
-        return ['departments', 'studyPrograms'];
+        return ['studyPrograms'];
     }
 }

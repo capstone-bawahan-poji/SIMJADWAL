@@ -40,6 +40,7 @@ class StudyProgramController extends ApiController implements HasMiddleware
         return $this->response($this->studyProgramService->getStudyPrograms(
             search: $v['q'] ?? null,
             facultyId: isset($v['faculty_id']) ? (int) $v['faculty_id'] : null,
+            departmentId: isset($v['department_id']) ? (int) $v['department_id'] : null,
         ));
     }
 
@@ -68,10 +69,6 @@ class StudyProgramController extends ApiController implements HasMiddleware
         return $this->noContent();
     }
 
-    /**
-     * Placed TPB groups the program attends. Their slots are taken for the program's
-     * own courses of the same semester.
-     */
     public function tpbBlockedSlots(StudyProgram $studyProgram): JsonResponse
     {
         return $this->response($this->tpbGroupService->getPlacedGroupsFor($studyProgram));

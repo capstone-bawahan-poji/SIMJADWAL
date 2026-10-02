@@ -2,6 +2,7 @@
 
 namespace Database\Seeders\Reference;
 
+use App\Models\MasterData\Department;
 use App\Models\MasterData\Faculty;
 use App\Models\MasterData\StudyProgram;
 use Illuminate\Database\Seeder;
@@ -56,17 +57,61 @@ class FacultyStudyProgramSeeder extends Seeder
         ],
     ];
 
+    /**
+     * Faculty code => departments (jurusan code => name and program codes), following the ITK
+     * program pages. Department codes are local abbreviations.
+     */
+    private const DEPARTMENTS = [
+        'FSTI' => [
+            'JSAD' => ['name' => 'Jurusan Sains dan Analitika Data', 'programs' => ['MA', 'AK', 'ST', 'FI']],
+            'JTEIB' => ['name' => 'Jurusan Teknik Elektro, Informatika, dan Bisnis', 'programs' => ['IF', 'SI', 'BD', 'TE', 'TB']],
+        ],
+        'FPB' => [
+            'JTK' => ['name' => 'Jurusan Teknologi Kemaritiman', 'programs' => ['PK', 'KL', 'TL', 'SP', 'TT']],
+            'JTSP' => ['name' => 'Jurusan Teknik Sipil dan Perencanaan', 'programs' => ['SL', 'PW', 'AR', 'DK', 'GM']],
+        ],
+        'FRTI' => [
+            'JTI' => ['name' => 'Jurusan Teknologi Industri', 'programs' => ['MS', 'TI', 'LG', 'MM']],
+            'JRI' => ['name' => 'Jurusan Rekayasa Industri', 'programs' => ['TP', 'TK', 'RK']],
+        ],
+    ];
+
     public function run(): void
     {
         foreach (self::FACULTIES as $facultyCode => ['name' => $facultyName, 'programs' => $programs]) {
             $faculty = Faculty::query()->firstOrCreate(['code' => $facultyCode], ['name' => $facultyName]);
+            $departmentIds = $this->seedDepartments($faculty, self::DEPARTMENTS[$facultyCode] ?? []);
 
             foreach ($programs as $programCode => $programName) {
-                StudyProgram::query()->firstOrCreate(
+                $program = StudyProgram::query()->firstOrCreate(
                     ['code' => $programCode],
                     ['faculty_id' => $faculty->id, 'name' => $programName],
                 );
+
+                // Fill only an empty department, so a department set by an admin survives re-seeding.
+                if ($program->department_id === null && isset($departmentIds[$programCode])) {
+                    $program->update(['department_id' => $departmentIds[$programCode]]);
+                }
             }
         }
+    }
+
+    /**
+     * @param  array<string, array{name: string, programs: list<string>}>  $departments
+     * @return array<string, int> program code => department id
+     */
+    private function seedDepartments(Faculty $faculty, array $departments): array
+    {
+        $ids = [];
+
+        foreach ($departments as $code => ['name' => $name, 'programs' => $programCodes]) {
+            $department = Department::query()->firstOrCreate(['code' => $code], ['faculty_id' => $faculty->id, 'name' => $name]);
+
+            foreach ($programCodes as $programCode) {
+                $ids[$programCode] = $department->id;
+            }
+        }
+
+        return $ids;
     }
 }

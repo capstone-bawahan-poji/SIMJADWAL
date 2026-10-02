@@ -5,6 +5,7 @@ namespace Database\Seeders\Reference;
 use App\Enums\Account\Role as RoleEnum;
 use App\Permissions\MasterData\CourseLecturerPermissions;
 use App\Permissions\MasterData\CoursePermissions;
+use App\Permissions\MasterData\DepartmentPermissions;
 use App\Permissions\MasterData\FacultyPermissions;
 use App\Permissions\MasterData\LecturerPermissions;
 use App\Permissions\MasterData\RoomPermissions;
@@ -29,6 +30,7 @@ class RoleSeeder extends Seeder
 
         $readReference = [
             FacultyPermissions::VIEW,
+            DepartmentPermissions::VIEW,
             StudyProgramPermissions::VIEW,
             TimeSlotPermissions::VIEW,
         ];
