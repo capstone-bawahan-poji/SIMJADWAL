@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import SuperadminLayout from '@/Layouts/SuperadminLayout.vue';
+import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head, Link } from '@inertiajs/vue3';
 import { ArrowRight, Building2, Clock, GraduationCap, Users } from 'lucide-vue-next';
 import type { DashboardStats } from '@/types/models';
@@ -13,7 +13,7 @@ const format = (value: number) => value.toLocaleString('id-ID');
 <template>
     <Head title="Dashboard" />
 
-    <SuperadminLayout>
+    <AppLayout>
         <div v-if="!stats" class="p-6 md:p-8 max-w-7xl w-full mx-auto">
             <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Dashboard</h1>
             <p class="mt-2 text-sm text-gray-500">Halaman untuk role Anda sedang disiapkan.</p>
@@ -152,5 +152,5 @@ const format = (value: number) => value.toLocaleString('id-ID');
                 </div>
             </div>
         </div>
-    </SuperadminLayout>
+    </AppLayout>
 </template>
