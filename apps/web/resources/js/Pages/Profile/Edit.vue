@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import SuperadminLayout from '@/Layouts/SuperadminLayout.vue';
+import AppLayout from '@/Layouts/AppLayout.vue';
 import UpdatePasswordForm from './Partials/UpdatePasswordForm.vue';
 import UpdateProfileInformationForm from './Partials/UpdateProfileInformationForm.vue';
 import { Head } from '@inertiajs/vue3';
@@ -12,7 +12,7 @@ defineProps<{
 <template>
     <Head title="Profil Saya" />
 
-    <SuperadminLayout>
+    <AppLayout>
         <div class="p-6 md:p-8 max-w-4xl w-full mx-auto space-y-6">
             <h2 class="text-2xl font-bold text-gray-900 tracking-tight">Profil Saya</h2>
 
@@ -24,5 +24,5 @@ defineProps<{
                 <UpdatePasswordForm class="max-w-xl" />
             </div>
         </div>
-    </SuperadminLayout>
+    </AppLayout>
 </template>

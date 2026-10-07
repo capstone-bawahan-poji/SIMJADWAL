@@ -13,12 +13,19 @@ class DashboardController extends InertiaController
     public function __construct(private readonly DashboardStatsService $dashboardStatsService) {}
 
     /**
-     * stats is null for other roles until their dashboards exist.
+     * Prodi and faculty admins have their own dashboard pages. stats is null for the other
+     * roles until their dashboards exist.
      */
     public function __invoke(Request $request): Response
     {
-        return Inertia::render('Dashboard', [
-            'stats' => $request->user()->hasRole(Role::SUPER_ADMIN->value) ? $this->dashboardStatsService->get() : null,
-        ]);
+        $user = $request->user();
+
+        return match (true) {
+            $user->hasRole(Role::STUDY_PROGRAM_ADMIN->value) => Inertia::render('Prodi/Dashboard'),
+            $user->hasRole(Role::FACULTY_ADMIN->value) => Inertia::render('Fakultas/Dashboard'),
+            default => Inertia::render('Dashboard', [
+                'stats' => $user->hasRole(Role::SUPER_ADMIN->value) ? $this->dashboardStatsService->get() : null,
+            ]),
+        };
     }
 }

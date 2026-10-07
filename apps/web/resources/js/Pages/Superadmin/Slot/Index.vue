@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-import SuperadminLayout from '@/Layouts/SuperadminLayout.vue';
+import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import { Pencil, Trash2 } from 'lucide-vue-next';
 import Button from '@/Components/ui/Button.vue';
@@ -124,7 +124,7 @@ async function confirmDelete(): Promise<void> {
 <template>
     <Head title="Data Jadwal" />
 
-    <SuperadminLayout>
+    <AppLayout>
         <div class="p-6 md:p-8 space-y-7 max-w-7xl w-full mx-auto">
             <!-- Page Header -->
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
@@ -318,5 +318,5 @@ async function confirmDelete(): Promise<void> {
         >
             Slot <strong>{{ deleteTarget ? slotCode(deleteTarget) : '' }}</strong> akan dihapus. Penghapusan ditolak selama slot masih dipakai.
         </ConfirmDialog>
-    </SuperadminLayout>
+    </AppLayout>
 </template>

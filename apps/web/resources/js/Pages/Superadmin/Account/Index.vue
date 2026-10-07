@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import SuperadminLayout from '@/Layouts/SuperadminLayout.vue';
+import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import { Info, Users } from 'lucide-vue-next';
 import { computed, onMounted, ref, watch } from 'vue';
@@ -209,7 +209,7 @@ async function toggleStatus(): Promise<void> {
 <template>
     <Head title="Kelola Akun & Role" />
 
-    <SuperadminLayout>
+    <AppLayout>
         <div class="p-6 md:p-8 space-y-8">
             <!-- Header section -->
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -506,5 +506,5 @@ async function toggleStatus(): Promise<void> {
                 <strong>{{ statusTarget?.name }}</strong> bisa masuk lagi dengan password terakhirnya.
             </template>
         </ConfirmDialog>
-    </SuperadminLayout>
+    </AppLayout>
 </template>
