@@ -151,3 +151,40 @@ export interface DashboardStats {
     rooms: { total: number; shared: number };
     time_slots: { total: number; days: number; sessions_per_day: number };
 }
+
+/** App\Data\MasterData\CourseSummaryData */
+export interface CourseSummary {
+    id: number;
+    study_program_id: number | null;
+    is_tpb: boolean;
+    code: string;
+    name: string;
+    sks: number;
+    semester: number;
+}
+
+/** App\Data\MasterData\CourseData. course_lecturers_count = classes that already have a lecturer. */
+export interface Course extends CourseSummary {
+    parallel_class_count: number;
+    class_capacity: number;
+    study_program: StudyProgramSummary | null;
+    course_lecturers_count: number;
+    can_update: boolean;
+    can_delete: boolean;
+}
+
+/** App\Data\MasterData\TeachingAssignmentData: one class of a course and its lecturer. */
+export interface TeachingAssignment {
+    id: number;
+    course_id: number;
+    class_number: number;
+    class_label: string;
+    lecturer_id: number;
+    tpb_group_id: number | null;
+    room_id: number | null;
+    course: CourseSummary;
+    lecturer: LecturerSummary;
+    room: { id: number; faculty_id: number | null; code: string; name: string | null; capacity: number } | null;
+    can_update: boolean;
+    can_delete: boolean;
+}
