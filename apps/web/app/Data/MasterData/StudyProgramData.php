@@ -23,6 +23,8 @@ class StudyProgramData extends BaseData
         public string $name,
         public ConstraintStatus $constraintStatus,
         public ?CarbonImmutable $constraintSubmittedAt,
+        public ?CarbonImmutable $constraintReviewedAt,
+        public ?string $constraintReturnNote,
         public FacultySummaryData $faculty,
         public ?DepartmentSummaryData $department,
         public ?UserSummaryData $coordinator,

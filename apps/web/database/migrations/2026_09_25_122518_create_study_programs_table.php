@@ -17,6 +17,9 @@ return new class extends Migration
             $table->string('name', 150);
             $table->string('constraint_status', 10)->default('draft');
             $table->timestamp('constraint_submitted_at')->nullable();
+            $table->foreignId('constraint_reviewed_by')->nullable()->constrained('users')->restrictOnDelete();
+            $table->timestamp('constraint_reviewed_at')->nullable();
+            $table->text('constraint_return_note')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

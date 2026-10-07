@@ -17,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
-#[Fillable(['faculty_id', 'department_id', 'code', 'name', 'constraint_status', 'constraint_submitted_at'])]
+#[Fillable(['faculty_id', 'department_id', 'code', 'name', 'constraint_status', 'constraint_submitted_at', 'constraint_reviewed_by', 'constraint_reviewed_at', 'constraint_return_note'])]
 #[UsePolicy(StudyProgramPolicy::class)]
 class StudyProgram extends Model
 {
@@ -33,15 +33,16 @@ class StudyProgram extends Model
         return [
             'constraint_status' => ConstraintStatus::class,
             'constraint_submitted_at' => 'datetime',
+            'constraint_reviewed_at' => 'datetime',
         ];
     }
 
     /**
-     * Submitted programs are read-only for their master data and lecturer preferences.
+     * Submitted and accepted programs are read-only for their master data and lecturer preferences.
      */
     public function isLocked(): bool
     {
-        return $this->constraint_status === ConstraintStatus::SUBMITTED;
+        return $this->constraint_status->locks();
     }
 
     /** @return BelongsTo<Faculty, $this> */
