@@ -5,6 +5,7 @@ namespace App\Services\Account;
 use App\Extensions\Permissions\Permissionable;
 use App\Permissions\Account\ActivityLogPermissions;
 use App\Permissions\Account\UserPermissions;
+use App\Permissions\Constraint\ConstraintPermissions;
 use App\Permissions\MasterData\CourseLecturerPermissions;
 use App\Permissions\MasterData\CoursePermissions;
 use App\Permissions\MasterData\DepartmentPermissions;
@@ -36,6 +37,7 @@ readonly class PermissionService
             CoursePermissions::class,
             CourseLecturerPermissions::class,
             TpbPermissions::class,
+            ConstraintPermissions::class,
         ];
     }
 

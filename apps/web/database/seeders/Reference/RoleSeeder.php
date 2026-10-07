@@ -3,6 +3,7 @@
 namespace Database\Seeders\Reference;
 
 use App\Enums\Account\Role as RoleEnum;
+use App\Permissions\Constraint\ConstraintPermissions;
 use App\Permissions\MasterData\CourseLecturerPermissions;
 use App\Permissions\MasterData\CoursePermissions;
 use App\Permissions\MasterData\DepartmentPermissions;
@@ -45,6 +46,9 @@ class RoleSeeder extends Seeder
                 ...CoursePermissions::cases(),
                 ...CourseLecturerPermissions::cases(),
                 TpbPermissions::VIEW,
+                ConstraintPermissions::VIEW,
+                ConstraintPermissions::UPDATE_WEIGHT,
+                ConstraintPermissions::REVIEW,
             ],
             RoleEnum::TPB_ADMIN->value => [
                 ...$readReference,
@@ -61,6 +65,9 @@ class RoleSeeder extends Seeder
                 ...CoursePermissions::cases(),
                 ...CourseLecturerPermissions::cases(),
                 TpbPermissions::VIEW,
+                ConstraintPermissions::VIEW,
+                ConstraintPermissions::UPDATE_PREFERENCE,
+                ConstraintPermissions::SUBMIT,
             ],
             RoleEnum::LECTURER->value => $readReference,
             RoleEnum::STUDENT->value => $readReference,
