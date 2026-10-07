@@ -71,10 +71,15 @@ export interface StudyProgramSummary {
     name: string;
 }
 
+/** draft = editable, submitted = waiting for the faculty admin, accepted = locked. */
+export type ConstraintStatus = 'draft' | 'submitted' | 'accepted';
+
 /** App\Data\MasterData\StudyProgramData */
 export interface StudyProgram extends StudyProgramSummary {
-    constraint_status: 'draft' | 'submitted';
+    constraint_status: ConstraintStatus;
     constraint_submitted_at: string | null;
+    constraint_reviewed_at: string | null;
+    constraint_return_note: string | null;
     faculty: FacultySummary;
     department: DepartmentSummary | null;
     coordinator: UserSummary | null;
@@ -187,4 +192,48 @@ export interface TeachingAssignment {
     room: { id: number; faculty_id: number | null; code: string; name: string | null; capacity: number } | null;
     can_update: boolean;
     can_delete: boolean;
+}
+
+/** App\Data\Constraint\ConstraintTypeData. Weights are global. Only soft constraints can change. */
+export interface ConstraintType {
+    id: number;
+    code: 'HC1' | 'HC2' | 'HC3' | 'HC4' | 'SC_INGIN' | 'SC_HINDARI' | 'SC_SKS';
+    category: 'HC' | 'SC';
+    description: string;
+    weight: number;
+    can_update: boolean;
+}
+
+/** App\Data\Constraint\ConstraintSubmissionData */
+export interface ConstraintSubmission {
+    id: number;
+    faculty_id: number;
+    code: string;
+    name: string;
+    constraint_status: ConstraintStatus;
+    constraint_submitted_at: string | null;
+    constraint_reviewed_at: string | null;
+    constraint_return_note: string | null;
+    faculty: FacultySummary;
+    lecturers_count: number;
+    lecturers_with_preferences_count: number;
+    courses_count: number;
+    incomplete_courses_count: number;
+    can_submit: boolean;
+    can_review: boolean;
+    is_locked: boolean;
+}
+
+export type PreferenceType = 'want' | 'avoid';
+
+export interface SlotPreference {
+    time_slot_id: number;
+    type: PreferenceType;
+}
+
+/** ConstraintSubmissionService::getSubmission() */
+export interface ConstraintSubmissionDetail {
+    summary: ConstraintSubmission;
+    incomplete_courses: { id: number; code: string; name: string; parallel_class_count: number; assigned_class_count: number }[];
+    lecturers: { id: number; nip: string; name: string; title: string | null; preferences: SlotPreference[] }[];
 }

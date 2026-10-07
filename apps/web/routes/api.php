@@ -2,6 +2,9 @@
 
 use App\Http\Controllers\Api\Internal\Account\ActivityLogController as InternalActivityLogController;
 use App\Http\Controllers\Api\Internal\Account\UserController as InternalUserController;
+use App\Http\Controllers\Api\Internal\Constraint\ConstraintSubmissionController as InternalConstraintSubmissionController;
+use App\Http\Controllers\Api\Internal\Constraint\ConstraintTypeController as InternalConstraintTypeController;
+use App\Http\Controllers\Api\Internal\Constraint\LecturerPreferenceController as InternalLecturerPreferenceController;
 use App\Http\Controllers\Api\Internal\MasterData\CourseController as InternalCourseController;
 use App\Http\Controllers\Api\Internal\MasterData\DepartmentController as InternalDepartmentController;
 use App\Http\Controllers\Api\Internal\MasterData\FacultyController as InternalFacultyController;
@@ -37,7 +40,7 @@ Route::middleware(['web', 'auth'])->prefix('internal')->name('api.internal.')->g
     Route::patch('users/{user}/status', [InternalUserController::class, 'updateStatus'])->name('users.status');
     Route::get('activity-logs', [InternalActivityLogController::class, 'index'])->name('activity-logs.index');
 
-    //masterdata
+    // masterdata
     Route::apiResource('faculties', InternalFacultyController::class);
     Route::apiResource('departments', InternalDepartmentController::class);
     Route::apiResource('study-programs', InternalStudyProgramController::class)->parameters(['study-programs' => 'studyProgram']);
@@ -48,6 +51,17 @@ Route::middleware(['web', 'auth'])->prefix('internal')->name('api.internal.')->g
     Route::apiResource('courses', InternalCourseController::class);
     Route::apiResource('teaching-assignments', InternalTeachingAssignmentController::class)->parameters(['teaching-assignments' => 'courseLecturer']);
     Route::apiResource('tpb-groups', InternalTpbGroupController::class)->parameters(['tpb-groups' => 'tpbGroup']);
+
+    // constraints
+    Route::get('constraint-types', [InternalConstraintTypeController::class, 'index'])->name('constraint-types.index');
+    Route::patch('constraint-types/{constraintType}', [InternalConstraintTypeController::class, 'update'])->name('constraint-types.update');
+    Route::get('lecturers/{lecturer}/preferences', [InternalLecturerPreferenceController::class, 'show'])->name('lecturers.preferences.show');
+    Route::put('lecturers/{lecturer}/preferences', [InternalLecturerPreferenceController::class, 'update'])->name('lecturers.preferences.update');
+    Route::get('constraint-submissions', [InternalConstraintSubmissionController::class, 'index'])->name('constraint-submissions.index');
+    Route::get('constraint-submissions/{studyProgram}', [InternalConstraintSubmissionController::class, 'show'])->name('constraint-submissions.show');
+    Route::post('constraint-submissions/{studyProgram}/submit', [InternalConstraintSubmissionController::class, 'submit'])->name('constraint-submissions.submit');
+    Route::post('constraint-submissions/{studyProgram}/accept', [InternalConstraintSubmissionController::class, 'accept'])->name('constraint-submissions.accept');
+    Route::post('constraint-submissions/{studyProgram}/return', [InternalConstraintSubmissionController::class, 'return'])->name('constraint-submissions.return');
 });
 
 Route::prefix('v1')->name('api.v1.')->group(function () {
@@ -67,7 +81,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::patch('users/{user}/status', [V1UserController::class, 'updateStatus'])->name('users.status');
         Route::get('activity-logs', [V1ActivityLogController::class, 'index'])->name('activity-logs.index');
 
-        //masterrdsata
+        // masterdata
         Route::apiResource('faculties', V1FacultyController::class);
         Route::apiResource('departments', V1DepartmentController::class);
         Route::apiResource('study-programs', V1StudyProgramController::class)->parameters(['study-programs' => 'studyProgram']);

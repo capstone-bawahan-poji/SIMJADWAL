@@ -94,3 +94,19 @@ export async function countOf(url: string, params: Record<string, unknown> = {})
 
     return response.data.meta.pagination.total;
 }
+
+/** Every row of a paginated endpoint (100 per request). For small lists such as one program's lecturers. */
+export async function fetchAll<T>(url: string, params: Record<string, unknown> = {}): Promise<T[]> {
+    const rows: T[] = [];
+    let page = 1;
+    let lastPage = 1;
+
+    do {
+        const response = await api.get<Paginated<T>>(url, { params: { ...params, page, per_page: 100 } });
+        rows.push(...response.data.data);
+        lastPage = response.data.meta.pagination.last_page;
+        page++;
+    } while (page <= lastPage);
+
+    return rows;
+}
