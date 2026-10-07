@@ -35,4 +35,8 @@ export type PageProps<
         user: User;
         permissions: string[];
     };
+    labels: {
+        /** Badge text for pages that still render mock data. */
+        sample_data: string;
+    };
 };

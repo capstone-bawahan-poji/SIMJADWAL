@@ -7,7 +7,7 @@ return new class extends Migration
 {
     public function up(): void
     {
-        DB::statement("ALTER TABLE study_programs ADD CONSTRAINT chk_constraint_status CHECK (constraint_status IN ('draft','submitted'))");
+        DB::statement("ALTER TABLE study_programs ADD CONSTRAINT chk_constraint_status CHECK (constraint_status IN ('draft','submitted','accepted'))");
         DB::statement('ALTER TABLE courses ADD CONSTRAINT chk_sks CHECK (sks IN (2,3,4))');
         DB::statement('ALTER TABLE time_slots ADD CONSTRAINT chk_slot_type CHECK (type IN (2,3))');
         DB::statement("ALTER TABLE constraint_types ADD CONSTRAINT chk_category CHECK (category IN ('HC','SC'))");

@@ -38,6 +38,9 @@ class HandleInertiaRequests extends Middleware
                     : null,
                 'permissions' => fn () => $request->user()?->getAllPermissions()->pluck('name')->values() ?? [],
             ],
+            'labels' => [
+                'sample_data' => __('Sample data'),
+            ],
         ];
     }
 }

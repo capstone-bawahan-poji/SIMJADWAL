@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import SuperadminLayout from '@/Layouts/SuperadminLayout.vue';
+import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import { UserRound } from 'lucide-vue-next';
 import { computed, onMounted, ref, watch } from 'vue';
@@ -142,7 +142,7 @@ async function confirmDelete(): Promise<void> {
 <template>
     <Head title="Data Ruangan" />
 
-    <SuperadminLayout>
+    <AppLayout>
         <div class="p-6 md:p-8 space-y-8">
             <!-- Header section -->
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
@@ -345,5 +345,5 @@ async function confirmDelete(): Promise<void> {
         >
             Ruangan <strong>{{ deleteTarget?.code }}</strong> akan dihapus. Penghapusan ditolak selama ruangan masih dipakai kelas TPB atau jadwal aktif.
         </ConfirmDialog>
-    </SuperadminLayout>
+    </AppLayout>
 </template>

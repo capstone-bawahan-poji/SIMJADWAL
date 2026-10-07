@@ -71,10 +71,15 @@ export interface StudyProgramSummary {
     name: string;
 }
 
+/** draft = editable, submitted = waiting for the faculty admin, accepted = locked. */
+export type ConstraintStatus = 'draft' | 'submitted' | 'accepted';
+
 /** App\Data\MasterData\StudyProgramData */
 export interface StudyProgram extends StudyProgramSummary {
-    constraint_status: 'draft' | 'submitted';
+    constraint_status: ConstraintStatus;
     constraint_submitted_at: string | null;
+    constraint_reviewed_at: string | null;
+    constraint_return_note: string | null;
     faculty: FacultySummary;
     department: DepartmentSummary | null;
     coordinator: UserSummary | null;
@@ -150,4 +155,85 @@ export interface DashboardStats {
     users: { total: number; active: number; by_role: Record<Role, number> };
     rooms: { total: number; shared: number };
     time_slots: { total: number; days: number; sessions_per_day: number };
+}
+
+/** App\Data\MasterData\CourseSummaryData */
+export interface CourseSummary {
+    id: number;
+    study_program_id: number | null;
+    is_tpb: boolean;
+    code: string;
+    name: string;
+    sks: number;
+    semester: number;
+}
+
+/** App\Data\MasterData\CourseData. course_lecturers_count = classes that already have a lecturer. */
+export interface Course extends CourseSummary {
+    parallel_class_count: number;
+    class_capacity: number;
+    study_program: StudyProgramSummary | null;
+    course_lecturers_count: number;
+    can_update: boolean;
+    can_delete: boolean;
+}
+
+/** App\Data\MasterData\TeachingAssignmentData: one class of a course and its lecturer. */
+export interface TeachingAssignment {
+    id: number;
+    course_id: number;
+    class_number: number;
+    class_label: string;
+    lecturer_id: number;
+    tpb_group_id: number | null;
+    room_id: number | null;
+    course: CourseSummary;
+    lecturer: LecturerSummary;
+    room: { id: number; faculty_id: number | null; code: string; name: string | null; capacity: number } | null;
+    can_update: boolean;
+    can_delete: boolean;
+}
+
+/** App\Data\Constraint\ConstraintTypeData. Weights are global. Only soft constraints can change. */
+export interface ConstraintType {
+    id: number;
+    code: 'HC1' | 'HC2' | 'HC3' | 'HC4' | 'SC_INGIN' | 'SC_HINDARI' | 'SC_SKS';
+    category: 'HC' | 'SC';
+    description: string;
+    weight: number;
+    can_update: boolean;
+}
+
+/** App\Data\Constraint\ConstraintSubmissionData */
+export interface ConstraintSubmission {
+    id: number;
+    faculty_id: number;
+    code: string;
+    name: string;
+    constraint_status: ConstraintStatus;
+    constraint_submitted_at: string | null;
+    constraint_reviewed_at: string | null;
+    constraint_return_note: string | null;
+    faculty: FacultySummary;
+    lecturers_count: number;
+    lecturers_with_preferences_count: number;
+    courses_count: number;
+    incomplete_courses_count: number;
+    can_submit: boolean;
+    can_review: boolean;
+    is_locked: boolean;
+}
+
+export type PreferenceType = 'want' | 'avoid';
+
+export interface SlotPreference {
+    time_slot_id: number;
+    type: PreferenceType;
+}
+
+/** ConstraintSubmissionService::getSubmission() */
+export interface ConstraintSubmissionDetail {
+    summary: ConstraintSubmission;
+    incomplete_courses: { id: number; code: string; name: string; parallel_class_count: number; assigned_class_count: number }[];
+    lecturers: { id: number; nip: string; name: string; title: string | null; preferences: SlotPreference[] }[];
 }
