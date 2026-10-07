@@ -42,6 +42,11 @@ class ApiException extends RuntimeException
         return new self($message ?? __('The resource is still referenced by other data.'), 'RESOURCE_IN_USE', 409, ['references' => $references]);
     }
 
+    public static function invalidState(string $message): self
+    {
+        return new self($message, 'INVALID_STATE', 409);
+    }
+
     public static function constraintsLocked(): self
     {
         return new self(__('Study program constraints are submitted and locked.'), 'CONSTRAINTS_LOCKED', 409);

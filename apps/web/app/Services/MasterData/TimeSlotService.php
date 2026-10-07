@@ -5,6 +5,7 @@ namespace App\Services\MasterData;
 use App\Data\MasterData\TimeSlotData;
 use App\Data\MasterData\TimeSlotFormData;
 use App\Enums\MasterData\ReferenceType;
+use App\Exceptions\Shared\ApiException;
 use App\Models\MasterData\TimeSlot;
 use Illuminate\Support\Collection;
 
@@ -62,6 +63,10 @@ readonly class TimeSlotService
      */
     public function deleteTimeSlot(TimeSlot $timeSlot): void
     {
+        if ($this->timeSlot->newQuery()->count() <= 1) {
+            throw ApiException::invalidState(__('The last time slot cannot be deleted.'));
+        }
+
         $this->ensureUnused($timeSlot);
 
         $timeSlot->delete();
