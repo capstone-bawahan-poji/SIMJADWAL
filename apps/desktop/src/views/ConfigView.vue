@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, reactive } from 'vue';
-import Card from './ui/Card.vue';
-import Button from './ui/Button.vue';
-import ConfirmDialog from './ui/ConfirmDialog.vue';
+import Card from '@/components/ui/Card.vue';
+import Button from '@/components/ui/Button.vue';
+import ConfirmDialog from '@/components/ui/ConfirmDialog.vue';
 
 const runMode = ref<'single' | 'multi'>('single');
 const operator = ref<'TS' | 'TSR'>('TS');
