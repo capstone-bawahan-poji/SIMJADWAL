@@ -21,6 +21,14 @@ class ApiException extends RuntimeException
         parent::__construct($message);
     }
 
+    /**
+     * The data a desktop run was computed from has changed on the server since it was fetched.
+     */
+    public static function datasetChanged(): self
+    {
+        return new self(__('The scheduling data changed after this run was computed. Reload the data and run again.'), 'DATASET_CHANGED', 409);
+    }
+
     public static function invalidCredentials(): self
     {
         return new self(__('auth.failed'), 'INVALID_CREDENTIALS', 401);

@@ -5,24 +5,40 @@ namespace App\Models\Scheduling;
 use App\Enums\Scheduling\RunStatus;
 use App\Models\MasterData\Faculty;
 use App\Models\User;
+use App\Policies\Scheduling\SchedulingRunPolicy;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Casts\Attribute;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-/**
- * One GA execution and the single schedule it produced.
- * The engine reads parameters and weights from parameter_snapshot, never from live tables.
- */
 #[Fillable([
-    'batch_id', 'faculty_id', 'period', 'preset_id', 'parameter_snapshot', 'status',
-    'current_generation', 'current_fitness', 'best_fitness', 'max_fitness', 'best_generation',
-    'fitness_history', 'error_message', 'is_active', 'triggered_by', 'started_at', 'finished_at',
-    'published_by', 'published_at',
+    'batch_id',
+    'faculty_id',
+    'period',
+    'preset_id',
+    'parameter_snapshot',
+    'status',
+    'current_generation',
+    'current_fitness',
+    'best_fitness',
+    'max_fitness',
+    'best_generation',
+    'fitness_history',
+    'error_message',
+    'is_active',
+    'triggered_by',
+    'started_at',
+    'finished_at',
+    'published_by',
+    'published_at',
+    'client_run_id',
+    'dataset_fingerprint',
 ])]
+#[UsePolicy(SchedulingRunPolicy::class)]
 class SchedulingRun extends Model
 {
     protected $attributes = [
