@@ -51,7 +51,9 @@ pub struct DatasetMentah {
 
 impl DatasetMentah {
     pub fn dari_json(matkul: &str, sesi: &str, ruang: &str) -> Result<Self, KromosomError> {
-        let baca = |nama: &str, e: serde_json::Error| KromosomError::DataTidakTerbaca(format!("{nama}: {e}"));
+        let baca = |nama: &str, e: serde_json::Error| {
+            KromosomError::DataTidakTerbaca(format!("{nama}: {e}"))
+        };
         Ok(Self {
             matkul: serde_json::from_str(matkul).map_err(|e| baca("matkul.json", e))?,
             sesi: serde_json::from_str(sesi).map_err(|e| baca("sesi.json", e))?,
@@ -64,10 +66,15 @@ impl DatasetMentah {
     pub fn dari_folder(folder: impl AsRef<Path>) -> Result<Self, KromosomError> {
         let folder = folder.as_ref();
         let baca = |nama: &str| {
-            std::fs::read_to_string(folder.join(nama))
-                .map_err(|e| KromosomError::DataTidakTerbaca(format!("{}: {e}", folder.join(nama).display())))
+            std::fs::read_to_string(folder.join(nama)).map_err(|e| {
+                KromosomError::DataTidakTerbaca(format!("{}: {e}", folder.join(nama).display()))
+            })
         };
-        let data = Self::dari_json(&baca("matkul.json")?, &baca("sesi.json")?, &baca("ruang.json")?)?;
+        let data = Self::dari_json(
+            &baca("matkul.json")?,
+            &baca("sesi.json")?,
+            &baca("ruang.json")?,
+        )?;
         Ok(match folder.file_name().and_then(|n| n.to_str()) {
             Some(nama) => data.dengan_fakultas(&nama.to_uppercase()),
             None => data,
@@ -101,9 +108,9 @@ impl DatasetMentah {
     /// fakultas sebelumnya tidak ditambahkan lagi.
     pub fn gabung(bagian: impl IntoIterator<Item = DatasetMentah>) -> Result<Self, KromosomError> {
         let mut bagian = bagian.into_iter();
-        let mut hasil = bagian
-            .next()
-            .ok_or_else(|| KromosomError::DataTidakValid("tidak ada data fakultas untuk digabung".into()))?;
+        let mut hasil = bagian.next().ok_or_else(|| {
+            KromosomError::DataTidakValid("tidak ada data fakultas untuk digabung".into())
+        })?;
         let acuan = urutan_sesi(&hasil.sesi);
         for b in bagian {
             if urutan_sesi(&b.sesi) != acuan {
@@ -113,8 +120,11 @@ impl DatasetMentah {
                     hasil.nama_fakultas()
                 )));
             }
-            let sudah: BTreeSet<String> = hasil.ruang.iter().map(|r| r.trim().to_string()).collect();
-            hasil.ruang.extend(b.ruang.into_iter().filter(|r| !sudah.contains(r.trim())));
+            let sudah: BTreeSet<String> =
+                hasil.ruang.iter().map(|r| r.trim().to_string()).collect();
+            hasil
+                .ruang
+                .extend(b.ruang.into_iter().filter(|r| !sudah.contains(r.trim())));
             hasil.matkul.extend(b.matkul);
         }
         Ok(hasil)
@@ -122,7 +132,11 @@ impl DatasetMentah {
 
     /// Label fakultas yang ada di data ini, mis. "FSTI" atau "FSTI+FTIK".
     pub fn nama_fakultas(&self) -> String {
-        let nama: BTreeSet<&str> = self.matkul.iter().filter_map(|m| m.fakultas.as_deref()).collect();
+        let nama: BTreeSet<&str> = self
+            .matkul
+            .iter()
+            .filter_map(|m| m.fakultas.as_deref())
+            .collect();
         if nama.is_empty() {
             "(tanpa label)".into()
         } else {
@@ -135,7 +149,15 @@ impl DatasetMentah {
 fn urutan_sesi(sesi: &[SesiRaw]) -> Vec<(String, u8, String, String, u8)> {
     let mut v: Vec<_> = sesi
         .iter()
-        .map(|s| (s.day.trim().to_lowercase(), s.session, s.start.clone(), s.end.clone(), s.tipe))
+        .map(|s| {
+            (
+                s.day.trim().to_lowercase(),
+                s.session,
+                s.start.clone(),
+                s.end.clone(),
+                s.tipe,
+            )
+        })
         .collect();
     v.sort();
     v
@@ -179,7 +201,13 @@ pub fn kunci_dosen(nama: &str) -> String {
     let sebelum_gelar = kecil.split(',').next().unwrap_or("");
     let bersih: String = sebelum_gelar
         .chars()
-        .map(|c| if c.is_alphabetic() || c.is_whitespace() { c } else { ' ' })
+        .map(|c| {
+            if c.is_alphabetic() || c.is_whitespace() {
+                c
+            } else {
+                ' '
+            }
+        })
         .collect();
     bersih
         .split_whitespace()
@@ -197,10 +225,17 @@ pub fn siapkan(mentah: &DatasetMentah) -> Result<Dataset, KromosomError> {
     let mut varian: BTreeMap<String, BTreeMap<String, usize>> = BTreeMap::new();
     for mk in &mentah.matkul {
         if mk.dosen.is_empty() {
-            return Err(KromosomError::DataTidakValid(format!("kelas {} tanpa dosen", mk.id)));
+            return Err(KromosomError::DataTidakValid(format!(
+                "kelas {} tanpa dosen",
+                mk.id
+            )));
         }
         for d in &mk.dosen {
-            *varian.entry(kunci_dosen(d)).or_default().entry(d.trim().to_string()).or_default() += 1;
+            *varian
+                .entry(kunci_dosen(d))
+                .or_default()
+                .entry(d.trim().to_string())
+                .or_default() += 1;
         }
     }
     let mut dosen = Vec::with_capacity(varian.len());
@@ -236,7 +271,9 @@ pub fn siapkan(mentah: &DatasetMentah) -> Result<Dataset, KromosomError> {
         }
     }
     for (r, n) in &ganda {
-        peringatan.push(format!("Ruangan {r} tercantum {n} kali di ruang.json, dihitung satu"));
+        peringatan.push(format!(
+            "Ruangan {r} tercantum {n} kali di ruang.json, dihitung satu"
+        ));
     }
 
     // Kelas -> gen.
@@ -254,13 +291,20 @@ pub fn siapkan(mentah: &DatasetMentah) -> Result<Dataset, KromosomError> {
                 mk.id, mk.sks, mk.allowed_sessions
             )));
         }
-        let prodi: String = mk.kode_mk.chars().take_while(|c| c.is_ascii_alphabetic()).collect();
+        let prodi: String = mk
+            .kode_mk
+            .chars()
+            .take_while(|c| c.is_ascii_alphabetic())
+            .collect();
         *kelas_per_prodi.entry(prodi.clone()).or_insert(0) += 1;
         *kelas_per_sks.entry(mk.sks).or_insert(0) += 1;
         if let Some(f) = &mk.fakultas {
             *kelas_per_fakultas.entry(f.clone()).or_insert(0) += 1;
         }
-        sks_per_mk.entry(mk.kode_mk.as_str()).or_default().insert(mk.sks);
+        sks_per_mk
+            .entry(mk.kode_mk.as_str())
+            .or_default()
+            .insert(mk.sks);
         if !matches!(mk.kelas.as_str(), "A" | "B" | "C" | "D") {
             label_tak_lazim.insert(mk.kelas.clone());
         }
@@ -272,8 +316,16 @@ pub fn siapkan(mentah: &DatasetMentah) -> Result<Dataset, KromosomError> {
             sks: mk.sks,
             prodi,
             fakultas: mk.fakultas.clone(),
-            dosen: mk.dosen.iter().map(|d| dosen[idx_dosen[&kunci_dosen(d)] as usize].clone()).collect(),
-            dosen_idx: mk.dosen.iter().map(|d| idx_dosen[&kunci_dosen(d)]).collect(),
+            dosen: mk
+                .dosen
+                .iter()
+                .map(|d| dosen[idx_dosen[&kunci_dosen(d)] as usize].clone())
+                .collect(),
+            dosen_idx: mk
+                .dosen
+                .iter()
+                .map(|d| idx_dosen[&kunci_dosen(d)])
+                .collect(),
             slot_diizinkan: domain,
         });
     }
@@ -287,7 +339,12 @@ pub fn siapkan(mentah: &DatasetMentah) -> Result<Dataset, KromosomError> {
         peringatan.push(format!(
             "{} mata kuliah punya SKS berbeda antar kelasnya (contoh: {}). Pastikan ini disengaja",
             campur.len(),
-            campur.iter().take(5).cloned().collect::<Vec<_>>().join(", ")
+            campur
+                .iter()
+                .take(5)
+                .cloned()
+                .collect::<Vec<_>>()
+                .join(", ")
         ));
     }
     if !label_tak_lazim.is_empty() {
@@ -297,7 +354,8 @@ pub fn siapkan(mentah: &DatasetMentah) -> Result<Dataset, KromosomError> {
         ));
     }
     peringatan.push(
-        "Data tidak memuat semester, jadi bentrok jadwal mahasiswa satu angkatan belum bisa dicek".into(),
+        "Data tidak memuat semester, jadi bentrok jadwal mahasiswa satu angkatan belum bisa dicek"
+            .into(),
     );
     peringatan.push("Data ruangan tidak memuat kapasitas".into());
 
@@ -326,7 +384,13 @@ pub fn siapkan(mentah: &DatasetMentah) -> Result<Dataset, KromosomError> {
         kelas_per_fakultas,
         peringatan,
     };
-    Ok(Dataset { slot, layout, dosen, ruang, laporan })
+    Ok(Dataset {
+        slot,
+        layout,
+        dosen,
+        ruang,
+        laporan,
+    })
 }
 
 #[cfg(test)]
@@ -335,14 +399,23 @@ mod tests {
 
     #[test]
     fn kunci_dosen_menyatukan_variasi_gelar() {
-        assert_eq!(kunci_dosen("Indrawan, S.Pd., M.Si."), kunci_dosen("Indrawan, S.Pd. M.Si."));
+        assert_eq!(
+            kunci_dosen("Indrawan, S.Pd., M.Si."),
+            kunci_dosen("Indrawan, S.Pd. M.Si.")
+        );
         assert_eq!(
             kunci_dosen("Alvianus Kristian Sumual, M.E"),
             kunci_dosen("Alvianus Kristian Sumual, S.E., M.E.")
         );
         assert_eq!(kunci_dosen("Dr. Musyarofah, S.Pd., M.Si."), "musyarofah");
-        assert_eq!(kunci_dosen("Ir. Riovan Styx Roring, S.T., M.Kom"), "riovan styx roring");
-        assert_ne!(kunci_dosen("Rahmania, S.Pd., M.Sc."), kunci_dosen("Indrawan, S.Pd., M.Si."));
+        assert_eq!(
+            kunci_dosen("Ir. Riovan Styx Roring, S.T., M.Kom"),
+            "riovan styx roring"
+        );
+        assert_ne!(
+            kunci_dosen("Rahmania, S.Pd., M.Sc."),
+            kunci_dosen("Indrawan, S.Pd., M.Si.")
+        );
     }
 
     fn contoh_json() -> (String, String, String) {
@@ -361,12 +434,20 @@ mod tests {
         let (m, s, r) = contoh_json();
         let d = siapkan(&DatasetMentah::dari_json(&m, &s, &r).unwrap()).unwrap();
         assert_eq!(d.laporan.jumlah_kelas, 3);
-        assert_eq!(d.dosen.len(), 2, "Budi dengan dua ejaan dihitung satu orang");
+        assert_eq!(
+            d.dosen.len(),
+            2,
+            "Budi dengan dua ejaan dihitung satu orang"
+        );
         assert_eq!(d.ruang, vec!["E101", "E102"]);
         let k = d.layout.kelas();
         assert_eq!(k[0].dosen_idx, k[1].dosen_idx);
         assert!(d.laporan.peringatan.iter().any(|p| p.contains("E101")));
-        assert!(d.laporan.peringatan.iter().any(|p| p.contains("label kelas")));
+        assert!(d
+            .laporan
+            .peringatan
+            .iter()
+            .any(|p| p.contains("label kelas")));
     }
 
     /// Fakultas kedua: satu kelas diajar dosen yang juga mengajar di fakultas
@@ -376,12 +457,16 @@ mod tests {
             r#"[{{"id":"{id}","kode_mk":"TK1","nama":"Termo","kelas":"A","sks":3,"dosen":["Budi, M.Kom."],"allowed_sessions":[1,3]}}]"#
         );
         let sesi = serde_json::to_string(&crate::slot::tests::sesi_standar()).unwrap();
-        DatasetMentah::dari_json(&matkul, &sesi, r#"["E102","F201"]"#).unwrap().dengan_fakultas("FB")
+        DatasetMentah::dari_json(&matkul, &sesi, r#"["E102","F201"]"#)
+            .unwrap()
+            .dengan_fakultas("FB")
     }
 
     fn fakultas_pertama() -> DatasetMentah {
         let (m, s, r) = contoh_json();
-        DatasetMentah::dari_json(&m, &s, &r).unwrap().dengan_fakultas("FA")
+        DatasetMentah::dari_json(&m, &s, &r)
+            .unwrap()
+            .dengan_fakultas("FA")
     }
 
     #[test]
@@ -390,22 +475,52 @@ mod tests {
         assert_eq!(mentah.nama_fakultas(), "FA+FB");
         let d = siapkan(&mentah).unwrap();
         assert_eq!(d.laporan.jumlah_kelas, 4);
-        assert_eq!(d.ruang, vec!["E101", "E102", "F201"], "E102 dipakai bersama, dihitung satu");
-        let ruang_ganda: Vec<_> = d.laporan.peringatan.iter().filter(|p| p.starts_with("Ruangan")).collect();
-        assert_eq!(ruang_ganda.len(), 1, "hanya E101 yang ganda di file FA: {ruang_ganda:?}");
-        assert_eq!(d.laporan.kelas_per_fakultas, BTreeMap::from([("FA".into(), 3), ("FB".into(), 1)]));
+        assert_eq!(
+            d.ruang,
+            vec!["E101", "E102", "F201"],
+            "E102 dipakai bersama, dihitung satu"
+        );
+        let ruang_ganda: Vec<_> = d
+            .laporan
+            .peringatan
+            .iter()
+            .filter(|p| p.starts_with("Ruangan"))
+            .collect();
+        assert_eq!(
+            ruang_ganda.len(),
+            1,
+            "hanya E101 yang ganda di file FA: {ruang_ganda:?}"
+        );
+        assert_eq!(
+            d.laporan.kelas_per_fakultas,
+            BTreeMap::from([("FA".into(), 3), ("FB".into(), 1)])
+        );
 
         let kelas = d.layout.kelas();
         let budi_fa = &kelas.iter().find(|k| k.id == "IF1-1").unwrap().dosen_idx;
         let budi_fb = &kelas.iter().find(|k| k.id == "TK1-1").unwrap().dosen_idx;
-        assert_eq!(budi_fa, budi_fb, "dosen lintas fakultas dikenali sebagai orang yang sama");
-        assert_eq!(kelas.iter().find(|k| k.id == "TK1-1").unwrap().fakultas.as_deref(), Some("FB"));
+        assert_eq!(
+            budi_fa, budi_fb,
+            "dosen lintas fakultas dikenali sebagai orang yang sama"
+        );
+        assert_eq!(
+            kelas
+                .iter()
+                .find(|k| k.id == "TK1-1")
+                .unwrap()
+                .fakultas
+                .as_deref(),
+            Some("FB")
+        );
     }
 
     #[test]
     fn gabung_menolak_id_kelas_sama_antar_fakultas() {
         let mentah = DatasetMentah::gabung([fakultas_pertama(), fakultas_kedua("IF1-1")]).unwrap();
-        assert_eq!(siapkan(&mentah).unwrap_err(), KromosomError::KelasDuplikat("IF1-1".into()));
+        assert_eq!(
+            siapkan(&mentah).unwrap_err(),
+            KromosomError::KelasDuplikat("IF1-1".into())
+        );
     }
 
     #[test]
@@ -413,7 +528,9 @@ mod tests {
         let mut lain = fakultas_kedua("TK1-1");
         lain.sesi[0].start = "07:30".into();
         let hasil = DatasetMentah::gabung([fakultas_pertama(), lain]);
-        assert!(matches!(hasil, Err(KromosomError::DataTidakValid(p)) if p.contains("sesi.json FB")));
+        assert!(
+            matches!(hasil, Err(KromosomError::DataTidakValid(p)) if p.contains("sesi.json FB"))
+        );
         assert!(DatasetMentah::gabung([]).is_err());
     }
 

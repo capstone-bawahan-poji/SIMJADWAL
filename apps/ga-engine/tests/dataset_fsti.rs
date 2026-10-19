@@ -2,7 +2,10 @@
 
 use std::collections::BTreeSet;
 
-use ga_engine::{populasi_awal, siapkan, DatasetMentah};
+use ga_engine::{
+    jalankan_penjadwalan, populasi_awal, siapkan, BobotPenalti, DatasetMentah, JenisAturan,
+    Pengaturan, Penilai, PilihanAlgoritma,
+};
 
 fn dataset() -> ga_engine::Dataset {
     siapkan(&DatasetMentah::fsti_bawaan()).expect("dataset FSTI harus bisa disiapkan")
@@ -11,7 +14,10 @@ fn dataset() -> ga_engine::Dataset {
 #[test]
 fn ukuran_data_sesuai_file() {
     let d = dataset();
-    assert_eq!(d.laporan.jumlah_kelas, 309, "satu gen per baris matkul.json");
+    assert_eq!(
+        d.laporan.jumlah_kelas, 309,
+        "satu gen per baris matkul.json"
+    );
     assert_eq!(d.laporan.jumlah_slot, 20);
     assert_eq!(d.ruang.len(), 28, "30 baris, B102 tercantum 3 kali");
     assert_eq!(d.laporan.kelas_per_sks.get(&3), Some(&171));
@@ -54,14 +60,22 @@ fn domain_tiap_gen_sesuai_sks() {
 fn semua_kelas_berlabel_fsti() {
     let d = dataset();
     assert_eq!(d.laporan.kelas_per_fakultas.get("FSTI"), Some(&309));
-    assert!(d.layout.kelas().iter().all(|k| k.fakultas.as_deref() == Some("FSTI")));
+    assert!(d
+        .layout
+        .kelas()
+        .iter()
+        .all(|k| k.fakultas.as_deref() == Some("FSTI")));
 }
 
 #[test]
 fn muat_dari_folder_sama_dengan_data_bawaan() {
     let folder = concat!(env!("CARGO_MANIFEST_DIR"), "/data/fsti");
     let dari_folder = DatasetMentah::dari_folder(folder).unwrap();
-    assert_eq!(dari_folder, DatasetMentah::fsti_bawaan(), "label diambil dari nama folder");
+    assert_eq!(
+        dari_folder,
+        DatasetMentah::fsti_bawaan(),
+        "label diambil dari nama folder"
+    );
 }
 
 #[test]
@@ -75,5 +89,62 @@ fn populasi_acak_valid_dan_bisa_didecode() {
         assert_eq!(jadwal.len(), 309);
         assert!(jadwal.iter().all(|j| j.waktu.tipe_sks == j.sks));
         assert_eq!(k.kelas_per_slot(d.slot.total()).iter().sum::<usize>(), 309);
+    }
+}
+
+#[test]
+fn kromosom_acak_masih_punya_bentrok_dosen() {
+    let d = dataset();
+    let penilai = Penilai::baru(&d, BobotPenalti::default());
+    let acak = &populasi_awal(&d.layout, 1, 12345)[0];
+    let n = penilai.nilai(&acak.genes);
+    assert!(
+        n.dosen_bentrok > 0,
+        "jadwal acak seharusnya belum bebas bentrok: {n:?}"
+    );
+    assert_eq!(
+        n.melebihi_ruangan, 0,
+        "maksimal 20 kelas per slot, ruangan 28"
+    );
+}
+
+#[test]
+fn semua_algoritma_menghasilkan_jadwal_fsti_yang_layak() {
+    let d = dataset();
+    for algoritma in PilihanAlgoritma::semua_bawaan() {
+        let pengaturan = Pengaturan {
+            algoritma,
+            seed: 1,
+            ..Default::default()
+        };
+        let h = jalankan_penjadwalan(&d, &pengaturan, &mut |_| true).unwrap();
+        assert!(
+            h.hasil.penilaian.layak(),
+            "{}: masih ada pelanggaran HC",
+            h.hasil.algoritma
+        );
+        assert!(
+            h.pelanggaran.iter().all(|p| p.jenis() == JenisAturan::Soft),
+            "yang tersisa hanya SC"
+        );
+        assert_eq!(h.jadwal.len(), 309);
+        assert!(
+            h.jadwal.iter().all(|j| j.waktu.tipe_sks == j.sks),
+            "kunci SKS"
+        );
+        assert!(
+            h.jadwal.iter().all(|j| j.ruangan.is_some()),
+            "semua kelas dapat ruangan"
+        );
+        let unik: BTreeSet<_> = h
+            .jadwal
+            .iter()
+            .map(|j| (j.waktu.id_slot, j.ruangan.clone()))
+            .collect();
+        assert_eq!(
+            unik.len(),
+            309,
+            "tidak ada ruangan dipakai dua kelas di slot yang sama"
+        );
     }
 }

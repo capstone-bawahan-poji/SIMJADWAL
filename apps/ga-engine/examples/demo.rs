@@ -3,7 +3,7 @@
 //! Data lain:  cargo run --example demo -- 123 data/nama_fakultas
 //! Gabungan:   cargo run --example demo -- 123 data/fsti data/nama_fakultas
 
-use ga_engine::{populasi_awal, siapkan, DatasetMentah};
+use ga_engine::{populasi_awal, siapkan, BobotPenalti, DatasetMentah, Penilai};
 
 fn main() {
     let mut args = std::env::args().skip(1);
@@ -12,7 +12,9 @@ fn main() {
     let mentah = if folder.is_empty() {
         DatasetMentah::fsti_bawaan()
     } else {
-        let bagian = folder.iter().map(|f| DatasetMentah::dari_folder(f).unwrap_or_else(|e| panic!("{e}")));
+        let bagian = folder
+            .iter()
+            .map(|f| DatasetMentah::dari_folder(f).unwrap_or_else(|e| panic!("{e}")));
         DatasetMentah::gabung(bagian.collect::<Vec<_>>()).unwrap_or_else(|e| panic!("{e}"))
     };
     let data = siapkan(&mentah).unwrap_or_else(|e| panic!("{e}"));
@@ -34,9 +36,22 @@ fn main() {
     let populasi = populasi_awal(&data.layout, 1, seed);
     let k = &populasi[0];
     println!("\n== Satu kromosom acak (seed {seed}) ==");
-    println!("Panjang {} gen. 12 gen pertama: {:?} ...", k.genes.len(), &k.genes[..12.min(k.genes.len())]);
+    println!(
+        "Panjang {} gen. 12 gen pertama: {:?} ...",
+        k.genes.len(),
+        &k.genes[..12.min(k.genes.len())]
+    );
+    let n = Penilai::baru(&data, BobotPenalti::default()).nilai(&k.genes);
+    println!(
+        "Penilaian: penalti {} | HC: dosen bentrok {}, melebihi ruangan {} | SC: dosen padat {}, tanpa jeda {}",
+        n.penalti, n.dosen_bentrok, n.melebihi_ruangan, n.dosen_padat, n.dosen_tanpa_jeda
+    );
+    println!("(Jadwal acak, belum dioptimasi. Bobot HC 1000, SC 1.)");
 
-    println!("\nJumlah kelas per slot (ruangan tersedia: {}):", data.ruang.len());
+    println!(
+        "\nJumlah kelas per slot (ruangan tersedia: {}):",
+        data.ruang.len()
+    );
     let per_slot = k.kelas_per_slot(data.slot.total());
     print!("{:<8}", "");
     for sesi in 1..=4 {
@@ -56,7 +71,13 @@ fn main() {
         "{:<4} {:<14} {:<38} {:<5} {:<7} {:<5} Jam",
         "Gen", "Id kelas", "Mata kuliah", "SKS", "Hari", "Sesi"
     );
-    for (i, j) in k.decode(&data.layout, &data.slot).unwrap().iter().take(10).enumerate() {
+    for (i, j) in k
+        .decode(&data.layout, &data.slot)
+        .unwrap()
+        .iter()
+        .take(10)
+        .enumerate()
+    {
         println!(
             "{:<4} {:<14} {:<38} {:<5} {:<7} {:<5} {}-{}",
             i + 1,

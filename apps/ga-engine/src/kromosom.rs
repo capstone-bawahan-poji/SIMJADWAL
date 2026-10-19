@@ -58,7 +58,10 @@ impl GeneLayout {
             return Err(KromosomError::KelasDuplikat(p[0].id.clone()));
         }
         if let Some(k) = kelas.iter().find(|k| k.slot_diizinkan.is_empty()) {
-            return Err(KromosomError::DataTidakValid(format!("kelas {} tidak punya slot", k.id)));
+            return Err(KromosomError::DataTidakValid(format!(
+                "kelas {} tidak punya slot",
+                k.id
+            )));
         }
         Ok(Self { kelas })
     }
@@ -74,6 +77,34 @@ impl GeneLayout {
     /// Nilai yang boleh diisi gen ke-`gen`. Dipakai inisialisasi dan mutasi.
     pub fn domain(&self, gen: usize) -> &[IdSlot] {
         &self.kelas[gen].slot_diizinkan
+    }
+
+    /// Posisi gen milik kelas `id_kelas`.
+    pub fn indeks(&self, id_kelas: &str) -> Result<usize, KromosomError> {
+        self.kelas
+            .binary_search_by(|k| k.id.as_str().cmp(id_kelas))
+            .map_err(|_| KromosomError::KelasTidakDikenal(id_kelas.to_string()))
+    }
+
+    /// Kunci SKS: slot yang boleh dipakai sebuah kelas. Kelas 3 SKS hanya di
+    /// sesi 1/3, kelas 2 SKS hanya di sesi 2/4. Dipakai app desktop untuk
+    /// menandai slot yang boleh dipilih saat jadwal diatur manual.
+    pub fn slot_terbuka(&self, id_kelas: &str) -> Result<&[IdSlot], KromosomError> {
+        Ok(self.domain(self.indeks(id_kelas)?))
+    }
+
+    /// Kunci SKS: tolak jika kelas ditempatkan di slot yang tidak sesuai SKS-nya.
+    pub fn cek_kunci_sks(&self, id_kelas: &str, slot: IdSlot) -> Result<(), KromosomError> {
+        let gen = self.indeks(id_kelas)?;
+        if self.domain(gen).contains(&slot) {
+            Ok(())
+        } else {
+            Err(KromosomError::SlotTidakDiizinkan {
+                gen,
+                id_kelas: id_kelas.to_string(),
+                slot,
+            })
+        }
     }
 }
 
@@ -96,6 +127,10 @@ pub struct JadwalEntry {
     pub fakultas: Option<String>,
     pub dosen: Vec<String>,
     pub waktu: SlotWaktu,
+    /// Diisi oleh `susun_jadwal` setelah alokasi ruangan. Kosong jika belum
+    /// dialokasikan atau ruangan di slot itu sudah habis.
+    #[serde(default)]
+    pub ruangan: Option<String>,
 }
 
 impl Kromosom {
@@ -128,14 +163,22 @@ impl Kromosom {
         }
         for (i, (&slot, kelas)) in self.genes.iter().zip(layout.kelas()).enumerate() {
             if !kelas.slot_diizinkan.contains(&slot) {
-                return Err(KromosomError::SlotTidakDiizinkan { gen: i, id_kelas: kelas.id.clone(), slot });
+                return Err(KromosomError::SlotTidakDiizinkan {
+                    gen: i,
+                    id_kelas: kelas.id.clone(),
+                    slot,
+                });
             }
         }
         Ok(())
     }
 
     /// Terjemahkan kromosom menjadi daftar jadwal yang bisa dibaca manusia.
-    pub fn decode(&self, layout: &GeneLayout, slot: &DaftarSlot) -> Result<Vec<JadwalEntry>, KromosomError> {
+    pub fn decode(
+        &self,
+        layout: &GeneLayout,
+        slot: &DaftarSlot,
+    ) -> Result<Vec<JadwalEntry>, KromosomError> {
         self.validasi(layout)?;
         self.genes
             .iter()
@@ -151,9 +194,30 @@ impl Kromosom {
                     fakultas: k.fakultas.clone(),
                     dosen: k.dosen.clone(),
                     waktu: slot.get(id_slot)?.clone(),
+                    ruangan: None,
                 })
             })
             .collect()
+    }
+
+    /// Pindahkan satu kelas ke slot lain (plot manual). Ditolak jika
+    /// melanggar kunci SKS; bentrok lain tetap boleh dan dinilai oleh `Penilai`.
+    pub fn pindahkan(
+        &mut self,
+        layout: &GeneLayout,
+        id_kelas: &str,
+        slot: IdSlot,
+    ) -> Result<(), KromosomError> {
+        layout.cek_kunci_sks(id_kelas, slot)?;
+        if self.genes.len() != layout.panjang() {
+            return Err(KromosomError::PanjangTidakSesuai {
+                diharapkan: layout.panjang(),
+                didapat: self.genes.len(),
+            });
+        }
+        let gen = layout.indeks(id_kelas)?;
+        self.genes[gen] = slot;
+        Ok(())
     }
 
     /// Jumlah kelas di tiap slot (index 0 = slot 1). Berguna untuk melihat
@@ -175,7 +239,9 @@ impl Kromosom {
 /// yang sama di perangkat mana pun, sehingga eksperimen bisa diulang.
 pub fn populasi_awal(layout: &GeneLayout, ukuran: usize, base_seed: u64) -> Vec<Kromosom> {
     let mut rng = ChaCha8Rng::seed_from_u64(base_seed);
-    (0..ukuran).map(|_| Kromosom::acak(layout, &mut rng)).collect()
+    (0..ukuran)
+        .map(|_| Kromosom::acak(layout, &mut rng))
+        .collect()
 }
 
 #[cfg(test)]
@@ -258,10 +324,20 @@ mod tests {
     #[test]
     fn decode_memetakan_gen_ke_kelas_yang_benar() {
         let (s, l) = contoh();
-        let jadwal = Kromosom::dari_genes(vec![1, 9, 20], &l).unwrap().decode(&l, &s).unwrap();
+        let jadwal = Kromosom::dari_genes(vec![1, 9, 20], &l)
+            .unwrap()
+            .decode(&l, &s)
+            .unwrap();
         let ringkas: Vec<_> = jadwal
             .iter()
-            .map(|j| (j.id_kelas.as_str(), j.waktu.nama_hari.as_str(), j.waktu.sesi_ke, j.waktu.mulai.as_str()))
+            .map(|j| {
+                (
+                    j.id_kelas.as_str(),
+                    j.waktu.nama_hari.as_str(),
+                    j.waktu.sesi_ke,
+                    j.waktu.mulai.as_str(),
+                )
+            })
             .collect();
         assert_eq!(
             ringkas,
@@ -274,8 +350,46 @@ mod tests {
     }
 
     #[test]
+    fn kunci_sks_menolak_slot_yang_tidak_sesuai() {
+        let (_, l) = contoh();
+        // IF1-1 = 3 SKS: slot ganjil (sesi 1/3) saja
+        assert_eq!(
+            l.slot_terbuka("IF1-1").unwrap(),
+            &[1, 3, 5, 7, 9, 11, 13, 15, 17, 19]
+        );
+        assert!(l.cek_kunci_sks("IF1-1", 3).is_ok());
+        assert!(matches!(
+            l.cek_kunci_sks("IF1-1", 2),
+            Err(KromosomError::SlotTidakDiizinkan { .. })
+        ));
+        assert_eq!(
+            l.cek_kunci_sks("XX-9", 1),
+            Err(KromosomError::KelasTidakDikenal("XX-9".into()))
+        );
+    }
+
+    #[test]
+    fn pindahkan_manual_mengikuti_kunci_sks() {
+        let (_, l) = contoh();
+        let mut k = Kromosom::dari_genes(vec![1, 3, 2], &l).unwrap();
+        k.pindahkan(&l, "IF3-1", 20).unwrap(); // 2 SKS ke sesi 4 Jumat: boleh
+        assert_eq!(k.genes, vec![1, 3, 20]);
+        assert!(
+            k.pindahkan(&l, "IF3-1", 19).is_err(),
+            "2 SKS ke sesi 3: ditolak"
+        );
+        assert_eq!(
+            k.genes,
+            vec![1, 3, 20],
+            "kromosom tidak berubah saat ditolak"
+        );
+    }
+
+    #[test]
     fn kelas_per_slot_menghitung_sebaran() {
-        let k = Kromosom { genes: vec![1, 1, 20] };
+        let k = Kromosom {
+            genes: vec![1, 1, 20],
+        };
         let n = k.kelas_per_slot(20);
         assert_eq!((n[0], n[19], n.iter().sum::<usize>()), (2, 1, 3));
     }
@@ -283,7 +397,10 @@ mod tests {
     #[test]
     fn jadwal_bisa_dikirim_sebagai_json() {
         let (s, l) = contoh();
-        let jadwal = Kromosom::dari_genes(vec![3, 7, 6], &l).unwrap().decode(&l, &s).unwrap();
+        let jadwal = Kromosom::dari_genes(vec![3, 7, 6], &l)
+            .unwrap()
+            .decode(&l, &s)
+            .unwrap();
         let json = serde_json::to_string(&jadwal).unwrap();
         let balik: Vec<JadwalEntry> = serde_json::from_str(&json).unwrap();
         assert_eq!(balik, jadwal);

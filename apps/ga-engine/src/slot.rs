@@ -60,10 +60,14 @@ impl DaftarSlot {
             let hari_index = NAMA_HARI
                 .iter()
                 .position(|h| h.eq_ignore_ascii_case(s.day.trim()))
-                .ok_or_else(|| KromosomError::DataTidakValid(format!("hari tidak dikenal: {}", s.day)))?
-                as u8;
+                .ok_or_else(|| {
+                    KromosomError::DataTidakValid(format!("hari tidak dikenal: {}", s.day))
+                })? as u8;
             if s.session == 0 {
-                return Err(KromosomError::DataTidakValid(format!("sesi 0 pada hari {}", s.day)));
+                return Err(KromosomError::DataTidakValid(format!(
+                    "sesi 0 pada hari {}",
+                    s.day
+                )));
             }
             sementara.push((hari_index, s));
         }
@@ -77,7 +81,9 @@ impl DaftarSlot {
             }
         }
         if sementara.len() > IdSlot::MAX as usize {
-            return Err(KromosomError::DataTidakValid("jumlah slot terlalu banyak".into()));
+            return Err(KromosomError::DataTidakValid(
+                "jumlah slot terlalu banyak".into(),
+            ));
         }
         let slots = sementara
             .into_iter()
@@ -106,7 +112,10 @@ impl DaftarSlot {
     /// id slot -> detail hari, sesi, jam.
     pub fn get(&self, id_slot: IdSlot) -> Result<&SlotWaktu, KromosomError> {
         if id_slot == 0 || id_slot > self.total() {
-            return Err(KromosomError::SlotTidakAda { slot: id_slot, maks: self.total() });
+            return Err(KromosomError::SlotTidakAda {
+                slot: id_slot,
+                maks: self.total(),
+            });
         }
         Ok(&self.slots[id_slot as usize - 1])
     }
@@ -128,7 +137,12 @@ pub(crate) mod tests {
 
     /// Grid 5 hari x 4 sesi dengan pola tipe 3-2-3-2, sama seperti sesi.json FSTI.
     pub(crate) fn sesi_standar() -> Vec<SesiRaw> {
-        let jam = [("08:00", "10:30", 3), ("10:30", "12:00", 2), ("13:00", "15:30", 3), ("15:30", "17:00", 2)];
+        let jam = [
+            ("08:00", "10:30", 3),
+            ("10:30", "12:00", 2),
+            ("13:00", "15:30", 3),
+            ("15:30", "17:00", 2),
+        ];
         let mut out = Vec::new();
         for hari in &NAMA_HARI[..5] {
             for (i, (mulai, selesai, tipe)) in jam.iter().enumerate() {

@@ -1,20 +1,30 @@
-//! Engine algoritma genetika untuk sistem penjadwalan mata kuliah.
+//! Engine penjadwalan mata kuliah SIMJADWAL (target: FSTI).
 //!
-//! Crate ini terpisah dari aplikasi Tauri supaya logika GA bisa diuji
+//! Crate ini terpisah dari aplikasi Tauri supaya logikanya bisa diuji
 //! dengan `cargo test` tanpa membuka aplikasi.
 //!
-//! Modul saat ini (task 8):
-//! - [`dataset`]  : memuat matkul.json, sesi.json, ruang.json per fakultas,
-//!   menggabungkan beberapa fakultas, dan laporan kualitas data
-//! - [`slot`]     : daftar slot waktu dari sesi.json
-//! - [`kromosom`] : layout gen, struktur kromosom, validasi, decode, populasi awal
+//! Modul:
+//! - [`dataset`]     : memuat matkul.json, sesi.json, ruang.json dan laporan kualitas data
+//! - [`slot`]        : daftar slot waktu dari sesi.json
+//! - [`kromosom`]    : struktur kromosom, kunci SKS, validasi, decode, populasi awal
+//! - [`evaluasi`]    : penilaian jadwal (fitness HC + SC), dipakai bersama oleh semua algoritma
+//! - [`algoritma`]   : algoritma yang bisa diganti (GA, Hill Climbing)
+//! - [`penjadwalan`] : pintu masuk untuk app desktop, alokasi ruangan, jadwal akhir
 
+pub mod algoritma;
 pub mod dataset;
 pub mod error;
+pub mod evaluasi;
 pub mod kromosom;
+pub mod penjadwalan;
 pub mod slot;
 
+pub use algoritma::{Algoritma, HasilOptimasi, Kemajuan, PilihanAlgoritma};
 pub use dataset::{siapkan, Dataset, DatasetMentah, LaporanData};
 pub use error::KromosomError;
+pub use evaluasi::{BobotPenalti, JenisAturan, Pelanggaran, Penilai, Penilaian};
 pub use kromosom::{populasi_awal, GeneLayout, JadwalEntry, Kelas, Kromosom};
+pub use penjadwalan::{
+    alokasi_ruangan, jalankan_penjadwalan, susun_jadwal, HasilPenjadwalan, Pengaturan,
+};
 pub use slot::{DaftarSlot, IdSlot, SlotWaktu};
