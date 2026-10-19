@@ -1,15 +1,18 @@
 <script setup lang="ts">
 import { reactive, ref } from 'vue';
-import AppLogo from './shared/AppLogo.vue';
-import FormField from './shared/FormField.vue';
-import PasswordInput from './shared/PasswordInput.vue';
-import Alert from './ui/Alert.vue';
-import Button from './ui/Button.vue';
-import Card from './ui/Card.vue';
-import UiInput from './ui/Input.vue';
+import { useRouter } from 'vue-router';
+import { useAuth } from '@/composables/useAuth';
+import AppLogo from '@/components/shared/AppLogo.vue';
+import FormField from '@/components/shared/FormField.vue';
+import PasswordInput from '@/components/shared/PasswordInput.vue';
+import Alert from '@/components/ui/Alert.vue';
+import Button from '@/components/ui/Button.vue';
+import Card from '@/components/ui/Card.vue';
+import UiInput from '@/components/ui/Input.vue';
 import { UserRound } from 'lucide-vue-next';
 
-const emit = defineEmits<{ 'login-success': [] }>();
+const router = useRouter();
+const { login } = useAuth();
 
 const form = reactive({
   email: '',
@@ -44,7 +47,8 @@ async function submit() {
   processing.value = true;
   await new Promise((resolve) => setTimeout(resolve, 500));
   processing.value = false;
-  emit('login-success');
+  login();
+  router.push({ name: 'config' });
 }
 </script>
 
