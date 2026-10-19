@@ -15,6 +15,8 @@ use App\Permissions\MasterData\RoomPermissions;
 use App\Permissions\MasterData\StudyProgramPermissions;
 use App\Permissions\MasterData\TimeSlotPermissions;
 use App\Permissions\MasterData\TpbPermissions;
+use App\Permissions\Scheduling\GaPresetPermissions;
+use App\Permissions\Scheduling\SchedulingPermissions;
 
 readonly class PermissionService
 {
@@ -38,6 +40,8 @@ readonly class PermissionService
             CourseLecturerPermissions::class,
             TpbPermissions::class,
             ConstraintPermissions::class,
+            SchedulingPermissions::class,
+            GaPresetPermissions::class,
         ];
     }
 
