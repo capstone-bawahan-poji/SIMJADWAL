@@ -2,11 +2,15 @@
 import { computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuth } from '@/composables/useAuth';
+import { useDataset } from '@/composables/useDataset';
+import { useGaConfig } from '@/composables/useGaConfig';
 import AppSidebar from '@/components/layout/AppSidebar.vue';
 
 const route = useRoute();
 const router = useRouter();
 const { user, logout } = useAuth();
+const { clear: clearDataset } = useDataset();
+const { resetDefault } = useGaConfig();
 
 const roleLabels: Record<string, string> = {
   superadmin: 'Super Admin', admin_fakultas: 'Admin Fakultas', admin_tpb: 'Admin TPB',
@@ -16,6 +20,8 @@ const roleLabel = computed(() => roleLabels[user.value?.role ?? ''] ?? '');
 
 async function onLogout() {
   await logout();
+  clearDataset();
+  resetDefault(null);
   router.push({ name: 'login' });
 }
 

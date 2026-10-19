@@ -3,8 +3,9 @@ import { useAuth } from '@/composables/useAuth';
 import AppLayout from '@/components/layout/AppLayout.vue';
 import LoginView from '@/views/LoginView.vue';
 import ConfigView from '@/views/ConfigView.vue';
-
-const Empty = { render: () => null };
+import DataConstraintView from '@/views/DataConstraintView.vue';
+import RunView from '@/views/RunView.vue';
+import SyncView from '@/views/SyncView.vue';
 
 const routes: RouteRecordRaw[] = [
   { path: '/login', name: 'login', component: LoginView, meta: { guest: true } },
@@ -14,9 +15,9 @@ const routes: RouteRecordRaw[] = [
     redirect: { name: 'config' },
     children: [
       { path: 'config', name: 'config', component: ConfigView, meta: { title: 'Konfigurasi GA' } },
-      { path: 'data', name: 'data', component: Empty, meta: { title: 'Data & Constraint' } },
-      { path: 'run', name: 'run', component: Empty, meta: { title: 'Run' } },
-      { path: 'sync', name: 'sync', component: Empty, meta: { title: 'Sinkronisasi' } },
+      { path: 'data', name: 'data', component: DataConstraintView, meta: { title: 'Data & Constraint' } },
+      { path: 'run', name: 'run', component: RunView, meta: { title: 'Run' } },
+      { path: 'sync', name: 'sync', component: SyncView, meta: { title: 'Sinkronisasi' } },
     ],
   },
   { path: '/:pathMatch(.*)*', redirect: { name: 'config' } },
