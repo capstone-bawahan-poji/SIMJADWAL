@@ -6,22 +6,28 @@ import AppSidebar from '@/components/layout/AppSidebar.vue';
 
 const route = useRoute();
 const router = useRouter();
-const { logout } = useAuth();
+const { user, logout } = useAuth();
 
-const activeView = computed(() => String(route.name ?? ''));
+const roleLabels: Record<string, string> = {
+  superadmin: 'Super Admin', admin_fakultas: 'Admin Fakultas', admin_tpb: 'Admin TPB',
+  admin_prodi: 'Admin Prodi', dosen: 'Dosen', mahasiswa: 'Mahasiswa',
+};
+const roleLabel = computed(() => roleLabels[user.value?.role ?? ''] ?? '');
 
-function onLogout() {
-  logout();
+async function onLogout() {
+  await logout();
   router.push({ name: 'login' });
 }
+
+const activeView = computed(() => String(route.name ?? ''));
 </script>
 
 <template>
   <div class="flex h-screen w-screen overflow-hidden bg-gray-50">
     <AppSidebar
       :active-view="activeView"
-      admin-name="Ahmad Rasyid"
-      admin-role="Admin Fakultas"
+      :admin-name="user?.name ?? ''"
+      :admin-role="roleLabel"
       @update:active-view="router.push({ name: $event })"
       @logout="onLogout"
     />
@@ -34,8 +40,8 @@ function onLogout() {
           {{ route.meta.title }}
         </div>
         <div class="text-right">
-          <p class="text-xs font-bold text-gray-900 leading-tight">Ahmad Rasyid</p>
-          <p class="text-[11px] font-medium text-gray-400 leading-tight">Admin Fakultas</p>
+          <p class="text-xs font-bold text-gray-900 leading-tight">{{ user?.name }}</p>
+          <p class="text-[11px] font-medium text-gray-400 leading-tight">{{ roleLabel }}</p>
         </div>
       </header>
 

@@ -4,7 +4,6 @@ import AppLayout from '@/components/layout/AppLayout.vue';
 import LoginView from '@/views/LoginView.vue';
 import ConfigView from '@/views/ConfigView.vue';
 
-// Views not built yet render an empty content area, as before.
 const Empty = { render: () => null };
 
 const routes: RouteRecordRaw[] = [
@@ -35,8 +34,9 @@ const router = createRouter({
   routes,
 });
 
-router.beforeEach((to) => {
-  const { isLoggedIn } = useAuth();
+router.beforeEach(async (to) => {
+  const { isLoggedIn, restore } = useAuth();
+  await restore();
   if (!to.meta.guest && !isLoggedIn.value) return { name: 'login' };
   if (to.meta.guest && isLoggedIn.value) return { name: 'config' };
 });

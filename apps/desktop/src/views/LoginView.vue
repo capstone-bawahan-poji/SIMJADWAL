@@ -43,13 +43,17 @@ function validate() {
 async function submit() {
   clearErrors();
   if (!validate()) return;
-
   processing.value = true;
-  await new Promise((resolve) => setTimeout(resolve, 500));
-  processing.value = false;
-  login();
-  router.push({ name: 'config' });
+  try {
+    await login(form.email, form.password);
+    router.push({ name: 'config' });
+  } catch (e) {
+    loginError.value = (e as Error).message;
+  } finally {
+    processing.value = false;
+  }
 }
+
 </script>
 
 <template>
@@ -116,9 +120,6 @@ async function submit() {
             Masuk ke Sistem
           </Button>
         </form>
-        <p class="mt-4 text-center text-xs text-gray-500">
-          Mode demo: email dan kata sandi apa pun yang terisi dapat digunakan.
-        </p>
       </Card>
     </div>
 
