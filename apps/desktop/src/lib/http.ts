@@ -5,6 +5,12 @@ export function setToken(t: string | null) {
   t ? localStorage.setItem('token', t) : localStorage.removeItem('token');
 }
 
+export class ApiError extends Error {
+  constructor(message: string, public status: number, public code: string | null) {
+    super(message);
+  }
+}
+
 export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
     ...init,
@@ -17,6 +23,6 @@ export async function api<T>(path: string, init: RequestInit = {}): Promise<T> {
   });
   if (res.status === 204) return undefined as T;
   const body = await res.json().catch(() => ({}));
-  if (!res.ok) throw new Error(body.message ?? body.error?.message ?? `HTTP ${res.status}`);
+  if (!res.ok) throw new ApiError(body.message ?? body.error?.message ?? `HTTP ${res.status}`, res.status, body.code ?? null);
   return body.data ?? body;
 }
