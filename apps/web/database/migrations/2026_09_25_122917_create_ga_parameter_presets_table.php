@@ -11,6 +11,8 @@ return new class extends Migration
     {
         Schema::create('ga_parameter_presets', function (Blueprint $table) {
             $table->id();
+            // Presets belong to a faculty, so every admin of that faculty shares them.
+            $table->foreignId('faculty_id')->index()->constrained()->restrictOnDelete();
             $table->string('name', 100);
             $table->integer('population_size')->default(100);
             $table->integer('min_generations')->default(500);
@@ -21,8 +23,16 @@ return new class extends Migration
             $table->integer('tournament_size')->default(2);
             $table->string('selection_operator', 3);
             $table->smallInteger('parallel_class_limit')->default(5);
+            // Laporan TA Tabel 4.5 and §4.4: fitness constant C, base seed, runs per scenario.
+            $table->integer('fitness_constant')->default(500);
+            $table->bigInteger('base_seed')->default(12345);
+            $table->smallInteger('run_count')->default(10);
+            // SC weight per study program: {"<study_program_id>": {"SC_INGIN": 2}}. HC codes never appear.
+            $table->jsonb('sc_overrides')->default('{}');
             $table->foreignId('created_by')->nullable()->index()->constrained('users')->restrictOnDelete();
             $table->timestamps();
+
+            $table->unique(['faculty_id', 'name']);
         });
 
         DB::statement('ALTER TABLE ga_parameter_presets ADD CONSTRAINT chk_ga_presets_population_size CHECK (population_size > 0)');
@@ -32,6 +42,8 @@ return new class extends Migration
         DB::statement('ALTER TABLE ga_parameter_presets ADD CONSTRAINT chk_ga_presets_mutation_rate CHECK (mutation_rate BETWEEN 0 AND 1)');
         DB::statement('ALTER TABLE ga_parameter_presets ADD CONSTRAINT chk_ga_presets_tournament_size CHECK (tournament_size >= 2)');
         DB::statement('ALTER TABLE ga_parameter_presets ADD CONSTRAINT chk_ga_presets_parallel_class_limit CHECK (parallel_class_limit >= 1)');
+        DB::statement('ALTER TABLE ga_parameter_presets ADD CONSTRAINT chk_ga_presets_fitness_constant CHECK (fitness_constant > 0)');
+        DB::statement('ALTER TABLE ga_parameter_presets ADD CONSTRAINT chk_ga_presets_run_count CHECK (run_count BETWEEN 1 AND 10)');
     }
 
     public function down(): void

@@ -3,19 +3,40 @@
 namespace App\Models\Scheduling;
 
 use App\Enums\Scheduling\SelectionOperator;
+use App\Models\MasterData\Faculty;
 use App\Models\User;
+use App\Policies\Scheduling\GaParameterPresetPolicy;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
-    'name', 'population_size', 'min_generations', 'max_generations', 'stagnation_limit',
-    'crossover_rate', 'mutation_rate', 'tournament_size', 'selection_operator',
-    'parallel_class_limit', 'created_by',
+    'faculty_id',
+    'name',
+    'population_size',
+    'min_generations',
+    'max_generations',
+    'stagnation_limit',
+    'crossover_rate',
+    'mutation_rate',
+    'tournament_size',
+    'selection_operator',
+    'parallel_class_limit',
+    'fitness_constant',
+    'base_seed',
+    'run_count',
+    'sc_overrides',
+    'created_by',
 ])]
+#[UsePolicy(GaParameterPresetPolicy::class)]
 class GaParameterPreset extends Model
 {
+    protected $attributes = [
+        'sc_overrides' => '{}',
+    ];
+
     protected function casts(): array
     {
         return [
@@ -28,7 +49,17 @@ class GaParameterPreset extends Model
             'tournament_size' => 'integer',
             'selection_operator' => SelectionOperator::class,
             'parallel_class_limit' => 'integer',
+            'fitness_constant' => 'integer',
+            'base_seed' => 'integer',
+            'run_count' => 'integer',
+            'sc_overrides' => 'array',
         ];
+    }
+
+    /** @return BelongsTo<Faculty, $this> */
+    public function faculty(): BelongsTo
+    {
+        return $this->belongsTo(Faculty::class);
     }
 
     /** @return BelongsTo<User, $this> */
