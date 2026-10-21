@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Modal from './Modal.vue';
-import Alert from './Alert.vue';
-import Button from './Button.vue';
+import Modal from '@/components/ui/Modal.vue';
+import Alert from '@/components/ui/Alert.vue';
+import Button from '@/components/ui/Button.vue';
 
 withDefaults(
   defineProps<{

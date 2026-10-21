@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import logoFull from '../../assets/Logo_1.png';
-import logoMark from '../../assets/Logo_2.png';
+import logoFull from '@/assets/images/logo-full.png';
+import logoMark from '@/assets/images/logo-mark.png';
 
 withDefaults(defineProps<{ variant?: 'mark' | 'full' }>(), { variant: 'mark' });
 </script>

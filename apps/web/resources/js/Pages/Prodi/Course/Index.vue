@@ -43,7 +43,7 @@ const form = useApiForm(() => ({
     sks: 3 as number,
     semester: 1 as number,
     parallel_class_count: 1 as number,
-    class_capacity: 40 as number,
+    class_capacity: 50 as number,
 }));
 
 function openCreate(): void {

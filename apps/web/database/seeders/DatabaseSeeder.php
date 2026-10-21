@@ -6,6 +6,7 @@ use Database\Seeders\Demo\DemoAccountSeeder;
 use Database\Seeders\Demo\MasterDataSeeder;
 use Database\Seeders\Reference\ConstraintTypeSeeder;
 use Database\Seeders\Reference\FacultyStudyProgramSeeder;
+use Database\Seeders\Reference\GaPresetSeeder;
 use Database\Seeders\Reference\PermissionSeeder;
 use Database\Seeders\Reference\RoleSeeder;
 use Database\Seeders\Reference\RoomSeeder;
@@ -27,6 +28,7 @@ class DatabaseSeeder extends Seeder
             TimeSlotSeeder::class,
             RoomSeeder::class,
             ConstraintTypeSeeder::class,
+            GaPresetSeeder::class,
             SuperadminSeeder::class,
         ]);
 

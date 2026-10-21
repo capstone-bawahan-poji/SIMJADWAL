@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import AppLogo from './shared/AppLogo.vue';
-import ConfirmDialog from './ui/ConfirmDialog.vue';
+import AppLogo from '@/components/shared/AppLogo.vue';
+import ConfirmDialog from '@/components/ui/ConfirmDialog.vue';
 
 const props = defineProps<{
   activeView: string;

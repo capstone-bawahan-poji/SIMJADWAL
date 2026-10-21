@@ -64,7 +64,7 @@ const form = useApiForm(() => ({
     name: '',
     building: '',
     floor: '' as number | '',
-    capacity: 40 as number | '',
+    capacity: 50 as number | '',
     faculty_id: '' as number | '',
 }));
 

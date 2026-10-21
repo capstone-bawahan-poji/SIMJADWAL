@@ -13,6 +13,8 @@ use App\Permissions\MasterData\RoomPermissions;
 use App\Permissions\MasterData\StudyProgramPermissions;
 use App\Permissions\MasterData\TimeSlotPermissions;
 use App\Permissions\MasterData\TpbPermissions;
+use App\Permissions\Scheduling\GaPresetPermissions;
+use App\Permissions\Scheduling\SchedulingPermissions;
 use App\Services\Account\PermissionService;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
@@ -49,6 +51,8 @@ class RoleSeeder extends Seeder
                 ConstraintPermissions::VIEW,
                 ConstraintPermissions::UPDATE_WEIGHT,
                 ConstraintPermissions::REVIEW,
+                ...SchedulingPermissions::cases(),
+                ...GaPresetPermissions::cases(),
             ],
             RoleEnum::TPB_ADMIN->value => [
                 ...$readReference,
