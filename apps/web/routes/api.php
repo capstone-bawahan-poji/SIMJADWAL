@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\Internal\Constraint\ConstraintSubmissionController 
 use App\Http\Controllers\Api\Internal\Constraint\ConstraintTypeController as InternalConstraintTypeController;
 use App\Http\Controllers\Api\Internal\Constraint\LecturerPreferenceController as InternalLecturerPreferenceController;
 use App\Http\Controllers\Api\Internal\MasterData\CourseController as InternalCourseController;
+use App\Http\Controllers\Api\Internal\MasterData\CourseImportController as InternalCourseImportController;
 use App\Http\Controllers\Api\Internal\MasterData\DepartmentController as InternalDepartmentController;
 use App\Http\Controllers\Api\Internal\MasterData\FacultyController as InternalFacultyController;
 use App\Http\Controllers\Api\Internal\MasterData\LecturerController as InternalLecturerController;
@@ -22,6 +23,7 @@ use App\Http\Controllers\Api\V1\Account\UserController as V1UserController;
 use App\Http\Controllers\Api\V1\Constraint\ConstraintSubmissionController as V1ConstraintSubmissionController;
 use App\Http\Controllers\Api\V1\Constraint\ConstraintTypeController as V1ConstraintTypeController;
 use App\Http\Controllers\Api\V1\MasterData\CourseController as V1CourseController;
+use App\Http\Controllers\Api\V1\MasterData\CourseImportController as V1CourseImportController;
 use App\Http\Controllers\Api\V1\MasterData\DepartmentController as V1DepartmentController;
 use App\Http\Controllers\Api\V1\MasterData\FacultyController as V1FacultyController;
 use App\Http\Controllers\Api\V1\MasterData\LecturerController as V1LecturerController;
@@ -55,6 +57,8 @@ Route::middleware(['web', 'auth'])->prefix('internal')->name('api.internal.')->g
     Route::apiResource('time-slots', InternalTimeSlotController::class)->parameters(['time-slots' => 'timeSlot']);
     Route::apiResource('rooms', InternalRoomController::class);
     Route::apiResource('lecturers', InternalLecturerController::class);
+    Route::get('courses/import/template', [InternalCourseImportController::class, 'template'])->name('courses.import.template');
+    Route::post('courses/import', [InternalCourseImportController::class, 'store'])->name('courses.import');
     Route::apiResource('courses', InternalCourseController::class);
     Route::apiResource('teaching-assignments', InternalTeachingAssignmentController::class)->parameters(['teaching-assignments' => 'courseLecturer']);
     Route::apiResource('tpb-groups', InternalTpbGroupController::class)->parameters(['tpb-groups' => 'tpbGroup']);
@@ -103,6 +107,9 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::apiResource('time-slots', V1TimeSlotController::class)->parameters(['time-slots' => 'timeSlot']);
         Route::apiResource('rooms', V1RoomController::class);
         Route::apiResource('lecturers', V1LecturerController::class);
+        // Before the resource so 'import' is not taken as a {course} id.
+        Route::get('courses/import/template', [V1CourseImportController::class, 'template'])->name('courses.import.template');
+        Route::post('courses/import', [V1CourseImportController::class, 'store'])->name('courses.import');
         Route::apiResource('courses', V1CourseController::class);
         Route::apiResource('teaching-assignments', V1TeachingAssignmentController::class)->parameters(['teaching-assignments' => 'courseLecturer']);
         Route::apiResource('tpb-groups', V1TpbGroupController::class)->parameters(['tpb-groups' => 'tpbGroup']);
