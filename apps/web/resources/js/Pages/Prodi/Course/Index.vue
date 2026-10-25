@@ -14,7 +14,7 @@ import { useOwnSubmission } from '@/composables/useOwnSubmission';
 import { destroy } from '@/lib/api';
 import { queryParam } from '@/lib/query';
 import type { Course } from '@/types/models';
-import { Head, usePage } from '@inertiajs/vue3';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
 const fieldClass = 'w-full rounded-xl border-gray-200 bg-gray-50 text-gray-900 text-sm focus:border-primary focus:ring-primary';
@@ -116,7 +116,10 @@ async function confirmDelete(): Promise<void> {
                     <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Data Mata Kuliah</h1>
                     <p class="mt-1 text-sm text-gray-500">Mata kuliah program studi Anda beserta kelas paralel dan kelengkapan dosen pengampu.</p>
                 </div>
-                <Button type="button" :disabled="locked" @click="openCreate">Tambah Mata Kuliah</Button>
+                <div class="flex gap-3">
+                    <Link :href="route('prodi.courses.import')" class="inline-flex h-10 items-center rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50">Import XLSX</Link>
+                    <Button type="button" :disabled="locked" @click="openCreate">Tambah Mata Kuliah</Button>
+                </div>
             </div>
 
             <ProgramLockBanner :submission="submission" />
