@@ -34,6 +34,7 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('role:admin_prodi')->prefix('prodi')->name('prodi.')->group(function () {
         Route::get('/courses', fn () => inertia('Prodi/Course/Index'))->name('courses.index');
+        Route::get('/courses/import', fn () => inertia('Prodi/Course/Import'))->name('courses.import');
         Route::get('/lecturers', fn () => inertia('Prodi/Lecturer/Index'))->name('lecturers.index');
         Route::get('/mappings', fn () => inertia('Prodi/Mapping/Index'))->name('mappings.index');
         Route::get('/constraints', fn () => inertia('Prodi/Constraint/Index'))->name('constraints.index');
