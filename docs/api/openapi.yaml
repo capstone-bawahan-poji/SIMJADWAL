@@ -1,0 +1,2025 @@
+# how to use 
+# cd /Users/najer/Code/simjadwal
+# npx -y @redocly/cli@1.25.0 build-docs docs/api/openapi.yaml -o api-docs.html
+# open api-docs.html
+
+openapi: 3.1.0
+info:
+  title: SIMJADWAL API v1
+  version: 1.0.0
+  description: |
+    External contract for the desktop app (Tauri) and other token clients.
+
+    Rules (status codes, error codes, versioning, real-time events) are in
+    `docs/api/CONVENTIONS.md`. This file describes request and response shapes only.
+    `/api/internal/*` is not part of this contract.
+
+    - All JSON fields are snake_case.
+    - Single entity and small collection: `{"data": ...}`.
+    - Paginated list: `{"data": [...], "meta": {"pagination": {...}}}`. `per_page` default 20, max 100.
+    - Every error under `/api/*` uses `ErrorResponse`.
+    - `can_*` fields come from server policy. Clients hide actions based on them, not on role.
+servers:
+  - url: http://localhost:8000/api/v1
+    description: Local (Sail)
+
+security:
+  - bearerAuth: []
+
+tags:
+  - name: Auth
+  - name: Account
+  - name: Master Data
+  - name: Constraint
+  - name: Scheduling
+  - name: Realtime
+
+paths:
+  # ---------------------------------------------------------------- Auth
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Issue a Sanctum token
+      security: []
+      description: Rate limited (`throttle:login`). Wrong password and inactive account return the same error.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, device_name]
+              properties:
+                email: { type: string, format: email }
+                password: { type: string }
+                device_name: { type: string, maxLength: 100 }
+      responses:
+        '200':
+          description: Token issued
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/AuthToken' }
+        '401': { $ref: '#/components/responses/InvalidCredentials' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /auth/logout:
+    post:
+      tags: [Auth]
+      summary: Revoke the current token
+      responses:
+        '204': { description: Token revoked }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Current user
+      responses:
+        '200': { $ref: '#/components/responses/UserItem' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+
+  /auth/forgot-password:
+    post:
+      tags: [Auth]
+      summary: Send a password reset link
+      security: []
+      description: Rate limited (6 per minute). Always 202, so the response does not reveal whether the email exists.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email]
+              properties:
+                email: { type: string, format: email }
+      responses:
+        '202': { description: Accepted }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /auth/reset-password:
+    post:
+      tags: [Auth]
+      summary: Reset password with a token from the email
+      security: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [token, email, password, password_confirmation]
+              properties:
+                token: { type: string }
+                email: { type: string, format: email }
+                password: { type: string }
+                password_confirmation: { type: string }
+      responses:
+        '204': { description: Password changed }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  # ---------------------------------------------------------------- Realtime
+  /broadcasting/auth:
+    post:
+      tags: [Realtime]
+      summary: Authorize a Reverb private channel
+      description: |
+        Pusher-format channel auth for `private-changes`. The response has no `data` envelope.
+        Event `resources.changed` carries `{"resources": {"<table>": [id, ...] | null}}`.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [socket_id, channel_name]
+              properties:
+                socket_id: { type: string, example: '123.456' }
+                channel_name: { type: string, example: private-changes }
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required: [socket_id, channel_name]
+              properties:
+                socket_id: { type: string }
+                channel_name: { type: string }
+      responses:
+        '200':
+          description: Channel signature
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  auth: { type: string, example: 'app-key:signature' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  # ---------------------------------------------------------------- Account
+  /users:
+    get:
+      tags: [Account]
+      summary: List users
+      parameters:
+        - $ref: '#/components/parameters/Q'
+        - { name: role, in: query, schema: { $ref: '#/components/schemas/Role' } }
+        - { name: is_active, in: query, schema: { type: boolean } }
+        - $ref: '#/components/parameters/FacultyIdFilter'
+        - $ref: '#/components/parameters/StudyProgramIdFilter'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Paginated users
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/UserPage' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [Account]
+      summary: Create a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UserInput' }
+      responses:
+        '201': { $ref: '#/components/responses/UserItem' }
+        '401': { $ref: '#/components/responses/Unauthenticated' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /users/{user}:
+    parameters:
+      - { name: user, in: path, required: true, schema: { type: integer } }
+    get:
+      tags: [Account]
+      summary: Show a user
+      responses:
+        '200': { $ref: '#/components/responses/UserItem' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Account]
+      summary: Update a user
+      description: Partial update. Every field is optional (`sometimes`). PATCH is accepted with the same body.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UserInputPartial' }
+      responses:
+        '200': { $ref: '#/components/responses/UserItem' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    patch:
+      tags: [Account]
+      summary: Update a user (same as PUT)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/UserInputPartial' }
+      responses:
+        '200': { $ref: '#/components/responses/UserItem' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /users/{user}/status:
+    patch:
+      tags: [Account]
+      summary: Activate or deactivate a user
+      parameters:
+        - { name: user, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [is_active]
+              properties:
+                is_active: { type: boolean }
+      responses:
+        '200': { $ref: '#/components/responses/UserItem' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /activity-logs:
+    get:
+      tags: [Account]
+      summary: List activity logs
+      parameters:
+        - { name: event, in: query, schema: { type: string, maxLength: 50 } }
+        - { name: causer_id, in: query, schema: { type: integer } }
+        - { name: user_id, in: query, schema: { type: integer } }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Paginated activity logs
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginationMeta'
+                  - type: object
+                    properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/ActivityLog' } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  # ---------------------------------------------------------------- Faculties
+  /faculties:
+    get:
+      tags: [Master Data]
+      summary: List faculties
+      responses:
+        '200':
+          description: Collection
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Faculty' } }
+    post:
+      tags: [Master Data]
+      summary: Create a faculty
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FacultyInput' }
+      responses:
+        '201': { $ref: '#/components/responses/FacultyItem' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /faculties/{faculty}:
+    parameters:
+      - { name: faculty, in: path, required: true, schema: { type: integer } }
+    get:
+      tags: [Master Data]
+      summary: Show a faculty
+      responses:
+        '200': { $ref: '#/components/responses/FacultyItem' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Master Data]
+      summary: Update a faculty (PATCH accepted)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/FacultyInput' }
+      responses:
+        '200': { $ref: '#/components/responses/FacultyItem' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      tags: [Master Data]
+      summary: Soft delete a faculty
+      responses:
+        '204': { description: Deleted }
+        '409': { $ref: '#/components/responses/ResourceInUse' }
+
+  # ---------------------------------------------------------------- Departments
+  /departments:
+    get:
+      tags: [Master Data]
+      summary: List departments
+      parameters:
+        - $ref: '#/components/parameters/Q'
+        - $ref: '#/components/parameters/FacultyIdFilter'
+      responses:
+        '200':
+          description: Collection
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Department' } }
+    post:
+      tags: [Master Data]
+      summary: Create a department
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DepartmentInput' }
+      responses:
+        '201': { $ref: '#/components/responses/DepartmentItem' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /departments/{department}:
+    parameters:
+      - { name: department, in: path, required: true, schema: { type: integer } }
+    get:
+      tags: [Master Data]
+      summary: Show a department
+      responses:
+        '200': { $ref: '#/components/responses/DepartmentItem' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Master Data]
+      summary: Update a department (PATCH accepted, fields optional)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/DepartmentInput' }
+      responses:
+        '200': { $ref: '#/components/responses/DepartmentItem' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      tags: [Master Data]
+      summary: Soft delete a department
+      responses:
+        '204': { description: Deleted }
+        '409': { $ref: '#/components/responses/ResourceInUse' }
+
+  # ---------------------------------------------------------------- Study programs
+  /study-programs:
+    get:
+      tags: [Master Data]
+      summary: List study programs
+      parameters:
+        - $ref: '#/components/parameters/Q'
+        - $ref: '#/components/parameters/FacultyIdFilter'
+        - { name: department_id, in: query, schema: { type: integer } }
+      responses:
+        '200':
+          description: Collection
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/StudyProgram' } }
+    post:
+      tags: [Master Data]
+      summary: Create a study program
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StudyProgramInput' }
+      responses:
+        '201': { $ref: '#/components/responses/StudyProgramItem' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /study-programs/{studyProgram}:
+    parameters:
+      - $ref: '#/components/parameters/StudyProgramPath'
+    get:
+      tags: [Master Data]
+      summary: Show a study program
+      responses:
+        '200': { $ref: '#/components/responses/StudyProgramItem' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Master Data]
+      summary: Update a study program (PATCH accepted, fields optional)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/StudyProgramInput' }
+      responses:
+        '200': { $ref: '#/components/responses/StudyProgramItem' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      tags: [Master Data]
+      summary: Soft delete a study program
+      responses:
+        '204': { description: Deleted }
+        '409': { $ref: '#/components/responses/ResourceInUse' }
+
+  /study-programs/{studyProgram}/tpb-blocked-slots:
+    get:
+      tags: [Master Data]
+      summary: TPB groups with a time slot that include this study program
+      description: Sorted by course semester, day, session.
+      parameters:
+        - $ref: '#/components/parameters/StudyProgramPath'
+      responses:
+        '200':
+          description: Collection
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/TpbGroup' } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  # ---------------------------------------------------------------- Time slots
+  /time-slots:
+    get:
+      tags: [Master Data]
+      summary: List time slots
+      responses:
+        '200':
+          description: Collection
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/TimeSlot' } }
+    post:
+      tags: [Master Data]
+      summary: Create a time slot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TimeSlotInput' }
+      responses:
+        '201': { $ref: '#/components/responses/TimeSlotItem' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /time-slots/{timeSlot}:
+    parameters:
+      - { name: timeSlot, in: path, required: true, schema: { type: integer } }
+    get:
+      tags: [Master Data]
+      summary: Show a time slot
+      responses:
+        '200': { $ref: '#/components/responses/TimeSlotItem' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Master Data]
+      summary: Update a time slot (PATCH accepted, fields optional)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TimeSlotInput' }
+      responses:
+        '200': { $ref: '#/components/responses/TimeSlotItem' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      tags: [Master Data]
+      summary: Delete a time slot
+      responses:
+        '204': { description: Deleted }
+        '409': { $ref: '#/components/responses/ResourceInUse' }
+
+  # ---------------------------------------------------------------- Rooms
+  /rooms:
+    get:
+      tags: [Master Data]
+      summary: List rooms
+      parameters:
+        - { name: q, in: query, schema: { type: string, maxLength: 100 } }
+        - $ref: '#/components/parameters/FacultyIdFilter'
+        - { name: shared, in: query, description: Only rooms without a faculty, schema: { type: boolean } }
+        - { name: in_use, in: query, schema: { type: boolean } }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Paginated rooms
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginationMeta'
+                  - type: object
+                    properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/Room' } }
+    post:
+      tags: [Master Data]
+      summary: Create a room
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RoomInput' }
+      responses:
+        '201': { $ref: '#/components/responses/RoomItem' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /rooms/{room}:
+    parameters:
+      - { name: room, in: path, required: true, schema: { type: integer } }
+    get:
+      tags: [Master Data]
+      summary: Show a room
+      responses:
+        '200': { $ref: '#/components/responses/RoomItem' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Master Data]
+      summary: Update a room (PATCH accepted, fields optional)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/RoomInput' }
+      responses:
+        '200': { $ref: '#/components/responses/RoomItem' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      tags: [Master Data]
+      summary: Soft delete a room
+      responses:
+        '204': { description: Deleted }
+        '409': { $ref: '#/components/responses/ResourceInUse' }
+
+  # ---------------------------------------------------------------- Lecturers
+  /lecturers:
+    get:
+      tags: [Master Data]
+      summary: List lecturers
+      parameters:
+        - $ref: '#/components/parameters/Q'
+        - $ref: '#/components/parameters/FacultyIdFilter'
+        - $ref: '#/components/parameters/StudyProgramIdFilter'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Paginated lecturers
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginationMeta'
+                  - type: object
+                    properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/Lecturer' } }
+    post:
+      tags: [Master Data]
+      summary: Create a lecturer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LecturerInput' }
+      responses:
+        '201': { $ref: '#/components/responses/LecturerItem' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /lecturers/{lecturer}:
+    parameters:
+      - { name: lecturer, in: path, required: true, schema: { type: integer } }
+    get:
+      tags: [Master Data]
+      summary: Show a lecturer
+      responses:
+        '200': { $ref: '#/components/responses/LecturerItem' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Master Data]
+      summary: Update a lecturer (PATCH accepted, fields optional)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/LecturerInput' }
+      responses:
+        '200': { $ref: '#/components/responses/LecturerItem' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      tags: [Master Data]
+      summary: Soft delete a lecturer
+      responses:
+        '204': { description: Deleted }
+        '409': { $ref: '#/components/responses/ResourceInUse' }
+
+  # ---------------------------------------------------------------- Courses
+  /courses:
+    get:
+      tags: [Master Data]
+      summary: List courses
+      parameters:
+        - $ref: '#/components/parameters/Q'
+        - { name: is_tpb, in: query, schema: { type: boolean } }
+        - $ref: '#/components/parameters/FacultyIdFilter'
+        - $ref: '#/components/parameters/StudyProgramIdFilter'
+        - { name: semester, in: query, schema: { type: integer, minimum: 1, maximum: 8 } }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Paginated courses
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginationMeta'
+                  - type: object
+                    properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/Course' } }
+    post:
+      tags: [Master Data]
+      summary: Create a course
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CourseInput' }
+      responses:
+        '201': { $ref: '#/components/responses/CourseItem' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /courses/{course}:
+    parameters:
+      - { name: course, in: path, required: true, schema: { type: integer } }
+    get:
+      tags: [Master Data]
+      summary: Show a course
+      responses:
+        '200': { $ref: '#/components/responses/CourseItem' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Master Data]
+      summary: Update a course (PATCH accepted, fields optional)
+      description: '`is_tpb` and `study_program_id` cannot change after create; sending a different value fails validation.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CourseInput' }
+      responses:
+        '200': { $ref: '#/components/responses/CourseItem' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      tags: [Master Data]
+      summary: Soft delete a course
+      responses:
+        '204': { description: Deleted }
+        '409': { $ref: '#/components/responses/ResourceInUse' }
+
+  /courses/import/template:
+    get:
+      tags: [Master Data]
+      summary: Download the XLSX course import template
+      parameters:
+        - { name: study_program_id, in: query, required: true, schema: { type: integer } }
+        - { name: prefill, in: query, description: Fill the template with existing courses, schema: { type: boolean } }
+      responses:
+        '200':
+          description: XLSX file (`template-mata-kuliah-<code>.xlsx`)
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet:
+              schema: { type: string, format: binary }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /courses/import:
+    post:
+      tags: [Master Data]
+      summary: Preview or commit an XLSX course import
+      description: |
+        Two steps. First call with `dry_run=true` returns a preview and a `plan_hash`.
+        Then call with `dry_run=false` and that `plan_hash` to write.
+        If the plan has errors at commit time, the server returns 422 with the preview body.
+        If the data changed between preview and commit, the server returns 409 `IMPORT_PLAN_CHANGED`.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [study_program_id, file, dry_run]
+              properties:
+                study_program_id: { type: integer }
+                file: { type: string, format: binary, description: '.xlsx, max 2 MB' }
+                dry_run: { type: boolean }
+                plan_hash: { type: string, maxLength: 100, description: Required when dry_run is false }
+                resolutions:
+                  type: string
+                  description: 'JSON object mapping a lecturer match `key` to a lecturer id, e.g. `{"budi santoso": 12}`'
+      responses:
+        '200':
+          description: Preview (dry_run=true)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/CourseImportPreview' }
+        '201':
+          description: Committed
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      created: { type: integer }
+                      updated: { type: integer }
+                      unchanged: { type: integer }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422':
+          description: Validation failed, or plan has errors at commit time (body is the preview)
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+                  - type: object
+                    properties:
+                      data: { $ref: '#/components/schemas/CourseImportPreview' }
+
+  # ---------------------------------------------------------------- Teaching assignments
+  /teaching-assignments:
+    get:
+      tags: [Master Data]
+      summary: List teaching assignments (course class to lecturer)
+      parameters:
+        - { name: course_id, in: query, schema: { type: integer } }
+        - { name: lecturer_id, in: query, schema: { type: integer } }
+        - $ref: '#/components/parameters/StudyProgramIdFilter'
+        - { name: tpb_group_id, in: query, schema: { type: integer } }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Paginated assignments
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginationMeta'
+                  - type: object
+                    properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/TeachingAssignment' } }
+    post:
+      tags: [Master Data]
+      summary: Create a teaching assignment
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TeachingAssignmentInput' }
+      responses:
+        '201': { $ref: '#/components/responses/TeachingAssignmentItem' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /teaching-assignments/{courseLecturer}:
+    parameters:
+      - { name: courseLecturer, in: path, required: true, schema: { type: integer } }
+    get:
+      tags: [Master Data]
+      summary: Show a teaching assignment
+      responses:
+        '200': { $ref: '#/components/responses/TeachingAssignmentItem' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Master Data]
+      summary: Update a teaching assignment (PATCH accepted, fields optional)
+      description: '`course_id` cannot change.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TeachingAssignmentInput' }
+      responses:
+        '200': { $ref: '#/components/responses/TeachingAssignmentItem' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      tags: [Master Data]
+      summary: Delete a teaching assignment
+      responses:
+        '204': { description: Deleted }
+        '409': { $ref: '#/components/responses/ResourceInUse' }
+
+  # ---------------------------------------------------------------- TPB groups
+  /tpb-groups:
+    get:
+      tags: [Master Data]
+      summary: List TPB groups
+      parameters:
+        - { name: course_id, in: query, schema: { type: integer } }
+        - $ref: '#/components/parameters/StudyProgramIdFilter'
+        - { name: time_slot_id, in: query, schema: { type: integer } }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Paginated TPB groups
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginationMeta'
+                  - type: object
+                    properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/TpbGroup' } }
+    post:
+      tags: [Master Data]
+      summary: Create a TPB group
+      description: The server re-checks schedule clashes and rejects the write on clash.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TpbGroupInput' }
+      responses:
+        '201': { $ref: '#/components/responses/TpbGroupItem' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /tpb-groups/{tpbGroup}:
+    parameters:
+      - { name: tpbGroup, in: path, required: true, schema: { type: integer } }
+    get:
+      tags: [Master Data]
+      summary: Show a TPB group
+      responses:
+        '200': { $ref: '#/components/responses/TpbGroupItem' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Master Data]
+      summary: Update a TPB group (PATCH accepted, fields optional)
+      description: '`course_id` cannot change.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/TpbGroupInput' }
+      responses:
+        '200': { $ref: '#/components/responses/TpbGroupItem' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      tags: [Master Data]
+      summary: Delete a TPB group
+      responses:
+        '204': { description: Deleted }
+        '409': { $ref: '#/components/responses/ResourceInUse' }
+
+  # ---------------------------------------------------------------- Constraint
+  /constraint-types:
+    get:
+      tags: [Constraint]
+      summary: List constraint types with global weights
+      responses:
+        '200':
+          description: Collection
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/ConstraintType' } }
+
+  /constraint-submissions:
+    get:
+      tags: [Constraint]
+      summary: List constraint submissions per study program
+      parameters:
+        - $ref: '#/components/parameters/Q'
+        - { name: status, in: query, schema: { $ref: '#/components/schemas/ConstraintStatus' } }
+        - $ref: '#/components/parameters/FacultyIdFilter'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Paginated submissions
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginationMeta'
+                  - type: object
+                    properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/ConstraintSubmission' } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /constraint-submissions/{studyProgram}:
+    get:
+      tags: [Constraint]
+      summary: Submission detail for one study program
+      parameters:
+        - $ref: '#/components/parameters/StudyProgramPath'
+      responses:
+        '200':
+          description: Detail
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      summary: { $ref: '#/components/schemas/ConstraintSubmission' }
+                      incomplete_courses:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id: { type: integer }
+                            code: { type: string }
+                            name: { type: string }
+                            parallel_class_count: { type: integer }
+                            assigned_class_count: { type: integer }
+                      lecturers:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id: { type: integer }
+                            nip: { type: string }
+                            name: { type: string }
+                            title: { type: [string, 'null'] }
+                            preferences:
+                              type: array
+                              items: { $ref: '#/components/schemas/LecturerPreference' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  # ---------------------------------------------------------------- Scheduling
+  /scheduling/dataset:
+    get:
+      tags: [Scheduling]
+      summary: GA input dataset for one faculty and period
+      description: |
+        Only study programs with `constraint_status = accepted` contribute courses.
+        `fingerprint` must be sent back as `dataset_fingerprint` when uploading a run.
+      parameters:
+        - $ref: '#/components/parameters/Period'
+        - $ref: '#/components/parameters/FacultyIdScoped'
+      responses:
+        '200':
+          description: Dataset
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/SchedulingDataset' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /ga-presets:
+    get:
+      tags: [Scheduling]
+      summary: List GA parameter presets
+      parameters:
+        - $ref: '#/components/parameters/FacultyIdScoped'
+      responses:
+        '200':
+          description: Collection
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/GaPreset' } }
+    post:
+      tags: [Scheduling]
+      summary: Create a GA preset
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GaPresetInput' }
+      responses:
+        '201': { $ref: '#/components/responses/GaPresetItem' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /ga-presets/{gaPreset}:
+    parameters:
+      - { name: gaPreset, in: path, required: true, schema: { type: integer } }
+    get:
+      tags: [Scheduling]
+      summary: Show a GA preset
+      responses:
+        '200': { $ref: '#/components/responses/GaPresetItem' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Scheduling]
+      summary: Update a GA preset (PATCH accepted)
+      description: Full replace. All fields are required; `faculty_id` is ignored (taken from the preset).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/GaPresetInput' }
+      responses:
+        '200': { $ref: '#/components/responses/GaPresetItem' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      tags: [Scheduling]
+      summary: Delete a GA preset
+      responses:
+        '204': { description: Deleted }
+        '409': { $ref: '#/components/responses/ResourceInUse' }
+
+  /scheduling-runs:
+    get:
+      tags: [Scheduling]
+      summary: List scheduling runs
+      parameters:
+        - $ref: '#/components/parameters/FacultyIdFilter'
+        - { name: period, in: query, schema: { $ref: '#/components/schemas/Period' } }
+        - { name: batch_id, in: query, schema: { type: string, format: uuid } }
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PerPage'
+      responses:
+        '200':
+          description: Paginated runs, newest first
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginationMeta'
+                  - type: object
+                    properties:
+                      data: { type: array, items: { $ref: '#/components/schemas/SchedulingRunSummary' } }
+    post:
+      tags: [Scheduling]
+      summary: Upload a finished GA run from the desktop app
+      description: |
+        Idempotent on `client_run_id`: a repeat upload returns 200 with the stored run.
+        Returns 409 `DATASET_CHANGED` when `dataset_fingerprint` no longer matches the server dataset.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/SchedulingRunUpload' }
+      responses:
+        '200': { $ref: '#/components/responses/SchedulingRunItem' }
+        '201': { $ref: '#/components/responses/SchedulingRunItem' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /scheduling-runs/{schedulingRun}:
+    get:
+      tags: [Scheduling]
+      summary: Show a scheduling run
+      parameters:
+        - $ref: '#/components/parameters/SchedulingRunPath'
+      responses:
+        '200': { $ref: '#/components/responses/SchedulingRunItem' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /scheduling-runs/{schedulingRun}/schedule-details:
+    get:
+      tags: [Scheduling]
+      summary: Schedule entries of a run
+      parameters:
+        - $ref: '#/components/parameters/SchedulingRunPath'
+        - $ref: '#/components/parameters/StudyProgramIdFilter'
+        - { name: day, in: query, schema: { type: integer, minimum: 1, maximum: 7 } }
+      responses:
+        '200':
+          description: Collection sorted by time slot
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/ScheduleDetail' } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /scheduling-runs/{schedulingRun}/violations:
+    get:
+      tags: [Scheduling]
+      summary: Constraint violations of a run
+      parameters:
+        - $ref: '#/components/parameters/SchedulingRunPath'
+        - { name: category, in: query, schema: { $ref: '#/components/schemas/ConstraintCategory' } }
+      responses:
+        '200':
+          description: Collection
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/Violation' } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      description: Sanctum personal access token from `POST /auth/login`.
+
+  parameters:
+    Q: { name: q, in: query, description: Search text, schema: { type: string, maxLength: 150 } }
+    Page: { name: page, in: query, schema: { type: integer, minimum: 1, default: 1 } }
+    PerPage: { name: per_page, in: query, schema: { type: integer, minimum: 1, maximum: 100, default: 20 } }
+    FacultyIdFilter: { name: faculty_id, in: query, schema: { type: integer } }
+    FacultyIdScoped:
+      name: faculty_id
+      in: query
+      description: Required for superadmin. Other roles use their own faculty.
+      schema: { type: integer }
+    StudyProgramIdFilter: { name: study_program_id, in: query, schema: { type: integer } }
+    StudyProgramPath: { name: studyProgram, in: path, required: true, schema: { type: integer } }
+    SchedulingRunPath: { name: schedulingRun, in: path, required: true, schema: { type: integer } }
+    Period:
+      name: period
+      in: query
+      description: Defaults to the current period when omitted.
+      schema: { $ref: '#/components/schemas/Period' }
+
+  responses:
+    Unauthenticated:
+      description: '`UNAUTHENTICATED`: no token, revoked token, or inactive account'
+      content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+    InvalidCredentials:
+      description: '`INVALID_CREDENTIALS`'
+      content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+    Forbidden:
+      description: '`FORBIDDEN`'
+      content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+    NotFound:
+      description: '`NOT_FOUND`'
+      content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+    ResourceInUse:
+      description: '`RESOURCE_IN_USE`: `errors.references` holds a count per reference type'
+      content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+    Conflict:
+      description: '409 with one of `INVALID_STATE`, `CONSTRAINTS_LOCKED`, `DATASET_CHANGED`, `IMPORT_PLAN_CHANGED`'
+      content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+    ValidationFailed:
+      description: '`VALIDATION_FAILED`: `errors` maps field to messages'
+      content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+    TooManyRequests:
+      description: '`TOO_MANY_REQUESTS`. See the `Retry-After` header.'
+      headers:
+        Retry-After: { schema: { type: integer } }
+      content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
+    UserItem:
+      description: User
+      content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/User' } } } } }
+    FacultyItem:
+      description: Faculty
+      content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/Faculty' } } } } }
+    DepartmentItem:
+      description: Department
+      content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/Department' } } } } }
+    StudyProgramItem:
+      description: Study program
+      content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/StudyProgram' } } } } }
+    TimeSlotItem:
+      description: Time slot
+      content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/TimeSlot' } } } } }
+    RoomItem:
+      description: Room
+      content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/Room' } } } } }
+    LecturerItem:
+      description: Lecturer
+      content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/Lecturer' } } } } }
+    CourseItem:
+      description: Course
+      content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/Course' } } } } }
+    TeachingAssignmentItem:
+      description: Teaching assignment
+      content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/TeachingAssignment' } } } } }
+    TpbGroupItem:
+      description: TPB group
+      content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/TpbGroup' } } } } }
+    GaPresetItem:
+      description: GA preset
+      content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/GaPreset' } } } } }
+    SchedulingRunItem:
+      description: Scheduling run
+      content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/SchedulingRun' } } } } }
+
+  schemas:
+    # ------------------------------------------------------------ Shared
+    ErrorResponse:
+      type: object
+      required: [message, code]
+      properties:
+        message: { type: string, description: Message to show to the user }
+        code:
+          type: string
+          description: Stable code. Clients must handle unknown codes generically.
+          examples: [UNAUTHENTICATED, INVALID_CREDENTIALS, FORBIDDEN, NOT_FOUND, METHOD_NOT_ALLOWED, RESOURCE_IN_USE, INVALID_STATE, CONSTRAINTS_LOCKED, DATASET_CHANGED, IMPORT_PLAN_CHANGED, VALIDATION_FAILED, TOO_MANY_REQUESTS, HTTP_ERROR, SERVER_ERROR]
+        errors:
+          type: object
+          additionalProperties: true
+          description: 'Field errors (`{"field": ["..."]}`) or `references` for `RESOURCE_IN_USE`'
+
+    PaginationMeta:
+      type: object
+      properties:
+        meta:
+          type: object
+          properties:
+            pagination:
+              type: object
+              properties:
+                page: { type: integer }
+                per_page: { type: integer }
+                total: { type: integer }
+                last_page: { type: integer }
+
+    Period:
+      type: string
+      pattern: '^\d{4}/\d{4}-(GANJIL|GENAP)$'
+      description: Consecutive years. GANJIL schedules odd semesters, GENAP even.
+      example: 2026/2027-GANJIL
+
+    Role:
+      type: string
+      enum: [superadmin, admin_fakultas, admin_tpb, admin_prodi, dosen, mahasiswa]
+    Day:
+      type: integer
+      enum: [1, 2, 3, 4, 5]
+      description: 1 = Monday ... 5 = Friday
+    ConstraintStatus:
+      type: string
+      enum: [draft, submitted, accepted]
+    ConstraintCode:
+      type: string
+      enum: [HC1, HC2, HC3, HC4, SC_INGIN, SC_HINDARI, SC_SKS]
+    ConstraintCategory:
+      type: string
+      enum: [HC, SC]
+    SelectionOperator:
+      type: string
+      enum: [TS, TSR]
+      description: TS = tournament, TSR = tournament with roulette wheel
+    RunStatus:
+      type: string
+      enum: [queued, running, done, failed]
+
+    IdCodeName:
+      type: object
+      properties:
+        id: { type: integer }
+        code: { type: string }
+        name: { type: string }
+
+    # ------------------------------------------------------------ Account
+    AuthToken:
+      type: object
+      properties:
+        token: { type: string }
+        user: { $ref: '#/components/schemas/User' }
+
+    UserSummary:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string }
+        identity_number: { type: [string, 'null'] }
+
+    User:
+      type: object
+      properties:
+        id: { type: integer }
+        name: { type: string }
+        email: { type: string, format: email }
+        identity_number: { type: [string, 'null'] }
+        role: { oneOf: [{ $ref: '#/components/schemas/Role' }, { type: 'null' }] }
+        faculty_id: { type: [integer, 'null'] }
+        study_program_id: { type: [integer, 'null'] }
+        lecturer_id: { type: [integer, 'null'] }
+        faculty: { oneOf: [{ $ref: '#/components/schemas/FacultySummary' }, { type: 'null' }] }
+        study_program: { oneOf: [{ $ref: '#/components/schemas/StudyProgramSummary' }, { type: 'null' }] }
+        lecturer: { oneOf: [{ $ref: '#/components/schemas/LecturerSummary' }, { type: 'null' }] }
+        is_active: { type: boolean }
+        created_at: { type: [string, 'null'], format: date-time }
+        can_update: { type: boolean }
+        can_update_status: { type: boolean }
+
+    UserPage:
+      allOf:
+        - $ref: '#/components/schemas/PaginationMeta'
+        - type: object
+          properties:
+            data: { type: array, items: { $ref: '#/components/schemas/User' } }
+
+    UserInput:
+      type: object
+      required: [name, email, role]
+      description: |
+        Scope fields depend on `role`. Fields not used by the role are prohibited.
+        `faculty_id` for faculty roles, `study_program_id` for study program roles,
+        `lecturer_id` (a lecturer without an account) for `dosen`. `identity_number` is prohibited for `dosen`.
+      properties:
+        name: { type: string, maxLength: 150 }
+        email: { type: string, format: email, maxLength: 150, description: 'Lowercase, unique' }
+        password: { type: [string, 'null'] }
+        role: { $ref: '#/components/schemas/Role' }
+        identity_number: { type: [string, 'null'], pattern: '^\d{8,20}$' }
+        faculty_id: { type: integer }
+        study_program_id: { type: integer }
+        lecturer_id: { type: integer }
+
+    UserInputPartial:
+      type: object
+      description: Same fields and rules as `UserInput`, all optional. Changing `role` requires the scope fields of the new role.
+      properties:
+        name: { type: string, maxLength: 150 }
+        email: { type: string, format: email, maxLength: 150 }
+        password: { type: [string, 'null'] }
+        role: { $ref: '#/components/schemas/Role' }
+        identity_number: { type: [string, 'null'], pattern: '^\d{8,20}$' }
+        faculty_id: { type: integer }
+        study_program_id: { type: integer }
+        lecturer_id: { type: integer }
+
+    ActivityLog:
+      type: object
+      properties:
+        id: { type: integer }
+        event: { type: [string, 'null'] }
+        description: { type: string }
+        causer: { oneOf: [{ $ref: '#/components/schemas/UserSummary' }, { type: 'null' }] }
+        subject_type: { type: [string, 'null'] }
+        subject_id: { type: [integer, 'null'] }
+        changes: { type: object, additionalProperties: true }
+        properties: { type: object, additionalProperties: true }
+        created_at: { type: [string, 'null'], format: date-time }
+
+    # ------------------------------------------------------------ Master data
+    FacultySummary:
+      $ref: '#/components/schemas/IdCodeName'
+
+    Faculty:
+      type: object
+      properties:
+        id: { type: integer }
+        code: { type: string }
+        name: { type: string }
+        departments_count: { type: integer }
+        study_programs_count: { type: integer }
+        can_update: { type: boolean }
+        can_delete: { type: boolean }
+
+    FacultyInput:
+      type: object
+      required: [code, name]
+      properties:
+        code: { type: string, maxLength: 20 }
+        name: { type: string, maxLength: 150 }
+
+    DepartmentSummary:
+      type: object
+      properties:
+        id: { type: integer }
+        faculty_id: { type: integer }
+        code: { type: string }
+        name: { type: string }
+
+    Department:
+      type: object
+      properties:
+        id: { type: integer }
+        faculty_id: { type: integer }
+        code: { type: string }
+        name: { type: string }
+        faculty: { $ref: '#/components/schemas/FacultySummary' }
+        study_programs_count: { type: integer }
+        can_update: { type: boolean }
+        can_delete: { type: boolean }
+
+    DepartmentInput:
+      type: object
+      required: [faculty_id, code, name]
+      properties:
+        faculty_id: { type: integer }
+        code: { type: string, maxLength: 20 }
+        name: { type: string, maxLength: 150 }
+
+    StudyProgramSummary:
+      type: object
+      properties:
+        id: { type: integer }
+        faculty_id: { type: integer }
+        department_id: { type: [integer, 'null'] }
+        code: { type: string }
+        name: { type: string }
+
+    StudyProgram:
+      type: object
+      properties:
+        id: { type: integer }
+        faculty_id: { type: integer }
+        department_id: { type: [integer, 'null'] }
+        code: { type: string }
+        name: { type: string }
+        constraint_status: { $ref: '#/components/schemas/ConstraintStatus' }
+        constraint_submitted_at: { type: [string, 'null'], format: date-time }
+        constraint_reviewed_at: { type: [string, 'null'], format: date-time }
+        constraint_return_note: { type: [string, 'null'] }
+        faculty: { $ref: '#/components/schemas/FacultySummary' }
+        department: { oneOf: [{ $ref: '#/components/schemas/DepartmentSummary' }, { type: 'null' }] }
+        coordinator: { oneOf: [{ $ref: '#/components/schemas/UserSummary' }, { type: 'null' }] }
+        can_update: { type: boolean }
+        can_delete: { type: boolean }
+
+    StudyProgramInput:
+      type: object
+      required: [faculty_id, code, name]
+      properties:
+        faculty_id: { type: integer }
+        department_id: { type: [integer, 'null'] }
+        code: { type: string, maxLength: 20 }
+        name: { type: string, maxLength: 150 }
+
+    TimeSlotSummary:
+      type: object
+      properties:
+        id: { type: integer }
+        day: { $ref: '#/components/schemas/Day' }
+        session: { type: integer }
+        start_time: { type: string, example: '07:30' }
+        end_time: { type: string, example: '09:10' }
+        type: { type: integer, enum: [2, 3], description: Slot length in SKS }
+
+    TimeSlot:
+      allOf:
+        - $ref: '#/components/schemas/TimeSlotSummary'
+        - type: object
+          properties:
+            can_update: { type: boolean }
+            can_delete: { type: boolean }
+
+    TimeSlotInput:
+      type: object
+      required: [day, session, start_time, end_time, type]
+      properties:
+        day: { $ref: '#/components/schemas/Day' }
+        session: { type: integer, minimum: 1, maximum: 10, description: Unique per day }
+        start_time: { type: string, pattern: '^\d{2}:\d{2}$' }
+        end_time: { type: string, pattern: '^\d{2}:\d{2}$', description: After start_time }
+        type: { type: integer, enum: [2, 3] }
+
+    RoomSummary:
+      type: object
+      properties:
+        id: { type: integer }
+        faculty_id: { type: [integer, 'null'] }
+        code: { type: string }
+        name: { type: [string, 'null'] }
+        capacity: { type: integer }
+
+    Room:
+      type: object
+      properties:
+        id: { type: integer }
+        faculty_id: { type: [integer, 'null'], description: null = shared room }
+        code: { type: string }
+        name: { type: [string, 'null'] }
+        building: { type: [string, 'null'] }
+        floor: { type: [integer, 'null'] }
+        capacity: { type: integer }
+        faculty: { oneOf: [{ $ref: '#/components/schemas/FacultySummary' }, { type: 'null' }] }
+        is_in_use: { type: boolean }
+        can_update: { type: boolean }
+        can_delete: { type: boolean }
+
+    RoomInput:
+      type: object
+      required: [code, capacity]
+      properties:
+        faculty_id: { type: [integer, 'null'] }
+        code: { type: string, maxLength: 20 }
+        name: { type: [string, 'null'], maxLength: 100 }
+        building: { type: [string, 'null'], maxLength: 50 }
+        floor: { type: [integer, 'null'], minimum: 0, maximum: 50 }
+        capacity: { type: integer, minimum: 1, maximum: 10000 }
+
+    LecturerSummary:
+      type: object
+      properties:
+        id: { type: integer }
+        study_program_id: { type: integer }
+        nip: { type: string }
+        name: { type: string }
+        title: { type: [string, 'null'] }
+
+    Lecturer:
+      type: object
+      properties:
+        id: { type: integer }
+        study_program_id: { type: integer }
+        user_id: { type: [integer, 'null'] }
+        nip: { type: string }
+        name: { type: string }
+        title: { type: [string, 'null'] }
+        study_program: { $ref: '#/components/schemas/StudyProgramSummary' }
+        course_lecturers_count: { type: integer }
+        can_update: { type: boolean }
+        can_delete: { type: boolean }
+
+    LecturerInput:
+      type: object
+      required: [study_program_id, nip, name]
+      properties:
+        study_program_id: { type: integer }
+        nip: { type: string, pattern: '^\d{8,20}$' }
+        name: { type: string, maxLength: 150 }
+        title: { type: [string, 'null'], maxLength: 50 }
+
+    CourseSummary:
+      type: object
+      properties:
+        id: { type: integer }
+        study_program_id: { type: [integer, 'null'] }
+        is_tpb: { type: boolean }
+        code: { type: string }
+        name: { type: string }
+        sks: { type: integer }
+        semester: { type: integer }
+
+    Course:
+      type: object
+      properties:
+        id: { type: integer }
+        study_program_id: { type: [integer, 'null'], description: null for TPB courses }
+        is_tpb: { type: boolean }
+        code: { type: string }
+        name: { type: string }
+        sks: { type: integer }
+        semester: { type: integer }
+        parallel_class_count: { type: integer }
+        class_capacity: { type: integer }
+        study_program: { oneOf: [{ $ref: '#/components/schemas/StudyProgramSummary' }, { type: 'null' }] }
+        course_lecturers_count: { type: integer }
+        can_update: { type: boolean }
+        can_delete: { type: boolean }
+
+    CourseInput:
+      type: object
+      required: [code, name, sks, semester, parallel_class_count, class_capacity]
+      properties:
+        is_tpb: { type: boolean, default: false }
+        study_program_id: { type: [integer, 'null'], description: 'Required when is_tpb is false, prohibited when true' }
+        code: { type: string, maxLength: 20 }
+        name: { type: string, maxLength: 150 }
+        sks: { type: integer, enum: [2, 3, 4] }
+        semester: { type: integer, minimum: 1, maximum: 8 }
+        parallel_class_count: { type: integer, minimum: 1, maximum: 99 }
+        class_capacity: { type: integer, minimum: 1, maximum: 1000 }
+
+    CourseImportPreview:
+      type: object
+      properties:
+        can_commit: { type: boolean }
+        plan_hash: { type: string, example: 'sha256:...' }
+        summary:
+          type: object
+          properties:
+            rows: { type: integer }
+            courses: { type: integer }
+            created: { type: integer }
+            updated: { type: integer }
+            unchanged: { type: integer }
+            invalid: { type: integer }
+            errors: { type: integer }
+            warnings: { type: integer }
+        errors: { type: array, items: { type: object, additionalProperties: true } }
+        warnings: { type: array, items: { type: object, additionalProperties: true } }
+        courses: { type: array, items: { type: object, additionalProperties: true } }
+        lecturer_matches:
+          type: array
+          items:
+            type: object
+            properties:
+              input: { type: string }
+              key: { type: string, description: Key for `resolutions` }
+              rows: { type: array, items: { type: integer } }
+              status: { type: string, examples: [resolved, ambiguous, not_found] }
+              lecturer: { type: ['object', 'null'], additionalProperties: true }
+              candidates: { type: array, items: { type: object, additionalProperties: true } }
+        lecturer_options: { type: array, items: { type: object, additionalProperties: true } }
+        untouched_courses:
+          type: array
+          items:
+            type: object
+            properties:
+              code: { type: string }
+              name: { type: string }
+              semester: { type: integer }
+
+    TeachingAssignment:
+      type: object
+      properties:
+        id: { type: integer }
+        course_id: { type: integer }
+        class_number: { type: integer }
+        class_label: { type: string, example: A }
+        lecturer_id: { type: integer }
+        tpb_group_id: { type: [integer, 'null'] }
+        room_id: { type: [integer, 'null'], description: Fixed room }
+        course: { $ref: '#/components/schemas/CourseSummary' }
+        lecturer: { $ref: '#/components/schemas/LecturerSummary' }
+        room: { oneOf: [{ $ref: '#/components/schemas/RoomSummary' }, { type: 'null' }] }
+        can_update: { type: boolean }
+        can_delete: { type: boolean }
+
+    TeachingAssignmentInput:
+      type: object
+      required: [course_id, class_number, lecturer_id]
+      properties:
+        course_id: { type: integer }
+        class_number: { type: integer, minimum: 1, description: Unique per course }
+        lecturer_id: { type: integer }
+        tpb_group_id: { type: [integer, 'null'] }
+        room_id: { type: [integer, 'null'] }
+
+    TpbGroup:
+      type: object
+      properties:
+        id: { type: integer }
+        course_id: { type: integer }
+        code: { type: string }
+        time_slot_id: { type: [integer, 'null'] }
+        course: { $ref: '#/components/schemas/CourseSummary' }
+        time_slot: { oneOf: [{ $ref: '#/components/schemas/TimeSlotSummary' }, { type: 'null' }] }
+        study_programs: { type: array, items: { $ref: '#/components/schemas/StudyProgramSummary' } }
+        course_lecturers_count: { type: integer }
+        can_update: { type: boolean }
+        can_delete: { type: boolean }
+
+    TpbGroupInput:
+      type: object
+      required: [course_id, code, study_program_ids]
+      properties:
+        course_id: { type: integer, description: Must be a TPB course }
+        code: { type: string, maxLength: 20, description: Unique per course }
+        time_slot_id: { type: [integer, 'null'] }
+        study_program_ids:
+          type: array
+          minItems: 1
+          uniqueItems: true
+          items: { type: integer }
+
+    # ------------------------------------------------------------ Constraint
+    ConstraintType:
+      type: object
+      properties:
+        id: { type: integer }
+        code: { $ref: '#/components/schemas/ConstraintCode' }
+        category: { $ref: '#/components/schemas/ConstraintCategory' }
+        description: { type: string }
+        weight: { type: number }
+        can_update: { type: boolean }
+
+    ConstraintSubmission:
+      type: object
+      properties:
+        id: { type: integer, description: Study program id }
+        faculty_id: { type: integer }
+        code: { type: string }
+        name: { type: string }
+        constraint_status: { $ref: '#/components/schemas/ConstraintStatus' }
+        constraint_submitted_at: { type: [string, 'null'], format: date-time }
+        constraint_reviewed_at: { type: [string, 'null'], format: date-time }
+        constraint_return_note: { type: [string, 'null'] }
+        faculty: { $ref: '#/components/schemas/FacultySummary' }
+        lecturers_count: { type: integer }
+        lecturers_with_preferences_count: { type: integer }
+        courses_count: { type: integer }
+        incomplete_courses_count: { type: integer }
+        can_submit: { type: boolean }
+        can_review: { type: boolean }
+
+    LecturerPreference:
+      type: object
+      properties:
+        time_slot_id: { type: integer }
+        type: { type: string, enum: [want, avoid] }
+
+    # ------------------------------------------------------------ Scheduling
+    SchedulingDataset:
+      type: object
+      properties:
+        fingerprint: { type: string, example: 'sha256:...', description: 'Hash of courses, classes, lecturers, time_slots, rooms, constraint_types' }
+        generated_at: { type: string, format: date-time }
+        period: { $ref: '#/components/schemas/Period' }
+        faculty: { $ref: '#/components/schemas/IdCodeName' }
+        study_programs:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: integer }
+              code: { type: string }
+              name: { type: string }
+              constraint_status: { $ref: '#/components/schemas/ConstraintStatus' }
+              constraint_reviewed_at: { type: [string, 'null'], format: date-time }
+              lecturers_count: { type: integer }
+              courses_count: { type: integer }
+              included: { type: boolean, description: true when constraints are accepted }
+        courses:
+          type: array
+          description: Non-TPB courses of included programs for the period's semesters
+          items:
+            type: object
+            properties:
+              id: { type: integer }
+              study_program_id: { type: integer }
+              code: { type: string }
+              name: { type: string }
+              sks: { type: integer }
+              semester: { type: integer }
+              parallel_class_count: { type: integer }
+              class_capacity: { type: integer }
+              is_tpb: { type: boolean }
+        classes:
+          type: array
+          items:
+            type: object
+            properties:
+              course_id: { type: integer }
+              class_number: { type: integer }
+              lecturer_id: { type: integer }
+              fixed_room_id: { type: [integer, 'null'] }
+        lecturers:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: integer }
+              nip: { type: string }
+              name: { type: string }
+              title: { type: [string, 'null'] }
+              study_program_id: { type: integer }
+              preferences: { type: array, items: { $ref: '#/components/schemas/LecturerPreference' } }
+        time_slots: { type: array, items: { $ref: '#/components/schemas/TimeSlotSummary' } }
+        rooms:
+          type: array
+          description: Rooms of this faculty plus shared rooms
+          items:
+            type: object
+            properties:
+              id: { type: integer }
+              code: { type: string }
+              name: { type: [string, 'null'] }
+              capacity: { type: integer }
+              faculty_id: { type: [integer, 'null'] }
+        constraint_types:
+          type: array
+          items:
+            type: object
+            properties:
+              code: { $ref: '#/components/schemas/ConstraintCode' }
+              category: { $ref: '#/components/schemas/ConstraintCategory' }
+              description: { type: string }
+              weight: { type: number }
+        occupied_rooms:
+          type: array
+          description: Rooms used by another faculty's active schedule in the same period
+          items:
+            type: object
+            properties:
+              time_slot_id: { type: integer }
+              room_id: { type: integer }
+
+    GaPreset:
+      type: object
+      properties:
+        id: { type: integer }
+        faculty_id: { type: integer }
+        name: { type: string }
+        population_size: { type: integer }
+        min_generations: { type: integer }
+        max_generations: { type: integer }
+        stagnation_limit: { type: integer }
+        crossover_rate: { type: number }
+        mutation_rate: { type: number }
+        tournament_size: { type: integer }
+        selection_operator: { $ref: '#/components/schemas/SelectionOperator' }
+        parallel_class_limit: { type: integer }
+        fitness_constant: { type: integer }
+        base_seed: { type: integer }
+        run_count: { type: integer }
+        sc_overrides: { $ref: '#/components/schemas/ScOverrides' }
+        created_by: { type: [integer, 'null'] }
+        updated_at: { type: [string, 'null'], format: date-time }
+        can_update: { type: boolean }
+        can_delete: { type: boolean }
+
+    ScOverrides:
+      type: object
+      description: 'Per study program soft constraint weights: `{"<study_program_id>": {"SC_INGIN": 2.5}}`. Only SC codes, weight > 0, program must belong to the faculty.'
+      additionalProperties:
+        type: object
+        additionalProperties: { type: number, exclusiveMinimum: 0 }
+
+    GaPresetInput:
+      type: object
+      required: [name, population_size, min_generations, max_generations, stagnation_limit, crossover_rate, mutation_rate, tournament_size, selection_operator, parallel_class_limit, fitness_constant, base_seed, run_count, sc_overrides]
+      properties:
+        faculty_id: { type: integer, description: Required for superadmin on create }
+        name: { type: string, maxLength: 100, description: Unique per faculty }
+        population_size: { type: integer, minimum: 2, maximum: 10000 }
+        min_generations: { type: integer, minimum: 1 }
+        max_generations: { type: integer, maximum: 100000, description: '>= min_generations' }
+        stagnation_limit: { type: integer, minimum: 1 }
+        crossover_rate: { type: number, minimum: 0, maximum: 1 }
+        mutation_rate: { type: number, minimum: 0, maximum: 1 }
+        tournament_size: { type: integer, minimum: 2, description: '<= population_size' }
+        selection_operator: { $ref: '#/components/schemas/SelectionOperator' }
+        parallel_class_limit: { type: integer, minimum: 1, maximum: 100 }
+        fitness_constant: { type: integer, minimum: 1 }
+        base_seed: { type: integer, minimum: 0 }
+        run_count: { type: integer, minimum: 1, maximum: 10 }
+        sc_overrides: { $ref: '#/components/schemas/ScOverrides' }
+
+    SchedulingRunSummary:
+      type: object
+      properties:
+        id: { type: integer }
+        batch_id: { type: string, format: uuid }
+        faculty: { oneOf: [{ $ref: '#/components/schemas/IdCodeName' }, { type: 'null' }] }
+        period: { $ref: '#/components/schemas/Period' }
+        preset:
+          type: ['object', 'null']
+          properties:
+            id: { type: integer }
+            name: { type: string }
+        status: { $ref: '#/components/schemas/RunStatus' }
+        selection_operator: { type: [string, 'null'] }
+        crossover_rate: { type: [number, 'null'] }
+        mutation_rate: { type: [number, 'null'] }
+        population_size: { type: [integer, 'null'] }
+        parallel_class_limit: { type: [integer, 'null'] }
+        seed: { type: [integer, 'null'] }
+        best_fitness: { type: [number, 'null'] }
+        max_fitness: { type: [number, 'null'] }
+        fitness_percent: { type: [number, 'null'] }
+        best_generation: { type: [integer, 'null'] }
+        final_generation: { type: [integer, 'null'] }
+        schedule_details_count: { type: integer }
+        hc_violations: { type: integer }
+        sc_unmet: { type: integer }
+        unassigned_rooms: { type: integer }
+        is_active: { type: boolean }
+        triggered_by:
+          type: ['object', 'null']
+          properties:
+            id: { type: integer }
+            name: { type: string }
+        started_at: { type: [string, 'null'], format: date-time }
+        finished_at: { type: [string, 'null'], format: date-time }
+        published_at: { type: [string, 'null'], format: date-time }
+
+    SchedulingRun:
+      allOf:
+        - $ref: '#/components/schemas/SchedulingRunSummary'
+        - type: object
+          properties:
+            parameter_snapshot: { type: object, additionalProperties: true }
+            fitness_history: { type: array, items: { type: number } }
+
+    SchedulingRunUpload:
+      type: object
+      required: [client_run_id, batch_id, period, dataset_fingerprint, parameter_snapshot, best_fitness, max_fitness, best_generation, final_generation, fitness_history, started_at, finished_at, schedule_details, violations]
+      properties:
+        client_run_id: { type: string, format: uuid, description: Idempotency key }
+        batch_id: { type: string, format: uuid }
+        faculty_id: { type: integer, description: Required for superadmin }
+        period: { $ref: '#/components/schemas/Period' }
+        dataset_fingerprint: { type: string, maxLength: 80 }
+        preset_id: { type: [integer, 'null'] }
+        parameter_snapshot:
+          type: object
+          required: [parallel_class_limit, weights]
+          additionalProperties: true
+          properties:
+            parallel_class_limit: { type: integer, minimum: 1 }
+            weights: { type: object, additionalProperties: true }
+        best_fitness: { type: number }
+        max_fitness: { type: number, exclusiveMinimum: 0 }
+        best_generation: { type: integer, minimum: 0 }
+        final_generation: { type: integer, minimum: 0, description: '>= best_generation' }
+        fitness_history: { type: array, minItems: 1, items: { type: number } }
+        started_at: { type: string, format: date-time }
+        finished_at: { type: string, format: date-time }
+        schedule_details:
+          type: array
+          minItems: 1
+          items:
+            type: object
+            required: [course_id, class_number, meeting_number, lecturer_id, time_slot_id]
+            properties:
+              course_id: { type: integer }
+              class_number: { type: integer, minimum: 1 }
+              meeting_number: { type: integer, enum: [1, 2] }
+              lecturer_id: { type: integer }
+              time_slot_id: { type: integer }
+              room_id: { type: [integer, 'null'] }
+        violations:
+          type: array
+          items:
+            type: object
+            required: [detail_index, constraint_code, penalty]
+            properties:
+              detail_index: { type: integer, minimum: 0, description: Index into schedule_details }
+              constraint_code: { $ref: '#/components/schemas/ConstraintCode' }
+              penalty: { type: number, minimum: 0 }
+              message: { type: [string, 'null'], maxLength: 500 }
+
+    ScheduleDetail:
+      type: object
+      properties:
+        id: { type: integer }
+        course:
+          type: object
+          properties:
+            id: { type: integer }
+            code: { type: string }
+            name: { type: string }
+            sks: { type: integer }
+            semester: { type: integer }
+            study_program: { oneOf: [{ $ref: '#/components/schemas/IdCodeName' }, { type: 'null' }] }
+        class_number: { type: integer }
+        meeting_number: { type: integer }
+        lecturer:
+          type: object
+          properties:
+            id: { type: integer }
+            name: { type: string }
+            title: { type: [string, 'null'] }
+        time_slot:
+          type: object
+          properties:
+            id: { type: integer }
+            day: { $ref: '#/components/schemas/Day' }
+            session: { type: integer }
+            start_time: { type: string }
+            end_time: { type: string }
+        room:
+          type: ['object', 'null']
+          properties:
+            id: { type: integer }
+            code: { type: string }
+            name: { type: [string, 'null'] }
+            capacity: { type: integer }
+        is_overridden: { type: boolean }
+        violations_count: { type: integer }
+
+    Violation:
+      type: object
+      properties:
+        id: { type: integer }
+        constraint_code: { $ref: '#/components/schemas/ConstraintCode' }
+        category: { $ref: '#/components/schemas/ConstraintCategory' }
+        penalty: { type: number }
+        message: { type: [string, 'null'] }
+        schedule_detail_id: { type: [integer, 'null'] }
