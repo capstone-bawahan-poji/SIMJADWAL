@@ -9,7 +9,7 @@ use uuid::Uuid;
 use crate::error::AppError;
 use crate::services::ga::batch;
 use crate::services::ga::model::{BatchRequest, RunSpec, RunSummary};
-use crate::services::storage::{RunListItem, RunRecord, Storage, UploadState, UploadStatus};
+use crate::services::storage::{RunListItem, RunRecord, Storage, UploadState};
 use crate::state::RunRegistry;
 
 const PROGRESS_INTERVAL: Duration = Duration::from_millis(200);
@@ -158,38 +158,6 @@ pub async fn ga_list_results(app: AppHandle) -> Result<Vec<RunListItem>, AppErro
 #[tauri::command]
 pub async fn ga_get_result(app: AppHandle, run_id: String) -> Result<RunRecord, AppError> {
     storage(&app)?.load(&run_id)
-}
-
-#[tauri::command]
-pub async fn ga_mark_uploaded(
-    app: AppHandle,
-    run_id: String,
-    server_run_id: i64,
-) -> Result<RunListItem, AppError> {
-    storage(&app)?.set_upload(
-        &run_id,
-        UploadState {
-            status: UploadStatus::Uploaded,
-            server_run_id: Some(server_run_id),
-            error: None,
-        },
-    )
-}
-
-#[tauri::command]
-pub async fn ga_mark_upload_failed(
-    app: AppHandle,
-    run_id: String,
-    message: String,
-) -> Result<RunListItem, AppError> {
-    storage(&app)?.set_upload(
-        &run_id,
-        UploadState {
-            status: UploadStatus::Failed,
-            server_run_id: None,
-            error: Some(message),
-        },
-    )
 }
 
 #[tauri::command]
