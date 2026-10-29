@@ -35,6 +35,7 @@ use App\Http\Controllers\Api\V1\MasterData\TpbGroupController as V1TpbGroupContr
 use App\Http\Controllers\Api\V1\Scheduling\GaPresetController as V1GaPresetController;
 use App\Http\Controllers\Api\V1\Scheduling\SchedulingDatasetController as V1SchedulingDatasetController;
 use App\Http\Controllers\Api\V1\Scheduling\SchedulingRunController as V1SchedulingRunController;
+use App\Http\Controllers\Api\V1\Shared\BroadcastAuthController as V1BroadcastAuthController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -95,6 +96,8 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
     });
 
     Route::middleware(['auth:sanctum', 'active'])->group(function () {
+        Route::post('broadcasting/auth', V1BroadcastAuthController::class)->name('broadcasting.auth');
+
         Route::apiResource('users', V1UserController::class)->except(['destroy']);
         Route::patch('users/{user}/status', [V1UserController::class, 'updateStatus'])->name('users.status');
         Route::get('activity-logs', [V1ActivityLogController::class, 'index'])->name('activity-logs.index');
