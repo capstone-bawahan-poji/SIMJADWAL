@@ -5,11 +5,13 @@ import { useAuth } from '@/composables/useAuth';
 import { useDataset } from '@/composables/useDataset';
 import { useGaConfig } from '@/composables/useGaConfig';
 import AppSidebar from '@/components/layout/AppSidebar.vue';
+import Alert from '@/components/ui/Alert.vue';
+import Button from '@/components/ui/Button.vue';
 
 const route = useRoute();
 const router = useRouter();
 const { user, logout } = useAuth();
-const { clear: clearDataset } = useDataset();
+const { clear: clearDataset, stale: datasetStale, loading: datasetLoading, load: reloadDataset } = useDataset();
 const { resetDefault } = useGaConfig();
 
 const roleLabels: Record<string, string> = {
@@ -53,6 +55,14 @@ const activeView = computed(() => String(route.name ?? ''));
 
       <!-- Page content -->
       <main class="flex-1 overflow-y-auto bg-gray-50">
+        <div v-if="datasetStale" class="px-6 pt-4">
+          <Alert variant="warning" title="Data di server berubah">
+            <div class="flex flex-wrap items-center justify-between gap-3">
+              <span>Data yang dimuat sudah tidak sama dengan server. Muat ulang sebelum menjalankan GA agar hasilnya bisa diunggah.</span>
+              <Button variant="ghost" :loading="datasetLoading" @click="reloadDataset()">Muat ulang data</Button>
+            </div>
+          </Alert>
+        </div>
         <RouterView />
       </main>
     </div>
