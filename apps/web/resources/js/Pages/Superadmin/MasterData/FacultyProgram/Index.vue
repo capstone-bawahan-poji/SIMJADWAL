@@ -33,9 +33,9 @@ const search = ref(queryParam('q'));
 const facultyFilter = ref<number | ''>('');
 const departmentFilter = ref<number | ''>('');
 
-const { items: faculties, loading: facultiesLoading, reload: reloadFaculties } = useCollection<Faculty>('faculties');
-const { items: departments, loading: departmentsLoading, reload: reloadDepartments } = useCollection<Department>('departments');
-const { items: programs, loading: programsLoading, reload: reloadPrograms } = useCollection<StudyProgram>('study-programs');
+const { items: faculties, loading: facultiesLoading, reload: reloadFaculties } = useCollection<Faculty>('faculties', undefined, ['departments', 'study_programs']);
+const { items: departments, loading: departmentsLoading, reload: reloadDepartments } = useCollection<Department>('departments', undefined, ['study_programs']);
+const { items: programs, loading: programsLoading, reload: reloadPrograms } = useCollection<StudyProgram>('study-programs', undefined, ['departments', 'lecturers']);
 
 const coordinatorCount = ref(0);
 

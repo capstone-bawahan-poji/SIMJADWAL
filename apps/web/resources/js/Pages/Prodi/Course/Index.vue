@@ -24,7 +24,7 @@ const { submission, locked } = useOwnSubmission();
 const { filters, items: courses, pagination, page, loading, error, reload } = usePaginatedList<
     Course,
     { q: string; semester: number | ''; study_program_id: number | null; is_tpb: boolean }
->('courses', { q: queryParam('q'), semester: '', study_program_id: studyProgramId.value, is_tpb: false });
+>('courses', { q: queryParam('q'), semester: '', study_program_id: studyProgramId.value, is_tpb: false }, 20, ['course_lecturers']);
 
 const semesters = [1, 2, 3, 4, 5, 6, 7, 8];
 const flash = ref<string | null>(null);

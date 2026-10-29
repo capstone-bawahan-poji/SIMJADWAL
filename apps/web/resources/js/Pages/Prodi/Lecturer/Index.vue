@@ -25,6 +25,8 @@ const { submission, locked } = useOwnSubmission();
 const { filters, items: lecturers, pagination, page, loading, error, reload } = usePaginatedList<Lecturer, { q: string; study_program_id: number | null }>(
     'lecturers',
     { q: queryParam('q'), study_program_id: studyProgramId.value },
+    20,
+    ['course_lecturers'],
 );
 
 const flash = ref<string | null>(null);
@@ -62,7 +64,6 @@ async function save(): Promise<void> {
     }
 }
 
-// Delete; refused with 409 while the lecturer has teaching assignments, preferences or schedules.
 const deleteTarget = ref<Lecturer | null>(null);
 const deleteProcessing = ref(false);
 const deleteError = ref<string | null>(null);

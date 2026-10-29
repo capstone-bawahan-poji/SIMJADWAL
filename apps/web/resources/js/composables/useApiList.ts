@@ -1,8 +1,9 @@
+import { onResourcesChanged, tableOf } from '@/composables/useResourceChanges';
 import { api, toApiError, type ApiError } from '@/lib/api';
 import type { Collection, Paginated, Pagination } from '@/types/models';
 import { onMounted, reactive, ref, shallowRef, watch, type Ref } from 'vue';
 
-export function usePaginatedList<T, F extends Record<string, unknown>>(url: string, initialFilters: F, perPage = 20) {
+export function usePaginatedList<T, F extends Record<string, unknown>>(url: string, initialFilters: F, perPage = 20, live: string[] = []) {
     const filters = reactive({ ...initialFilters }) as F;
     const items = shallowRef<T[]>([]);
     const pagination = ref<Pagination>({ page: 1, per_page: perPage, total: 0, last_page: 1 });
@@ -58,10 +59,19 @@ export function usePaginatedList<T, F extends Record<string, unknown>>(url: stri
     watch(page, () => void load());
     onMounted(load);
 
+    onResourcesChanged([tableOf(url), ...live], async () => {
+        await load();
+
+        if (items.value.length === 0 && page.value > pagination.value.last_page) {
+            page.value = pagination.value.last_page;
+        }
+    });
+
     return { filters, items, pagination, page, loading, error, reload: load };
 }
 
-export function useCollection<T>(url: string, params?: Ref<Record<string, unknown>>) {
+/** live: as in usePaginatedList. */
+export function useCollection<T>(url: string, params?: Ref<Record<string, unknown>>, live: string[] = []) {
     const items = shallowRef<T[]>([]);
     const loading = ref(false);
     const error = ref<ApiError | null>(null);
@@ -85,6 +95,7 @@ export function useCollection<T>(url: string, params?: Ref<Record<string, unknow
     }
 
     onMounted(load);
+    onResourcesChanged([tableOf(url), ...live], () => void load());
 
     return { items, loading, error, reload: load };
 }

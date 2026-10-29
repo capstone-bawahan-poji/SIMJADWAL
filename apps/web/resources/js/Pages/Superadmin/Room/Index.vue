@@ -28,7 +28,7 @@ const { filters, items: rooms, pagination, page, loading, error: listError, relo
     faculty_id: number | '';
     shared: boolean | '';
     in_use: boolean | '';
-}>('rooms', { q: queryParam('q'), faculty_id: '', shared: '', in_use: '' });
+}>('rooms', { q: queryParam('q'), faculty_id: '', shared: '', in_use: '' }, 20, ['scheduling_runs']);
 
 watch(owner, (value) => {
     filters.faculty_id = typeof value === 'number' ? value : '';

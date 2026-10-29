@@ -42,7 +42,7 @@ const { filters, items: users, pagination, page, loading, error: listError, relo
     faculty_id: number | '';
     study_program_id: number | '';
     is_active: boolean | '';
-}>('users', { q: queryParam('q'), role: '', faculty_id: '', study_program_id: '', is_active: '' });
+}>('users', { q: queryParam('q'), role: '', faculty_id: '', study_program_id: '', is_active: '' }, 20, ['lecturers']);
 
 const filterPrograms = computed(() =>
     filters.faculty_id === '' ? programs.value : programs.value.filter((p) => p.faculty_id === filters.faculty_id),

@@ -1,3 +1,4 @@
+import { onResourcesChanged } from '@/composables/useResourceChanges';
 import { api, toApiError, type ApiError } from '@/lib/api';
 import type { ConstraintSubmission, Paginated } from '@/types/models';
 import { computed, onMounted, ref } from 'vue';
@@ -23,6 +24,7 @@ export function useOwnSubmission() {
     const locked = computed(() => submission.value?.is_locked ?? false);
 
     onMounted(reload);
+    onResourcesChanged(['study_programs'], () => void reload());
 
     return { submission, locked, error, reload };
 }

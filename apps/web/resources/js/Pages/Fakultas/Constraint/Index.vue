@@ -18,7 +18,7 @@ import { computed, ref } from 'vue';
 const { filters, items: submissions, pagination, page, loading, error, reload } = usePaginatedList<
     ConstraintSubmission,
     { q: string; status: ConstraintStatus | '' }
->('constraint-submissions', { q: queryParam('q'), status: '' });
+>('constraint-submissions', { q: queryParam('q'), status: '' }, 20, ['courses', 'course_lecturers', 'lecturers', 'lecturer_preferences']);
 
 const STATUS_LABEL: Record<ConstraintStatus, string> = { draft: 'Draft', submitted: 'Menunggu Review', accepted: 'Diterima' };
 const STATUS_TONE: Record<ConstraintStatus, string> = {
