@@ -4,6 +4,7 @@ namespace App\Models\MasterData;
 
 use App\Enums\Account\Role;
 use App\Enums\Constraint\ConstraintStatus;
+use App\Extensions\Models\Traits\BroadcastsChanges;
 use App\Models\User;
 use App\Policies\MasterData\StudyProgramPolicy;
 use Database\Factories\MasterData\StudyProgramFactory;
@@ -22,7 +23,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class StudyProgram extends Model
 {
     /** @use HasFactory<StudyProgramFactory> */
-    use HasFactory, SoftDeletes;
+    use BroadcastsChanges, HasFactory, SoftDeletes;
 
     protected $attributes = [
         'constraint_status' => 'draft',

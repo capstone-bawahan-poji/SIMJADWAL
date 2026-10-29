@@ -2,6 +2,7 @@
 
 namespace App\Models\MasterData;
 
+use App\Extensions\Models\Traits\BroadcastsChanges;
 use App\Models\Scheduling\SchedulingRun;
 use App\Models\User;
 use App\Policies\MasterData\FacultyPolicy;
@@ -18,7 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Faculty extends Model
 {
     /** @use HasFactory<FacultyFactory> */
-    use HasFactory, SoftDeletes;
+    use BroadcastsChanges, HasFactory, SoftDeletes;
 
     /** @return HasMany<Department, $this> */
     public function departments(): HasMany

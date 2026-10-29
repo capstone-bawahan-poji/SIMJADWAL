@@ -3,6 +3,7 @@
 namespace App\Models\Scheduling;
 
 use App\Enums\Scheduling\RunStatus;
+use App\Extensions\Models\Traits\BroadcastsChanges;
 use App\Models\MasterData\Faculty;
 use App\Models\User;
 use App\Policies\Scheduling\SchedulingRunPolicy;
@@ -41,6 +42,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[UsePolicy(SchedulingRunPolicy::class)]
 class SchedulingRun extends Model
 {
+    use BroadcastsChanges;
+
     protected $attributes = [
         'status' => 'queued',
         'current_generation' => 0,

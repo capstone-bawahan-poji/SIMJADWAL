@@ -2,6 +2,7 @@
 
 namespace App\Models\MasterData;
 
+use App\Extensions\Models\Traits\BroadcastsChanges;
 use App\Policies\MasterData\TpbGroupPolicy;
 use Database\Factories\MasterData\TpbGroupFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -12,17 +13,12 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
-/**
- * One group of a TPB course, e.g. Kalkulus A-E for IF, SI, MA, PK and MS.
- * Every class of the group runs in time_slot_id, so the slot is blocked for all
- * participating programs in the course's semester (see TpbBlockService).
- */
 #[Fillable(['course_id', 'code', 'time_slot_id'])]
 #[UsePolicy(TpbGroupPolicy::class)]
 class TpbGroup extends Model
 {
     /** @use HasFactory<TpbGroupFactory> */
-    use HasFactory;
+    use BroadcastsChanges, HasFactory;
 
     /** @return BelongsTo<Course, $this> */
     public function course(): BelongsTo

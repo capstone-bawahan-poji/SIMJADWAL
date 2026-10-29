@@ -3,6 +3,7 @@
 namespace App\Models\Scheduling;
 
 use App\Enums\Scheduling\SelectionOperator;
+use App\Extensions\Models\Traits\BroadcastsChanges;
 use App\Models\MasterData\Faculty;
 use App\Models\User;
 use App\Policies\Scheduling\GaParameterPresetPolicy;
@@ -33,6 +34,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[UsePolicy(GaParameterPresetPolicy::class)]
 class GaParameterPreset extends Model
 {
+    use BroadcastsChanges;
+
     protected $attributes = [
         'sc_overrides' => '{}',
     ];

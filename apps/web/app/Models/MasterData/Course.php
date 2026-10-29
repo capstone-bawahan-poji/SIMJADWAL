@@ -2,6 +2,7 @@
 
 namespace App\Models\MasterData;
 
+use App\Extensions\Models\Traits\BroadcastsChanges;
 use App\Models\Scheduling\ScheduleDetail;
 use App\Policies\MasterData\CoursePolicy;
 use Database\Factories\MasterData\CourseFactory;
@@ -23,7 +24,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Course extends Model
 {
     /** @use HasFactory<CourseFactory> */
-    use HasFactory, SoftDeletes;
+    use BroadcastsChanges, HasFactory, SoftDeletes;
 
     protected function casts(): array
     {

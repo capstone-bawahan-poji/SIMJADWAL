@@ -2,6 +2,7 @@
 
 namespace App\Models\MasterData;
 
+use App\Extensions\Models\Traits\BroadcastsChanges;
 use App\Policies\MasterData\DepartmentPolicy;
 use Database\Factories\MasterData\DepartmentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -20,7 +21,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Department extends Model
 {
     /** @use HasFactory<DepartmentFactory> */
-    use HasFactory, SoftDeletes;
+    use BroadcastsChanges, HasFactory, SoftDeletes;
 
     /** @return BelongsTo<Faculty, $this> */
     public function faculty(): BelongsTo

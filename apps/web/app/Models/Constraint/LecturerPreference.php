@@ -2,6 +2,7 @@
 
 namespace App\Models\Constraint;
 
+use App\Extensions\Models\Traits\BroadcastsChanges;
 use App\Models\MasterData\Lecturer;
 use App\Models\MasterData\TimeSlot;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -14,6 +15,8 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable(['lecturer_id', 'constraint_type_id', 'time_slot_id'])]
 class LecturerPreference extends Model
 {
+    use BroadcastsChanges;
+
     /** @return BelongsTo<Lecturer, $this> */
     public function lecturer(): BelongsTo
     {

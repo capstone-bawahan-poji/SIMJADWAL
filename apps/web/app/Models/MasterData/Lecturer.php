@@ -2,6 +2,7 @@
 
 namespace App\Models\MasterData;
 
+use App\Extensions\Models\Traits\BroadcastsChanges;
 use App\Models\Constraint\LecturerPreference;
 use App\Models\Scheduling\ScheduleDetail;
 use App\Models\User;
@@ -20,7 +21,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Lecturer extends Model
 {
     /** @use HasFactory<LecturerFactory> */
-    use HasFactory, SoftDeletes;
+    use BroadcastsChanges, HasFactory, SoftDeletes;
 
     /** @return BelongsTo<User, $this> */
     public function user(): BelongsTo

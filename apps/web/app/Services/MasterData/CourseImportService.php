@@ -12,6 +12,7 @@ use App\Services\MasterData\CourseImport\CourseSheetReader;
 use App\Services\MasterData\CourseImport\ImportIssues;
 use App\Services\MasterData\CourseImport\LecturerMatcher;
 use App\Services\MasterData\CourseImport\LecturerNameNormalizer;
+use App\Services\Shared\ChangeRecorder;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
@@ -27,6 +28,7 @@ readonly class CourseImportService
     public function __construct(
         private CourseSheetReader $reader,
         private DatabaseManager $db,
+        private ChangeRecorder $changes,
     ) {}
 
     /**
@@ -185,7 +187,6 @@ readonly class CourseImportService
     }
 
     /**
-     *
      * @param  Collection<int, array{row: int, values: array<string, int|string|null>, invalid: list<string>}>  $parsed
      * @param  array<string, int>  $resolutions
      * @return array{0: list<array<string, mixed>>, 1: array<string, Lecturer>}
@@ -345,7 +346,6 @@ readonly class CourseImportService
     }
 
     /**
-     *
      * @param  Collection<int, array{row: int, values: array<string, int|string|null>, invalid: list<string>}>  $group
      */
     private function checkSameCourseFields(Collection $group, ImportIssues $issues): void
@@ -435,7 +435,9 @@ readonly class CourseImportService
         $course = $operation['course'] ?? new Course(['study_program_id' => $studyProgram->id, 'is_tpb' => false]);
         $course->fill($operation['attributes'])->save();
 
+        // Query deletes fire no model events.
         $course->courseLecturers()->where('class_number', '>', $operation['attributes']['parallel_class_count'])->delete();
+        $this->changes->record($course->courseLecturers()->getRelated()->getTable());
 
         foreach ($operation['lecturers'] as $number => $lecturerId) {
             if ($lecturerId === null) {
@@ -462,7 +464,6 @@ readonly class CourseImportService
     }
 
     /**
-     *
      * @return list<array<string, mixed>>
      */
     private function lecturerOptions(): array

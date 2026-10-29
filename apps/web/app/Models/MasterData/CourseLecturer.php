@@ -2,6 +2,7 @@
 
 namespace App\Models\MasterData;
 
+use App\Extensions\Models\Traits\BroadcastsChanges;
 use App\Policies\MasterData\CourseLecturerPolicy;
 use Database\Factories\MasterData\CourseLecturerFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -20,7 +21,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class CourseLecturer extends Model
 {
     /** @use HasFactory<CourseLecturerFactory> */
-    use HasFactory;
+    use BroadcastsChanges, HasFactory;
 
     protected function casts(): array
     {
