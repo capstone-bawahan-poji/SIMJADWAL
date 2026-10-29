@@ -194,5 +194,8 @@
     "Enrichment class X is saved as class A.": "Kelas pengayaan X disimpan sebagai kelas A.",
     "Class :class appears more than once.": "Kelas :class muncul lebih dari sekali.",
     "Classes must run from A without gaps (A, B, C, ...).": "Kelas harus berurutan dari A tanpa lompat (A, B, C, ...).",
-    "Classes :classes are still used by an active schedule.": "Kelas :classes masih dipakai jadwal aktif."
+    "Classes :classes are still used by an active schedule.": "Kelas :classes masih dipakai jadwal aktif.",
+    "Server error.": "Terjadi kesalahan pada server.",
+    "Method not allowed.": "Metode permintaan tidak didukung.",
+    "Request failed.": "Permintaan gagal."
 }
