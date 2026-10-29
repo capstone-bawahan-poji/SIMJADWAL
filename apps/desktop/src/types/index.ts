@@ -5,10 +5,7 @@ export interface AuthUser {
   name: string;
   email: string;
   role: Role | null;
-  faculty: { id: number; name: string } | null;
-}
-
-export interface AuthToken {
-  token: string;
-  user: AuthUser;
+  faculty_id: number | null;
+  faculty: { id: number; code: string; name: string } | null;
+  is_active: boolean;
 }

@@ -1,14 +1,10 @@
-import { api } from '@/lib/http';
+import { call } from '@/lib/api/client';
 import type { FacultyOption, SchedulingDataset } from '@/types/scheduling';
 
 export function fetchDataset(params: { period?: string; facultyId?: number | null }) {
-  const query = new URLSearchParams();
-  if (params.period) query.set('period', params.period);
-  if (params.facultyId) query.set('faculty_id', String(params.facultyId));
-  const qs = query.toString();
-  return api<SchedulingDataset>(`/scheduling/dataset${qs ? `?${qs}` : ''}`);
+  return call<SchedulingDataset>('api_dataset', { period: params.period ?? null, facultyId: params.facultyId ?? null });
 }
 
 export function fetchFaculties() {
-  return api<FacultyOption[]>('/faculties?per_page=100');
+  return call<FacultyOption[]>('api_faculties');
 }

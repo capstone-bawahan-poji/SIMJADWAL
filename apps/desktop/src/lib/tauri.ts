@@ -22,8 +22,6 @@ export const gaCancel = (batchId: string) => invoke<boolean>('ga_cancel', { batc
 export const gaRunningBatches = () => invoke<string[]>('ga_running_batches');
 export const gaListResults = () => invoke<RunListItem[]>('ga_list_results');
 export const gaGetResult = (runId: string) => invoke<RunRecord>('ga_get_result', { runId });
-export const gaMarkUploaded = (runId: string, serverRunId: number) => invoke<RunListItem>('ga_mark_uploaded', { runId, serverRunId });
-export const gaMarkUploadFailed = (runId: string, message: string) => invoke<RunListItem>('ga_mark_upload_failed', { runId, message });
 export const gaDeleteResult = (runId: string) => invoke<void>('ga_delete_result', { runId });
 
 export const onGaProgress = (fn: (e: ProgressEvent) => void): Promise<UnlistenFn> =>

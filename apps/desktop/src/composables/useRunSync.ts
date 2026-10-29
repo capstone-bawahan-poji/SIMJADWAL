@@ -1,7 +1,6 @@
 import { computed, ref } from 'vue';
-import { ApiError } from '@/lib/http';
-import { uploadRun } from '@/lib/api/schedulingRuns';
-import { gaDeleteResult, gaGetResult, gaListResults, gaMarkUploadFailed, gaMarkUploaded } from '@/lib/tauri';
+import { uploadResult } from '@/lib/api/schedulingRuns';
+import { gaDeleteResult, gaListResults } from '@/lib/tauri';
 import type { RunListItem } from '@/types/run';
 
 const items = ref<RunListItem[]>([]);
@@ -30,14 +29,9 @@ export function useRunSync() {
     for (const runId of runIds) {
       uploading.value = new Set([...uploading.value, runId]);
       try {
-        const record = await gaGetResult(runId);
-        const server = await uploadRun(record.result);
-        replace(await gaMarkUploaded(runId, server.id));
+        replace(await uploadResult(runId));
       } catch (e) {
-        const message = e instanceof ApiError && e.code === 'DATASET_CHANGED'
-          ? 'Data di server sudah berubah. Muat ulang data lalu jalankan ulang.'
-          : (e as Error).message ?? String(e);
-        try { replace(await gaMarkUploadFailed(runId, message)); } catch { error.value = message; }
+        error.value = (e as Error).message ?? String(e);
       } finally {
         const next = new Set(uploading.value);
         next.delete(runId);

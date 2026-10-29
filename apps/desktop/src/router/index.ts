@@ -1,5 +1,6 @@
 import { createRouter, createWebHashHistory, type RouteRecordRaw } from 'vue-router';
 import { useAuth } from '@/composables/useAuth';
+import { onUnauthenticated } from '@/lib/api/client';
 import AppLayout from '@/components/layout/AppLayout.vue';
 import LoginView from '@/views/LoginView.vue';
 import ConfigView from '@/views/ConfigView.vue';
@@ -40,6 +41,11 @@ router.beforeEach(async (to) => {
   await restore();
   if (!to.meta.guest && !isLoggedIn.value) return { name: 'login' };
   if (to.meta.guest && isLoggedIn.value) return { name: 'config' };
+});
+
+onUnauthenticated(() => {
+  useAuth().forget();
+  if (!router.currentRoute.value.meta.guest) void router.push({ name: 'login' });
 });
 
 export default router;
