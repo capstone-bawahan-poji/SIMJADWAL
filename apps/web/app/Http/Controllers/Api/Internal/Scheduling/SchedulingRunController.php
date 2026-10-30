@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\ApiController;
 use App\Http\Queries\Query;
 use App\Http\Requests\Scheduling\ListSchedulingRunRequest;
 use App\Models\Scheduling\SchedulingRun;
+use App\Services\Scheduling\SchedulingRunActivationService;
 use App\Services\Scheduling\SchedulingRunQueryService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -20,12 +21,15 @@ class SchedulingRunController extends ApiController implements HasMiddleware
         return [
             new Middleware('can:viewAny,'.SchedulingRun::class, only: ['index']),
             new Middleware('can:view,schedulingRun', only: ['show', 'scheduleDetails', 'violations']),
+            new Middleware('can:activate,schedulingRun', only: ['activate']),
+            new Middleware('can:publish,schedulingRun', only: ['publish']),
         ];
     }
 
     public function __construct(
         protected readonly Request $request,
         protected readonly SchedulingRunQueryService $queryService,
+        protected readonly SchedulingRunActivationService $activationService,
     ) {}
 
     public function index(ListSchedulingRunRequest $request): JsonResponse
@@ -37,6 +41,7 @@ class SchedulingRunController extends ApiController implements HasMiddleware
             facultyId: isset($v['faculty_id']) ? (int) $v['faculty_id'] : null,
             period: $v['period'] ?? null,
             batchId: $v['batch_id'] ?? null,
+            isActive: isset($v['is_active']) ? $request->boolean('is_active') : null,
             perPage: (int) ($v['per_page'] ?? Query::DEFAULT_PER_PAGE),
         ));
     }
@@ -68,5 +73,19 @@ class SchedulingRunController extends ApiController implements HasMiddleware
             $schedulingRun,
             isset($v['category']) ? ConstraintCategory::from($v['category']) : null,
         ));
+    }
+
+    public function activate(SchedulingRun $schedulingRun): JsonResponse
+    {
+        $run = $this->activationService->activate($this->request->user(), $schedulingRun);
+
+        return $this->response($this->queryService->getRun($run));
+    }
+
+    public function publish(SchedulingRun $schedulingRun): JsonResponse
+    {
+        $run = $this->activationService->publish($this->request->user(), $schedulingRun);
+
+        return $this->response($this->queryService->getRun($run));
     }
 }

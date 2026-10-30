@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -35,6 +36,8 @@ return new class extends Migration
 
             $table->index(['faculty_id', 'period']);
         });
+
+        DB::statement('CREATE UNIQUE INDEX scheduling_runs_active_unique ON scheduling_runs (faculty_id, period) WHERE is_active');
     }
 
     public function down(): void
