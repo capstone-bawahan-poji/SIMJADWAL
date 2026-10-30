@@ -340,10 +340,17 @@ Hanya di `/api/internal` (belum ada di v1): `PATCH constraint-types/{id}`, `GET/
 | GET | `/ga-presets/{gaPreset}` | — | `GaPresetData` | D |
 | PUT/PATCH | `/ga-presets/{gaPreset}` | `UpdateGaPresetRequest` | `GaPresetData` | D |
 | DELETE | `/ga-presets/{gaPreset}` | — | 204, atau 409 `RESOURCE_IN_USE` | D |
-| GET | `/scheduling-runs` | `ListSchedulingRunRequest` | Daftar run | — |
+| GET | `/scheduling-runs` | `ListSchedulingRunRequest` (+ `is_active`) | Daftar run | — |
 | POST | `/scheduling-runs` | `StoreSchedulingRunRequest` (termasuk `client_run_id`, `dataset_fingerprint`) | 201 / 200 run, atau 409 `DATASET_CHANGED` | D (hanya v1) |
 | GET | `/scheduling-runs/{schedulingRun}` | — | Run | — |
 | GET | `/scheduling-runs/{schedulingRun}/schedule-details` | — | Detail jadwal | — |
 | GET | `/scheduling-runs/{schedulingRun}/violations` | — | Pelanggaran | — |
+| POST | `/scheduling-runs/{schedulingRun}/activate` | — | Run, atau 409 `INVALID_STATE` (belum `done` / bentrok fakultas lain) | — |
+| POST | `/scheduling-runs/{schedulingRun}/publish` | — | Run, atau 409 `INVALID_STATE` (run tidak aktif) | — |
+| GET | `/schedules` | `ListScheduleRequest` (`period`, `faculty_id`, `study_program_id`, `semester`, `class_number`, `course_id`, `lecturer_id`, `room_id`, `day`, `unassigned`, `over_capacity`) | `{period, runs, schedule_details}` dari run aktif yang terlihat | — |
+| GET | `/schedule-details/{scheduleDetail}/options` | — | Semua slot (`available`, `reasons`) + ruang bebas per slot, untuk form override | — |
+| PATCH | `/schedule-details/{scheduleDetail}` | `time_slot_id`, `room_id` (keduanya wajib, `room_id` boleh null) | Detail jadwal, 422 bila melanggar HC, 409 bila run tidak aktif | — |
+
+Aktif dan publish adalah dua langkah. Run aktif yang belum dipublikasikan hanya terlihat oleh `superadmin` dan `admin_fakultas` fakultasnya. Override hanya untuk run aktif.
 
 Endpoint bertanda "—" sudah tersedia tetapi belum dipakai klien mana pun. Halaman web untuk hasil run masih memakai data contoh.
