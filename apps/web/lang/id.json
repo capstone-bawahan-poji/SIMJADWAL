@@ -197,5 +197,21 @@
     "Classes :classes are still used by an active schedule.": "Kelas :classes masih dipakai jadwal aktif.",
     "Server error.": "Terjadi kesalahan pada server.",
     "Method not allowed.": "Metode permintaan tidak didukung.",
-    "Request failed.": "Permintaan gagal."
+    "Request failed.": "Permintaan gagal.",
+    "Activate Scheduling Run": "Tetapkan Jadwal Aktif",
+    "Publish Schedule": "Publikasikan Jadwal",
+    "View Schedule": "Lihat Jadwal",
+    "Override Schedule": "Ubah Jadwal Manual",
+    "Only a finished run can be activated.": "Hanya run yang sudah selesai yang dapat ditetapkan sebagai jadwal aktif.",
+    "Activated scheduling run :id": "Menetapkan run :id sebagai jadwal aktif",
+    "Only the active schedule can be published.": "Hanya jadwal aktif yang dapat dipublikasikan.",
+    "Published scheduling run :id": "Memublikasikan jadwal dari run :id",
+    "This run clashes with the active schedule of another faculty (:rooms room and :lecturers lecturer clashes). Reload the data and run again.": "Run ini bentrok dengan jadwal aktif fakultas lain (:rooms bentrok ruangan dan :lecturers bentrok dosen). Muat ulang data lalu jalankan ulang.",
+    "Only the active schedule can be overridden.": "Hanya jadwal aktif yang dapat diubah manual.",
+    "Overrode schedule entry :id of run :run": "Mengubah manual entri jadwal :id pada run :run",
+    "The room is used by a TPB class in this slot.": "Ruangan dipakai kelas TPB pada slot ini.",
+    "The lecturer teaches a TPB class in this slot.": "Dosen mengajar kelas TPB pada slot ini.",
+    "The class already has :course :class in this slot.": "Kelas ini sudah memiliki :course kelas :class pada slot ini.",
+    "The study program already has :limit classes in this slot.": "Prodi sudah memiliki :limit kelas pada slot ini.",
+    "The slot is reserved for a TPB class of this semester.": "Slot ini dipakai kelas TPB untuk semester ini."
 }
