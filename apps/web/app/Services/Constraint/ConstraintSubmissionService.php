@@ -182,7 +182,7 @@ readonly class ConstraintSubmissionService
         $this->orgScope->applyStudyProgramScope($query, $actor, 'id');
     }
 
-    private function summary(StudyProgram $studyProgram): ConstraintSubmissionData
+    public function summary(StudyProgram $studyProgram): ConstraintSubmissionData
     {
         return ConstraintSubmissionData::from($this->query()->findOrFail($studyProgram->id));
     }
