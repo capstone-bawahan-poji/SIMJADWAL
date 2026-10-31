@@ -4,6 +4,7 @@ namespace Database\Seeders\Reference;
 
 use App\Enums\Account\Role as RoleEnum;
 use App\Permissions\Constraint\ConstraintPermissions;
+use App\Permissions\MasterData\AcademicPeriodPermissions;
 use App\Permissions\MasterData\CourseLecturerPermissions;
 use App\Permissions\MasterData\CoursePermissions;
 use App\Permissions\MasterData\DepartmentPermissions;
@@ -36,6 +37,7 @@ class RoleSeeder extends Seeder
             DepartmentPermissions::VIEW,
             StudyProgramPermissions::VIEW,
             TimeSlotPermissions::VIEW,
+            AcademicPeriodPermissions::VIEW,
         ];
 
         $matrix = [

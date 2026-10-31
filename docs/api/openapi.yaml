@@ -514,6 +514,62 @@ paths:
         '204': { description: Deleted }
         '409': { $ref: '#/components/responses/ResourceInUse' }
 
+  /academic-periods:
+    get:
+      tags: [Master Data]
+      summary: List academic periods (newest first)
+      description: Every role may read. Only `superadmin` writes.
+      responses:
+        '200':
+          description: Collection
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { type: array, items: { $ref: '#/components/schemas/AcademicPeriod' } }
+    post:
+      tags: [Master Data]
+      summary: Create an academic period
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AcademicPeriodInput' }
+      responses:
+        '201': { $ref: '#/components/responses/AcademicPeriodItem' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /academic-periods/{academicPeriod}:
+    parameters:
+      - { name: academicPeriod, in: path, required: true, schema: { type: integer } }
+    get:
+      tags: [Master Data]
+      summary: Show an academic period
+      responses:
+        '200': { $ref: '#/components/responses/AcademicPeriodItem' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Master Data]
+      summary: Update an academic period (PATCH accepted, fields optional)
+      description: Dates may always change. `code` may not change while scheduling runs use it (409 `RESOURCE_IN_USE`).
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AcademicPeriodInput' }
+      responses:
+        '200': { $ref: '#/components/responses/AcademicPeriodItem' }
+        '409': { $ref: '#/components/responses/ResourceInUse' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+    delete:
+      tags: [Master Data]
+      summary: Delete an academic period
+      description: 409 `RESOURCE_IN_USE` while scheduling runs use the code.
+      responses:
+        '204': { description: Deleted }
+        '409': { $ref: '#/components/responses/ResourceInUse' }
+
   # ---------------------------------------------------------------- Rooms
   /rooms:
     get:
@@ -1211,6 +1267,7 @@ paths:
         - { name: day, in: query, schema: { $ref: '#/components/schemas/Day' } }
         - { name: unassigned, in: query, description: '1 = only entries without a room', schema: { type: boolean } }
         - { name: over_capacity, in: query, description: '1 = only entries whose room is smaller than course.class_capacity', schema: { type: boolean } }
+        - $ref: '#/components/parameters/ClassesFilter'
       responses:
         '200':
           description: Schedule of the period
@@ -1222,6 +1279,54 @@ paths:
                   data: { $ref: '#/components/schemas/Schedule' }
         '403': { $ref: '#/components/responses/Forbidden' }
         '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /schedules/export:
+    get:
+      tags: [Scheduling]
+      summary: Download the schedule as Excel, PDF or iCalendar
+      description: |
+        Same roles, visibility and filters as `GET /schedules`, plus `format` and `classes[]`.
+        The file holds exactly what `GET /schedules` returns for the same query. Synchronous download.
+
+        - `xlsx`: sheet "Matriks" (session x weekday) and sheet "Daftar" (one row per meeting, autofilter).
+        - `pdf`: A4 landscape, matrix then list. Printed by Gotenberg; 503 `PDF_UNAVAILABLE` when it is down.
+        - `ics`: one weekly event per meeting between the period's `start_date` and `end_date`
+          (`/academic-periods`), time zone Asia/Makassar. UIDs are stable, so re-importing updates events.
+
+        Unpublished schedules (visible only to their admins) are marked "DRAF".
+        The file name follows the filters, e.g. `jadwal-if-smt3-a-2026-2027-ganjil.pdf`, `jadwal-dosen-budi-santoso-2026-2027-ganjil.ics`.
+
+        Typical queries: program admin `study_program_id`; lecturer `lecturer_id` (own); student
+        `classes[]` (picked classes) or `study_program_id` + `semester` + `class_number`.
+
+        409 `INVALID_STATE` when nothing matches, or for `ics` when the period has no dates.
+      parameters:
+        - { name: format, in: query, required: true, schema: { type: string, enum: [xlsx, pdf, ics] } }
+        - $ref: '#/components/parameters/ClassesFilter'
+        - $ref: '#/components/parameters/Period'
+        - $ref: '#/components/parameters/FacultyIdFilter'
+        - $ref: '#/components/parameters/StudyProgramIdFilter'
+        - { name: semester, in: query, schema: { type: integer, minimum: 1, maximum: 14 } }
+        - { name: class_number, in: query, schema: { type: integer, minimum: 1 } }
+        - { name: course_id, in: query, schema: { type: integer } }
+        - { name: lecturer_id, in: query, schema: { type: integer } }
+        - { name: room_id, in: query, schema: { type: integer } }
+        - { name: day, in: query, schema: { $ref: '#/components/schemas/Day' } }
+        - { name: unassigned, in: query, schema: { type: boolean } }
+        - { name: over_capacity, in: query, schema: { type: boolean } }
+      responses:
+        '200':
+          description: 'File (Content-Disposition: attachment)'
+          content:
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet: { schema: { type: string, format: binary } }
+            application/pdf: { schema: { type: string, format: binary } }
+            text/calendar: { schema: { type: string } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+        '503':
+          description: '`PDF_UNAVAILABLE`: the PDF service is down'
+          content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
 
   /schedule-details/{scheduleDetail}/options:
     get:
@@ -1308,6 +1413,13 @@ components:
     StudyProgramIdFilter: { name: study_program_id, in: query, schema: { type: integer } }
     StudyProgramPath: { name: studyProgram, in: path, required: true, schema: { type: integer } }
     SchedulingRunPath: { name: schedulingRun, in: path, required: true, schema: { type: integer } }
+    ClassesFilter:
+      name: classes[]
+      in: query
+      description: 'Picked classes (students have no KRS). `12` = every class of course 12, `12:1` = class A of course 12. Combines with the other filters. Max 100.'
+      style: form
+      explode: true
+      schema: { type: array, items: { type: string, pattern: '^\d+(:\d+)?$' }, maxItems: 100 }
     Period:
       name: period
       in: query
@@ -1356,6 +1468,9 @@ components:
     TimeSlotItem:
       description: Time slot
       content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/TimeSlot' } } } } }
+    AcademicPeriodItem:
+      description: Academic period
+      content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/AcademicPeriod' } } } } }
     RoomItem:
       description: Room
       content: { application/json: { schema: { type: object, properties: { data: { $ref: '#/components/schemas/Room' } } } } }
@@ -1388,7 +1503,7 @@ components:
         code:
           type: string
           description: Stable code. Clients must handle unknown codes generically.
-          examples: [UNAUTHENTICATED, INVALID_CREDENTIALS, FORBIDDEN, NOT_FOUND, METHOD_NOT_ALLOWED, RESOURCE_IN_USE, INVALID_STATE, CONSTRAINTS_LOCKED, DATASET_CHANGED, IMPORT_PLAN_CHANGED, VALIDATION_FAILED, TOO_MANY_REQUESTS, HTTP_ERROR, SERVER_ERROR]
+          examples: [UNAUTHENTICATED, INVALID_CREDENTIALS, FORBIDDEN, NOT_FOUND, METHOD_NOT_ALLOWED, RESOURCE_IN_USE, INVALID_STATE, CONSTRAINTS_LOCKED, DATASET_CHANGED, IMPORT_PLAN_CHANGED, VALIDATION_FAILED, TOO_MANY_REQUESTS, PDF_UNAVAILABLE, HTTP_ERROR, SERVER_ERROR]
         errors:
           type: object
           additionalProperties: true
@@ -1642,6 +1757,26 @@ components:
         start_time: { type: string, pattern: '^\d{2}:\d{2}$' }
         end_time: { type: string, pattern: '^\d{2}:\d{2}$', description: After start_time }
         type: { type: integer, enum: [2, 3] }
+
+    AcademicPeriod:
+      type: object
+      properties:
+        id: { type: integer }
+        code: { $ref: '#/components/schemas/Period' }
+        label: { type: string, example: Ganjil 2026/2027 }
+        start_date: { type: string, format: date, description: First lecture day }
+        end_date: { type: string, format: date, description: Last lecture day }
+        is_current: { type: boolean, description: The period the apps load by default (SCHEDULING_PERIOD) }
+        can_update: { type: boolean }
+        can_delete: { type: boolean }
+
+    AcademicPeriodInput:
+      type: object
+      required: [code, start_date, end_date]
+      properties:
+        code: { $ref: '#/components/schemas/Period' }
+        start_date: { type: string, format: date }
+        end_date: { type: string, format: date, description: After start_date }
 
     RoomSummary:
       type: object

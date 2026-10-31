@@ -3,18 +3,21 @@
 namespace App\Http\Controllers\Api\Internal\Scheduling;
 
 use App\Http\Controllers\Api\ApiController;
+use App\Http\Requests\Scheduling\ExportScheduleRequest;
 use App\Http\Requests\Scheduling\ListScheduleRequest;
 use App\Http\Requests\Scheduling\OverrideScheduleDetailRequest;
 use App\Models\Scheduling\ScheduleDetail;
+use App\Services\Scheduling\Export\ScheduleExportService;
 use App\Services\Scheduling\ScheduleDetailTransformer;
 use App\Services\Scheduling\ScheduleOverrideService;
 use App\Services\Scheduling\ScheduleQueryService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Response;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 
 /**
- * The official (active) schedule of a period, for every role, and manual overrides on it.
+ * The official (active) schedule of a period, for every role: view, export, and manual overrides.
  */
 class ScheduleController extends ApiController implements HasMiddleware
 {
@@ -28,11 +31,17 @@ class ScheduleController extends ApiController implements HasMiddleware
     public function __construct(
         protected readonly ScheduleQueryService $queryService,
         protected readonly ScheduleOverrideService $overrideService,
+        protected readonly ScheduleExportService $exportService,
     ) {}
 
     public function index(ListScheduleRequest $request): JsonResponse
     {
         return $this->response($this->queryService->getSchedule($request->user(), $request->period(), $request->filters()));
+    }
+
+    public function export(ExportScheduleRequest $request): Response
+    {
+        return $this->exportService->export($request->user(), $request->period(), $request->filters(), $request->validated('format'));
     }
 
     public function options(ScheduleDetail $scheduleDetail): JsonResponse

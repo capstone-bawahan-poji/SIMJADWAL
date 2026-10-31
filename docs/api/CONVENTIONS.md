@@ -198,6 +198,7 @@ Semua error di `api/*` memakai satu bentuk:
 | 409 | `IMPORT_PLAN_CHANGED` | Data berubah antara preview dan commit import. |
 | 419 | `SESSION_EXPIRED` | Session web habis (hanya `/api/internal`). |
 | 422 | `VALIDATION_FAILED` | Validasi gagal. `errors` berisi pesan per field. |
+| 503 | `PDF_UNAVAILABLE` | Layanan PDF (Gotenberg) mati atau gagal saat export PDF. |
 | 429 | `TOO_MANY_REQUESTS` | Rate limit. Header `Retry-After` tersedia. |
 | 4xx/5xx lain | `HTTP_ERROR` | Error HTTP tanpa kode khusus. |
 | 500 | `SERVER_ERROR` | Error tak terduga. Pesan asli hanya tampil saat `APP_DEBUG=true`; selalu tercatat di log. |
@@ -307,6 +308,8 @@ Semua endpoint selain `auth/login`, `auth/forgot-password`, dan `auth/reset-pass
 | GET | `/study-programs/{studyProgram}/tpb-blocked-slots` | — | Koleksi slot terblokir | W |
 | GET | `/time-slots` | — | Koleksi `TimeSlotData` | W |
 | POST / PUT / DELETE | `/time-slots[/{timeSlot}]` | `Store/UpdateTimeSlotRequest` | `TimeSlotData` / 204 | W |
+| GET | `/academic-periods` | — | Koleksi `AcademicPeriodData` (terbaru dulu) | — |
+| POST / PUT / DELETE | `/academic-periods[/{academicPeriod}]` | `Store/UpdateAcademicPeriodRequest` (`code`, `start_date`, `end_date`) | `AcademicPeriodData` / 204, 409 `RESOURCE_IN_USE` bila kode dipakai run | — |
 | GET | `/rooms` | `ListRoomRequest` | Daftar `RoomData` | W |
 | POST / PUT / DELETE | `/rooms[/{room}]` | `Store/UpdateRoomRequest` | `RoomData` / 204 | W |
 | GET | `/lecturers` | `ListLecturerRequest` | Daftar `LecturerData` | W |
@@ -347,9 +350,14 @@ Hanya di `/api/internal` (belum ada di v1): `PATCH constraint-types/{id}`, `GET/
 | GET | `/scheduling-runs/{schedulingRun}/violations` | — | Pelanggaran | — |
 | POST | `/scheduling-runs/{schedulingRun}/activate` | — | Run, atau 409 `INVALID_STATE` (belum `done` / bentrok fakultas lain) | — |
 | POST | `/scheduling-runs/{schedulingRun}/publish` | — | Run, atau 409 `INVALID_STATE` (run tidak aktif) | — |
-| GET | `/schedules` | `ListScheduleRequest` (`period`, `faculty_id`, `study_program_id`, `semester`, `class_number`, `course_id`, `lecturer_id`, `room_id`, `day`, `unassigned`, `over_capacity`) | `{period, runs, schedule_details}` dari run aktif yang terlihat | — |
+| GET | `/schedules` | `ListScheduleRequest` (`period`, `faculty_id`, `study_program_id`, `semester`, `class_number`, `course_id`, `lecturer_id`, `room_id`, `day`, `unassigned`, `over_capacity`, `classes[]`) | `{period, runs, schedule_details}` dari run aktif yang terlihat | — |
+| GET | `/schedules/export` | `ExportScheduleRequest` = filter `/schedules` + `format` (`xlsx`, `pdf`, `ics`) | File unduhan. 409 `INVALID_STATE` bila kosong atau periode belum punya tanggal (ics), 503 `PDF_UNAVAILABLE` | — |
 | GET | `/schedule-details/{scheduleDetail}/options` | — | Semua slot (`available`, `reasons`) + ruang bebas per slot, untuk form override | — |
 | PATCH | `/schedule-details/{scheduleDetail}` | `time_slot_id`, `room_id` (keduanya wajib, `room_id` boleh null) | Detail jadwal, 422 bila melanggar HC, 409 bila run tidak aktif | — |
+
+`classes[]` = kelas yang dipilih mahasiswa (tidak ada KRS): `12` = semua kelas MK 12, `12:1` = kelas A MK 12. Bisa digabung dengan filter lain.
+
+Export membaca lewat `ScheduleQueryService` yang sama dengan `/schedules`, jadi isi file selalu sama dengan layar. PDF dicetak oleh service Docker `gotenberg` (`GOTENBERG_URL`). Event .ics berulang mingguan antara `start_date` dan `end_date` di `/academic-periods`.
 
 Aktif dan publish adalah dua langkah. Run aktif yang belum dipublikasikan hanya terlihat oleh `superadmin` dan `admin_fakultas` fakultasnya. Override hanya untuk run aktif.
 

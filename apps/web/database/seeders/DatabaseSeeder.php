@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use Database\Seeders\Demo\DemoAccountSeeder;
 use Database\Seeders\Demo\MasterDataSeeder;
 use Database\Seeders\Demo\SchedulingRunSeeder;
+use Database\Seeders\Reference\AcademicPeriodSeeder;
 use Database\Seeders\Reference\ConstraintTypeSeeder;
 use Database\Seeders\Reference\FacultyStudyProgramSeeder;
 use Database\Seeders\Reference\GaPresetSeeder;
@@ -27,6 +28,7 @@ class DatabaseSeeder extends Seeder
             RoleSeeder::class,
             FacultyStudyProgramSeeder::class,
             TimeSlotSeeder::class,
+            AcademicPeriodSeeder::class,
             RoomSeeder::class,
             ConstraintTypeSeeder::class,
             GaPresetSeeder::class,
