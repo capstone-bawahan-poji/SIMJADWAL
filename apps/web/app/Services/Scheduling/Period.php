@@ -14,6 +14,16 @@ final class Period
     }
 
     /**
+     * "2026/2027-GANJIL" => "Ganjil 2026/2027".
+     */
+    public static function label(string $period): string
+    {
+        [$years, $term] = explode('-', $period, 2);
+
+        return ucfirst(strtolower($term)).' '.$years;
+    }
+
+    /**
      * @return list<int>
      */
     public static function semesters(string $period): array

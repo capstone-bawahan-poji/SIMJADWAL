@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\Internal\Account\UserController as InternalUserCont
 use App\Http\Controllers\Api\Internal\Constraint\ConstraintSubmissionController as InternalConstraintSubmissionController;
 use App\Http\Controllers\Api\Internal\Constraint\ConstraintTypeController as InternalConstraintTypeController;
 use App\Http\Controllers\Api\Internal\Constraint\LecturerPreferenceController as InternalLecturerPreferenceController;
+use App\Http\Controllers\Api\Internal\MasterData\AcademicPeriodController as InternalAcademicPeriodController;
 use App\Http\Controllers\Api\Internal\MasterData\CourseController as InternalCourseController;
 use App\Http\Controllers\Api\Internal\MasterData\CourseImportController as InternalCourseImportController;
 use App\Http\Controllers\Api\Internal\MasterData\DepartmentController as InternalDepartmentController;
@@ -23,6 +24,7 @@ use App\Http\Controllers\Api\V1\Account\AuthController as V1AuthController;
 use App\Http\Controllers\Api\V1\Account\UserController as V1UserController;
 use App\Http\Controllers\Api\V1\Constraint\ConstraintSubmissionController as V1ConstraintSubmissionController;
 use App\Http\Controllers\Api\V1\Constraint\ConstraintTypeController as V1ConstraintTypeController;
+use App\Http\Controllers\Api\V1\MasterData\AcademicPeriodController as V1AcademicPeriodController;
 use App\Http\Controllers\Api\V1\MasterData\CourseController as V1CourseController;
 use App\Http\Controllers\Api\V1\MasterData\CourseImportController as V1CourseImportController;
 use App\Http\Controllers\Api\V1\MasterData\DepartmentController as V1DepartmentController;
@@ -58,6 +60,7 @@ Route::middleware(['web', 'auth'])->prefix('internal')->name('api.internal.')->g
     Route::apiResource('study-programs', InternalStudyProgramController::class)->parameters(['study-programs' => 'studyProgram']);
     Route::get('study-programs/{studyProgram}/tpb-blocked-slots', [InternalStudyProgramController::class, 'tpbBlockedSlots'])->name('study-programs.tpb-blocked-slots');
     Route::apiResource('time-slots', InternalTimeSlotController::class)->parameters(['time-slots' => 'timeSlot']);
+    Route::apiResource('academic-periods', InternalAcademicPeriodController::class)->parameters(['academic-periods' => 'academicPeriod']);
     Route::apiResource('rooms', InternalRoomController::class);
     Route::apiResource('lecturers', InternalLecturerController::class);
     Route::get('courses/import/template', [InternalCourseImportController::class, 'template'])->name('courses.import.template');
@@ -86,6 +89,7 @@ Route::middleware(['web', 'auth'])->prefix('internal')->name('api.internal.')->g
     Route::post('scheduling-runs/{schedulingRun}/activate', [InternalSchedulingRunController::class, 'activate'])->name('scheduling-runs.activate');
     Route::post('scheduling-runs/{schedulingRun}/publish', [InternalSchedulingRunController::class, 'publish'])->name('scheduling-runs.publish');
     Route::get('schedules', [InternalScheduleController::class, 'index'])->name('schedules.index');
+    Route::get('schedules/export', [InternalScheduleController::class, 'export'])->name('schedules.export');
     Route::get('schedule-details/{scheduleDetail}/options', [InternalScheduleController::class, 'options'])->name('schedule-details.options');
     Route::patch('schedule-details/{scheduleDetail}', [InternalScheduleController::class, 'override'])->name('schedule-details.override');
 });
@@ -115,6 +119,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::apiResource('study-programs', V1StudyProgramController::class)->parameters(['study-programs' => 'studyProgram']);
         Route::get('study-programs/{studyProgram}/tpb-blocked-slots', [V1StudyProgramController::class, 'tpbBlockedSlots'])->name('study-programs.tpb-blocked-slots');
         Route::apiResource('time-slots', V1TimeSlotController::class)->parameters(['time-slots' => 'timeSlot']);
+        Route::apiResource('academic-periods', V1AcademicPeriodController::class)->parameters(['academic-periods' => 'academicPeriod']);
         Route::apiResource('rooms', V1RoomController::class);
         Route::apiResource('lecturers', V1LecturerController::class);
         // Before the resource so 'import' is not taken as a {course} id.
@@ -140,6 +145,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::post('scheduling-runs/{schedulingRun}/activate', [V1SchedulingRunController::class, 'activate'])->name('scheduling-runs.activate');
         Route::post('scheduling-runs/{schedulingRun}/publish', [V1SchedulingRunController::class, 'publish'])->name('scheduling-runs.publish');
         Route::get('schedules', [V1ScheduleController::class, 'index'])->name('schedules.index');
+        Route::get('schedules/export', [V1ScheduleController::class, 'export'])->name('schedules.export');
         Route::get('schedule-details/{scheduleDetail}/options', [V1ScheduleController::class, 'options'])->name('schedule-details.options');
         Route::patch('schedule-details/{scheduleDetail}', [V1ScheduleController::class, 'override'])->name('schedule-details.override');
     });
