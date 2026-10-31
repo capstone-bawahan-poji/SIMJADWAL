@@ -30,6 +30,54 @@ Password semua akun demo = nilai `SEED_DEFAULT_PASSWORD` di `.env`.
 | `dosen.if01@example.test` | dosen | Lihat jadwal lintas fakultas |
 | `admin.tpb@example.test` | admin_tpb | Lihat jadwal semua fakultas |
 
+Akun superadmin: `superadmin@penjadwalan.test`, password `SUPERADMIN_PASSWORD` di `.env`.
+
+### Halaman per role
+
+Web (Inertia). Route di `apps/web/routes/web.php`, dijaga middleware `role:`. Route `/prodi/*` hanya untuk `admin_prodi`.
+
+| Role | Halaman | Path | Catatan |
+|---|---|---|---|
+| superadmin | Fakultas & prodi | `/superadmin/faculty-program` | Master data |
+| superadmin | Akun | `/superadmin/accounts` | |
+| superadmin | Ruangan | `/superadmin/rooms` | Referensi |
+| superadmin | Slot waktu | `/superadmin/slots` | Pola CRUD untuk Periode Akademik (§8) |
+| superadmin | Periode akademik | `/superadmin/academic-periods` | Belum ada, dibuat di §8 |
+| admin_fakultas | Review run dan jadwal aktif | `/fakultas/ga` | §1, §3 |
+| admin_fakultas | Alokasi ruangan | `/fakultas/rooms` | §6 |
+| admin_fakultas | Constraint | `/fakultas/constraints` | Sudah ada |
+| admin_fakultas | Dashboard fakultas | `/dashboard` | §7 |
+| admin_prodi | Matriks jadwal prodi | `/prodi/schedule-matrix` | §2, §8 |
+| admin_prodi | Import mata kuliah | `/prodi/courses/import` | §5 |
+| admin_prodi | Dashboard prodi | `/dashboard` | §7 |
+| mahasiswa | Jadwal (hanya yang dipublish) | Halaman jadwal baru (belum ada route) | §2. Mode jadwal pribadi di §8 |
+| dosen | Jadwal lintas fakultas | Halaman jadwal baru (belum ada route) | §2 |
+| admin_tpb | Jadwal semua fakultas | Halaman jadwal baru (belum ada route) | §2 |
+
+Desktop (Tauri). Hanya `superadmin` dan `admin_fakultas` yang bisa masuk (`DESKTOP_ROLES` di `apps/desktop/src/composables/useAuth.ts`). Route di `apps/desktop/src/router/index.ts`:
+
+| Path | Halaman | Role | Catatan |
+|---|---|---|---|
+| `/config` | Konfigurasi GA | superadmin, admin_fakultas | Menu tambahan untuk superadmin |
+| `/data` | Data & Constraint | superadmin, admin_fakultas | Menu tambahan untuk superadmin |
+| `/run` | Run dan perbandingan | admin_fakultas | §4 |
+| `/sync` | Sinkronisasi | admin_fakultas | §3 |
+
+### Screenshot yang diminta
+
+Ambil dari kondisi sekarang (sebelum dikerjakan), supaya perubahan bisa dibandingkan:
+
+- [ ] `/fakultas/ga` sebagai `admin.fsti`: data contoh, daftar run.
+- [ ] `/fakultas/ga` sebagai `admin.fpb`: run belum dipublish.
+- [ ] `/fakultas/rooms` sebagai `admin.fsti`.
+- [ ] `/prodi/schedule-matrix` sebagai `admin.if`.
+- [ ] Halaman jadwal sebagai `mahasiswa.if`: belum ada route, ambil setelah halaman dibuat.
+- [ ] `/dashboard` sebagai `admin.fsti` (dashboard fakultas).
+- [ ] `/dashboard` sebagai `admin.if` (dashboard prodi).
+- [ ] `/prodi/courses/import` sebagai `admin.if`.
+- [ ] Desktop `/run` sebagai `admin.fsti`: tabel perbandingan run.
+- [ ] Desktop `/sync` sebagai `admin.fsti`.
+
 ### Data demo jadwal
 
 - **FSTI**: satu batch berisi 3 run. Run pertama aktif dan sudah dipublish, dan punya satu baris hasil override manual.
