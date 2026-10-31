@@ -86,6 +86,10 @@ services:
             - sail
         depends_on:
             - laravel.test
+    gotenberg:
+        image: 'gotenberg/gotenberg:8'
+        networks:
+            - sail
 networks:
     sail:
         driver: bridge
