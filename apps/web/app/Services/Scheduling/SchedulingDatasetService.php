@@ -38,7 +38,7 @@ readonly class SchedulingDatasetService
             $courses = Course::query()
                 ->whereIn('study_program_id', $includedIds)
                 ->where('is_tpb', false)
-                ->whereIn('semester', $this->semestersOf($period))
+                ->whereIn('semester', Period::semesters($period))
                 ->orderBy('id')
                 ->get();
 
@@ -125,16 +125,6 @@ readonly class SchedulingDatasetService
     public function fingerprint(array $data): string
     {
         return 'sha256:'.hash('sha256', json_encode($data, JSON_THROW_ON_ERROR));
-    }
-
-    /**
-     * GANJIL schedules odd semesters, GENAP even
-     *
-     * @return list<int>
-     */
-    private function semestersOf(string $period): array
-    {
-        return str_ends_with($period, '-GANJIL') ? [1, 3, 5, 7] : [2, 4, 6, 8];
     }
 
     /**

@@ -18,13 +18,14 @@ readonly class SchedulingRunQueryService
     /**
      * @return LengthAwarePaginator<int, array<string, mixed>>
      */
-    public function getRuns(User $actor, ?int $facultyId, ?string $period, ?string $batchId, int $perPage): LengthAwarePaginator
+    public function getRuns(User $actor, ?int $facultyId, ?string $period, ?string $batchId, int $perPage, ?bool $isActive = null): LengthAwarePaginator
     {
         return $this->summaryQuery()
             ->tap(fn (Builder $query) => $this->orgScope->applyFacultyScope($query, $actor))
             ->when($facultyId, fn (Builder $query) => $query->where('faculty_id', $facultyId))
             ->when($period, fn (Builder $query) => $query->where('period', $period))
             ->when($batchId, fn (Builder $query) => $query->where('batch_id', $batchId))
+            ->when($isActive !== null, fn (Builder $query) => $query->where('is_active', $isActive))
             ->orderByDesc('finished_at')
             ->orderByDesc('id')
             ->paginate($perPage)
@@ -53,7 +54,7 @@ readonly class SchedulingRunQueryService
     public function getScheduleDetails(SchedulingRun $run, ?int $studyProgramId, ?int $day): array
     {
         return $run->scheduleDetails()
-            ->with(['course:id,study_program_id,code,name,sks,semester', 'course.studyProgram:id,code,name', 'lecturer:id,name,title', 'timeSlot', 'room:id,code,name,capacity'])
+            ->with(ScheduleDetailTransformer::relations())
             ->withCount('violationLogs')
             ->when($studyProgramId, fn (Builder $query) => $query->whereHas('course', fn (Builder $q) => $q->where('study_program_id', $studyProgramId)))
             ->when($day, fn (Builder $query) => $query->whereHas('timeSlot', fn (Builder $q) => $q->where('day', $day)))
@@ -61,31 +62,7 @@ readonly class SchedulingRunQueryService
             ->orderBy('id')
             ->get()
             ->map(fn (ScheduleDetail $d) => [
-                'id' => $d->id,
-                'course' => [
-                    'id' => $d->course->id,
-                    'code' => $d->course->code,
-                    'name' => $d->course->name,
-                    'sks' => $d->course->sks,
-                    'semester' => $d->course->semester,
-                    'study_program' => $d->course->studyProgram ? [
-                        'id' => $d->course->studyProgram->id,
-                        'code' => $d->course->studyProgram->code,
-                        'name' => $d->course->studyProgram->name,
-                    ] : null,
-                ],
-                'class_number' => $d->class_number,
-                'meeting_number' => $d->meeting_number,
-                'lecturer' => ['id' => $d->lecturer->id, 'name' => $d->lecturer->name, 'title' => $d->lecturer->title],
-                'time_slot' => [
-                    'id' => $d->timeSlot->id,
-                    'day' => $d->timeSlot->day->value,
-                    'session' => $d->timeSlot->session,
-                    'start_time' => $d->timeSlot->start_time,
-                    'end_time' => $d->timeSlot->end_time,
-                ],
-                'room' => $d->room ? ['id' => $d->room->id, 'code' => $d->room->code, 'name' => $d->room->name, 'capacity' => $d->room->capacity] : null,
-                'is_overridden' => $d->is_overridden,
+                ...ScheduleDetailTransformer::toArray($d),
                 'violations_count' => $d->violation_logs_count,
             ])->values()->all();
     }

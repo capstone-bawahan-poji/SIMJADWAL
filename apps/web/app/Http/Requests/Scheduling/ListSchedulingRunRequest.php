@@ -14,6 +14,7 @@ class ListSchedulingRunRequest extends FormRequest
             'faculty_id' => ['nullable', 'integer'],
             'period' => ['nullable', new PeriodRule],
             'batch_id' => ['nullable', 'uuid'],
+            'is_active' => ['nullable', 'boolean'],
             'page' => ['nullable', 'integer', 'min:1'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:'.Query::MAX_PER_PAGE],
         ];

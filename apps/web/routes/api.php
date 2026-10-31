@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\Internal\MasterData\TeachingAssignmentController as
 use App\Http\Controllers\Api\Internal\MasterData\TimeSlotController as InternalTimeSlotController;
 use App\Http\Controllers\Api\Internal\MasterData\TpbGroupController as InternalTpbGroupController;
 use App\Http\Controllers\Api\Internal\Scheduling\GaPresetController as InternalGaPresetController;
+use App\Http\Controllers\Api\Internal\Scheduling\ScheduleController as InternalScheduleController;
 use App\Http\Controllers\Api\Internal\Scheduling\SchedulingRunController as InternalSchedulingRunController;
 use App\Http\Controllers\Api\V1\Account\ActivityLogController as V1ActivityLogController;
 use App\Http\Controllers\Api\V1\Account\AuthController as V1AuthController;
@@ -33,6 +34,7 @@ use App\Http\Controllers\Api\V1\MasterData\TeachingAssignmentController as V1Tea
 use App\Http\Controllers\Api\V1\MasterData\TimeSlotController as V1TimeSlotController;
 use App\Http\Controllers\Api\V1\MasterData\TpbGroupController as V1TpbGroupController;
 use App\Http\Controllers\Api\V1\Scheduling\GaPresetController as V1GaPresetController;
+use App\Http\Controllers\Api\V1\Scheduling\ScheduleController as V1ScheduleController;
 use App\Http\Controllers\Api\V1\Scheduling\SchedulingDatasetController as V1SchedulingDatasetController;
 use App\Http\Controllers\Api\V1\Scheduling\SchedulingRunController as V1SchedulingRunController;
 use App\Http\Controllers\Api\V1\Shared\BroadcastAuthController as V1BroadcastAuthController;
@@ -81,6 +83,11 @@ Route::middleware(['web', 'auth'])->prefix('internal')->name('api.internal.')->g
     Route::get('scheduling-runs/{schedulingRun}', [InternalSchedulingRunController::class, 'show'])->name('scheduling-runs.show');
     Route::get('scheduling-runs/{schedulingRun}/schedule-details', [InternalSchedulingRunController::class, 'scheduleDetails'])->name('scheduling-runs.schedule-details');
     Route::get('scheduling-runs/{schedulingRun}/violations', [InternalSchedulingRunController::class, 'violations'])->name('scheduling-runs.violations');
+    Route::post('scheduling-runs/{schedulingRun}/activate', [InternalSchedulingRunController::class, 'activate'])->name('scheduling-runs.activate');
+    Route::post('scheduling-runs/{schedulingRun}/publish', [InternalSchedulingRunController::class, 'publish'])->name('scheduling-runs.publish');
+    Route::get('schedules', [InternalScheduleController::class, 'index'])->name('schedules.index');
+    Route::get('schedule-details/{scheduleDetail}/options', [InternalScheduleController::class, 'options'])->name('schedule-details.options');
+    Route::patch('schedule-details/{scheduleDetail}', [InternalScheduleController::class, 'override'])->name('schedule-details.override');
 });
 
 Route::prefix('v1')->name('api.v1.')->group(function () {
@@ -130,5 +137,10 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('scheduling-runs/{schedulingRun}', [V1SchedulingRunController::class, 'show'])->name('scheduling-runs.show');
         Route::get('scheduling-runs/{schedulingRun}/schedule-details', [V1SchedulingRunController::class, 'scheduleDetails'])->name('scheduling-runs.schedule-details');
         Route::get('scheduling-runs/{schedulingRun}/violations', [V1SchedulingRunController::class, 'violations'])->name('scheduling-runs.violations');
+        Route::post('scheduling-runs/{schedulingRun}/activate', [V1SchedulingRunController::class, 'activate'])->name('scheduling-runs.activate');
+        Route::post('scheduling-runs/{schedulingRun}/publish', [V1SchedulingRunController::class, 'publish'])->name('scheduling-runs.publish');
+        Route::get('schedules', [V1ScheduleController::class, 'index'])->name('schedules.index');
+        Route::get('schedule-details/{scheduleDetail}/options', [V1ScheduleController::class, 'options'])->name('schedule-details.options');
+        Route::patch('schedule-details/{scheduleDetail}', [V1ScheduleController::class, 'override'])->name('schedule-details.override');
     });
 });

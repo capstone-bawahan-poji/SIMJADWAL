@@ -1073,6 +1073,7 @@ paths:
         - $ref: '#/components/parameters/FacultyIdFilter'
         - { name: period, in: query, schema: { $ref: '#/components/schemas/Period' } }
         - { name: batch_id, in: query, schema: { type: string, format: uuid } }
+        - { name: is_active, in: query, description: '1 = only the active run, 0 = only inactive runs', schema: { type: boolean } }
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PerPage'
       responses:
@@ -1151,6 +1152,141 @@ paths:
                 properties:
                   data: { type: array, items: { $ref: '#/components/schemas/Violation' } }
         '403': { $ref: '#/components/responses/Forbidden' }
+
+  /scheduling-runs/{schedulingRun}/activate:
+    post:
+      tags: [Scheduling]
+      summary: Make a run the active schedule of its faculty and period
+      description: |
+        Roles: `admin_fakultas` (own faculty), `superadmin`.
+        Only a `done` run. The previously active run of the same faculty and period loses `is_active`
+        and keeps its `published_at` (archived). The new active run starts unpublished, so only
+        those who may publish it see it in `GET /schedules`. Repeat calls return 200 unchanged.
+
+        409 `INVALID_STATE` when the run is not `done`, or when its lecturers or shared rooms clash
+        with the active schedule of another faculty in the same period.
+      parameters:
+        - $ref: '#/components/parameters/SchedulingRunPath'
+      responses:
+        '200': { $ref: '#/components/responses/SchedulingRunItem' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /scheduling-runs/{schedulingRun}/publish:
+    post:
+      tags: [Scheduling]
+      summary: Publish the active schedule to lecturers and students
+      description: |
+        Roles: `admin_fakultas` (own faculty), `superadmin`. Sets `published_at`.
+        409 `INVALID_STATE` when the run is not active. Repeat calls return 200 unchanged.
+      parameters:
+        - $ref: '#/components/parameters/SchedulingRunPath'
+      responses:
+        '200': { $ref: '#/components/responses/SchedulingRunItem' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /schedules:
+    get:
+      tags: [Scheduling]
+      summary: Official schedule of a period (every role)
+      description: |
+        Genes of the active run of each visible faculty. Not paginated: a day × session matrix needs all rows.
+
+        Visibility:
+        - Faculty: `superadmin`, `admin_tpb` and `dosen` read every faculty. Other roles read their own faculty.
+        - Unpublished active runs: only `superadmin` and the `admin_fakultas` of that faculty.
+
+        Default filters (own study program for students and program admins, own lecturer id for
+        lecturers) are set by the client. Export endpoints take the same filters.
+      parameters:
+        - $ref: '#/components/parameters/Period'
+        - $ref: '#/components/parameters/FacultyIdFilter'
+        - $ref: '#/components/parameters/StudyProgramIdFilter'
+        - { name: semester, in: query, schema: { type: integer, minimum: 1, maximum: 14 } }
+        - { name: class_number, in: query, description: 'Parallel class, 1 = A', schema: { type: integer, minimum: 1 } }
+        - { name: course_id, in: query, schema: { type: integer } }
+        - { name: lecturer_id, in: query, schema: { type: integer } }
+        - { name: room_id, in: query, schema: { type: integer } }
+        - { name: day, in: query, schema: { $ref: '#/components/schemas/Day' } }
+        - { name: unassigned, in: query, description: '1 = only entries without a room', schema: { type: boolean } }
+        - { name: over_capacity, in: query, description: '1 = only entries whose room is smaller than course.class_capacity', schema: { type: boolean } }
+      responses:
+        '200':
+          description: Schedule of the period
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/Schedule' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
+
+  /schedule-details/{scheduleDetail}/options:
+    get:
+      tags: [Scheduling]
+      summary: Where one schedule entry may move (override form)
+      description: |
+        Roles and 409 as `PATCH /schedule-details/{scheduleDetail}`. Uses the same hard-constraint checks,
+        against every active schedule and placed TPB class of the period, including faculties the caller cannot see.
+
+        Every time slot is listed. `available: false` comes with the reasons (lecturer busy, class busy,
+        parallel limit, TPB). `rooms` lists the rooms this faculty may use that fit the class and are free in
+        that slot, smallest first; it is empty when the slot is not available. The entry's own room counts as free.
+      parameters:
+        - { name: scheduleDetail, in: path, required: true, schema: { type: integer } }
+      responses:
+        '200':
+          description: Options
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/ScheduleOptions' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /schedule-details/{scheduleDetail}:
+    patch:
+      tags: [Scheduling]
+      summary: Manual override of one schedule entry
+      description: |
+        Roles: `admin_fakultas` (own faculty), `superadmin`. Only entries of the active run.
+        Only `time_slot_id` and `room_id` change. Send both every time; `room_id: null` leaves the class without a room.
+
+        Rejected with 422 when the new place breaks a hard constraint. Checked against every active
+        schedule and placed TPB class of the period:
+        - `room_id`: room of another faculty, room too small, room taken, room used by a TPB class.
+        - `time_slot_id`: lecturer busy (HC2), class already busy (HC3), program over `parallel_class_limit` (HC4), slot reserved for TPB.
+
+        The entry gets `is_overridden: true`. Its violation logs are deleted because they described the old place.
+        409 `INVALID_STATE` when the run is not active.
+      parameters:
+        - { name: scheduleDetail, in: path, required: true, schema: { type: integer } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [time_slot_id, room_id]
+              properties:
+                time_slot_id: { type: integer }
+                room_id: { type: [integer, 'null'] }
+      responses:
+        '200':
+          description: Updated entry
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data: { $ref: '#/components/schemas/ScheduleDetailBase' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '422': { $ref: '#/components/responses/ValidationFailed' }
 
 components:
   securitySchemes:
@@ -1975,7 +2111,7 @@ components:
               penalty: { type: number, minimum: 0 }
               message: { type: [string, 'null'], maxLength: 500 }
 
-    ScheduleDetail:
+    ScheduleDetailBase:
       type: object
       properties:
         id: { type: integer }
@@ -1987,6 +2123,7 @@ components:
             name: { type: string }
             sks: { type: integer }
             semester: { type: integer }
+            class_capacity: { type: integer }
             study_program: { oneOf: [{ $ref: '#/components/schemas/IdCodeName' }, { type: 'null' }] }
         class_number: { type: integer }
         meeting_number: { type: integer }
@@ -2012,7 +2149,67 @@ components:
             name: { type: [string, 'null'] }
             capacity: { type: integer }
         is_overridden: { type: boolean }
-        violations_count: { type: integer }
+        overridden_at: { type: [string, 'null'], format: date-time }
+
+    ScheduleDetail:
+      description: Entry in a run review, with its violation count
+      allOf:
+        - $ref: '#/components/schemas/ScheduleDetailBase'
+        - type: object
+          properties:
+            violations_count: { type: integer }
+
+    ScheduleOptions:
+      type: object
+      properties:
+        current:
+          type: object
+          properties:
+            time_slot_id: { type: integer }
+            room_id: { type: [integer, 'null'] }
+        time_slots:
+          type: array
+          items:
+            type: object
+            properties:
+              id: { type: integer }
+              day: { $ref: '#/components/schemas/Day' }
+              session: { type: integer }
+              start_time: { type: string }
+              end_time: { type: string }
+              available: { type: boolean }
+              reasons: { type: array, items: { type: string } }
+              rooms:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    id: { type: integer }
+                    code: { type: string }
+                    name: { type: [string, 'null'] }
+                    capacity: { type: integer }
+
+    Schedule:
+      type: object
+      properties:
+        period: { $ref: '#/components/schemas/Period' }
+        runs:
+          type: array
+          description: Active run of each visible faculty. `published_at` null = not published yet.
+          items:
+            type: object
+            properties:
+              id: { type: integer }
+              faculty: { $ref: '#/components/schemas/IdCodeName' }
+              published_at: { type: [string, 'null'], format: date-time }
+        schedule_details:
+          type: array
+          items:
+            allOf:
+              - type: object
+                properties:
+                  scheduling_run_id: { type: integer }
+              - $ref: '#/components/schemas/ScheduleDetailBase'
 
     Violation:
       type: object

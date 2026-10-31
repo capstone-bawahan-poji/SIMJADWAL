@@ -15,6 +15,8 @@ use App\Models\MasterData\Lecturer;
 use App\Models\MasterData\Room;
 use App\Models\MasterData\StudyProgram;
 use App\Models\MasterData\TimeSlot;
+use App\Models\Scheduling\ScheduleDetail;
+use App\Models\Scheduling\SchedulingRun;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -113,5 +115,26 @@ class DatabaseSeederTest extends TestCase
         $this->seed(DatabaseSeeder::class);
 
         $this->assertSame($counts, [Lecturer::count(), Course::count(), CourseLecturer::count(), LecturerPreference::count(), User::count()]);
+    }
+
+    public function test_demo_runs_have_one_active_schedule_per_faculty_without_clashes(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+
+        $fsti = Faculty::where('code', 'FSTI')->value('id');
+        $fpb = Faculty::where('code', 'FPB')->value('id');
+        $this->assertSame(3, SchedulingRun::where('faculty_id', $fsti)->count());
+        $this->assertNotNull(SchedulingRun::active()->where('faculty_id', $fsti)->value('published_at'));
+        $this->assertNull(SchedulingRun::active()->where('faculty_id', $fpb)->value('published_at'));
+        $this->assertSame(1, ScheduleDetail::where('is_overridden', true)->count());
+
+        $active = ScheduleDetail::whereRelation('schedulingRun', 'is_active', true);
+        $this->assertGreaterThan(0, (clone $active)->count());
+        $duplicates = fn (array $columns) => (clone $active)->select($columns)->groupBy($columns)->havingRaw('count(*) > 1')->get()->count();
+        $this->assertSame(0, $duplicates(['time_slot_id', 'lecturer_id']));
+        $this->assertSame(0, (clone $active)->whereNotNull('room_id')->select(['time_slot_id', 'room_id'])->groupBy(['time_slot_id', 'room_id'])->havingRaw('count(*) > 1')->get()->count());
+
+        $this->seed(DatabaseSeeder::class);
+        $this->assertSame(4, SchedulingRun::count());
     }
 }

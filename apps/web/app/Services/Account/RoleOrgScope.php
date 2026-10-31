@@ -34,6 +34,11 @@ readonly class RoleOrgScope implements ResolvesOrgScope
         return in_array($user->role, [Role::SUPER_ADMIN, Role::TPB_ADMIN], true);
     }
 
+    public function readsAllFacultySchedules(User $user): bool
+    {
+        return $this->readsAllFaculties($user) || $user->role === Role::LECTURER;
+    }
+
     public function canBypassSubmissionLock(User $user): bool
     {
         return in_array($user->role, [Role::SUPER_ADMIN, Role::FACULTY_ADMIN], true);

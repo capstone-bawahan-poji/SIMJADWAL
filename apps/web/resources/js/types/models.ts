@@ -237,3 +237,175 @@ export interface ConstraintSubmissionDetail {
     incomplete_courses: { id: number; code: string; name: string; parallel_class_count: number; assigned_class_count: number }[];
     lecturers: { id: number; nip: string; name: string; title: string | null; preferences: SlotPreference[] }[];
 }
+
+/* Scheduling */
+
+export type RunStatus = 'queued' | 'running' | 'done' | 'failed';
+
+/** SchedulingRunQueryService summary. Draft = !is_active && !published_at, archived = !is_active && published_at. */
+export interface SchedulingRunSummary {
+    id: number;
+    batch_id: string;
+    faculty: { id: number; code: string; name: string } | null;
+    period: string;
+    preset: { id: number; name: string } | null;
+    status: RunStatus;
+    selection_operator: string | null;
+    crossover_rate: number | null;
+    mutation_rate: number | null;
+    population_size: number | null;
+    parallel_class_limit: number | null;
+    seed: number | null;
+    best_fitness: number | null;
+    max_fitness: number | null;
+    fitness_percent: number | null;
+    best_generation: number | null;
+    final_generation: number;
+    schedule_details_count: number;
+    hc_violations: number;
+    sc_unmet: number;
+    unassigned_rooms: number;
+    is_active: boolean;
+    triggered_by: { id: number; name: string } | null;
+    started_at: string | null;
+    finished_at: string | null;
+    published_at: string | null;
+}
+
+/** GET /scheduling-runs/{id} */
+export interface SchedulingRunDetail extends SchedulingRunSummary {
+    parameter_snapshot: Record<string, unknown>;
+    fitness_history: number[];
+}
+
+/** ScheduleDetailTransformer. class_number 1 = A. room null = no room assigned. */
+export interface ScheduleDetailBase {
+    id: number;
+    course: {
+        id: number;
+        code: string;
+        name: string;
+        sks: number;
+        semester: number;
+        class_capacity: number;
+        study_program: { id: number; code: string; name: string } | null;
+    };
+    class_number: number;
+    meeting_number: number;
+    lecturer: { id: number; name: string; title: string | null };
+    time_slot: { id: number; day: number; session: number; start_time: string; end_time: string };
+    room: { id: number; code: string; name: string | null; capacity: number } | null;
+    is_overridden: boolean;
+    overridden_at: string | null;
+}
+
+/** GET /scheduling-runs/{id}/schedule-details */
+export interface RunScheduleDetail extends ScheduleDetailBase {
+    violations_count: number;
+}
+
+/** GET /scheduling-runs/{id}/violations */
+export interface Violation {
+    id: number;
+    constraint_code: string;
+    category: 'HC' | 'SC';
+    penalty: number;
+    message: string | null;
+    schedule_detail_id: number | null;
+}
+
+/** GET /schedules. runs[].published_at null = active but not published (faculty admin only). */
+export interface Schedule {
+    period: string;
+    runs: { id: number; faculty: { id: number; code: string; name: string }; published_at: string | null }[];
+    schedule_details: (ScheduleDetailBase & { scheduling_run_id: number })[];
+}
+
+/** GET /schedules query. Empty values are dropped by lib/api.ts. */
+export interface ScheduleFilters {
+    period?: string;
+    faculty_id?: number;
+    study_program_id?: number;
+    semester?: number;
+    class_number?: number;
+    course_id?: number;
+    lecturer_id?: number;
+    room_id?: number;
+    day?: number;
+    unassigned?: 0 | 1;
+    over_capacity?: 0 | 1;
+}
+
+export interface OptionRoom {
+    id: number;
+    code: string;
+    name: string | null;
+    capacity: number;
+}
+
+/** GET /schedule-details/{id}/options. rooms is empty when the slot is not available. */
+export interface ScheduleOptions {
+    current: { time_slot_id: number; room_id: number | null };
+    time_slots: {
+        id: number;
+        day: number;
+        session: number;
+        start_time: string;
+        end_time: string;
+        available: boolean;
+        reasons: string[];
+        rooms: OptionRoom[];
+    }[];
+}
+
+/** Body of PATCH /schedule-details/{id}. Both keys are required; room_id null = no room. */
+export interface ScheduleOverridePayload {
+    time_slot_id: number;
+    room_id: number | null;
+}
+
+/*  Dashboards */
+/** App\Services\Dashboard\FacultyDashboardService::get(), prop `dashboard` of Fakultas/Dashboard */
+export interface FacultyDashboard {
+    period: string;
+    constraints: { total: number } & Record<ConstraintStatus, number>;
+    active_run: Pick<
+        SchedulingRunSummary,
+        'id' | 'published_at' | 'best_fitness' | 'fitness_percent' | 'final_generation' | 'schedule_details_count' | 'hc_violations' | 'sc_unmet'
+    > | null;
+    rooms: {
+        unassigned_count: number;
+        over_capacity_count: number;
+        issues: {
+            schedule_detail_id: number;
+            type: 'unassigned' | 'over_capacity';
+            course: string;
+            class_label: string;
+            day: number;
+            session: number;
+            room: string | null;
+        }[];
+    };
+}
+
+/** App\Services\Dashboard\StudyProgramDashboardService::get(), prop `dashboard` of Prodi/Dashboard */
+export interface StudyProgramDashboard {
+    period: string;
+    constraint: {
+        status: ConstraintStatus;
+        lecturers_count: number;
+        lecturers_with_preferences_count: number;
+        courses_count: number;
+        incomplete_courses_count: number;
+        completeness_percent: number;
+    };
+    /** none = no active schedule, active = not published yet (numbers null), published = numbers filled. */
+    schedule: {
+        status: 'none' | 'active' | 'published';
+        classes_count: number | null;
+        sks_total: number | null;
+        hc_violations: number | null;
+        unassigned_rooms: number | null;
+        published_at: string | null;
+    };
+}

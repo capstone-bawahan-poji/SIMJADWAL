@@ -23,4 +23,14 @@ class SchedulingRunPolicy
     {
         return $user->can(SchedulingPermissions::VIEW_RUN) && $this->orgScope->canAccessFaculty($user, $run->faculty_id);
     }
+
+    public function activate(User $user, SchedulingRun $run): bool
+    {
+        return $user->can(SchedulingPermissions::ACTIVATE_RUN) && $this->orgScope->canAccessFaculty($user, $run->faculty_id);
+    }
+
+    public function publish(User $user, SchedulingRun $run): bool
+    {
+        return $user->can(SchedulingPermissions::PUBLISH_RUN) && $this->orgScope->canAccessFaculty($user, $run->faculty_id);
+    }
 }

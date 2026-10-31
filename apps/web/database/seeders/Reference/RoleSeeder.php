@@ -61,6 +61,7 @@ class RoleSeeder extends Seeder
                 CoursePermissions::VIEW,
                 CourseLecturerPermissions::VIEW,
                 ...TpbPermissions::cases(),
+                SchedulingPermissions::VIEW_SCHEDULE,
             ],
             RoleEnum::STUDY_PROGRAM_ADMIN->value => [
                 ...$readReference,
@@ -72,9 +73,10 @@ class RoleSeeder extends Seeder
                 ConstraintPermissions::VIEW,
                 ConstraintPermissions::UPDATE_PREFERENCE,
                 ConstraintPermissions::SUBMIT,
+                SchedulingPermissions::VIEW_SCHEDULE,
             ],
-            RoleEnum::LECTURER->value => $readReference,
-            RoleEnum::STUDENT->value => $readReference,
+            RoleEnum::LECTURER->value => [...$readReference, SchedulingPermissions::VIEW_SCHEDULE],
+            RoleEnum::STUDENT->value => [...$readReference, SchedulingPermissions::VIEW_SCHEDULE],
         ];
 
         foreach ($matrix as $roleName => $permissions) {
