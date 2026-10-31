@@ -134,6 +134,18 @@ export interface TimeSlot {
     can_delete: boolean;
 }
 
+/** App\Data\MasterData\AcademicPeriodData. Dates are YYYY-MM-DD. is_current = default period of the apps. */
+export interface AcademicPeriod {
+    id: number;
+    code: string;
+    label: string;
+    start_date: string;
+    end_date: string;
+    is_current: boolean;
+    can_update: boolean;
+    can_delete: boolean;
+}
+
 /** App\Data\Account\ActivityLogData */
 export interface ActivityLog {
     id: number;
@@ -334,6 +346,15 @@ export interface ScheduleFilters {
     day?: number;
     unassigned?: 0 | 1;
     over_capacity?: 0 | 1;
+    /** Picked classes: "12" = every class of course 12, "12:1" = class A of course 12. axios sends classes[]=… */
+    classes?: string[];
+}
+
+export type ScheduleExportFormat = 'xlsx' | 'pdf' | 'ics';
+
+/** GET /schedules/export query: the same filters plus the format. */
+export interface ScheduleExportParams extends ScheduleFilters {
+    format: ScheduleExportFormat;
 }
 
 export interface OptionRoom {

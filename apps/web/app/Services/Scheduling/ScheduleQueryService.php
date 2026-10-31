@@ -27,10 +27,15 @@ readonly class ScheduleQueryService
     /** Boolean filters: genes without a room, genes in a room smaller than the class. */
     public const FLAGS = ['unassigned', 'over_capacity'];
 
+    /*
+     * Plus "classes": list of {course_id, class_number|null} a student picked (no KRS in the
+     * system). It narrows on top of the other filters; class_number null = every class.
+     */
+
     public function __construct(private ResolvesOrgScope $orgScope) {}
 
     /**
-     * @param  array<string, int|bool|null>  $filters  keys from FILTERS and FLAGS
+     * @param  array<string, mixed>  $filters  keys from FILTERS, FLAGS and classes
      * @return array{period: string, runs: list<array<string, mixed>>, schedule_details: list<array<string, mixed>>}
      */
     public function getSchedule(User $actor, string $period, array $filters): array
@@ -82,7 +87,7 @@ readonly class ScheduleQueryService
 
     /**
      * @param  list<int>  $runIds
-     * @param  array<string, int|bool|null>  $filters
+     * @param  array<string, mixed>  $filters
      * @return Builder<ScheduleDetail>
      */
     public function details(array $runIds, array $filters): Builder
@@ -100,6 +105,13 @@ readonly class ScheduleQueryService
             ->when($filters['room_id'] ?? null, fn (Builder $q, int $id) => $q->where('room_id', $id))
             ->when($filters['unassigned'] ?? false, fn (Builder $q) => $q->unassigned())
             ->when($filters['over_capacity'] ?? false, fn (Builder $q) => $q->overCapacity())
+            ->when($filters['classes'] ?? [], fn (Builder $q, array $classes) => $q->where(function (Builder $any) use ($classes) {
+                foreach ($classes as $class) {
+                    $any->orWhere(fn (Builder $one) => $one
+                        ->where('course_id', $class['course_id'])
+                        ->when($class['class_number'], fn (Builder $c, int $n) => $c->where('class_number', $n)));
+                }
+            }))
             ->when($filters['day'] ?? null, fn (Builder $q, int $day) => $q->whereHas('timeSlot', fn (Builder $t) => $t->where('day', $day)))
             ->orderBy('time_slot_id')
             ->orderBy('id');
