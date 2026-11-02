@@ -19,8 +19,8 @@ class DashboardController extends InertiaController
     ) {}
 
     /**
-     * Prodi and faculty admins get their own dashboard props (dashboard). stats is null for the
-     * other roles until their dashboards exist. Props are closures so reload({ only }) stays cheap.
+     * Prodi and faculty admins get server-provided dashboard props; lecturers load their schedule
+     * in their dashboard. Props are closures so reload({ only }) stays cheap.
      */
     public function __invoke(Request $request): Response
     {
@@ -33,6 +33,7 @@ class DashboardController extends InertiaController
             $user->hasRole(Role::FACULTY_ADMIN->value) => Inertia::render('Fakultas/Dashboard', [
                 'dashboard' => fn () => $this->facultyDashboard->get($user->faculty_id),
             ]),
+            $user->hasRole(Role::LECTURER->value) => Inertia::render('Dosen/Dashboard'),
             default => Inertia::render('Dashboard', [
                 'stats' => $user->hasRole(Role::SUPER_ADMIN->value) ? $this->dashboardStatsService->get() : null,
             ]),

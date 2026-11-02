@@ -3,6 +3,7 @@ import type { Role } from '@/types';
 export interface NavItem {
     label: string;
     routeName: string;
+    href?: string;
     /** SVG inner markup (24x24 outline), rendered with v-html. */
     icon: string;
 }
@@ -22,14 +23,16 @@ const icons = {
 };
 
 const dashboard: NavItem = { label: 'Dashboard', routeName: 'dashboard', icon: icons.dashboard };
+const schedule: NavItem = { label: 'Jadwal Kuliah', routeName: 'schedule.index', icon: icons.matrix };
 
 /**
- * Sidebar entries per role. Roles without an entry (dosen, mahasiswa, admin_tpb) get the
- * dashboard only. Every routeName must exist in routes/web.php.
+ * Sidebar entries per role. Roles without a management area still get the shared schedule.
+ * Every routeName must exist in routes/web.php.
  */
 export const NAV_BY_ROLE: Partial<Record<Role, NavItem[]>> = {
     superadmin: [
         dashboard,
+        { ...schedule, label: 'Jadwal Semua Fakultas' },
         { label: 'Kelola Akun & Role', routeName: 'superadmin.accounts.index', icon: icons.accounts },
         { label: 'Data Fakultas & Prodi', routeName: 'superadmin.faculty-program.index', icon: icons.institution },
         { label: 'Data Ruangan', routeName: 'superadmin.rooms.index', icon: icons.room },
@@ -37,22 +40,39 @@ export const NAV_BY_ROLE: Partial<Record<Role, NavItem[]>> = {
     ],
     admin_prodi: [
         dashboard,
+        { label: 'Matriks Jadwal Prodi', routeName: 'prodi.schedule-matrix.index', icon: icons.matrix },
         { label: 'Data Mata Kuliah', routeName: 'prodi.courses.index', icon: icons.book },
         { label: 'Data Dosen', routeName: 'prodi.lecturers.index', icon: icons.person },
         { label: 'Mapping Dosen ke Matkul', routeName: 'prodi.mappings.index', icon: icons.mapping },
         { label: 'Constraint & Preferensi', routeName: 'prodi.constraints.index', icon: icons.sliders },
-        { label: 'Matriks Jadwal Prodi', routeName: 'prodi.schedule-matrix.index', icon: icons.matrix },
     ],
     admin_fakultas: [
         dashboard,
+        { label: 'Jadwal Fakultas', routeName: 'fakultas.schedule.index', icon: icons.matrix },
         { label: 'Kelola Constraint', routeName: 'fakultas.constraints.index', icon: icons.sliders },
         { label: 'Penjadwalan GA', routeName: 'fakultas.ga.index', icon: icons.bolt },
         { label: 'Alokasi Ruangan', routeName: 'fakultas.rooms.index', icon: icons.room },
+    ],
+    admin_tpb: [
+        dashboard,
+        { ...schedule, label: 'Jadwal Semua Fakultas' },
+        { label: 'Kelola Data TPB', routeName: 'tpb.index', icon: icons.book },
+    ],
+    dosen: [
+        { label: 'Dashboard Dosen', routeName: 'dashboard', icon: icons.dashboard },
+        { label: 'Jadwal Mengajar', routeName: 'schedule.index', icon: icons.matrix },
+        { label: 'Preferensi Jadwal', routeName: 'schedule.index', href: '/schedule?view=preferences', icon: icons.sliders },
+    ],
+    mahasiswa: [
+        dashboard,
+        { label: 'Jadwal Fakultas', routeName: 'mahasiswa.faculty-schedule.index', icon: icons.matrix },
+        { label: 'Jadwal Pribadi', routeName: 'mahasiswa.schedule.index', icon: icons.matrix },
     ],
 };
 
 export const PORTAL_LABELS: Partial<Record<Role, string>> = {
     superadmin: 'Superadmin Portal',
+    dosen: 'Portal Dosen',
 };
 
 export const PROFILE_ICON = icons.person;

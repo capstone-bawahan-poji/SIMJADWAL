@@ -22,6 +22,7 @@ readonly class ScheduleExport
         public string $subtitle,
         public string $filename,
         public bool $isDraft,
+        public bool $showOverrideIndicators,
         public Collection $details,
         public Collection $timeSlots,
         public Carbon $generatedAt,

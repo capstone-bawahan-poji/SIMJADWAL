@@ -6,6 +6,7 @@ defineProps<{
   selected: Set<string>;
   activeId: string | null;
   recommendedId: string | null;
+  hasCleanRun: boolean;
 }>();
 
 defineEmits<{ toggle: [runId: string]; open: [runId: string] }>();
@@ -51,14 +52,30 @@ const UPLOAD = {
         </td>
         <td class="py-2 px-3">
           <span class="font-semibold text-gray-900">{{ item.operator }} · run {{ item.run_index + 1 }}</span>
-          <span v-if="recommendedId === item.run_id" class="ml-2 rounded-full bg-primary/10 px-2 py-0.5 text-[10px] font-semibold text-primary">Rekomendasi</span>
+          <span
+            v-if="recommendedId === item.run_id"
+            class="ml-2 rounded-full px-2 py-0.5 text-[10px] font-semibold"
+            :class="hasCleanRun ? 'bg-primary/10 text-primary' : 'bg-amber-100 text-amber-800'"
+          >
+            {{ hasCleanRun ? 'Rekomendasi · HC 0' : 'Rekomendasi · HC bermasalah' }}
+          </span>
           <span v-if="item.cancelled" class="ml-2 text-[11px] text-gray-400">dibatalkan</span>
         </td>
         <td class="py-2 px-3 text-right text-gray-900">
           {{ item.best_fitness.toFixed(0) }} / {{ item.max_fitness.toFixed(0) }}
           <span class="block text-[11px] text-gray-400">{{ item.summary.fitness_percent.toFixed(1) }}%</span>
         </td>
-        <td class="py-2 px-3 text-right" :class="item.summary.hc_violations ? 'text-red-600 font-semibold' : 'text-gray-700'">{{ item.summary.hc_violations }}</td>
+        <td class="py-2 px-3 text-right">
+          <span :class="item.summary.hc_violations ? 'text-red-600 font-semibold' : 'text-gray-700'">
+            {{ item.summary.hc_violations }}
+          </span>
+          <span
+            v-if="item.summary.hc_violations === 0"
+            class="ml-2 rounded-full bg-green-100 px-2 py-0.5 text-[10px] font-semibold text-green-800"
+          >
+            Aman
+          </span>
+        </td>
         <td class="py-2 px-3 text-right text-gray-700">{{ item.summary.sc_unmet }}</td>
         <td class="py-2 px-3 text-right text-gray-700">{{ item.summary.unassigned_rooms }}</td>
         <td class="py-2 px-3 text-right text-gray-700">{{ item.best_generation }} / {{ item.final_generation }}</td>

@@ -136,6 +136,14 @@ class DashboardTest extends TestCase
                 ->where('dashboard.schedule.unassigned_rooms', 1));
     }
 
+    public function test_lecturer_gets_lecturer_dashboard(): void
+    {
+        $lecturerUser = User::factory()->lecturer($this->lecturer)->create();
+
+        $this->actingAs($lecturerUser)->get('/dashboard')
+            ->assertInertia(fn (Assert $page) => $page->component('Dosen/Dashboard'));
+    }
+
     public function test_superadmin_still_gets_stats(): void
     {
         $this->actingAs(User::factory()->superAdmin()->create())->get('/dashboard')

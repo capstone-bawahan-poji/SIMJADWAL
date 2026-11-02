@@ -206,6 +206,20 @@ export interface TeachingAssignment {
     can_delete: boolean;
 }
 
+/** App\Data\MasterData\TpbGroupData */
+export interface TpbGroup {
+    id: number;
+    course_id: number;
+    code: string;
+    time_slot_id: number | null;
+    course: CourseSummary;
+    time_slot: Pick<TimeSlot, 'id' | 'day' | 'session' | 'start_time' | 'end_time'> | null;
+    study_programs: StudyProgramSummary[];
+    course_lecturers_count: number;
+    can_update: boolean;
+    can_delete: boolean;
+}
+
 /** App\Data\Constraint\ConstraintTypeData. Weights are global. Only soft constraints can change. */
 export interface ConstraintType {
     id: number;

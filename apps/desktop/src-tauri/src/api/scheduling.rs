@@ -6,6 +6,23 @@ use super::{ApiClient, ApiError};
 use crate::services::ga::model::RunResult;
 
 impl ApiClient {
+    pub async fn scheduling_runs(
+        &self,
+        faculty_id: Option<i64>,
+        page: u32,
+    ) -> Result<Value, ApiError> {
+        let mut query = vec![("page", page.max(1).to_string()), ("per_page", "20".to_string())];
+        if let Some(faculty_id) = faculty_id {
+            query.push(("faculty_id", faculty_id.to_string()));
+        }
+
+        self.data(
+            self.request(Method::GET, "/scheduling-runs")?
+                .query(&query),
+        )
+        .await
+    }
+
     pub async fn dataset(
         &self,
         period: Option<&str>,

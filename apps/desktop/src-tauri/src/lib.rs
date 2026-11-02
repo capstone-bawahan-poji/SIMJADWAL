@@ -24,6 +24,7 @@ pub fn run() {
             commands::api::auth_import_token,
             commands::api::broadcast_auth,
             commands::api::api_dataset,
+            commands::api::api_scheduling_runs,
             commands::api::api_faculties,
             commands::api::api_ga_presets,
             commands::api::api_create_ga_preset,

@@ -78,7 +78,7 @@
                         <div class="cell-time">{{ $time }}</div>
                     @endif
                     @foreach ($entries as $d)
-                        <div class="entry {{ $d->is_overridden ? 'overridden' : '' }}">
+                        <div class="entry {{ $export->showOverrideIndicators && $d->is_overridden ? 'overridden' : '' }}">
                             <b>{{ ScheduleLine::course($d) }}</b>
                             <span>{{ ScheduleLine::lecturer($d) }} · {{ ScheduleLine::room($d) }}</span>
                         </div>
@@ -89,7 +89,9 @@
     @endforeach
     </tbody>
 </table>
-<div class="legend">{{ __('Orange border = changed manually by the faculty admin.') }}</div>
+@if ($export->showOverrideIndicators)
+    <div class="legend">{{ __('Orange border = changed manually by the faculty admin.') }}</div>
+@endif
 
 <section class="list">
     <h2>{{ __('Schedule list') }} ({{ $export->details->count() }})</h2>

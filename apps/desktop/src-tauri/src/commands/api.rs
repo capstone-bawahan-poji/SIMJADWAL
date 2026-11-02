@@ -55,6 +55,15 @@ pub async fn api_dataset(
 }
 
 #[tauri::command]
+pub async fn api_scheduling_runs(
+    api: State<'_, ApiClient>,
+    faculty_id: Option<i64>,
+    page: u32,
+) -> Result<Value, ApiError> {
+    api.scheduling_runs(faculty_id, page).await
+}
+
+#[tauri::command]
 pub async fn api_faculties(api: State<'_, ApiClient>) -> Result<Vec<FacultySummary>, ApiError> {
     api.faculties().await
 }

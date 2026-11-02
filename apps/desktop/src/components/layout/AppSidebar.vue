@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { computed, ref } from 'vue';
 import AppLogo from '@/components/shared/AppLogo.vue';
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue';
 
@@ -13,13 +13,15 @@ const emit = defineEmits<{
   logout: [];
 }>();
 
-// Sidebar nav items
-const navItems = [
+const gaNavItems = [
   { key: 'config', label: 'Konfigurasi GA' },
   { key: 'data', label: 'Data & Constraint' },
   { key: 'run', label: 'Run' },
   { key: 'sync', label: 'Sinkronisasi' },
 ];
+const navItems = computed(() => props.adminRole === 'Super Admin'
+  ? [...gaNavItems, { key: 'admin-history', label: 'Riwayat Run Fakultas' }]
+  : gaNavItems);
 
 const showLogoutDialog = ref(false);
 

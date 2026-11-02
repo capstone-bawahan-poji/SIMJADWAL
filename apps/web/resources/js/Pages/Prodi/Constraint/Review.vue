@@ -52,7 +52,7 @@ async function submit(): Promise<void> {
     <Head title="Review Constraint Prodi" />
 
     <AppLayout>
-        <div class="p-6 md:p-8 max-w-7xl w-full mx-auto space-y-6">
+        <div class="w-full space-y-6 p-6 md:p-8">
             <div>
                 <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Review &amp; Submit Constraint</h1>
                 <p class="mt-1 text-sm text-gray-500">Periksa ringkasan, lalu submit ke fakultas. Setelah submit, data prodi terkunci sampai fakultas mengembalikannya.</p>
@@ -71,7 +71,7 @@ async function submit(): Promise<void> {
             <ConstraintPreview v-if="detail" :detail="detail" :constraint-types="constraintTypes" :time-slots="timeSlots" />
 
             <div class="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-                <Link :href="route('prodi.constraints.index')" class="rounded-xl border border-gray-200 bg-white px-5 py-2.5 text-center text-xs font-bold text-gray-700 shadow-sm hover:bg-gray-50">
+                <Link :href="route('prodi.constraints.index')" class="rounded-lg border border-gray-200 bg-white px-5 py-2.5 text-center text-sm font-medium text-gray-700 hover:bg-gray-50">
                     Ubah Preferensi
                 </Link>
                 <Button type="button" :disabled="locked || !submission?.can_submit" @click="confirming = true">Submit Constraint</Button>

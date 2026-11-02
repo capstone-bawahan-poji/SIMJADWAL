@@ -17,13 +17,20 @@ const activeId = ref<string | null>(null);
 const cancelling = ref(false);
 
 const shownBatch = computed(() => batchId.value ?? items.value[0]?.batch_id ?? null);
-const batchItems = computed(() =>
-  items.value.filter((i) => i.batch_id === shownBatch.value).sort((a, b) => a.operator.localeCompare(b.operator) || a.run_index - b.run_index),
-);
+const batchItems = computed(() => items.value
+  .filter((i) => i.batch_id === shownBatch.value)
+  .sort((a, b) =>
+    b.best_fitness - a.best_fitness
+    || a.summary.hc_violations - b.summary.hc_violations
+    || a.operator.localeCompare(b.operator)
+    || a.run_index - b.run_index,
+  ));
 
 const recommendedId = computed(() => {
   const clean = batchItems.value.filter((i) => i.summary.hc_violations === 0 && !i.cancelled);
-  return clean.sort((a, b) => b.best_fitness - a.best_fitness)[0]?.run_id ?? null;
+  return clean[0]?.run_id
+    ?? batchItems.value.find((i) => !i.cancelled)?.run_id
+    ?? null;
 });
 
 onMounted(async () => {
@@ -94,6 +101,7 @@ async function send() {
             :selected="selected"
             :active-id="activeId"
             :recommended-id="recommendedId"
+            :has-clean-run="batchItems.some((item) => item.summary.hc_violations === 0 && !item.cancelled)"
             @toggle="toggle"
             @open="activeId = $event"
           />

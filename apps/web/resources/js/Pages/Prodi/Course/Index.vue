@@ -4,10 +4,9 @@ import ProgramLockBanner from '@/Components/constraint/ProgramLockBanner.vue';
 import Modal from '@/Components/Modal.vue';
 import Alert from '@/Components/ui/Alert.vue';
 import Button from '@/Components/ui/Button.vue';
-import Card from '@/Components/ui/Card.vue';
 import ConfirmDialog from '@/Components/ui/ConfirmDialog.vue';
+import Panel from '@/Components/ui/Panel.vue';
 import Pagination from '@/Components/ui/Pagination.vue';
-import StatCard from '@/Components/ui/StatCard.vue';
 import { useApiForm } from '@/composables/useApiForm';
 import { usePaginatedList } from '@/composables/useApiList';
 import { useOwnSubmission } from '@/composables/useOwnSubmission';
@@ -27,6 +26,8 @@ const { filters, items: courses, pagination, page, loading, error, reload } = us
 >('courses', { q: queryParam('q'), semester: '', study_program_id: studyProgramId.value, is_tpb: false }, 20, ['course_lecturers']);
 
 const semesters = [1, 2, 3, 4, 5, 6, 7, 8];
+const controlClass = 'rounded-lg border-gray-200 bg-white text-sm text-gray-700 focus:border-primary focus:ring-primary';
+const hasActions = computed(() => courses.value.some((course) => course.can_update || course.can_delete));
 const flash = ref<string | null>(null);
 
 function refresh(message: string): void {
@@ -110,14 +111,14 @@ async function confirmDelete(): Promise<void> {
     <Head title="Data Mata Kuliah" />
 
     <AppLayout>
-        <div class="p-6 md:p-8 max-w-7xl w-full mx-auto space-y-6">
-            <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <div class="w-full space-y-6 p-6 md:p-8">
+            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
                 <div>
-                    <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Data Mata Kuliah</h1>
-                    <p class="mt-1 text-sm text-gray-500">Mata kuliah program studi Anda beserta kelas paralel dan kelengkapan dosen pengampu.</p>
+                    <h1 class="text-2xl font-bold tracking-tight text-gray-900">Data Mata Kuliah</h1>
+                    <p class="mt-1 text-sm text-gray-500">Mata kuliah prodi beserta kelas paralel dan dosen pengampunya.</p>
                 </div>
                 <div class="flex gap-3">
-                    <Link :href="route('prodi.courses.import')" class="inline-flex h-10 items-center rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50">Import XLSX</Link>
+                    <Link :href="route('prodi.courses.import')" class="inline-flex h-10 items-center rounded-lg border border-gray-200 bg-white px-4 text-sm font-medium text-gray-700 hover:bg-gray-50">Import XLSX</Link>
                     <Button type="button" :disabled="locked" @click="openCreate">Tambah Mata Kuliah</Button>
                 </div>
             </div>
@@ -125,55 +126,59 @@ async function confirmDelete(): Promise<void> {
             <ProgramLockBanner :submission="submission" />
             <Alert v-if="flash" variant="success" :title="flash" dismissible @dismiss="flash = null" />
 
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-                <StatCard label="Total Mata Kuliah" :value="pagination.total" />
-            </div>
-
-            <Card class="!p-0 border border-gray-100 shadow-sm">
-                <div class="flex flex-col gap-3 border-b border-gray-100 p-5 md:flex-row md:items-center md:justify-between">
-                    <select v-model="filters.semester" class="w-44 rounded-xl border-gray-200 bg-gray-50 text-xs font-semibold text-gray-700 focus:border-primary focus:ring-primary" aria-label="Filter semester">
+            <Panel>
+                <div class="flex flex-col gap-3 border-b border-gray-200 p-4 md:flex-row md:items-center">
+                    <input
+                        v-model="filters.q"
+                        type="search"
+                        placeholder="Cari kode atau nama mata kuliah..."
+                        aria-label="Cari mata kuliah"
+                        :class="[controlClass, 'w-full placeholder-gray-400 md:w-72']"
+                    />
+                    <select v-model="filters.semester" :class="[controlClass, 'md:w-44']" aria-label="Filter semester">
                         <option value="">Semua Semester</option>
                         <option v-for="s in semesters" :key="s" :value="s">Semester {{ s }}</option>
                     </select>
-                    <input v-model="filters.q" type="search" placeholder="Cari kode atau nama mata kuliah..." aria-label="Cari mata kuliah" class="w-full rounded-xl border-gray-200 bg-gray-50 text-xs placeholder-gray-400 focus:border-primary focus:ring-primary md:w-72" />
+                    <p class="text-sm text-gray-500 md:ml-auto"><span class="font-semibold tabular-nums text-gray-900">{{ pagination.total }}</span> mata kuliah</p>
                 </div>
 
-                <Alert v-if="error" :title="error.message" class="m-5" />
+                <Alert v-if="error" :title="error.message" class="m-4" />
 
                 <div class="w-full overflow-x-auto">
-                    <table class="w-full border-collapse text-left">
+                    <table class="w-full border-collapse text-left text-sm">
                         <thead>
-                            <tr class="border-b border-gray-100 bg-gray-50/70 text-[11px] font-bold uppercase tracking-wider text-gray-500">
-                                <th class="px-6 py-4">Kode &amp; Mata Kuliah</th>
-                                <th class="px-6 py-4 text-center">SKS</th>
-                                <th class="px-6 py-4 text-center">Semester</th>
-                                <th class="px-6 py-4">Kelas Paralel</th>
-                                <th class="px-6 py-4 text-center">Aksi</th>
+                            <tr class="border-b border-gray-200 bg-gray-50 text-xs font-semibold uppercase tracking-wide text-gray-500">
+                                <th class="whitespace-nowrap px-6 py-3">Kode</th>
+                                <th class="px-6 py-3">Mata Kuliah</th>
+                                <th class="whitespace-nowrap px-6 py-3 text-right">SKS</th>
+                                <th class="whitespace-nowrap px-6 py-3 text-right">Semester</th>
+                                <th class="whitespace-nowrap px-6 py-3 text-right">Kapasitas / kelas</th>
+                                <th class="whitespace-nowrap px-6 py-3 text-right">Kelas berdosen</th>
+                                <th v-if="hasActions" class="whitespace-nowrap px-6 py-3 text-right">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100 text-xs text-gray-700" :class="{ 'opacity-60': loading }">
+                        <tbody class="divide-y divide-gray-100" :class="{ 'opacity-60': loading }">
                             <tr v-if="!loading && courses.length === 0">
-                                <td colspan="5" class="px-6 py-10 text-center text-sm text-gray-500">Tidak ada mata kuliah yang cocok dengan filter.</td>
+                                <td :colspan="hasActions ? 7 : 6" class="px-6 py-10 text-center text-gray-500">Tidak ada mata kuliah yang cocok dengan filter.</td>
                             </tr>
-                            <tr v-for="course in courses" :key="course.id" class="transition-colors hover:bg-gray-50/60">
-                                <td class="px-6 py-4">
-                                    <div class="flex items-start gap-3">
-                                        <span class="mt-0.5 rounded border border-blue-100 bg-blue-50 px-2 py-0.5 font-mono text-[10px] font-bold text-blue-700">{{ course.code }}</span>
-                                        <span class="font-bold text-gray-900">{{ course.name }}</span>
-                                    </div>
-                                </td>
-                                <td class="px-6 py-4 text-center font-semibold">{{ course.sks }}</td>
-                                <td class="px-6 py-4 text-center text-gray-500">{{ course.semester }}</td>
-                                <td class="px-6 py-4">
-                                    <span class="font-semibold" :class="course.course_lecturers_count < course.parallel_class_count ? 'text-red-600' : 'text-gray-700'">
-                                        {{ course.course_lecturers_count }} / {{ course.parallel_class_count }} kelas berdosen
+                            <tr v-for="course in courses" :key="course.id" class="hover:bg-gray-50">
+                                <td class="whitespace-nowrap px-6 py-3.5 font-semibold tabular-nums text-gray-900">{{ course.code }}</td>
+                                <td class="px-6 py-3.5 text-gray-900">{{ course.name }}</td>
+                                <td class="px-6 py-3.5 text-right tabular-nums text-gray-700">{{ course.sks }}</td>
+                                <td class="px-6 py-3.5 text-right tabular-nums text-gray-700">{{ course.semester }}</td>
+                                <td class="px-6 py-3.5 text-right tabular-nums text-gray-700">{{ course.class_capacity }}</td>
+                                <td class="whitespace-nowrap px-6 py-3.5 text-right tabular-nums">
+                                    <span :class="course.course_lecturers_count < course.parallel_class_count ? 'font-semibold text-red-600' : 'text-gray-700'">
+                                        {{ course.course_lecturers_count }} / {{ course.parallel_class_count }}
                                     </span>
-                                    <span class="block text-[11px] text-gray-400">Kapasitas {{ course.class_capacity }} mahasiswa/kelas</span>
+                                    <span v-if="course.course_lecturers_count < course.parallel_class_count" class="ml-1.5 text-xs text-red-600">
+                                        kurang {{ course.parallel_class_count - course.course_lecturers_count }}
+                                    </span>
                                 </td>
-                                <td class="px-6 py-4 text-center">
-                                    <div class="flex justify-center gap-2">
-                                        <button v-if="course.can_update" type="button" class="rounded p-1.5 text-gray-400 transition-colors hover:bg-primary/10 hover:text-primary" @click="openEdit(course)">Edit</button>
-                                        <button v-if="course.can_delete" type="button" class="rounded p-1.5 text-gray-400 transition-colors hover:bg-red-50 hover:text-red-600" @click="askDelete(course)">Hapus</button>
+                                <td v-if="hasActions" class="whitespace-nowrap px-6 py-3.5 text-right">
+                                    <div class="flex justify-end gap-4">
+                                        <button v-if="course.can_update" type="button" class="font-medium text-gray-700 hover:text-primary hover:underline" @click="openEdit(course)">Edit</button>
+                                        <button v-if="course.can_delete" type="button" class="font-medium text-red-600 hover:underline" @click="askDelete(course)">Hapus</button>
                                     </div>
                                 </td>
                             </tr>
@@ -182,7 +187,7 @@ async function confirmDelete(): Promise<void> {
                 </div>
 
                 <Pagination v-model:page="page" :pagination="pagination" label="mata kuliah" />
-            </Card>
+            </Panel>
         </div>
 
         <Modal :show="isModalOpen" max-width="2xl" @close="isModalOpen = false">

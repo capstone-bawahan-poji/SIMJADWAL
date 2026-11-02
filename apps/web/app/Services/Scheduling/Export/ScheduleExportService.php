@@ -2,6 +2,7 @@
 
 namespace App\Services\Scheduling\Export;
 
+use App\Enums\Account\Role;
 use App\Exceptions\Shared\ApiException;
 use App\Models\MasterData\CourseLecturer;
 use App\Models\MasterData\Faculty;
@@ -57,6 +58,7 @@ readonly class ScheduleExportService
             subtitle: $subtitle,
             filename: $slug,
             isDraft: $runs->whereIn('id', $usedRunIds)->contains(fn ($run) => $run->published_at === null),
+            showOverrideIndicators: $actor->role !== Role::STUDENT,
             details: $details,
             timeSlots: TimeSlot::query()->orderBy('day')->orderBy('session')->get(),
             generatedAt: now(IcsScheduleExporter::TIMEZONE),

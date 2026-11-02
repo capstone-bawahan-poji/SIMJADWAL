@@ -7,27 +7,30 @@ import ConfigView from '@/views/ConfigView.vue';
 import DataConstraintView from '@/views/DataConstraintView.vue';
 import RunView from '@/views/RunView.vue';
 import SyncView from '@/views/SyncView.vue';
+import SuperadminRunsView from '@/views/SuperadminRunsView.vue';
 
 const routes: RouteRecordRaw[] = [
   { path: '/login', name: 'login', component: LoginView, meta: { guest: true } },
   {
     path: '/',
     component: AppLayout,
-    redirect: { name: 'config' },
+    redirect: { name: 'data' },
     children: [
+      { path: 'admin/history', name: 'admin-history', component: SuperadminRunsView, meta: { title: 'Riwayat Run Fakultas', superadmin: true } },
       { path: 'config', name: 'config', component: ConfigView, meta: { title: 'Konfigurasi GA' } },
       { path: 'data', name: 'data', component: DataConstraintView, meta: { title: 'Data & Constraint' } },
       { path: 'run', name: 'run', component: RunView, meta: { title: 'Run' } },
       { path: 'sync', name: 'sync', component: SyncView, meta: { title: 'Sinkronisasi' } },
     ],
   },
-  { path: '/:pathMatch(.*)*', redirect: { name: 'config' } },
+  { path: '/:pathMatch(.*)*', redirect: { name: 'data' } },
 ];
 
 declare module 'vue-router' {
   interface RouteMeta {
     title?: string;
     guest?: boolean;
+    superadmin?: boolean;
   }
 }
 
@@ -37,10 +40,13 @@ const router = createRouter({
 });
 
 router.beforeEach(async (to) => {
-  const { isLoggedIn, restore } = useAuth();
+  const { isLoggedIn, restore, user } = useAuth();
   await restore();
   if (!to.meta.guest && !isLoggedIn.value) return { name: 'login' };
-  if (to.meta.guest && isLoggedIn.value) return { name: 'config' };
+  if (to.meta.guest && isLoggedIn.value) {
+    return { name: 'data' };
+  }
+  if (to.meta.superadmin && user.value?.role !== 'superadmin') return { name: 'config' };
 });
 
 onUnauthenticated(() => {

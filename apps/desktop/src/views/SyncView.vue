@@ -13,6 +13,9 @@ const toDelete = ref<RunListItem | null>(null);
 const deleteError = ref('');
 
 const shown = computed(() => items.value.filter((i) => filter.value === 'all' || i.upload.status === filter.value));
+const unsentRunIds = computed(() => items.value
+  .filter((i) => i.upload.status !== 'uploaded' && !i.cancelled)
+  .map((i) => i.run_id));
 const counts = computed(() => ({
   all: items.value.length,
   pending: items.value.filter((i) => i.upload.status === 'pending').length,
@@ -44,7 +47,16 @@ async function confirmDelete() {
   <div class="max-w-screen-xl mx-auto px-6 py-6 space-y-5">
     <div class="flex flex-wrap items-center justify-between gap-3">
       <h1 class="text-2xl font-bold text-gray-900">Sinkronisasi</h1>
-      <Button variant="ghost" :loading="loading" @click="load">Muat ulang</Button>
+      <div class="flex gap-2">
+        <Button
+          :disabled="!unsentRunIds.length || uploading.size > 0"
+          :loading="uploading.size > 0"
+          @click="upload(unsentRunIds)"
+        >
+          Kirim semua belum terkirim ({{ unsentRunIds.length }})
+        </Button>
+        <Button variant="ghost" :loading="loading" @click="load">Muat ulang</Button>
+      </div>
     </div>
 
     <Alert v-if="error" title="Gagal memuat hasil">{{ error }}</Alert>

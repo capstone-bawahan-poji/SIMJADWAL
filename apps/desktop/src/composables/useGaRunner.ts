@@ -50,9 +50,11 @@ function listenOnce() {
       });
     }));
     await onGaBatchFinished((e) => route(e.batch_id, () => {
-      running.value = false;
       if (e.error) error.value = e.error;
-      load();
+      void (async () => {
+        await load();
+        running.value = false;
+      })();
     }));
   })();
   return listening;

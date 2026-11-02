@@ -155,7 +155,24 @@ class ScheduleExportTest extends TestCase
 
         Http::assertSent(fn (Request $request) => str_contains($request->body(), 'Basis Data')
             && str_contains($request->body(), 'DRAF')
+            && str_contains($request->body(), 'Orange border = changed manually by the faculty admin.')
             && str_contains($request->body(), 'name="paperWidth"'));
+    }
+
+    public function test_student_pdf_hides_manual_override_indicators(): void
+    {
+        Http::fake(['*/forms/chromium/convert/html' => Http::response('%PDF-1.7 fake', 200, ['Content-Type' => 'application/pdf'])]);
+        $this->run->update(['published_at' => now()]);
+        $detail = ScheduleDetail::query()->where('course_id', $this->algo->id)->firstOrFail();
+        $detail->update(['is_overridden' => true, 'overridden_at' => now(), 'overridden_by' => $this->admin->id]);
+        Sanctum::actingAs(User::factory()->student($this->program)->create());
+
+        $this->export("format=pdf&classes[]={$this->algo->id}:1")->assertOk()
+            ->assertHeader('Content-Type', 'application/pdf');
+
+        Http::assertSent(fn (Request $request) => str_contains($request->body(), 'Algoritma, Struktur Data')
+            && ! str_contains($request->body(), 'Orange border = changed manually by the faculty admin.')
+            && ! str_contains($request->body(), 'entry overridden'));
     }
 
     public function test_pdf_reports_gotenberg_outage(): void

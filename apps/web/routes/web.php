@@ -13,6 +13,7 @@ Route::redirect('/', '/login');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/schedule', fn () => inertia('Prodi/ScheduleMatrix/Index'))->name('schedule.index');
 
     Route::middleware('role:superadmin')->prefix('superadmin')->name('superadmin.')->group(function () {
         Route::get('/faculty-program', function () {
@@ -43,9 +44,19 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware('role:admin_fakultas')->prefix('fakultas')->name('fakultas.')->group(function () {
+        Route::get('/schedule', fn () => inertia('Fakultas/Schedule/Index'))->name('schedule.index');
         Route::get('/constraints', fn () => inertia('Fakultas/Constraint/Index'))->name('constraints.index');
         Route::get('/ga', fn () => inertia('Fakultas/Ga/Index'))->name('ga.index');
         Route::get('/rooms', fn () => inertia('Fakultas/Room/Index'))->name('rooms.index');
+    });
+
+    Route::middleware('role:admin_tpb')->prefix('tpb')->name('tpb.')->group(function () {
+        Route::get('/', fn () => inertia('Tpb/Index'))->name('index');
+    });
+
+    Route::middleware('role:mahasiswa')->prefix('mahasiswa')->name('mahasiswa.')->group(function () {
+        Route::get('/faculty-schedule', fn () => inertia('Mahasiswa/FacultySchedule/Index'))->name('faculty-schedule.index');
+        Route::get('/schedule', fn () => inertia('Mahasiswa/Schedule/Index'))->name('schedule.index');
     });
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
