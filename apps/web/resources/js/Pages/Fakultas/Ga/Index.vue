@@ -4,6 +4,7 @@ import Alert from '@/Components/ui/Alert.vue';
 import Button from '@/Components/ui/Button.vue';
 import ConfirmDialog from '@/Components/ui/ConfirmDialog.vue';
 import Pagination from '@/Components/ui/Pagination.vue';
+import ScheduleOverrideModal from '@/Components/scheduling/ScheduleOverrideModal.vue';
 import { useCollection } from '@/composables/useApiList';
 import { onResourcesChanged } from '@/composables/useResourceChanges';
 import { api, toApiError, type ApiError } from '@/lib/api';
@@ -39,7 +40,11 @@ const processing = ref(false);
 const compareRuns = ref<SchedulingRunSummary[]>([]);
 const compareBatchId = ref<string | null>(null);
 const compareLoading = ref(false);
+const overrideTarget = ref<RunScheduleDetail | null>(null);
 let listRequestId = 0;
+
+// The server only lets the active run be overridden (ScheduleOverrideService).
+const canOverride = computed(() => selectedRun.value?.is_active === true);
 
 const programs = computed(() => {
     const unique = new Map<number, { id: number; code: string; name: string }>();
@@ -196,6 +201,14 @@ async function performAction(): Promise<void> {
     } finally {
         processing.value = false;
     }
+}
+
+// Violations of the moved entry are dropped server-side, so reload the run instead of patching one row.
+function overrideSaved(): void {
+    overrideTarget.value = null;
+    flash.value = 'Jadwal berhasil diubah.';
+    void loadRuns();
+    void loadSelectedRun();
 }
 
 watch(periods, (items) => {
@@ -388,6 +401,11 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
                         <div><dt class="inline">Seed</dt> <dd class="ml-1 inline text-base font-semibold tabular-nums text-gray-900">{{ selectedRun.seed ?? '—' }}</dd></div>
                     </dl>
 
+                    <p class="text-sm text-gray-600">
+                        <template v-if="canOverride">Klik jadwal di grid untuk memindahkan hari, sesi, atau ruangnya.</template>
+                        <template v-else>Jadwal hanya bisa diubah manual setelah run ini ditetapkan aktif.</template>
+                    </p>
+
                     <div class="flex flex-wrap gap-1 border-b border-gray-100" role="tablist" aria-label="Filter hari">
                         <button
                             role="tab"
@@ -439,7 +457,16 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
                                                 class="py-5 first:pt-0 last:pb-0"
                                                 :title="detail.course.code"
                                             >
-                                                <div class="border-l-2 pl-3" :class="detail.violations_count ? 'border-red-400' : 'border-transparent'">
+                                                <component
+                                                    :is="canOverride ? 'button' : 'div'"
+                                                    :type="canOverride ? 'button' : undefined"
+                                                    class="block w-full border-l-2 pl-3 text-left"
+                                                    :class="[
+                                                        detail.violations_count ? 'border-red-400' : detail.is_overridden ? 'border-amber-400' : 'border-transparent',
+                                                        canOverride ? 'rounded-r-lg hover:bg-primary/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary' : '',
+                                                    ]"
+                                                    @click="canOverride && (overrideTarget = detail)"
+                                                >
                                                     <p class="font-medium leading-snug text-gray-900">{{ detail.course.name }}</p>
                                                     <p class="mt-1 text-xs text-gray-500">
                                                         {{ detail.course.code }} · Kelas {{ classLabel(detail.class_number) }}
@@ -453,7 +480,8 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
                                                         {{ detail.violations_count }} pelanggaran
                                                     </p>
                                                     <p v-if="detail.is_overridden" class="mt-1 text-xs text-amber-700">Diubah manual</p>
-                                                </div>
+                                                    <span v-if="canOverride" class="mt-2 block text-[10px] font-medium text-primary">Klik untuk ubah jadwal</span>
+                                                </component>
                                             </li>
                                         </ul>
                                     </td>
@@ -502,5 +530,13 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
             </template>
             <template v-else>Setelah dipublikasikan, dosen dan mahasiswa dapat melihat jadwal ini.</template>
         </ConfirmDialog>
+
+        <ScheduleOverrideModal
+            v-if="overrideTarget"
+            :schedule-detail="overrideTarget"
+            :show="true"
+            @close="overrideTarget = null"
+            @updated="overrideSaved"
+        />
     </AppLayout>
 </template>

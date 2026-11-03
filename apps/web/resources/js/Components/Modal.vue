@@ -53,7 +53,15 @@ const closeOnEscape = (e: KeyboardEvent) => {
     }
 };
 
-onMounted(() => document.addEventListener('keydown', closeOnEscape));
+onMounted(() => {
+    document.addEventListener('keydown', closeOnEscape);
+
+    // Mounted already open (v-if + :show="true"): the watcher above never fires, so open here.
+    if (props.show) {
+        document.body.style.overflow = 'hidden';
+        dialog.value?.showModal();
+    }
+});
 
 onUnmounted(() => {
     document.removeEventListener('keydown', closeOnEscape);
