@@ -1,9 +1,12 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import Alert from '@/components/ui/Alert.vue';
+import Badge from '@/components/ui/Badge.vue';
 import Button from '@/components/ui/Button.vue';
 import Card from '@/components/ui/Card.vue';
 import ConfirmDialog from '@/components/ui/ConfirmDialog.vue';
+import UiInput from '@/components/ui/Input.vue';
+import Select from '@/components/ui/Select.vue';
 import { useGaConfig } from '@/composables/useGaConfig';
 import { useGaPresets } from '@/composables/useGaPresets';
 import type { GaPresetPayload } from '@/types/ga';
@@ -21,6 +24,14 @@ const actionError = ref('');
 const dialog = ref<'save-as' | 'delete' | null>(null);
 const newName = ref('');
 
+const presetModel = computed({
+  get: () => presetId.value,
+  set: (id: number | null) => {
+    const preset = presets.value.find((p) => p.id === id);
+    if (preset) applyPreset(preset);
+  },
+});
+
 function payload(name: string): GaPresetPayload {
   return {
     ...params,
@@ -28,11 +39,6 @@ function payload(name: string): GaPresetPayload {
     sc_overrides: scOverrides.value,
     ...(props.superAdmin ? { faculty_id: props.facultyId } : {}),
   };
-}
-
-function onSelect(event: Event) {
-  const preset = presets.value.find((p) => p.id === Number((event.target as HTMLSelectElement).value));
-  if (preset) applyPreset(preset);
 }
 
 async function run(action: () => Promise<void>) {
@@ -71,29 +77,22 @@ function openSaveAs() {
 </script>
 
 <template>
-  <Card>
-    <div class="flex flex-wrap items-center gap-3">
-      <label for="preset" class="text-xs font-bold uppercase tracking-wider text-gray-500">Preset</label>
-      <select
-        id="preset"
-        :value="presetId ?? ''"
-        class="h-9 min-w-56 rounded-lg border border-slate-300 bg-white px-3 text-sm text-gray-800 focus:outline-none focus:ring-2 focus:ring-primary"
-        @change="onSelect"
-      >
-        <option value="" disabled>Tanpa preset</option>
+  <Card no-padding class="flex flex-col gap-4 p-4">
+    <div class="flex flex-wrap items-center gap-4">
+      <label for="preset" class="text-xs font-semibold text-ink-muted">Preset</label>
+      <Select id="preset" v-model="presetModel" class="w-72">
+        <option :value="null" disabled>Tanpa preset</option>
         <option v-for="p in presets" :key="p.id" :value="p.id">{{ p.name }}</option>
-      </select>
-      <span v-if="dirty" class="text-xs font-medium text-amber-700">Belum disimpan</span>
+      </Select>
+      <Badge v-if="dirty" tone="warning">Perubahan belum disimpan</Badge>
 
-      <div class="ml-auto flex gap-2">
-        <Button variant="ghost" :disabled="!selected?.can_update || !dirty || hasErrors" :loading="saving && !dialog" @click="save">Simpan</Button>
-        <Button variant="ghost" :disabled="hasErrors" @click="openSaveAs">Simpan sebagai…</Button>
-        <Button variant="danger" :disabled="!selected?.can_delete" @click="actionError = ''; dialog = 'delete'">Hapus</Button>
+      <div class="ml-auto flex items-center gap-2">
+        <Button variant="danger-secondary" :disabled="!selected?.can_delete" @click="actionError = ''; dialog = 'delete'">Hapus preset</Button>
+        <Button :disabled="hasErrors" @click="openSaveAs">Simpan sebagai</Button>
+        <Button :disabled="!selected?.can_update || !dirty || hasErrors" :loading="saving && !dialog" @click="save">Simpan</Button>
       </div>
     </div>
-    <div v-if="loadError || (actionError && !dialog)" class="mt-3">
-      <Alert title="Preset gagal diproses">{{ loadError || actionError }}</Alert>
-    </div>
+    <Alert v-if="loadError || (actionError && !dialog)" title="Preset gagal diproses">{{ loadError || actionError }}</Alert>
 
     <ConfirmDialog
       :show="dialog === 'save-as'"
@@ -101,29 +100,27 @@ function openSaveAs() {
       confirm-label="Simpan"
       :processing="saving"
       :error="actionError || null"
+      :confirm-disabled="!newName.trim()"
       @confirm="newName.trim() && saveAs()"
       @close="dialog = null"
     >
-      <label for="preset-name" class="text-xs font-semibold text-gray-700">Nama preset</label>
-      <input
-        id="preset-name"
-        v-model="newName"
-        maxlength="100"
-        class="mt-1 w-full h-10 rounded-lg border border-slate-300 px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-      />
+      <div class="flex flex-col gap-2">
+        <label for="preset-name" class="text-xs font-semibold text-ink-secondary">Nama preset</label>
+        <UiInput id="preset-name" v-model="newName" maxlength="100" />
+      </div>
     </ConfirmDialog>
 
     <ConfirmDialog
       :show="dialog === 'delete'"
       title="Hapus preset?"
-      confirm-label="Hapus"
+      confirm-label="Ya, hapus"
       danger
       :processing="saving"
       :error="actionError || null"
       @confirm="destroy"
       @close="dialog = null"
     >
-      Preset <strong>{{ selected?.name }}</strong> akan dihapus untuk semua admin fakultas ini.
+      Preset <strong class="text-ink">{{ selected?.name }}</strong> akan dihapus bagi seluruh admin fakultas ini.
     </ConfirmDialog>
   </Card>
 </template>
