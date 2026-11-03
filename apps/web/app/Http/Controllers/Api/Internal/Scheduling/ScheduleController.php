@@ -56,6 +56,7 @@ class ScheduleController extends ApiController implements HasMiddleware
             $scheduleDetail,
             (int) $request->validated('time_slot_id'),
             $request->validated('room_id') !== null ? (int) $request->validated('room_id') : null,
+            $request->validated('reason'),
         );
 
         return $this->response(ScheduleDetailTransformer::toArray($detail->fresh(ScheduleDetailTransformer::relations())));

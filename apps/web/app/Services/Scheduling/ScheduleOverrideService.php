@@ -27,7 +27,9 @@ readonly class ScheduleOverrideService
     /**
      * Every slot with whether the gene may move there, and the free rooms in it.
      *
-     * @return array{current: array{time_slot_id: int, room_id: int|null}, time_slots: list<array<string, mixed>>}
+     * published tells the client a reason is required (OverrideScheduleDetailRequest).
+     *
+     * @return array{published: bool, current: array{time_slot_id: int, room_id: int|null}, time_slots: list<array<string, mixed>>}
      */
     public function options(ScheduleDetail $detail): array
     {
@@ -35,6 +37,7 @@ readonly class ScheduleOverrideService
         $checker = $this->checkers->for($detail);
 
         return [
+            'published' => $detail->schedulingRun->published_at !== null,
             'current' => ['time_slot_id' => $detail->time_slot_id, 'room_id' => $detail->room_id],
             'time_slots' => TimeSlot::query()->orderBy('day')->orderBy('session')->get()
                 ->map(function (TimeSlot $slot) use ($checker) {
@@ -58,7 +61,7 @@ readonly class ScheduleOverrideService
         ];
     }
 
-    public function override(User $actor, ScheduleDetail $detail, int $timeSlotId, ?int $roomId): ScheduleDetail
+    public function override(User $actor, ScheduleDetail $detail, int $timeSlotId, ?int $roomId, ?string $reason = null): ScheduleDetail
     {
         $this->assertActive($detail);
         $run = $detail->schedulingRun;
@@ -93,7 +96,13 @@ readonly class ScheduleOverrideService
         });
 
         activity('scheduling')->causedBy($actor)->performedOn($run)->event('schedule_detail.overridden')
-            ->withProperties(['schedule_detail_id' => $detail->id, 'time_slot_id' => $timeSlotId, 'room_id' => $roomId])
+            ->withProperties([
+                'schedule_detail_id' => $detail->id,
+                'time_slot_id' => $timeSlotId,
+                'room_id' => $roomId,
+                'published' => $run->published_at !== null,
+                'reason' => $reason,
+            ])
             ->log(__('Overrode schedule entry :id of run :run', ['id' => $detail->id, 'run' => $run->id]));
 
         return $detail;

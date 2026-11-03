@@ -3,6 +3,7 @@
 namespace Tests\Feature\Scheduling;
 
 use App\Enums\Scheduling\RunStatus;
+use App\Models\Account\ActivityLog;
 use App\Models\Constraint\ConstraintType;
 use App\Models\MasterData\Course;
 use App\Models\MasterData\Faculty;
@@ -211,6 +212,25 @@ class ScheduleApiTest extends TestCase
 
         $this->assertSame($this->admin->id, $detail->fresh()->overridden_by);
         $this->assertSame(0, $detail->violationLogs()->count());
+    }
+
+    public function test_override_of_published_schedule_requires_a_reason(): void
+    {
+        $run = $this->makeRun($this->faculty, ['is_active' => true, 'published_at' => now()]);
+        $detail = $this->gene($run, $this->course, 0, null);
+
+        $this->getJson("/api/v1/schedule-details/{$detail->id}/options")->assertJsonPath('data.published', true);
+
+        $this->patchJson("/api/v1/schedule-details/{$detail->id}", ['time_slot_id' => $this->slots[2]->id, 'room_id' => null])
+            ->assertStatus(422)
+            ->assertJsonPath('code', 'VALIDATION_FAILED');
+
+        $this->patchJson("/api/v1/schedule-details/{$detail->id}", ['time_slot_id' => $this->slots[2]->id, 'room_id' => null, 'reason' => 'Dosen berhalangan'])
+            ->assertOk();
+
+        $log = ActivityLog::query()->where('event', 'schedule_detail.overridden')->latest('id')->firstOrFail();
+        $this->assertSame('Dosen berhalangan', data_get($log->properties, 'reason'));
+        $this->assertTrue(data_get($log->properties, 'published'));
     }
 
     public function test_override_rejects_lecturer_clash_in_another_faculty(): void
