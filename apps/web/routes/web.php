@@ -13,7 +13,10 @@ Route::redirect('/', '/login');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
-    Route::get('/schedule', fn () => inertia('Prodi/ScheduleMatrix/Index'))->name('schedule.index');
+    // Cross-faculty schedule. Admins of one faculty or program, and students, have their own pages.
+    Route::get('/schedule', fn () => inertia('Prodi/ScheduleMatrix/Index'))
+        ->middleware('role:superadmin|admin_tpb|dosen')
+        ->name('schedule.index');
 
     Route::middleware('role:superadmin')->prefix('superadmin')->name('superadmin.')->group(function () {
         Route::get('/faculty-program', function () {
