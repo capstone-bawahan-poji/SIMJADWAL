@@ -19,6 +19,7 @@ use App\Models\Scheduling\ScheduleDetail;
 use App\Models\Scheduling\SchedulingRun;
 use App\Models\User;
 use Database\Seeders\DatabaseSeeder;
+use Database\Seeders\Demo\SchedulingRunSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -120,6 +121,8 @@ class DatabaseSeederTest extends TestCase
     public function test_demo_runs_have_one_active_schedule_per_faculty_without_clashes(): void
     {
         $this->seed(DatabaseSeeder::class);
+        // Not part of DatabaseSeeder any more; run by hand when the review pages need sample runs.
+        $this->seed(SchedulingRunSeeder::class);
 
         $fsti = Faculty::where('code', 'FSTI')->value('id');
         $fpb = Faculty::where('code', 'FPB')->value('id');
