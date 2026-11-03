@@ -57,34 +57,28 @@ async function submit() {
 </script>
 
 <template>
-  <!-- Full-screen login: slate-50 bg, card centred -->
-  <div class="flex h-screen w-screen items-center justify-center bg-slate-50 flex-col gap-6">
+  <div class="flex h-screen w-screen flex-col items-center justify-center gap-6 bg-canvas">
     <div class="w-full max-w-[448px] px-4">
-      <Card>
-        <!-- Logo + title -->
+      <Card no-padding class="p-8">
         <div class="flex flex-col items-center text-center">
           <AppLogo variant="full" class="h-14" />
-          <h1 class="mt-5 font-display text-2xl font-bold text-slate-900 leading-tight">
-            Sistem Penjadwalan Kuliah
-          </h1>
+          <h1 class="mt-6 font-serif text-xl font-semibold text-ink">Sistem Penjadwalan Perkuliahan</h1>
+          <p class="mt-1 text-sm text-ink-muted">Masuk menggunakan akun admin fakultas atau super admin.</p>
         </div>
 
-        <!-- Status / error alerts -->
         <div v-if="loginError" class="mt-6">
           <Alert title="Gagal masuk" dismissible @dismiss="loginError = ''">
             {{ loginError }}
           </Alert>
         </div>
 
-        <!-- Form -->
-        <form class="mt-6 space-y-5" novalidate @submit.prevent="submit">
-          <!-- Email -->
+        <form class="mt-6 flex flex-col gap-6" novalidate @submit.prevent="submit">
           <FormField id="login-email" label="Email" :error="errors.email">
             <UiInput
               id="login-email"
               v-model="form.email"
               type="email"
-              placeholder="Contoh: dosen@itk.ac.id"
+              placeholder="Contoh: admin@itk.ac.id"
               autocomplete="username"
               autofocus
               :invalid="!!errors.email"
@@ -95,37 +89,23 @@ async function submit() {
             </UiInput>
           </FormField>
 
-          <!-- Password -->
-          <FormField id="login-password" label="Kata Sandi" :error="errors.password">
-            <template #label-action>
-              <button
-                type="button"
-                class="text-xs font-medium text-blue-700 hover:underline rounded focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-              >
-                Lupa Kata Sandi?
-              </button>
-            </template>
-
+          <FormField id="login-password" label="Kata sandi" :error="errors.password">
             <PasswordInput
               id="login-password"
               v-model="form.password"
-              placeholder="Masukkan kata sandi Anda"
+              placeholder="Masukkan kata sandi"
               autocomplete="current-password"
               :invalid="!!errors.password"
             />
           </FormField>
 
-          <!-- Submit -->
-          <Button type="submit" class="w-full" :loading="processing">
-            Masuk ke Sistem
+          <Button type="submit" variant="primary" size="lg" class="w-full" :loading="processing">
+            Masuk
           </Button>
         </form>
       </Card>
     </div>
 
-    <!-- Footer -->
-    <div class="border-t border-slate-200 pt-4 w-full max-w-[448px] px-4 text-center">
-      <p class="text-xs text-slate-400">© 2026 Capstone Kelompok 11</p>
-    </div>
+    <p class="text-xs text-ink-faint">© 2026 Capstone Kelompok 11</p>
   </div>
 </template>

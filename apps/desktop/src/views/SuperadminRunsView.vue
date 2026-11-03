@@ -1,8 +1,14 @@
 <script setup lang="ts">
 import { onMounted, ref, watch } from 'vue';
+import PageHeader from '@/components/layout/PageHeader.vue';
 import Alert from '@/components/ui/Alert.vue';
+import Badge from '@/components/ui/Badge.vue';
 import Button from '@/components/ui/Button.vue';
 import Card from '@/components/ui/Card.vue';
+import EmptyState from '@/components/ui/EmptyState.vue';
+import Select from '@/components/ui/Select.vue';
+import Skeleton from '@/components/ui/Skeleton.vue';
+import { periodLabel } from '@/lib/format';
 import { fetchFaculties } from '@/lib/api/scheduling';
 import { listServerRuns } from '@/lib/api/schedulingRuns';
 import type { FacultyOption } from '@/types/scheduling';
@@ -117,14 +123,14 @@ async function load(): Promise<void> {
 }
 
 function timestamp(value: string | null): string {
-  return value ? new Date(value).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) : '—';
+  return value ? new Date(value).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) : '-';
 }
 
-function runState(run: RunSummary): string {
-  if (run.is_active && run.published_at) return 'Dipublikasikan';
-  if (run.is_active) return 'Aktif';
-  if (run.published_at) return 'Arsip';
-  return run.status === 'done' ? 'Draft' : run.status;
+function runState(run: RunSummary): { label: string; tone: 'neutral' | 'primary' | 'success' | 'warning' } {
+  if (run.is_active && run.published_at) return { label: 'Dipublikasikan', tone: 'success' };
+  if (run.is_active) return { label: 'Aktif', tone: 'primary' };
+  if (run.published_at) return { label: 'Arsip', tone: 'neutral' };
+  return run.status === 'done' ? { label: 'Draft', tone: 'neutral' } : { label: run.status, tone: 'warning' };
 }
 
 onMounted(async () => {
@@ -144,70 +150,72 @@ watch(facultyId, () => {
 </script>
 
 <template>
-  <div class="mx-auto max-w-screen-xl space-y-5 px-6 py-6">
-    <header class="flex flex-wrap items-end justify-between gap-4">
-      <div>
-        <h1 class="text-2xl font-bold text-gray-900">Riwayat Run Fakultas</h1>
-        <p class="mt-1 text-sm text-gray-500">Lihat run GA yang sudah tersimpan di server, dari fakultas mana pun.</p>
-      </div>
-      <label class="text-sm font-medium text-gray-700">
-        Fakultas
-        <select
-          v-model="facultyId"
-          class="mt-1 block min-w-64 rounded-lg border-gray-200 bg-white text-sm"
-          aria-label="Filter fakultas untuk riwayat run"
-        >
+  <div class="flex flex-col gap-6 p-8">
+    <PageHeader title="Riwayat run fakultas" description="Daftar run GA yang tersimpan di server untuk seluruh fakultas.">
+      <template #actions>
+        <label for="history-faculty" class="text-xs font-semibold text-ink-muted">Fakultas</label>
+        <Select id="history-faculty" v-model="facultyId" class="w-72" aria-label="Filter fakultas untuk riwayat run">
           <option value="">Semua fakultas</option>
           <option v-for="faculty in faculties" :key="faculty.id" :value="String(faculty.id)">
-            {{ faculty.code }} · {{ faculty.name }}
+            {{ faculty.code }} {{ faculty.name }}
           </option>
-        </select>
-      </label>
-    </header>
+        </Select>
+      </template>
+    </PageHeader>
 
     <Alert v-if="error" title="Riwayat run gagal dimuat">{{ error }}</Alert>
 
     <Card no-padding>
-      <div v-if="loading && !result" class="p-10 text-center text-sm text-gray-500">Memuat riwayat run dari server…</div>
-      <div v-else-if="!loading && !result?.data.length" class="p-10 text-center text-sm text-gray-500">
-        Belum ada riwayat run untuk fakultas ini.
-      </div>
+      <div v-if="loading && !result" class="p-6"><Skeleton :lines="5" /></div>
+      <EmptyState v-else-if="!loading && !result?.data.length" title="Belum ada riwayat run">Belum terdapat run yang tersimpan untuk fakultas ini.</EmptyState>
       <div v-else class="overflow-x-auto">
-        <table class="w-full min-w-[1050px] text-left text-sm" :class="{ 'opacity-60': loading }">
-          <thead class="border-b border-gray-100 bg-gray-50 text-xs font-semibold text-gray-500">
-            <tr>
-              <th class="px-4 py-3">Fakultas</th>
-              <th class="px-4 py-3">Run / Periode</th>
-              <th class="px-4 py-3">Tanggal</th>
-              <th class="px-4 py-3">Operator</th>
-              <th class="px-4 py-3 text-right">Fitness</th>
-              <th class="px-4 py-3 text-right">HC / SC</th>
-              <th class="px-4 py-3">Status</th>
-              <th class="px-4 py-3">Dijalankan oleh</th>
+        <table class="w-full min-w-[1056px] text-left text-sm" :class="{ 'opacity-60': loading }">
+          <thead>
+            <tr class="border-b border-line text-xs text-ink-muted">
+              <th class="py-3 pl-6 pr-4 font-semibold">Fakultas</th>
+              <th class="py-3 pr-4 font-semibold">Run dan periode</th>
+              <th class="py-3 pr-4 font-semibold">Tanggal</th>
+              <th class="py-3 pr-4 font-semibold">Operator</th>
+              <th class="py-3 pr-4 text-right font-semibold">Fitness</th>
+              <th class="py-3 pr-4 text-right font-semibold">HC dan SC</th>
+              <th class="py-3 pr-4 font-semibold">Status</th>
+              <th class="py-3 pr-6 font-semibold">Dijalankan oleh</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-gray-100 text-gray-700">
-            <tr v-for="run in result?.data ?? []" :key="run.id">
-              <td class="px-4 py-3">{{ run.faculty?.code ?? '—' }}<span class="block text-xs text-gray-500">{{ run.faculty?.name ?? 'Fakultas tidak diketahui' }}</span></td>
-              <td class="px-4 py-3"><span class="font-semibold text-primary">Run #{{ run.id }}</span><span class="block text-xs text-gray-500">{{ run.period.replace('-', ' ') }}</span></td>
-              <td class="whitespace-nowrap px-4 py-3">{{ timestamp(run.finished_at ?? run.started_at) }}</td>
-              <td class="px-4 py-3">{{ run.selection_operator ?? '—' }}</td>
-              <td class="px-4 py-3 text-right tabular-nums">{{ run.best_fitness?.toFixed(3) ?? '—' }}<span class="block text-xs text-gray-500">{{ run.fitness_percent ?? 0 }}%</span></td>
-              <td class="px-4 py-3 text-right tabular-nums">{{ run.hc_violations }} / {{ run.sc_unmet }}<span class="block text-xs text-gray-500">{{ run.unassigned_rooms }} tanpa ruang</span></td>
-              <td class="px-4 py-3">{{ runState(run) }}</td>
-              <td class="px-4 py-3">{{ run.triggered_by?.name ?? '—' }}</td>
+          <tbody class="divide-y divide-line-soft text-ink-secondary">
+            <tr v-for="run in result?.data ?? []" :key="run.id" class="align-top">
+              <td class="py-3 pl-6 pr-4">
+                <span class="font-mono text-xs font-semibold text-ink">{{ run.faculty?.code ?? '-' }}</span>
+                <span class="block text-xs text-ink-muted">{{ run.faculty?.name ?? 'Fakultas tidak diketahui' }}</span>
+              </td>
+              <td class="py-3 pr-4">
+                <span class="tabular font-semibold text-primary">#{{ run.id }}</span>
+                <span class="block text-xs text-ink-muted">{{ periodLabel(run.period) }}</span>
+              </td>
+              <td class="tabular whitespace-nowrap py-3 pr-4">{{ timestamp(run.finished_at ?? run.started_at) }}</td>
+              <td class="py-3 pr-4">{{ run.selection_operator ?? '-' }}</td>
+              <td class="tabular py-3 pr-4 text-right">
+                {{ run.best_fitness?.toFixed(1) ?? '-' }}
+                <span class="block text-xs text-ink-muted">{{ run.fitness_percent ?? 0 }}%</span>
+              </td>
+              <td class="tabular py-3 pr-4 text-right">
+                <span :class="run.hc_violations ? 'font-semibold text-danger-ink' : ''">{{ run.hc_violations }}</span> dan {{ run.sc_unmet }}
+                <span class="block font-sans text-xs text-ink-muted">{{ run.unassigned_rooms }} kelas tanpa ruangan</span>
+              </td>
+              <td class="py-3 pr-4"><Badge :tone="runState(run).tone">{{ runState(run).label }}</Badge></td>
+              <td class="py-3 pr-6">{{ run.triggered_by?.name ?? '-' }}</td>
             </tr>
           </tbody>
         </table>
       </div>
-      <div v-if="result && result.meta.pagination.last_page > 1" class="flex items-center justify-between border-t border-gray-100 px-4 py-3">
-        <span class="text-xs text-gray-500">{{ result.meta.pagination.total }} run · halaman {{ result.meta.pagination.page }} dari {{ result.meta.pagination.last_page }}</span>
+      <div v-if="result && result.meta.pagination.last_page > 1" class="flex items-center justify-between border-t border-line px-6 py-4">
+        <span class="tabular text-xs text-ink-muted">{{ result.meta.pagination.total }} run, halaman {{ result.meta.pagination.page }} dari {{ result.meta.pagination.last_page }}</span>
         <div class="flex gap-2">
-          <Button variant="ghost" :disabled="page <= 1 || loading" @click="page--; load()">Sebelumnya</Button>
-          <Button variant="ghost" :disabled="page >= result.meta.pagination.last_page || loading" @click="page++; load()">Berikutnya</Button>
+          <Button size="sm" :disabled="page <= 1 || loading" @click="page--; load()">Sebelumnya</Button>
+          <Button size="sm" :disabled="page >= result.meta.pagination.last_page || loading" @click="page++; load()">Berikutnya</Button>
         </div>
       </div>
-      <div v-else-if="result" class="border-t border-gray-100 px-4 py-3 text-xs text-gray-500">{{ result.meta.pagination.total }} run</div>
+      <div v-else-if="result" class="tabular border-t border-line px-6 py-4 text-xs text-ink-muted">{{ result.meta.pagination.total }} run</div>
     </Card>
   </div>
 </template>
