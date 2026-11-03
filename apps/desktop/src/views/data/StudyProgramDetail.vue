@@ -1,21 +1,24 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import PreferenceGrid from '@/views/data/PreferenceGrid.vue';
+import Badge from '@/components/ui/Badge.vue';
+import EmptyState from '@/components/ui/EmptyState.vue';
+import Tabs from '@/components/ui/Tabs.vue';
+import { classLetter } from '@/lib/format';
+import { colorOf, type ProgramColor } from '@/lib/programColors';
 import type { DatasetStudyProgram, SchedulingDataset } from '@/types/scheduling';
+import { CONSTRAINT_STATUS } from '@/views/data/constraintStatus';
+import PreferenceGrid from '@/views/data/PreferenceGrid.vue';
 
 const props = defineProps<{
   program: DatasetStudyProgram;
   dataset: SchedulingDataset;
+  colors: Map<number, ProgramColor>;
 }>();
 
 type Tab = 'courses' | 'preferences' | 'hard';
 const tab = ref<Tab>('courses');
-const TABS: { key: Tab; label: string }[] = [
-  { key: 'courses', label: 'Mata Kuliah & Kelas' },
-  { key: 'preferences', label: 'Preferensi Dosen' },
-  { key: 'hard', label: 'Hard Constraint' },
-];
 
+const color = computed(() => colorOf(props.colors, props.program.id));
 const lecturerById = computed(() => new Map(props.dataset.lecturers.map((l) => [l.id, l])));
 
 const courses = computed(() =>
@@ -40,102 +43,102 @@ const selectedLecturer = computed(() => lecturers.value.find((l) => l.id === sel
 
 const hardConstraints = computed(() => props.dataset.constraint_types.filter((t) => t.category === 'HC'));
 
+const tabs = computed(() => [
+  { key: 'courses' as const, label: `Mata kuliah dan kelas (${courses.value.length})` },
+  { key: 'preferences' as const, label: `Preferensi dosen (${lecturers.value.length})` },
+  { key: 'hard' as const, label: 'Hard constraint' },
+]);
+
 watch(() => props.program.id, () => {
   tab.value = 'courses';
   selectedLecturerId.value = null;
 });
-
-function classLabel(n: number) {
-  return String.fromCharCode(64 + n);
-}
 </script>
 
 <template>
   <div>
-    <div class="flex items-baseline justify-between gap-4">
-      <div>
-        <h2 class="text-lg font-bold text-gray-900">{{ program.name }}</h2>
-        <p class="text-xs text-gray-400">{{ program.code }}</p>
+    <div class="flex items-center gap-4 px-6 pt-6">
+      <span class="size-8 shrink-0 rounded-control border" :style="{ background: color.bg, borderColor: color.border }" aria-hidden="true" />
+      <div class="min-w-0 flex-1">
+        <h2 class="truncate text-base font-semibold text-ink">{{ program.name }}</h2>
+        <p class="font-mono text-xs text-ink-muted">{{ program.code }}</p>
       </div>
+      <Badge :tone="CONSTRAINT_STATUS[program.constraint_status].tone">{{ CONSTRAINT_STATUS[program.constraint_status].label }}</Badge>
     </div>
 
-    <p v-if="!program.included" class="mt-6 text-sm text-gray-500">
-      Data prodi ini tidak termasuk dataset penjadwalan.
-    </p>
+    <div v-if="!program.included" class="p-6">
+      <EmptyState title="Program studi tidak termasuk dataset" dashed>
+        Program studi ini tidak termasuk dalam dataset penjadwalan sehingga algoritma genetika tidak menyusun jadwal untuknya.
+        <template v-if="program.constraint_status !== 'accepted'">
+          Status constraint saat ini: {{ CONSTRAINT_STATUS[program.constraint_status].label }}.
+        </template>
+      </EmptyState>
+    </div>
 
     <template v-else>
-      <div class="mt-4 flex gap-1 border-b border-gray-100">
-        <button
-          v-for="t in TABS"
-          :key="t.key"
-          type="button"
-          class="px-3 py-2 text-sm font-semibold -mb-px border-b-2 transition-colors"
-          :class="tab === t.key ? 'border-primary text-primary' : 'border-transparent text-gray-500 hover:text-gray-700'"
-          @click="tab = t.key"
-        >
-          {{ t.label }}
-        </button>
+      <div class="mt-4 px-6">
+        <Tabs v-model="tab" :tabs="tabs" />
       </div>
 
-      <!-- Mata kuliah & kelas -->
-      <div v-if="tab === 'courses'" class="mt-4 overflow-x-auto">
-        <p v-if="!courses.length" class="text-sm text-gray-500">Tidak ada mata kuliah pada periode ini.</p>
+      <div v-if="tab === 'courses'">
+        <EmptyState v-if="!courses.length" title="Belum ada mata kuliah">Program studi ini tidak memiliki mata kuliah pada periode yang dipilih.</EmptyState>
         <table v-else class="w-full text-sm">
           <thead>
-            <tr class="text-left text-[11px] font-bold uppercase tracking-wider text-gray-400 border-b border-gray-100">
-              <th class="py-2 pr-3">Kode</th>
-              <th class="py-2 pr-3">Mata Kuliah</th>
-              <th class="py-2 pr-3 text-center">SKS</th>
-              <th class="py-2 pr-3 text-center">Smt</th>
-              <th class="py-2 pr-3">Kelas & Dosen</th>
+            <tr class="border-b border-line text-left text-xs font-semibold text-ink-muted">
+              <th class="py-3 pl-6 pr-4 font-semibold">Kode</th>
+              <th class="py-3 pr-4 font-semibold">Mata kuliah</th>
+              <th class="py-3 pr-4 text-right font-semibold">SKS</th>
+              <th class="py-3 pr-4 text-right font-semibold">Smt</th>
+              <th class="py-3 pr-6 font-semibold">Kelas dan dosen pengampu</th>
             </tr>
           </thead>
-          <tbody>
-            <tr v-for="course in courses" :key="course.id" class="border-b border-gray-50 align-top">
-              <td class="py-2 pr-3 font-mono text-xs text-gray-600">{{ course.code }}</td>
-              <td class="py-2 pr-3 text-gray-900">{{ course.name }}</td>
-              <td class="py-2 pr-3 text-center text-gray-700">{{ course.sks }}</td>
-              <td class="py-2 pr-3 text-center text-gray-700">{{ course.semester }}</td>
-              <td class="py-2 pr-3">
-                <p v-for="k in course.classes" :key="k.class_number" class="text-gray-700">
-                  <span class="font-semibold">{{ classLabel(k.class_number) }}</span>
-                  · {{ k.lecturer?.name ?? '–' }}
-                </p>
+          <tbody class="divide-y divide-line-soft">
+            <tr v-for="course in courses" :key="course.id" class="align-top">
+              <td class="py-3 pl-6 pr-4 font-mono text-xs text-ink-tertiary">{{ course.code }}</td>
+              <td class="py-3 pr-4 text-ink">{{ course.name }}</td>
+              <td class="tabular py-3 pr-4 text-right text-ink-secondary">{{ course.sks }}</td>
+              <td class="tabular py-3 pr-4 text-right text-ink-secondary">{{ course.semester }}</td>
+              <td class="py-3 pr-6">
+                <div class="flex flex-col gap-2">
+                  <p v-for="k in course.classes" :key="k.class_number" class="flex items-center gap-2 text-ink-secondary">
+                    <span
+                      class="inline-flex size-6 shrink-0 items-center justify-center rounded-badge border text-xs font-semibold"
+                      :style="{ background: color.bg, borderColor: color.border, color: color.ink }"
+                    >{{ classLetter(k.class_number) }}</span>
+                    <span class="truncate">{{ k.lecturer?.name ?? 'Dosen belum ditetapkan' }}</span>
+                  </p>
+                </div>
               </td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <!-- Preferensi dosen -->
-      <div v-else-if="tab === 'preferences'" class="mt-4 grid grid-cols-12 gap-4">
-        <p v-if="!lecturers.length" class="col-span-12 text-sm text-gray-500">Belum ada dosen pengampu.</p>
-        <template v-else>
-          <ul class="col-span-4 max-h-96 overflow-y-auto space-y-1">
+      <div v-else-if="tab === 'preferences'" class="p-6">
+        <EmptyState v-if="!lecturers.length" title="Belum ada dosen pengampu" />
+        <div v-else class="grid grid-cols-[240px_minmax(0,1fr)] gap-6">
+          <ul class="flex max-h-[480px] flex-col gap-1 overflow-y-auto">
             <li v-for="l in lecturers" :key="l.id">
               <button
                 type="button"
-                class="w-full rounded-lg px-3 py-2 text-left text-sm transition-colors"
-                :class="selectedLecturer?.id === l.id ? 'bg-primary/[0.08] text-primary font-semibold' : 'text-gray-700 hover:bg-gray-50'"
+                class="w-full rounded-control px-3 py-2 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                :class="selectedLecturer?.id === l.id ? 'bg-primary-soft' : 'hover:bg-canvas'"
                 @click="selectedLecturerId = l.id"
               >
-                {{ l.name }}
-                <span class="block text-[11px] text-gray-400">{{ l.preferences.length }} preferensi</span>
+                <span class="block truncate text-sm font-semibold" :class="selectedLecturer?.id === l.id ? 'text-primary' : 'text-ink'">{{ l.name }}</span>
+                <span class="tabular block text-xs text-ink-muted">{{ l.preferences.length }} preferensi</span>
               </button>
             </li>
           </ul>
-          <div class="col-span-8">
-            <PreferenceGrid v-if="selectedLecturer" :slots="dataset.time_slots" :preferences="selectedLecturer.preferences" />
-          </div>
-        </template>
+          <PreferenceGrid v-if="selectedLecturer" :slots="dataset.time_slots" :preferences="selectedLecturer.preferences" />
+        </div>
       </div>
 
-      <!-- Hard constraint -->
-      <ul v-else class="mt-4 space-y-2">
-        <li v-for="hc in hardConstraints" :key="hc.code" class="flex items-start gap-3 rounded-lg border border-gray-100 p-3">
-          <span class="font-mono text-xs font-bold text-gray-700">{{ hc.code }}</span>
-          <span class="flex-1 text-sm text-gray-700">{{ hc.description }}</span>
-          <span class="text-xs text-gray-400">bobot {{ hc.weight }}</span>
+      <ul v-else class="divide-y divide-line-soft">
+        <li v-for="hc in hardConstraints" :key="hc.code" class="flex items-center gap-4 px-6 py-4">
+          <span class="w-28 shrink-0 whitespace-nowrap font-mono text-xs font-semibold text-ink-secondary">{{ hc.code }}</span>
+          <span class="flex-1 text-sm text-ink-secondary">{{ hc.description }}</span>
+          <span class="tabular text-xs text-ink-muted">Bobot {{ hc.weight }}</span>
         </li>
       </ul>
     </template>

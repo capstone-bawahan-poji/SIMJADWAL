@@ -21,34 +21,37 @@ function cellType(day: number, session: number) {
   return slot ? typeBySlot.value.get(slot.id) : undefined;
 }
 
-const LABEL = { want: 'Ingin', avoid: 'Hindari' } as const;
+const LABEL = { want: 'Diinginkan', avoid: 'Dihindari' } as const;
 </script>
 
 <template>
-  <div class="overflow-x-auto">
-    <table class="w-full text-xs border-separate border-spacing-1">
-      <thead>
-        <tr>
-          <th class="w-24 text-left font-semibold text-gray-500">Sesi</th>
-          <th v-for="day in DAYS" :key="day" class="font-semibold text-gray-500">{{ day }}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="session in sessions" :key="session">
-          <td class="text-gray-600">
-            Sesi {{ session }}
-            <span class="block text-[11px] text-gray-400">{{ slotAt(1, session)?.start_time }}–{{ slotAt(1, session)?.end_time }}</span>
-          </td>
-          <td v-for="(_, index) in DAYS" :key="index" class="h-9 rounded-md text-center font-semibold"
-              :class="{
-                'bg-teal-100 text-teal-800': cellType(index + 1, session) === 'want',
-                'bg-rose-100 text-rose-800': cellType(index + 1, session) === 'avoid',
-                'bg-gray-50 text-gray-300': !cellType(index + 1, session),
-              }">
-            {{ cellType(index + 1, session) ? LABEL[cellType(index + 1, session)!] : '–' }}
-          </td>
-        </tr>
-      </tbody>
-    </table>
+  <div class="flex flex-col gap-4">
+    <div class="grid grid-cols-[96px_repeat(5,minmax(0,1fr))] gap-2 text-xs">
+      <span />
+      <span v-for="day in DAYS" :key="day" class="text-center font-semibold text-ink-muted">{{ day }}</span>
+      <template v-for="session in sessions" :key="session">
+        <span class="flex flex-col justify-center text-ink-secondary">
+          Sesi {{ session }}
+          <span class="tabular text-ink-faint">{{ slotAt(1, session)?.start_time.slice(0, 5) }}</span>
+        </span>
+        <span
+          v-for="(_, index) in DAYS"
+          :key="index"
+          class="flex h-12 items-center justify-center rounded-control font-semibold"
+          :class="{
+            'bg-success-tint text-success-ink': cellType(index + 1, session) === 'want',
+            'bg-warning-border text-warning-ink': cellType(index + 1, session) === 'avoid',
+            'bg-canvas text-ink-faint': !cellType(index + 1, session),
+          }"
+        >
+          {{ cellType(index + 1, session) ? LABEL[cellType(index + 1, session)!] : '' }}
+        </span>
+      </template>
+    </div>
+    <div class="flex gap-4 text-xs text-ink-muted">
+      <span class="inline-flex items-center gap-2"><span class="size-3 rounded-badge bg-success-tint" />Diinginkan</span>
+      <span class="inline-flex items-center gap-2"><span class="size-3 rounded-badge bg-warning-border" />Dihindari</span>
+      <span class="inline-flex items-center gap-2"><span class="size-3 rounded-badge bg-canvas" />Tanpa preferensi</span>
+    </div>
   </div>
 </template>
