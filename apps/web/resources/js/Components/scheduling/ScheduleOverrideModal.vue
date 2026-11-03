@@ -19,6 +19,7 @@ const fieldClass = 'w-full rounded-xl border-gray-200 bg-white text-sm text-gray
 const options = ref<ScheduleOptions | null>(null);
 const selectedSlotId = ref<number | null>(null);
 const selectedRoomId = ref<number | null>(null);
+const reason = ref('');
 const loading = ref(false);
 const saving = ref(false);
 const failure = ref<ApiError | null>(null);
@@ -75,6 +76,7 @@ async function save(): Promise<void> {
         const response = await api.patch<{ data: ScheduleDetailBase }>(`schedule-details/${props.scheduleDetail.id}`, {
             time_slot_id: selectedSlotId.value,
             room_id: selectedRoomId.value,
+            reason: reason.value.trim() || null,
         });
         emit('updated', response.data.data);
     } catch (error) {
@@ -114,6 +116,11 @@ onMounted(() => {
             <div v-if="loading" class="py-8 text-center text-sm text-gray-500">Memeriksa slot dan ruang yang tersedia…</div>
 
             <template v-else-if="options">
+                <div v-if="options.published" class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm" role="status">
+                    <p class="font-semibold text-amber-800">Jadwal ini sudah dipublikasikan</p>
+                    <p class="mt-0.5 text-amber-700">Dosen dan mahasiswa sudah melihat jadwal ini. Perubahan langsung terlihat oleh mereka, jadi tulis alasannya untuk catatan.</p>
+                </div>
+
                 <section class="space-y-2">
                     <h3 class="text-sm font-bold text-gray-900">Pilih hari dan sesi</h3>
                     <p v-if="errors.time_slot_id" class="text-xs text-red-600">{{ errors.time_slot_id }}</p>
@@ -165,11 +172,24 @@ onMounted(() => {
                     <span v-if="errors.room_id" class="block text-xs font-normal text-red-600">{{ errors.room_id }}</span>
                     <span v-if="selectedSlot && selectedSlot.available && selectedSlot.rooms.length === 0" class="block text-xs font-normal text-amber-700">Tidak ada ruang kosong di jam ini, pilih slot lain atau lanjutkan tanpa ruang.</span>
                 </label>
+
+                <label class="block space-y-1 text-sm font-semibold text-gray-700">
+                    Alasan perubahan<span v-if="options.published" class="text-red-600"> *</span>
+                    <textarea
+                        v-model="reason"
+                        rows="2"
+                        maxlength="500"
+                        class="block"
+                        :class="fieldClass"
+                        :placeholder="options.published ? 'Contoh: dosen berhalangan, ruang dipakai acara fakultas' : 'Opsional'"
+                    />
+                    <span v-if="errors.reason" class="block text-xs font-normal text-red-600">{{ errors.reason }}</span>
+                </label>
             </template>
 
             <div class="flex justify-end gap-3 border-t border-gray-100 pt-4">
                 <Button variant="ghost" :disabled="saving" @click="emit('close')">Batal</Button>
-                <Button :disabled="!options || !selectedSlot?.available" :loading="saving" @click="save">Simpan perubahan</Button>
+                <Button :disabled="!options || !selectedSlot?.available || (options.published && !reason.trim())" :loading="saving" @click="save">Simpan perubahan</Button>
             </div>
         </div>
     </Modal>

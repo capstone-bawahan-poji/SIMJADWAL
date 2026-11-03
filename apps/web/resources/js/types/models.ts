@@ -380,6 +380,8 @@ export interface OptionRoom {
 
 /** GET /schedule-details/{id}/options. rooms is empty when the slot is not available. */
 export interface ScheduleOptions {
+    /** The run is published: lecturers and students already see it, and PATCH needs a reason. */
+    published: boolean;
     current: { time_slot_id: number; room_id: number | null };
     time_slots: {
         id: number;
