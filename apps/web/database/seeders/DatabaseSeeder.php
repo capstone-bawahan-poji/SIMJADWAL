@@ -39,7 +39,6 @@ class DatabaseSeeder extends Seeder
             $this->call([
                 MasterDataSeeder::class,
                 DemoAccountSeeder::class,
-                SchedulingRunSeeder::class,
             ]);
         }
     }

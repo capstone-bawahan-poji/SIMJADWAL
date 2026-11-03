@@ -155,7 +155,7 @@ class ScheduleExportTest extends TestCase
 
         Http::assertSent(fn (Request $request) => str_contains($request->body(), 'Basis Data')
             && str_contains($request->body(), 'DRAF')
-            && str_contains($request->body(), 'Orange border = changed manually by the faculty admin.')
+            && str_contains($request->body(), __('Orange border = changed manually by the faculty admin.'))
             && str_contains($request->body(), 'name="paperWidth"'));
     }
 
@@ -171,7 +171,7 @@ class ScheduleExportTest extends TestCase
             ->assertHeader('Content-Type', 'application/pdf');
 
         Http::assertSent(fn (Request $request) => str_contains($request->body(), 'Algoritma, Struktur Data')
-            && ! str_contains($request->body(), 'Orange border = changed manually by the faculty admin.')
+            && ! str_contains($request->body(), __('Orange border = changed manually by the faculty admin.'))
             && ! str_contains($request->body(), 'entry overridden'));
     }
 
