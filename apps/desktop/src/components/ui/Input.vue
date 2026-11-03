@@ -23,7 +23,7 @@ defineExpose({ focus: () => input.value?.focus() });
   <div class="relative">
     <span
       v-if="$slots.leading"
-      class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3.5 text-slate-400"
+      class="pointer-events-none absolute inset-y-0 left-0 flex items-center pl-3 text-ink-muted"
     >
       <slot name="leading" />
     </span>
@@ -33,11 +33,11 @@ defineExpose({ focus: () => input.value?.focus() });
       v-model="model"
       v-bind="$attrs"
       :aria-invalid="invalid || undefined"
-      class="block h-10 w-full rounded-lg border bg-white text-sm text-slate-900 placeholder:text-slate-400 transition-colors focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary read-only:bg-slate-50"
+      class="block h-10 w-full rounded-control border bg-white text-sm text-ink placeholder:text-ink-faint transition-colors focus:outline-none focus:ring-2 read-only:bg-canvas"
       :class="[
-        invalid ? 'border-red-400 focus:ring-red-400 focus:border-red-400' : 'border-slate-300',
-        $slots.leading ? 'pl-10' : 'pl-3.5',
-        $slots.trailing ? 'pr-11' : 'pr-3.5',
+        invalid ? 'border-danger focus:border-danger focus:ring-danger/20' : 'border-line-strong focus:border-primary focus:ring-primary/20',
+        $slots.leading ? 'pl-10' : 'pl-3',
+        $slots.trailing ? 'pr-12' : 'pr-3',
       ]"
     />
 

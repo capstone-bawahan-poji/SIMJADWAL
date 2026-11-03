@@ -14,7 +14,7 @@ defineProps<{
   #label-action slot: sits right of the label (e.g. "Lupa Kata Sandi?").
 -->
 <template>
-  <div class="space-y-2">
+  <div class="flex flex-col gap-2">
     <div class="flex items-center justify-between gap-2">
       <Label :for="id">{{ label }}</Label>
       <slot name="label-action" />
@@ -22,7 +22,7 @@ defineProps<{
 
     <slot />
 
-    <p v-if="error" :id="`${id}-error`" class="text-xs text-red-600">{{ error }}</p>
-    <p v-else-if="hint" :id="`${id}-hint`" class="text-xs text-slate-500">{{ hint }}</p>
+    <p v-if="error" :id="`${id}-error`" class="text-xs text-danger-ink">{{ error }}</p>
+    <p v-else-if="hint" :id="`${id}-hint`" class="text-xs text-ink-muted">{{ hint }}</p>
   </div>
 </template>

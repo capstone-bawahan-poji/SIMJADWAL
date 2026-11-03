@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 withDefaults(
   defineProps<{
     show: boolean;
@@ -21,34 +20,27 @@ const maxWidthClass: Record<string, string> = {
 <template>
   <Teleport to="body">
     <Transition
-      enter-active-class="transition duration-200 ease-out"
+      enter-active-class="transition duration-150 ease-out"
       enter-from-class="opacity-0"
       enter-to-class="opacity-100"
-      leave-active-class="transition duration-150 ease-in"
+      leave-active-class="transition duration-100 ease-in"
       leave-from-class="opacity-100"
       leave-to-class="opacity-0"
     >
       <div
         v-if="show"
-        class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm"
+        class="fixed inset-0 z-50 flex items-center justify-center bg-ink/40 p-4"
         @click.self="$emit('close')"
+        @keydown.esc="$emit('close')"
       >
-        <Transition
-          enter-active-class="transition duration-200 ease-out"
-          enter-from-class="opacity-0 scale-95"
-          enter-to-class="opacity-100 scale-100"
-          leave-active-class="transition duration-150 ease-in"
-          leave-from-class="opacity-100 scale-100"
-          leave-to-class="opacity-0 scale-95"
+        <div
+          role="dialog"
+          aria-modal="true"
+          class="w-full rounded-panel border border-line bg-white shadow-[0_24px_48px_-12px_rgba(16,24,40,0.18)]"
+          :class="maxWidthClass[maxWidth]"
         >
-          <div
-            v-if="show"
-            class="w-full bg-white rounded-2xl shadow-xl border border-gray-100"
-            :class="maxWidthClass[maxWidth]"
-          >
-            <slot />
-          </div>
-        </Transition>
+          <slot />
+        </div>
       </div>
     </Transition>
   </Teleport>
