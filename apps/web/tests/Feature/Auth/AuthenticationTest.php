@@ -4,11 +4,12 @@ namespace Tests\Feature\Auth;
 
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Tests\Concerns\SeedsAccessControl;
 use Tests\TestCase;
 
 class AuthenticationTest extends TestCase
 {
-    use RefreshDatabase;
+    use RefreshDatabase, SeedsAccessControl;
 
     public function test_login_screen_can_be_rendered(): void
     {
@@ -28,6 +29,21 @@ class AuthenticationTest extends TestCase
 
         $this->assertAuthenticated();
         $response->assertRedirect(route('dashboard', absolute: false));
+    }
+
+    public function test_login_follows_intended_url_only_when_the_role_may_open_it(): void
+    {
+        $this->seedAccessControl();
+        $faculty = User::factory()->facultyAdmin()->create();
+
+        $this->withSession(['url.intended' => '/fakultas/ga'])
+            ->post('/login', ['email' => $faculty->email, 'password' => 'password'])
+            ->assertRedirect('/fakultas/ga');
+        $this->post('/logout');
+
+        $this->withSession(['url.intended' => '/schedule'])
+            ->post('/login', ['email' => $faculty->email, 'password' => 'password'])
+            ->assertRedirect(route('dashboard', absolute: false));
     }
 
     public function test_users_can_not_authenticate_with_invalid_password(): void
