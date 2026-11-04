@@ -16,10 +16,10 @@ const routes: RouteRecordRaw[] = [
     component: AppLayout,
     redirect: { name: 'data' },
     children: [
-      { path: 'admin/history', name: 'admin-history', component: SuperadminRunsView, meta: { title: 'Riwayat Run Fakultas', superadmin: true } },
+      { path: 'admin/history', name: 'admin-history', component: SuperadminRunsView, meta: { title: 'Riwayat run fakultas', superadmin: true } },
       { path: 'config', name: 'config', component: ConfigView, meta: { title: 'Konfigurasi GA' } },
-      { path: 'data', name: 'data', component: DataConstraintView, meta: { title: 'Data & Constraint' } },
-      { path: 'run', name: 'run', component: RunView, meta: { title: 'Run' } },
+      { path: 'data', name: 'data', component: DataConstraintView, meta: { title: 'Data dan constraint' } },
+      { path: 'run', name: 'run', component: RunView, meta: { title: 'Run penjadwalan' } },
       { path: 'sync', name: 'sync', component: SyncView, meta: { title: 'Sinkronisasi' } },
     ],
   },

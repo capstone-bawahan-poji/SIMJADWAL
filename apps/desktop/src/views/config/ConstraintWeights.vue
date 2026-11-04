@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
+import Button from '@/components/ui/Button.vue';
 import Card from '@/components/ui/Card.vue';
+import SegmentedControl from '@/components/ui/SegmentedControl.vue';
 import { useGaConfig } from '@/composables/useGaConfig';
+import { colorOf, programColorMap } from '@/lib/programColors';
 import type { DatasetConstraintType, DatasetStudyProgram } from '@/types/scheduling';
 
 const props = defineProps<{
@@ -15,11 +18,17 @@ const tab = ref<'default' | 'override'>('default');
 const hard = computed(() => props.constraintTypes.filter((t) => t.category === 'HC'));
 const soft = computed(() => props.constraintTypes.filter((t) => t.category === 'SC'));
 const included = computed(() => props.programs.filter((p) => p.included));
+const colors = computed(() => programColorMap(props.programs));
+const overrideCount = computed(() => Object.keys(scOverrides.value).length);
 
 function onInput(programId: number, code: string, event: Event) {
   const raw = (event.target as HTMLInputElement).value;
   setOverride(programId, code, raw === '' ? null : Number(raw));
   (event.target as HTMLInputElement).value = String(overrideOf(programId, code));
+}
+
+function hasOverride(programId: number, code: string) {
+  return scOverrides.value[String(programId)]?.[code] !== undefined;
 }
 
 function overrideOf(programId: number, code: string) {
@@ -28,71 +37,79 @@ function overrideOf(programId: number, code: string) {
 </script>
 
 <template>
-  <Card>
-    <p class="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-3">Bobot Constraint</p>
-    <div class="flex gap-1 bg-gray-100 rounded-xl p-1 mb-4 w-fit">
-      <button
-        v-for="t in (['default', 'override'] as const)"
-        :key="t"
-        type="button"
-        class="px-4 py-1.5 rounded-lg text-xs font-semibold transition"
-        :class="tab === t ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-500 hover:text-gray-700'"
-        @click="tab = t"
-      >
-        {{ t === 'default' ? 'Default Fakultas' : 'Override per Prodi' }}
-      </button>
+  <Card no-padding>
+    <div class="flex flex-wrap items-center justify-between gap-4 px-6 pt-6">
+      <div>
+        <h2 class="text-base font-semibold text-ink">Bobot constraint</h2>
+        <p class="mt-1 text-xs text-ink-muted">Bobot default ditetapkan melalui menu Kelola Constraint pada aplikasi web.</p>
+      </div>
+      <SegmentedControl
+        v-model="tab"
+        label="Sumber bobot"
+        :options="[
+          { value: 'default', label: 'Default fakultas' },
+          { value: 'override', label: 'Override per program studi', count: overrideCount },
+        ]"
+      />
     </div>
 
-    <div v-if="tab === 'default'">
-      <ul class="divide-y divide-gray-50">
-        <li v-for="c in [...hard, ...soft]" :key="c.code" class="flex items-center gap-3 py-2">
-          <span class="w-24 shrink-0 font-mono text-xs font-bold text-gray-700">{{ c.code }}</span>
-          <span class="flex-1 text-sm text-gray-700">{{ c.description }}</span>
-          <span class="w-16 text-right text-sm font-semibold text-gray-900">{{ c.weight }}</span>
-        </li>
-      </ul>
-      <p class="mt-3 text-[11px] text-gray-400">Bobot global diatur di web: Kelola Constraint.</p>
-    </div>
+    <ul v-if="tab === 'default'" class="mt-4 divide-y divide-line-soft border-t border-line-soft">
+      <li v-for="c in [...hard, ...soft]" :key="c.code" class="flex items-center gap-4 px-6 py-3">
+        <span
+          class="w-28 shrink-0 whitespace-nowrap font-mono text-xs font-semibold"
+          :class="c.category === 'HC' ? 'text-danger-ink' : 'text-ink-secondary'"
+        >{{ c.code }}</span>
+        <span class="flex-1 text-sm text-ink-secondary">{{ c.description }}</span>
+        <span class="tabular w-16 text-right text-sm font-semibold text-ink">{{ c.weight }}</span>
+      </li>
+    </ul>
 
-    <div v-else class="overflow-x-auto">
-      <p v-if="!included.length" class="text-sm text-gray-500">Belum ada prodi yang ikut dijadwalkan.</p>
-      <table v-else class="w-full text-xs">
-        <thead>
-          <tr class="border-b border-gray-100">
-            <th class="text-left py-2 pr-4 font-semibold text-gray-600">Prodi</th>
-            <th v-for="c in soft" :key="c.code" class="py-2 px-2 font-semibold text-gray-600 text-center whitespace-nowrap">{{ c.code }}</th>
-            <th class="py-2 pl-2" />
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="p in included" :key="p.id" class="border-b border-gray-50 last:border-0">
-            <td class="py-2 pr-4 font-medium text-gray-700 whitespace-nowrap">{{ p.name }}</td>
-            <td v-for="c in soft" :key="c.code" class="py-1 px-1 text-center">
-              <input
-                type="number"
-                min="0"
-                step="0.5"
-                :value="overrideOf(p.id, c.code)"
-                :placeholder="String(c.weight)"
-                :aria-label="`${c.code} untuk ${p.name}`"
-                class="w-20 h-8 rounded border border-slate-200 px-2 text-xs text-right focus:outline-none focus:ring-1 focus:ring-primary"
-                @change="onInput(p.id, c.code, $event)"
-              />
-            </td>
-            <td class="py-1 pl-2">
-              <button
-                type="button"
-                class="text-[11px] text-gray-500 hover:text-gray-800 px-1.5 py-0.5 rounded hover:bg-gray-100 transition"
-                :disabled="!scOverrides[String(p.id)]"
-                @click="clearOverrides(p.id)"
-              >
-                Reset
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <p class="mt-3 text-[11px] text-gray-400">Kosongkan sel untuk memakai bobot global. Bobot harus lebih dari 0. Hard constraint tidak dapat di-override.</p>
+    <div v-else class="mt-4 border-t border-line-soft">
+      <p v-if="!included.length" class="px-6 py-8 text-sm text-ink-muted">Belum ada program studi yang termasuk dataset.</p>
+      <div v-else class="overflow-x-auto">
+        <table class="w-full text-sm">
+          <thead>
+            <tr class="border-b border-line text-xs text-ink-muted">
+              <th class="py-3 pl-6 pr-4 text-left font-semibold">Program studi</th>
+              <th v-for="c in soft" :key="c.code" class="whitespace-nowrap px-2 py-3 text-right font-mono font-semibold" :title="c.description">
+                {{ c.code }}
+                <span class="block font-sans font-normal text-ink-faint">default {{ c.weight }}</span>
+              </th>
+              <th class="py-3 pl-2 pr-6" />
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-line-soft">
+            <tr v-for="p in included" :key="p.id">
+              <td class="py-2 pl-6 pr-4">
+                <span class="flex items-center gap-2">
+                  <span class="size-3 shrink-0 rounded-badge border" :style="{ background: colorOf(colors, p.id).bg, borderColor: colorOf(colors, p.id).border }" />
+                  <span class="font-mono text-xs font-semibold text-ink-tertiary">{{ p.code }}</span>
+                  <span class="truncate text-ink">{{ p.name }}</span>
+                </span>
+              </td>
+              <td v-for="c in soft" :key="c.code" class="px-2 py-2 text-right">
+                <input
+                  type="number"
+                  min="0"
+                  step="0.5"
+                  :value="overrideOf(p.id, c.code)"
+                  :placeholder="String(c.weight)"
+                  :aria-label="`${c.code} untuk ${p.name}`"
+                  class="tabular h-8 w-20 rounded-control border px-2 text-right text-xs placeholder:text-ink-faint focus:border-primary focus:outline-none focus:ring-2 focus:ring-primary/20"
+                  :class="hasOverride(p.id, c.code) ? 'border-primary-tint bg-primary-soft font-semibold text-primary' : 'border-line-strong text-ink'"
+                  @change="onInput(p.id, c.code, $event)"
+                />
+              </td>
+              <td class="py-2 pl-2 pr-6 text-right">
+                <Button variant="tertiary" size="sm" :disabled="!scOverrides[String(p.id)]" @click="clearOverrides(p.id)">Reset</Button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <p class="border-t border-line-soft px-6 py-4 text-xs text-ink-muted">
+        Kosongkan sel untuk menggunakan bobot default. Nilai bobot harus lebih dari 0. Bobot hard constraint tidak dapat diubah per program studi.
+      </p>
     </div>
   </Card>
 </template>

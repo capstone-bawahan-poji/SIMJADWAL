@@ -1,18 +1,10 @@
 <script setup lang="ts">
-defineProps<{
-  rounded?: boolean;
-  noPadding?: boolean;
-}>();
+defineProps<{ noPadding?: boolean }>();
 </script>
 
+<!-- Panel: white surface, 12px radius, 1px border, no shadow. -->
 <template>
-  <div
-    class="bg-white border border-gray-100 shadow-sm"
-    :class="[
-      rounded !== false ? 'rounded-2xl' : '',
-      noPadding ? '' : 'p-6',
-    ]"
-  >
+  <div class="rounded-panel border border-line bg-white" :class="noPadding ? '' : 'p-6'">
     <slot />
   </div>
 </template>

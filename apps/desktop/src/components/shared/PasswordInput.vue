@@ -18,7 +18,7 @@ const visible = ref(false);
     <template #trailing>
       <button
         type="button"
-        class="rounded-md p-1.5 text-slate-400 hover:text-slate-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        class="rounded-md p-1.5 text-ink-muted hover:text-ink-secondary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
         :aria-label="visible ? 'Sembunyikan kata sandi' : 'Tampilkan kata sandi'"
         :aria-pressed="visible"
         @click="visible = !visible"

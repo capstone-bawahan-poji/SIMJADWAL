@@ -1,56 +1,61 @@
 <script setup lang="ts">
-import type { ConstraintStatus, DatasetStudyProgram } from '@/types/scheduling';
+import { computed, ref } from 'vue';
+import { Search } from 'lucide-vue-next';
+import Badge from '@/components/ui/Badge.vue';
+import UiInput from '@/components/ui/Input.vue';
+import { colorOf, type ProgramColor } from '@/lib/programColors';
+import type { DatasetStudyProgram } from '@/types/scheduling';
+import { CONSTRAINT_STATUS } from '@/views/data/constraintStatus';
 
-defineProps<{
+const props = defineProps<{
   programs: DatasetStudyProgram[];
+  colors: Map<number, ProgramColor>;
   selectedId: number | null;
 }>();
 
 defineEmits<{ select: [id: number] }>();
 
-const STATUS: Record<ConstraintStatus, { label: string; class: string }> = {
-  draft: { label: 'Draft', class: 'bg-gray-100 text-gray-600' },
-  submitted: { label: 'Disubmit', class: 'bg-blue-50 text-blue-700' },
-  accepted: { label: 'Diterima', class: 'bg-green-50 text-green-700' },
-};
-
-function formatDate(value: string | null) {
-  return value ? new Date(value).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' }) : '–';
-}
+const query = ref('');
+const shown = computed(() => {
+  const q = query.value.trim().toLowerCase();
+  return q ? props.programs.filter((p) => `${p.code} ${p.name}`.toLowerCase().includes(q)) : props.programs;
+});
 </script>
 
+<!-- Master list of study programs with their identity color and constraint status. -->
 <template>
-  <table class="w-full text-sm">
-    <thead>
-      <tr class="text-left text-[11px] font-bold uppercase tracking-wider text-gray-400 border-b border-gray-100">
-        <th class="py-3 px-4">Program Studi</th>
-        <th class="py-3 px-4">Status</th>
-        <th class="py-3 px-4">Diterima</th>
-        <th class="py-3 px-4 text-right">Dosen</th>
-        <th class="py-3 px-4 text-right">Mata Kuliah</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr
-        v-for="program in programs"
-        :key="program.id"
-        class="border-b border-gray-50 cursor-pointer transition-colors"
-        :class="selectedId === program.id ? 'bg-primary/[0.06]' : 'hover:bg-gray-50'"
-        @click="$emit('select', program.id)"
-      >
-        <td class="py-3 px-4">
-          <p class="font-semibold text-gray-900">{{ program.name }}</p>
-          <p class="text-xs text-gray-400">{{ program.code }}</p>
-        </td>
-        <td class="py-3 px-4">
-          <span class="rounded-full px-2.5 py-1 text-xs font-semibold" :class="STATUS[program.constraint_status].class">
-            {{ STATUS[program.constraint_status].label }}
+  <div class="flex max-h-[calc(100vh-72px-64px)] flex-col overflow-hidden rounded-panel border border-line bg-white">
+    <div class="border-b border-line p-4">
+      <UiInput v-model="query" type="search" placeholder="Cari program studi" aria-label="Cari program studi">
+        <template #leading><Search class="size-4" aria-hidden="true" /></template>
+      </UiInput>
+    </div>
+
+    <ul class="flex-1 overflow-y-auto p-2" role="listbox" aria-label="Program studi">
+      <li v-for="program in shown" :key="program.id">
+        <button
+          type="button"
+          role="option"
+          :aria-selected="selectedId === program.id"
+          class="flex w-full items-start gap-3 rounded-control px-3 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+          :class="selectedId === program.id ? 'bg-primary-soft' : 'hover:bg-canvas'"
+          @click="$emit('select', program.id)"
+        >
+          <span
+            class="mt-0.5 size-4 shrink-0 rounded-badge border"
+            :style="{ background: colorOf(colors, program.id).bg, borderColor: colorOf(colors, program.id).border }"
+            aria-hidden="true"
+          />
+          <span class="min-w-0 flex-1">
+            <span class="font-mono text-xs font-semibold text-ink-tertiary">{{ program.code }}</span>
+            <span class="mt-1 block truncate text-sm font-semibold" :class="program.included ? 'text-ink' : 'text-ink-muted'">{{ program.name }}</span>
+            <span class="tabular mt-1 block text-xs text-ink-muted">{{ program.lecturers_count }} dosen, {{ program.courses_count }} mata kuliah</span>
+            <span v-if="!program.included" class="mt-1 block text-xs text-ink-faint">Tidak termasuk dataset</span>
           </span>
-        </td>
-        <td class="py-3 px-4 text-gray-600">{{ formatDate(program.constraint_reviewed_at) }}</td>
-        <td class="py-3 px-4 text-right text-gray-700">{{ program.lecturers_count }}</td>
-        <td class="py-3 px-4 text-right text-gray-700">{{ program.courses_count }}</td>
-      </tr>
-    </tbody>
-  </table>
+          <Badge :tone="CONSTRAINT_STATUS[program.constraint_status].tone">{{ CONSTRAINT_STATUS[program.constraint_status].label }}</Badge>
+        </button>
+      </li>
+      <li v-if="!shown.length" class="px-3 py-8 text-center text-sm text-ink-muted">Tidak ditemukan program studi yang sesuai.</li>
+    </ul>
+  </div>
 </template>

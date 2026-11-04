@@ -1,53 +1,55 @@
 <script setup lang="ts">
 import Card from '@/components/ui/Card.vue';
+import NumberInput from '@/components/ui/NumberInput.vue';
 import { useGaConfig } from '@/composables/useGaConfig';
 import type { GaParams, SelectionOperator } from '@/types/ga';
+import ChoiceCard from '@/views/config/ChoiceCard.vue';
+import SettingRow from '@/views/config/SettingRow.vue';
 
 const { params, errors, runMode, multiOperators } = useGaConfig();
 
 type NumberField = { key: Exclude<keyof GaParams, 'selection_operator'>; label: string; hint: string; step?: string };
 
-const groups: { title: string; fields: NumberField[] }[] = [
+const groups: { title: string; description: string; fields: NumberField[] }[] = [
   {
-    title: 'Populasi & Generasi',
+    title: 'Populasi dan generasi',
+    description: 'Setelah generasi minimum tercapai, proses berhenti apabila fitness tidak meningkat selama batas stagnasi.',
     fields: [
-      { key: 'population_size', label: 'Ukuran populasi (Pop size)', hint: 'Referensi TA Kak Amrina: 100' },
-      { key: 'min_generations', label: 'Generasi minimum', hint: 'Referensi TA Kak Amrina: 500' },
-      { key: 'max_generations', label: 'Generasi maksimum', hint: 'Referensi TA Kak Amrina: 1000' },
-      { key: 'stagnation_limit', label: 'Batas stagnasi', hint: 'Berhenti bila tidak naik sekian generasi setelah minimum. Referensi TA Kak Amrina: 200' },
+      { key: 'population_size', label: 'Ukuran populasi', hint: 'Nilai acuan TA: 100' },
+      { key: 'stagnation_limit', label: 'Batas stagnasi', hint: 'Nilai acuan TA: 200' },
+      { key: 'min_generations', label: 'Generasi minimum', hint: 'Nilai acuan TA: 500' },
+      { key: 'max_generations', label: 'Generasi maksimum', hint: 'Nilai acuan TA: 1000' },
     ],
   },
   {
-    title: 'Crossover & Mutasi',
+    title: 'Crossover dan mutasi',
+    description: 'Nilai probabilitas dalam rentang 0 sampai 1. Crossover dan mutasi menggunakan metode satu titik (one-point).',
     fields: [
-      { key: 'crossover_rate', label: 'Crossover rate (Cr)', hint: '0-1, 1-point crossover', step: '0.01' },
-      { key: 'mutation_rate', label: 'Mutation rate (Mr)', hint: '0-1, 1-point mutation', step: '0.01' },
+      { key: 'crossover_rate', label: 'Crossover rate (Cr)', hint: 'Rentang 0 sampai 1', step: '0.01' },
+      { key: 'mutation_rate', label: 'Mutation rate (Mr)', hint: 'Rentang 0 sampai 1', step: '0.01' },
     ],
   },
   {
-    title: 'Fitness & Constraint',
+    title: 'Fitness dan constraint',
+    description: 'Konstanta C mencegah nilai fitness negatif. Jumlah kelas paralel menjadi batas HC4 untuk setiap program studi pada satu slot waktu.',
     fields: [
-      { key: 'fitness_constant', label: 'Konstanta fitness (C)', hint: 'Mencegah fitness negatif. Referensi TA Kak Amrina: 500' },
-      { key: 'parallel_class_limit', label: 'Jumlah kelas paralel', hint: 'Batas HC4 per prodi per slot. Referensi TA Kak Amrina: 4 dan 5' },
+      { key: 'fitness_constant', label: 'Konstanta fitness (C)', hint: 'Nilai acuan TA: 500' },
+      { key: 'parallel_class_limit', label: 'Jumlah kelas paralel', hint: 'Nilai acuan TA: 4 dan 5' },
     ],
   },
   {
     title: 'Pengulangan',
+    description: 'Seed setiap run adalah base seed ditambah nomor urut run sehingga hasilnya dapat direproduksi.',
     fields: [
-      { key: 'run_count', label: 'Jumlah run per skenario', hint: '1-10. Referensi TA Kak Amrina: 10' },
-      { key: 'base_seed', label: 'Base seed', hint: 'Seed run = base seed + urutan run. Referensi TA Kak Amrina: 12345' },
+      { key: 'run_count', label: 'Jumlah run per operator', hint: 'Rentang 1 sampai 10' },
+      { key: 'base_seed', label: 'Base seed', hint: 'Nilai acuan TA: 12345' },
     ],
   },
 ];
 
 const OPERATORS: { value: SelectionOperator; title: string; text: string }[] = [
-  { value: 'TS', title: 'TS', text: 'Tournament Selection. Kromosom dipilih acak lalu diadu, fitness lebih tinggi menang.' },
-  { value: 'TSR', title: 'TSR', text: 'Tournament Selection dengan Roulette Wheel. Kandidat dipilih lewat roulette, lalu diadu.' },
-];
-
-const inputClass = (key: keyof GaParams) => [
-  'w-full h-10 rounded-lg border px-3 text-sm focus:outline-none focus:ring-2 focus:ring-primary',
-  errors.value[key] ? 'border-red-400' : 'border-slate-300',
+  { value: 'TS', title: 'Tournament selection (TS)', text: 'Kromosom dipilih secara acak lalu dibandingkan. Kromosom dengan fitness tertinggi terpilih sebagai induk.' },
+  { value: 'TSR', title: 'Tournament dengan roulette (TSR)', text: 'Kandidat dipilih melalui roulette wheel, kemudian dibandingkan dalam turnamen.' },
 ];
 
 function toggleOperator(op: SelectionOperator) {
@@ -58,70 +60,52 @@ function toggleOperator(op: SelectionOperator) {
 </script>
 
 <template>
-  <div class="space-y-5">
-    <Card>
-      <p class="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-3">Mode Run</p>
-      <div class="grid grid-cols-2 gap-3">
-        <label
-          v-for="mode in (['single', 'multi'] as const)"
-          :key="mode"
-          class="flex flex-col gap-1 p-4 rounded-xl border-2 cursor-pointer transition"
-          :class="runMode === mode ? 'border-primary bg-primary/[0.06]' : 'border-slate-200 hover:border-slate-300'"
-        >
-          <span class="flex items-center gap-2">
-            <input v-model="runMode" type="radio" :value="mode" class="text-primary focus:ring-primary" />
-            <span class="text-sm font-bold" :class="runMode === mode ? 'text-primary' : 'text-gray-700'">
-              {{ mode === 'single' ? 'Single-run' : 'Multi-run' }}
-            </span>
-          </span>
-          <span class="text-xs text-gray-500 pl-6">
-            {{ mode === 'single' ? 'Satu operator, diulang sebanyak jumlah run.' : 'Bandingkan operator, masing-masing diulang sebanyak jumlah run.' }}
-          </span>
-        </label>
-      </div>
-      <div v-if="runMode === 'multi'" class="mt-4 pt-4 border-t border-gray-100 flex items-center gap-4">
-        <span class="text-xs font-semibold text-gray-600">Operator dibandingkan:</span>
-        <label v-for="op in OPERATORS" :key="op.value" class="flex items-center gap-2 text-sm cursor-pointer">
-          <input type="checkbox" :checked="multiOperators.includes(op.value)" class="rounded text-primary focus:ring-primary" @change="toggleOperator(op.value)" />
-          {{ op.title }}
-        </label>
-      </div>
-    </Card>
-
-    <Card>
-      <p class="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-3">Operator Seleksi</p>
-      <div class="grid grid-cols-2 gap-3 mb-4">
-        <label
-          v-for="op in OPERATORS"
-          :key="op.value"
-          class="flex flex-col gap-1.5 p-4 rounded-xl border-2 cursor-pointer transition"
-          :class="params.selection_operator === op.value ? 'border-primary bg-primary/[0.06]' : 'border-slate-200 hover:border-slate-300'"
-        >
-          <span class="flex items-center gap-2">
-            <input v-model="params.selection_operator" type="radio" :value="op.value" class="text-primary focus:ring-primary" />
-            <span class="text-sm font-bold" :class="params.selection_operator === op.value ? 'text-primary' : 'text-gray-700'">{{ op.title }}</span>
-          </span>
-          <span class="text-xs text-gray-500 leading-relaxed">{{ op.text }}</span>
-        </label>
-      </div>
-      <div class="max-w-xs space-y-1">
-        <label for="tournament_size" class="text-xs font-semibold text-gray-700">Ukuran seleksi (tournament size)</label>
-        <input id="tournament_size" v-model.number="params.tournament_size" type="number" min="2" :class="inputClass('tournament_size')" />
-        <p v-if="errors.tournament_size" class="text-xs text-red-600">{{ errors.tournament_size }}</p>
-        <p v-else class="text-[11px] text-gray-400">Referensi TA Kak Amrina: 2</p>
-      </div>
-    </Card>
-
-    <Card v-for="group in groups" :key="group.title">
-      <p class="text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-3">{{ group.title }}</p>
+  <Card no-padding>
+    <SettingRow title="Mode run" description="Single-run menggunakan satu operator seleksi. Multi-run membandingkan beberapa operator seleksi dalam satu batch.">
       <div class="grid grid-cols-2 gap-4">
-        <div v-for="field in group.fields" :key="field.key" class="space-y-1">
-          <label :for="field.key" class="text-xs font-semibold text-gray-700">{{ field.label }}</label>
-          <input :id="field.key" v-model.number="params[field.key]" type="number" :step="field.step ?? '1'" min="0" :class="inputClass(field.key)" />
-          <p v-if="errors[field.key]" class="text-xs text-red-600">{{ errors[field.key] }}</p>
-          <p v-else class="text-[11px] text-gray-400">{{ field.hint }}</p>
+        <ChoiceCard :selected="runMode === 'single'" title="Single-run" text="Satu operator seleksi, diulang sesuai jumlah run.">
+          <input v-model="runMode" type="radio" value="single" name="run-mode" />
+        </ChoiceCard>
+        <ChoiceCard :selected="runMode === 'multi'" title="Multi-run" text="Setiap operator seleksi diulang sesuai jumlah run.">
+          <input v-model="runMode" type="radio" value="multi" name="run-mode" />
+        </ChoiceCard>
+      </div>
+      <div v-if="runMode === 'multi'" class="mt-4 flex items-center gap-6">
+        <span class="text-xs font-semibold text-ink-muted">Operator yang dibandingkan</span>
+        <label v-for="op in OPERATORS" :key="op.value" class="flex cursor-pointer items-center gap-2 text-sm text-ink-secondary">
+          <input type="checkbox" :checked="multiOperators.includes(op.value)" @change="toggleOperator(op.value)" />
+          {{ op.value }}
+        </label>
+        <span v-if="!multiOperators.length" class="text-xs text-danger-ink">Pilih minimal satu operator seleksi.</span>
+      </div>
+    </SettingRow>
+
+    <SettingRow
+      title="Operator seleksi"
+      :description="runMode === 'multi' ? 'Berlaku pada single-run. Multi-run menggunakan operator yang dipilih di atas.' : 'Metode pemilihan kromosom induk untuk proses crossover.'"
+    >
+      <div class="grid grid-cols-2 gap-4">
+        <ChoiceCard v-for="op in OPERATORS" :key="op.value" :selected="params.selection_operator === op.value" :title="op.title" :text="op.text">
+          <input v-model="params.selection_operator" type="radio" :value="op.value" name="selection-operator" />
+        </ChoiceCard>
+      </div>
+      <div class="mt-4 grid grid-cols-2 gap-4">
+        <div class="flex flex-col gap-2">
+          <label for="tournament_size" class="text-xs font-semibold text-ink-secondary">Ukuran turnamen (tournament size)</label>
+          <NumberInput id="tournament_size" v-model="params.tournament_size" min="2" :invalid="!!errors.tournament_size" />
+          <p class="text-xs" :class="errors.tournament_size ? 'text-danger-ink' : 'text-ink-muted'">{{ errors.tournament_size ?? 'Nilai acuan TA: 2' }}</p>
         </div>
       </div>
-    </Card>
-  </div>
+    </SettingRow>
+
+    <SettingRow v-for="group in groups" :key="group.title" :title="group.title" :description="group.description">
+      <div class="grid grid-cols-2 gap-x-4 gap-y-6">
+        <div v-for="field in group.fields" :key="field.key" class="flex flex-col gap-2">
+          <label :for="field.key" class="text-xs font-semibold text-ink-secondary">{{ field.label }}</label>
+          <NumberInput :id="field.key" v-model="params[field.key]" :step="field.step ?? '1'" min="0" :invalid="!!errors[field.key]" />
+          <p class="text-xs" :class="errors[field.key] ? 'text-danger-ink' : 'text-ink-muted'">{{ errors[field.key] ?? field.hint }}</p>
+        </div>
+      </div>
+    </SettingRow>
+  </Card>
 </template>

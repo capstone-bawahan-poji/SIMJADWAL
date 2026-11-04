@@ -34,7 +34,7 @@ export function useAuth() {
     const me = await auth.login(email, password);
     if (!canUseDesktop(me)) {
       await logout();
-      throw new Error('Akun ini tidak dapat memakai aplikasi desktop.');
+      throw new Error('Akun ini tidak memiliki akses ke aplikasi desktop.');
     }
     signedIn(me);
   }

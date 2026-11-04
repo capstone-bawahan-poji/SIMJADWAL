@@ -1,24 +1,36 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useAuth } from '@/composables/useAuth';
 import { useDataset } from '@/composables/useDataset';
 import { useGaConfig } from '@/composables/useGaConfig';
+import { useGaRunner } from '@/composables/useGaRunner';
+import { useRunSync } from '@/composables/useRunSync';
 import AppSidebar from '@/components/layout/AppSidebar.vue';
+import ContextBar from '@/components/layout/ContextBar.vue';
 import Alert from '@/components/ui/Alert.vue';
 import Button from '@/components/ui/Button.vue';
 
 const route = useRoute();
 const router = useRouter();
 const { user, logout } = useAuth();
-const { clear: clearDataset, stale: datasetStale, loading: datasetLoading, load: reloadDataset } = useDataset();
+const { dataset, facultyId, clear: clearDataset, stale: datasetStale, loading: datasetLoading, load: reloadDataset } = useDataset();
 const { resetDefault } = useGaConfig();
+const { running } = useGaRunner();
+const { items: runItems, load: loadRuns } = useRunSync();
 
 const roleLabels: Record<string, string> = {
-  superadmin: 'Super Admin', admin_fakultas: 'Admin Fakultas', admin_tpb: 'Admin TPB',
-  admin_prodi: 'Admin Prodi', dosen: 'Dosen', mahasiswa: 'Mahasiswa',
+  superadmin: 'Super admin', admin_fakultas: 'Admin fakultas', admin_tpb: 'Admin TPB',
+  admin_prodi: 'Admin prodi', dosen: 'Dosen', mahasiswa: 'Mahasiswa',
 };
 const roleLabel = computed(() => roleLabels[user.value?.role ?? ''] ?? '');
+const isSuperAdmin = computed(() => user.value?.role === 'superadmin');
+const unsentCount = computed(() => runItems.value.filter((i) => i.upload.status !== 'uploaded' && !i.cancelled).length);
+
+onMounted(() => {
+  void loadRuns();
+  if (!dataset.value && !datasetLoading.value && (!isSuperAdmin.value || facultyId.value)) void reloadDataset();
+});
 
 async function onLogout() {
   await logout();
@@ -31,35 +43,31 @@ const activeView = computed(() => String(route.name ?? ''));
 </script>
 
 <template>
-  <div class="flex h-screen w-screen overflow-hidden bg-gray-50">
+  <div class="flex h-screen w-screen overflow-hidden bg-canvas">
     <AppSidebar
       :active-view="activeView"
       :admin-name="user?.name ?? ''"
       :admin-role="roleLabel"
+      :super-admin="isSuperAdmin"
+      :running="running"
+      :unsent-count="unsentCount"
       @update:active-view="router.push({ name: $event })"
       @logout="onLogout"
     />
 
-    <!-- Right: topbar + content -->
-    <div class="flex-1 flex flex-col overflow-hidden">
-      <!-- Topbar -->
-      <header class="h-16 bg-white/80 backdrop-blur-xl border-b border-gray-100 flex items-center justify-between px-6 shrink-0 z-40">
-        <div class="text-sm font-semibold text-gray-900 capitalize">
-          {{ route.meta.title }}
-        </div>
-        <div class="text-right">
-          <p class="text-xs font-bold text-gray-900 leading-tight">{{ user?.name }}</p>
-          <p class="text-[11px] font-medium text-gray-400 leading-tight">{{ roleLabel }}</p>
-        </div>
-      </header>
+    <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
+      <ContextBar
+        :super-admin="isSuperAdmin"
+        :faculty-name="user?.faculty ? `${user.faculty.code} ${user.faculty.name}` : null"
+        :workflow="!route.meta.superadmin"
+      />
 
-      <!-- Page content -->
-      <main class="flex-1 overflow-y-auto bg-gray-50">
-        <div v-if="datasetStale" class="px-6 pt-4">
-          <Alert variant="warning" title="Data di server berubah">
-            <div class="flex flex-wrap items-center justify-between gap-3">
-              <span>Data yang dimuat sudah tidak sama dengan server. Muat ulang sebelum menjalankan GA agar hasilnya bisa diunggah.</span>
-              <Button variant="ghost" :loading="datasetLoading" @click="reloadDataset()">Muat ulang data</Button>
+      <main class="flex-1 overflow-y-auto">
+        <div v-if="datasetStale && !route.meta.superadmin" class="px-8 pt-8">
+          <Alert variant="warning" title="Data di server telah berubah">
+            <div class="flex flex-wrap items-center justify-between gap-4">
+              <span>Data yang dimuat tidak lagi sesuai dengan data di server. Muat ulang data sebelum menjalankan GA agar hasilnya dapat dikirim.</span>
+              <Button size="sm" :loading="datasetLoading" @click="reloadDataset()">Muat ulang data</Button>
             </div>
           </Alert>
         </div>

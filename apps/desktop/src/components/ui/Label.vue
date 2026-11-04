@@ -1,3 +1,3 @@
 <template>
-  <label class="block text-sm font-semibold text-slate-700"><slot /></label>
+  <label class="block text-sm font-semibold text-ink-secondary"><slot /></label>
 </template>
