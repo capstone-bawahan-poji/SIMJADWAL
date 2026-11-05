@@ -2,6 +2,7 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
@@ -29,10 +30,14 @@ return new class extends Migration
             $table->timestamp('finished_at')->nullable();
             $table->foreignId('published_by')->nullable()->index()->constrained('users')->restrictOnDelete();
             $table->timestamp('published_at')->nullable();
+            $table->uuid('client_run_id')->nullable()->unique();
+            $table->string('dataset_fingerprint', 80)->nullable();
             $table->timestamps();
 
             $table->index(['faculty_id', 'period']);
         });
+
+        DB::statement('CREATE UNIQUE INDEX scheduling_runs_active_unique ON scheduling_runs (faculty_id, period) WHERE is_active');
     }
 
     public function down(): void

@@ -1,0 +1,4 @@
+# Base URL of the Laravel API, compiled into the app (api::ApiClient). Override per build with
+# the SIMJADWAL_API_URL environment variable, e.g. for staging or production.
+[env]
+SIMJADWAL_API_URL = { value = "http://localhost:8000/api/v1", force = false }

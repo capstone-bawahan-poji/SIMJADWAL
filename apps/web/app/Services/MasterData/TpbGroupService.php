@@ -9,15 +9,12 @@ use App\Exceptions\Shared\ApiException;
 use App\Models\MasterData\CourseLecturer;
 use App\Models\MasterData\StudyProgram;
 use App\Models\MasterData\TpbGroup;
+use App\Services\Shared\ChangeRecorder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
-/**
- * TPB groups are placed by hand in the MVP. Every write re-checks the clash rules
- * (TpbClashChecker) against the saved state and rolls back on failure.
- */
 readonly class TpbGroupService
 {
     public function __construct(
@@ -25,6 +22,7 @@ readonly class TpbGroupService
         private TpbClashChecker $clashChecker,
         private ReferenceGuard $referenceGuard,
         private DatabaseManager $db,
+        private ChangeRecorder $changes,
     ) {}
 
     /**
@@ -88,6 +86,8 @@ readonly class TpbGroupService
         $this->db->transaction(function () use ($group, $data) {
             $group->update(['code' => $data->code, 'time_slot_id' => $data->timeSlotId]);
             $group->studyPrograms()->sync($data->studyProgramIds);
+            // sync() writes the pivot only, so a change of programs alone fires no model event.
+            $this->changes->record($group->getTable(), $group->id);
             $this->ensureNoClash($group->fresh());
         });
 

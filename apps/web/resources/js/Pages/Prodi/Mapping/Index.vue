@@ -20,6 +20,8 @@ const { submission, locked, reload: reloadSubmission } = useOwnSubmission();
 const { filters, items: courses, pagination, page, loading, error } = usePaginatedList<Course, { q: string; study_program_id: number | null; is_tpb: boolean }>(
     'courses',
     { q: queryParam('q'), study_program_id: studyProgramId.value, is_tpb: false },
+    20,
+    ['course_lecturers'],
 );
 
 // One lecturer per class. Lecturers and assignments of one program are few, so load them whole.
@@ -87,7 +89,6 @@ async function assign(course: Course, classNumber: number, value: string): Promi
     }
 }
 
-// Info only: no hard limit on SKS per lecturer.
 const loads = computed(() => {
     const totals = new Map<number, { classes: number; sks: number }>();
 

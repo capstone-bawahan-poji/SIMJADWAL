@@ -6,6 +6,7 @@ use App\Enums\Constraint\ConstraintCode;
 use App\Models\Constraint\ConstraintType;
 use App\Models\Constraint\LecturerPreference;
 use App\Models\MasterData\Lecturer;
+use App\Services\Shared\ChangeRecorder;
 use Illuminate\Database\DatabaseManager;
 
 /**
@@ -19,6 +20,7 @@ readonly class LecturerPreferenceService
         private ConstraintType $constraintType,
         private ConstraintActivityLogService $activityLog,
         private DatabaseManager $db,
+        private ChangeRecorder $changes,
     ) {}
 
     /**
@@ -58,6 +60,8 @@ readonly class LecturerPreferenceService
                 'created_at' => now(),
                 'updated_at' => now(),
             ])->all());
+
+            $this->changes->record($this->preference->getTable());
         });
 
         $after = $this->getPreferences($lecturer);

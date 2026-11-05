@@ -13,7 +13,7 @@ return [
 
     'default_password' => env('SEED_DEFAULT_PASSWORD', 'password'),
 
-    'room_capacity' => (int) env('SEED_KAPASITAS_RUANGAN', 40),
-    'class_capacity' => (int) env('SEED_KAPASITAS_KELAS', 40),
+    'room_capacity' => (int) env('SEED_KAPASITAS_RUANGAN', 50),
+    'class_capacity' => (int) env('SEED_KAPASITAS_KELAS', 50),
 
 ];

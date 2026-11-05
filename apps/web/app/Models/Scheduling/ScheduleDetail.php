@@ -7,8 +7,10 @@ use App\Models\MasterData\Lecturer;
 use App\Models\MasterData\Room;
 use App\Models\MasterData\TimeSlot;
 use App\Models\User;
+use App\Policies\Scheduling\ScheduleDetailPolicy;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Scope;
+use Illuminate\Database\Eloquent\Attributes\UsePolicy;
 use Illuminate\Database\Eloquent\Attributes\WithoutTimestamps;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
@@ -25,6 +27,7 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
     'time_slot_id', 'room_id', 'is_overridden', 'overridden_by', 'overridden_at',
 ])]
 #[WithoutTimestamps]
+#[UsePolicy(ScheduleDetailPolicy::class)]
 class ScheduleDetail extends Model
 {
     protected function casts(): array

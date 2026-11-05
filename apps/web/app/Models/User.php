@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\Account\Role;
+use App\Extensions\Models\Traits\BroadcastsChanges;
 use App\Models\MasterData\Faculty;
 use App\Models\MasterData\Lecturer;
 use App\Models\MasterData\StudyProgram;
@@ -26,7 +27,15 @@ use Spatie\Permission\Traits\HasRoles;
 class User extends Authenticatable
 {
     /** @use HasFactory<UserFactory> */
-    use HasApiTokens, HasFactory, HasRoles, Notifiable;
+    use BroadcastsChanges, HasApiTokens, HasFactory, HasRoles, Notifiable;
+
+    /**
+     * Sign-in bookkeeping and password changes do not change what the clients show.
+     */
+    public function broadcastIgnoredAttributes(): array
+    {
+        return ['password', 'remember_token'];
+    }
 
     /**
      * Get the attributes that should be cast.

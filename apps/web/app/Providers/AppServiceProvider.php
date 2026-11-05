@@ -6,9 +6,11 @@ use App\Contracts\Account\ResolvesOrgScope;
 use App\Enums\Account\Role;
 use App\Models\User;
 use App\Services\Account\RoleOrgScope;
+use App\Services\Shared\ChangeRecorder;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Queue;
 use Illuminate\Support\Facades\RateLimiter;
 use Illuminate\Support\Facades\Vite;
 use Illuminate\Support\ServiceProvider;
@@ -23,6 +25,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(ResolvesOrgScope::class, RoleOrgScope::class);
+        $this->app->scoped(ChangeRecorder::class);
     }
 
     /**
@@ -39,5 +42,8 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('login', fn (Request $request) => Limit::perMinute(5)->by(
             Str::transliterate(Str::lower($request->string('email')).'|'.$request->ip()),
         ));
+
+        $this->app->terminating(fn () => $this->app->make(ChangeRecorder::class)->flush());
+        Queue::after(fn () => $this->app->make(ChangeRecorder::class)->flush());
     }
 }

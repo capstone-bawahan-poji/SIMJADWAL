@@ -13,6 +13,10 @@ Route::redirect('/', '/login');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    // Cross-faculty schedule. Admins of one faculty or program, and students, have their own pages.
+    Route::get('/schedule', fn () => inertia('Prodi/ScheduleMatrix/Index'))
+        ->middleware('role:superadmin|admin_tpb|dosen')
+        ->name('schedule.index');
 
     Route::middleware('role:superadmin')->prefix('superadmin')->name('superadmin.')->group(function () {
         Route::get('/faculty-program', function () {
@@ -34,6 +38,7 @@ Route::middleware('auth')->group(function () {
 
     Route::middleware('role:admin_prodi')->prefix('prodi')->name('prodi.')->group(function () {
         Route::get('/courses', fn () => inertia('Prodi/Course/Index'))->name('courses.index');
+        Route::get('/courses/import', fn () => inertia('Prodi/Course/Import'))->name('courses.import');
         Route::get('/lecturers', fn () => inertia('Prodi/Lecturer/Index'))->name('lecturers.index');
         Route::get('/mappings', fn () => inertia('Prodi/Mapping/Index'))->name('mappings.index');
         Route::get('/constraints', fn () => inertia('Prodi/Constraint/Index'))->name('constraints.index');
@@ -42,9 +47,19 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware('role:admin_fakultas')->prefix('fakultas')->name('fakultas.')->group(function () {
+        Route::get('/schedule', fn () => inertia('Fakultas/Schedule/Index'))->name('schedule.index');
         Route::get('/constraints', fn () => inertia('Fakultas/Constraint/Index'))->name('constraints.index');
         Route::get('/ga', fn () => inertia('Fakultas/Ga/Index'))->name('ga.index');
         Route::get('/rooms', fn () => inertia('Fakultas/Room/Index'))->name('rooms.index');
+    });
+
+    Route::middleware('role:admin_tpb')->prefix('tpb')->name('tpb.')->group(function () {
+        Route::get('/', fn () => inertia('Tpb/Index'))->name('index');
+    });
+
+    Route::middleware('role:mahasiswa')->prefix('mahasiswa')->name('mahasiswa.')->group(function () {
+        Route::get('/faculty-schedule', fn () => inertia('Mahasiswa/FacultySchedule/Index'))->name('faculty-schedule.index');
+        Route::get('/schedule', fn () => inertia('Mahasiswa/Schedule/Index'))->name('schedule.index');
     });
 
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');

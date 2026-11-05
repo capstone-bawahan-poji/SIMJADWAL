@@ -4,6 +4,7 @@ namespace Database\Seeders\Reference;
 
 use App\Enums\Account\Role as RoleEnum;
 use App\Permissions\Constraint\ConstraintPermissions;
+use App\Permissions\MasterData\AcademicPeriodPermissions;
 use App\Permissions\MasterData\CourseLecturerPermissions;
 use App\Permissions\MasterData\CoursePermissions;
 use App\Permissions\MasterData\DepartmentPermissions;
@@ -13,6 +14,8 @@ use App\Permissions\MasterData\RoomPermissions;
 use App\Permissions\MasterData\StudyProgramPermissions;
 use App\Permissions\MasterData\TimeSlotPermissions;
 use App\Permissions\MasterData\TpbPermissions;
+use App\Permissions\Scheduling\GaPresetPermissions;
+use App\Permissions\Scheduling\SchedulingPermissions;
 use App\Services\Account\PermissionService;
 use Illuminate\Database\Seeder;
 use Spatie\Permission\Models\Role;
@@ -34,6 +37,7 @@ class RoleSeeder extends Seeder
             DepartmentPermissions::VIEW,
             StudyProgramPermissions::VIEW,
             TimeSlotPermissions::VIEW,
+            AcademicPeriodPermissions::VIEW,
         ];
 
         $matrix = [
@@ -49,6 +53,8 @@ class RoleSeeder extends Seeder
                 ConstraintPermissions::VIEW,
                 ConstraintPermissions::UPDATE_WEIGHT,
                 ConstraintPermissions::REVIEW,
+                ...SchedulingPermissions::cases(),
+                ...GaPresetPermissions::cases(),
             ],
             RoleEnum::TPB_ADMIN->value => [
                 ...$readReference,
@@ -57,6 +63,7 @@ class RoleSeeder extends Seeder
                 CoursePermissions::VIEW,
                 CourseLecturerPermissions::VIEW,
                 ...TpbPermissions::cases(),
+                SchedulingPermissions::VIEW_SCHEDULE,
             ],
             RoleEnum::STUDY_PROGRAM_ADMIN->value => [
                 ...$readReference,
@@ -68,9 +75,10 @@ class RoleSeeder extends Seeder
                 ConstraintPermissions::VIEW,
                 ConstraintPermissions::UPDATE_PREFERENCE,
                 ConstraintPermissions::SUBMIT,
+                SchedulingPermissions::VIEW_SCHEDULE,
             ],
-            RoleEnum::LECTURER->value => $readReference,
-            RoleEnum::STUDENT->value => $readReference,
+            RoleEnum::LECTURER->value => [...$readReference, SchedulingPermissions::VIEW_SCHEDULE],
+            RoleEnum::STUDENT->value => [...$readReference, SchedulingPermissions::VIEW_SCHEDULE],
         ];
 
         foreach ($matrix as $roleName => $permissions) {

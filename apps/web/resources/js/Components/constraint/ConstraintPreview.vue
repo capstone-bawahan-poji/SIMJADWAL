@@ -23,92 +23,143 @@ const days = computed(() => {
 });
 
 const slotById = computed(() => new Map(props.timeSlots.map((slot) => [slot.id, slot])));
+const filledCount = computed(() => props.detail.lecturers.filter((lecturer) => lecturer.preferences.length > 0).length);
 
 const search = ref('');
+const hideEmpty = ref(false);
+
 const lecturers = computed(() => {
     const query = search.value.trim().toLowerCase();
 
     return props.detail.lecturers
-        .filter((l) => !query || l.name.toLowerCase().includes(query) || l.nip.includes(query))
-        .map((l) => ({
-            ...l,
-            want: l.preferences.filter((p) => p.type === 'want').length,
-            avoid: l.preferences.filter((p) => p.type === 'avoid').length,
+        .filter((lecturer) => !query || lecturer.name.toLowerCase().includes(query) || lecturer.nip.includes(query))
+        .map((lecturer) => ({
+            ...lecturer,
+            want: lecturer.preferences.filter((preference) => preference.type === 'want').length,
+            avoid: lecturer.preferences.filter((preference) => preference.type === 'avoid').length,
             perDay: days.value.map(({ day, label }) => {
-                const slots = l.preferences.filter((p) => slotById.value.get(p.time_slot_id)?.day === day);
+                const preferences = lecturer.preferences.filter((preference) => slotById.value.get(preference.time_slot_id)?.day === day);
 
-                return { label, want: slots.filter((p) => p.type === 'want').length, avoid: slots.filter((p) => p.type === 'avoid').length };
+                return {
+                    label,
+                    want: preferences.filter((preference) => preference.type === 'want').length,
+                    avoid: preferences.filter((preference) => preference.type === 'avoid').length,
+                };
             }),
-        }));
+        }))
+        .filter((lecturer) => !hideEmpty.value || lecturer.want + lecturer.avoid > 0);
 });
 </script>
 
 <template>
     <div class="space-y-6">
-        <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <section class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-                <h3 class="text-sm font-bold text-gray-900">Hard Constraint</h3>
-                <p class="mb-4 text-xs text-gray-500">Aturan baku tanpa pengecualian.</p>
-                <ul class="space-y-2">
-                    <li v-for="hc in hardConstraints" :key="hc.id" class="flex items-start gap-3 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
-                        <span class="rounded bg-primary/10 px-1.5 py-0.5 font-mono text-[10px] font-bold text-primary">{{ hc.code }}</span>
-                        <span class="text-xs text-gray-700">{{ hc.description }}</span>
-                    </li>
-                </ul>
-            </section>
+        <div class="grid grid-cols-1 gap-4 md:grid-cols-2">
+            <div class="rounded-lg border bg-white p-5" :class="detail.incomplete_courses.length ? 'border-amber-300' : 'border-gray-200'">
+                <p class="text-sm text-gray-500">Dosen pengampu</p>
+                <p v-if="detail.incomplete_courses.length === 0" class="mt-1 text-lg font-semibold text-green-700">Semua kelas sudah berdosen</p>
+                <template v-else>
+                    <p class="mt-1 text-lg font-semibold text-amber-800">{{ detail.incomplete_courses.length }} mata kuliah belum lengkap</p>
+                    <ul class="mt-3 space-y-1 text-sm text-amber-800">
+                        <li v-for="course in detail.incomplete_courses" :key="course.id">
+                            <strong>{{ course.code }}</strong> {{ course.name }}: {{ course.assigned_class_count }} dari {{ course.parallel_class_count }} kelas berdosen
+                        </li>
+                    </ul>
+                </template>
+            </div>
 
-            <section class="rounded-2xl border border-gray-100 bg-white p-6 shadow-sm">
-                <h3 class="text-sm font-bold text-gray-900">Bobot Soft Constraint</h3>
-                <p class="mb-4 text-xs text-gray-500">Bobot berlaku untuk semua program studi dan diatur admin fakultas.</p>
-                <ul class="space-y-2">
-                    <li v-for="sc in softConstraints" :key="sc.id" class="flex items-center justify-between gap-3 rounded-xl border border-gray-100 bg-gray-50 px-4 py-3">
-                        <div class="min-w-0">
-                            <span class="font-mono text-[10px] font-bold text-gray-500">{{ sc.code }}</span>
-                            <p class="text-xs text-gray-700">{{ sc.description }}</p>
-                        </div>
-                        <span class="shrink-0 text-sm font-bold text-gray-900">{{ sc.weight }}</span>
-                    </li>
-                </ul>
-            </section>
+            <div class="rounded-lg border border-gray-200 bg-white p-5">
+                <p class="text-sm text-gray-500">Preferensi waktu</p>
+                <p class="mt-1 text-lg font-semibold text-gray-900">
+                    <span class="tabular-nums">{{ filledCount }}</span> dari <span class="tabular-nums">{{ detail.lecturers.length }}</span> dosen sudah mengisi
+                </p>
+                <p class="mt-1 text-sm text-gray-500">Dosen yang belum mengisi dianggap netral di semua slot.</p>
+            </div>
         </div>
 
-        <section class="rounded-2xl border bg-white p-6 shadow-sm" :class="detail.incomplete_courses.length ? 'border-amber-200' : 'border-gray-100'">
-            <h3 class="text-sm font-bold text-gray-900">Kelengkapan Dosen Pengampu</h3>
-            <p v-if="detail.incomplete_courses.length === 0" class="mt-1 text-xs text-emerald-700">Semua kelas mata kuliah sudah memiliki dosen pengampu.</p>
-            <ul v-else class="mt-3 space-y-1.5 text-xs text-amber-800">
-                <li v-for="course in detail.incomplete_courses" :key="course.id">
-                    <strong>{{ course.code }}</strong> {{ course.name }}: {{ course.assigned_class_count }} dari {{ course.parallel_class_count }} kelas berdosen
-                </li>
-            </ul>
+        <section class="grid gap-x-10 gap-y-8 rounded-lg border border-gray-200 bg-white p-6 lg:grid-cols-2">
+            <div>
+                <h3 class="text-sm font-semibold text-gray-900">Hard constraint</h3>
+                <p class="mt-0.5 text-sm text-gray-500">Aturan baku tanpa pengecualian.</p>
+                <ul class="mt-3 divide-y divide-gray-100 text-sm">
+                    <li v-for="constraint in hardConstraints" :key="constraint.id" class="flex gap-3 py-2.5">
+                        <span class="w-10 shrink-0 font-semibold text-gray-500">{{ constraint.code }}</span>
+                        <span class="text-gray-800">{{ constraint.description }}</span>
+                    </li>
+                </ul>
+            </div>
+
+            <div>
+                <h3 class="text-sm font-semibold text-gray-900">Bobot soft constraint</h3>
+                <p class="mt-0.5 text-sm text-gray-500">Berlaku untuk semua program studi dan diatur admin fakultas.</p>
+                <ul class="mt-3 divide-y divide-gray-100 text-sm">
+                    <li v-for="constraint in softConstraints" :key="constraint.id" class="flex items-start justify-between gap-4 py-2.5">
+                        <span class="text-gray-800">{{ constraint.description }}</span>
+                        <span class="shrink-0 rounded bg-gray-100 px-2 py-0.5 text-xs font-semibold tabular-nums text-gray-700">Bobot {{ constraint.weight }}</span>
+                    </li>
+                </ul>
+            </div>
         </section>
 
-        <section class="rounded-2xl border border-gray-100 bg-white shadow-sm">
-            <div class="flex flex-col gap-3 border-b border-gray-100 p-6 md:flex-row md:items-center md:justify-between">
+        <section class="overflow-hidden rounded-lg border border-gray-200 bg-white">
+            <div class="flex flex-col gap-3 border-b border-gray-200 p-5 md:flex-row md:items-center md:justify-between">
                 <div>
-                    <h3 class="text-sm font-bold text-gray-900">Preferensi Waktu Dosen</h3>
-                    <p class="text-xs text-gray-500">Jumlah slot diinginkan (+) dan dihindari (−) per hari.</p>
+                    <h3 class="text-sm font-semibold text-gray-900">Preferensi waktu dosen</h3>
+                    <p class="mt-0.5 text-sm text-gray-500">
+                        Slot per hari:
+                        <span class="font-medium text-emerald-700">+ diinginkan</span>,
+                        <span class="font-medium text-red-600">− dihindari</span>.
+                    </p>
                 </div>
-                <input v-model="search" type="search" placeholder="Cari nama atau NIP dosen..." aria-label="Cari dosen" class="w-full rounded-xl border-gray-200 bg-gray-50 text-xs placeholder-gray-400 focus:border-primary focus:ring-primary md:w-64" />
+                <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
+                    <label class="flex items-center gap-2 text-sm text-gray-600">
+                        <input v-model="hideEmpty" type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary" />
+                        Sembunyikan yang belum mengisi
+                    </label>
+                    <input
+                        v-model="search"
+                        type="search"
+                        placeholder="Cari nama atau NIP dosen..."
+                        aria-label="Cari dosen"
+                        class="w-full rounded-lg border-gray-200 text-sm placeholder-gray-400 focus:border-primary focus:ring-primary sm:w-64"
+                    />
+                </div>
             </div>
+
             <p v-if="lecturers.length === 0" class="p-6 text-center text-sm text-gray-500">Tidak ada dosen yang cocok.</p>
-            <div v-for="lecturer in lecturers" :key="lecturer.id" class="border-b border-gray-100 p-6 last:border-b-0">
-                <div class="flex flex-col gap-2 md:flex-row md:items-center md:justify-between">
-                    <div>
-                        <h4 class="text-sm font-bold text-gray-900">{{ lecturer.name }}<span v-if="lecturer.title" class="font-normal text-gray-500">, {{ lecturer.title }}</span></h4>
-                        <span class="font-mono text-[11px] text-gray-400">{{ lecturer.nip }}</span>
-                    </div>
-                    <div class="flex shrink-0 gap-3 text-[11px] font-semibold">
-                        <span class="text-emerald-600">{{ lecturer.want }} slot diinginkan</span>
-                        <span class="text-red-600">{{ lecturer.avoid }} slot dihindari</span>
-                    </div>
-                </div>
-                <div v-if="lecturer.want + lecturer.avoid > 0" class="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-5">
-                    <div v-for="day in lecturer.perDay" :key="day.label" class="rounded-xl border border-gray-100 bg-gray-50 px-3 py-2 text-center">
-                        <div class="text-[10px] font-bold uppercase tracking-wider text-gray-400">{{ day.label }}</div>
-                        <div class="mt-0.5 text-xs font-semibold"><span class="text-emerald-600">+{{ day.want }}</span> <span class="text-red-600">−{{ day.avoid }}</span></div>
-                    </div>
-                </div>
-                <p v-else class="mt-2 text-xs text-gray-400">Belum ada preferensi: semua slot netral.</p>
+
+            <div v-else class="overflow-x-auto">
+                <table class="w-full border-collapse text-left text-sm">
+                    <thead>
+                        <tr class="border-b border-gray-200 bg-gray-50 text-xs font-medium text-gray-500">
+                            <th class="px-6 py-3">Dosen</th>
+                            <th v-for="day in days" :key="day.day" class="px-3 py-3 text-center">{{ day.label }}</th>
+                            <th class="px-6 py-3 text-right">Total</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-100">
+                        <tr v-for="lecturer in lecturers" :key="lecturer.id">
+                            <td class="px-6 py-3">
+                                <p class="font-semibold text-gray-900">{{ lecturer.name }}<span v-if="lecturer.title" class="font-normal text-gray-500">, {{ lecturer.title }}</span></p>
+                                <p class="text-xs tabular-nums text-gray-500">{{ lecturer.nip }}</p>
+                            </td>
+                            <td v-for="cell in lecturer.perDay" :key="cell.label" class="px-3 py-3 text-center tabular-nums">
+                                <template v-if="cell.want || cell.avoid">
+                                    <span v-if="cell.want" class="font-medium text-emerald-700">+{{ cell.want }}</span>
+                                    <span v-if="cell.avoid" class="ml-1.5 font-medium text-red-600">−{{ cell.avoid }}</span>
+                                </template>
+                                <span v-else class="text-gray-300">–</span>
+                            </td>
+                            <td class="whitespace-nowrap px-6 py-3 text-right text-sm">
+                                <template v-if="lecturer.want || lecturer.avoid">
+                                    <span class="font-semibold tabular-nums text-emerald-700">{{ lecturer.want }}</span>
+                                    <span class="text-gray-400"> / </span>
+                                    <span class="font-semibold tabular-nums text-red-600">{{ lecturer.avoid }}</span>
+                                </template>
+                                <span v-else class="text-gray-400">Belum mengisi</span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </section>
     </div>

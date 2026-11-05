@@ -192,6 +192,7 @@ return [
         'class_number' => 'nomor kelas',
         'tpb_group_id' => 'grup TPB',
         'room_id' => 'ruangan',
+        'reason' => 'alasan perubahan',
         'capacity' => 'kapasitas',
         'building' => 'gedung',
         'floor' => 'lantai',

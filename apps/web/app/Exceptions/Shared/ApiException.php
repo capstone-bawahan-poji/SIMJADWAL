@@ -21,6 +21,22 @@ class ApiException extends RuntimeException
         parent::__construct($message);
     }
 
+    /**
+     * The data a desktop run was computed from has changed on the server since it was fetched.
+     */
+    public static function datasetChanged(): self
+    {
+        return new self(__('The scheduling data changed after this run was computed. Reload the data and run again.'), 'DATASET_CHANGED', 409);
+    }
+
+    /**
+     * Course data changed between the import preview and the commit.
+     */
+    public static function importPlanChanged(): self
+    {
+        return new self(__('The data changed after the preview. Check the new preview before importing.'), 'IMPORT_PLAN_CHANGED', 409);
+    }
+
     public static function invalidCredentials(): self
     {
         return new self(__('auth.failed'), 'INVALID_CREDENTIALS', 401);
@@ -45,6 +61,14 @@ class ApiException extends RuntimeException
     public static function invalidState(string $message): self
     {
         return new self($message, 'INVALID_STATE', 409);
+    }
+
+    /**
+     * The PDF service (Gotenberg) cannot be reached or failed.
+     */
+    public static function pdfUnavailable(): self
+    {
+        return new self(__('The PDF service is not available right now. Try again later.'), 'PDF_UNAVAILABLE', 503);
     }
 
     public static function constraintsLocked(): self

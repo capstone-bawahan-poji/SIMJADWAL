@@ -2,6 +2,7 @@
 
 namespace App\Models\MasterData;
 
+use App\Extensions\Models\Traits\BroadcastsChanges;
 use App\Models\Scheduling\ScheduleDetail;
 use App\Policies\MasterData\RoomPolicy;
 use Database\Factories\MasterData\RoomFactory;
@@ -22,7 +23,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 class Room extends Model
 {
     /** @use HasFactory<RoomFactory> */
-    use HasFactory, SoftDeletes;
+    use BroadcastsChanges, HasFactory, SoftDeletes;
 
     protected function casts(): array
     {

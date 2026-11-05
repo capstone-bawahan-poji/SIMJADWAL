@@ -47,7 +47,7 @@ routes/api.php  → App\Http\Controllers\Api\...   → JsonResponse          →
 1. Halaman tidak reload untuk operasi CRUD; hanya request JSON.
 2. Validasi berat, otorisasi granular, dan transaksi ada di jalur API.
 3. Route API internal memakai middleware `['web', 'auth']` (bukan token) dengan prefix `/api/internal`, sehingga otentikasi memakai session + cookie CSRF yang sama dengan halaman.
-4. Token Sanctum hanya dipakai di `/api/v1/*`, yaitu API eksternal untuk aplikasi mobile dan desktop. Kontraknya ada di `docs/api/openapi.yaml`.
+4. Token Sanctum hanya dipakai di `/api/v1/*`, yaitu API eksternal untuk aplikasi mobile dan desktop. Kontraknya ada di `docs/api/CONVENTIONS.md`.
 
 ### 2.1 Skema folder controller
 
@@ -121,7 +121,7 @@ Keduanya memanggil service yang sama. Controller hanya adapter yang mengubah has
 | Prefix & nama route | `/api/internal`, `api.internal.*` | `/api/v1`, `api.v1.*` |
 | Middleware | `['web', 'auth']` | `['auth:sanctum', 'active']` |
 | Konsumen | Frontend Vue aplikasi ini | Mobile, desktop (Tauri), sistem luar |
-| Boleh berubah bebas? | Ya, mengikuti kebutuhan halaman | Tidak, terikat kontrak `openapi.yaml` |
+| Boleh berubah bebas? | Ya, mengikuti kebutuhan halaman | Tidak, terikat kontrak `docs/api/CONVENTIONS.md` |
 
 Selama kontrak v1 sama dengan kebutuhan internal, controller V1 cukup berupa subclass kosong dari controller Internal. Saat v1 harus berbeda, override method-nya di kelas V1. Dengan begitu frontend bisa berubah tanpa merusak klien eksternal, dan tidak ada kode duplikat selama keduanya masih sama.
 

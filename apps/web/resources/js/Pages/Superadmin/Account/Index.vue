@@ -1,11 +1,10 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import { Info, Users } from 'lucide-vue-next';
 import { computed, onMounted, ref, watch } from 'vue';
 import Button from '@/Components/ui/Button.vue';
 import MetricCard from '@/Components/ui/MetricCard.vue';
-import Card from '@/Components/ui/Card.vue';
+import Panel from '@/Components/ui/Panel.vue';
 import Modal from '@/Components/Modal.vue';
 import Alert from '@/Components/ui/Alert.vue';
 import ConfirmDialog from '@/Components/ui/ConfirmDialog.vue';
@@ -17,22 +16,14 @@ import { countOf, useCollection, usePaginatedList } from '@/composables/useApiLi
 import { useApiForm } from '@/composables/useApiForm';
 import type { Role, User } from '@/types';
 import type { FacultySummary, Lecturer, Paginated, StudyProgramSummary } from '@/types/models';
-
-const ROLE_BADGES: Record<Role, string> = {
-    superadmin: 'bg-gray-100 text-gray-700',
-    admin_fakultas: 'bg-blue-50 text-blue-700',
-    admin_tpb: 'bg-purple-50 text-purple-700',
-    admin_prodi: 'bg-indigo-50 text-indigo-700',
-    dosen: 'bg-teal-50 text-teal-700',
-    mahasiswa: 'bg-amber-50 text-amber-700',
-};
+import type { ApiError } from '@/lib/api';
 
 const selectClass = 'rounded-xl border-gray-200 text-sm focus:border-primary focus:ring-primary text-gray-700';
 const fieldClass = 'w-full rounded-xl border-gray-200 bg-gray-50 text-gray-900 text-sm focus:border-primary focus:ring-primary';
 
 // Lookups for filters, the form and the "Fakultas / Prodi" column.
-const { items: faculties } = useCollection<FacultySummary>('faculties');
-const { items: programs } = useCollection<StudyProgramSummary>('study-programs');
+const { items: faculties, error: facultyError } = useCollection<FacultySummary>('faculties');
+const { items: programs, error: programError } = useCollection<StudyProgramSummary>('study-programs');
 const facultyById = computed(() => new Map(faculties.value.map((f) => [f.id, f])));
 const programById = computed(() => new Map(programs.value.map((p) => [p.id, p])));
 
@@ -42,7 +33,7 @@ const { filters, items: users, pagination, page, loading, error: listError, relo
     faculty_id: number | '';
     study_program_id: number | '';
     is_active: boolean | '';
-}>('users', { q: queryParam('q'), role: '', faculty_id: '', study_program_id: '', is_active: '' });
+}>('users', { q: queryParam('q'), role: '', faculty_id: '', study_program_id: '', is_active: '' }, 20, ['lecturers']);
 
 const filterPrograms = computed(() =>
     filters.faculty_id === '' ? programs.value : programs.value.filter((p) => p.faculty_id === filters.faculty_id),
@@ -57,8 +48,11 @@ watch(
 
 // Metric cards: meta.total of filtered lists.
 const metrics = ref({ total: 0, admins: 0, lecturers: 0, students: 0 });
+const metricsError = ref<ApiError | null>(null);
 
 async function loadMetrics(): Promise<void> {
+    metricsError.value = null;
+
     try {
         const [total, facultyAdmins, programAdmins, tpbAdmins, lecturers, students] = await Promise.all([
             countOf('users'),
@@ -69,8 +63,8 @@ async function loadMetrics(): Promise<void> {
             countOf('users', { role: 'mahasiswa', is_active: true }),
         ]);
         metrics.value = { total, admins: facultyAdmins + programAdmins + tpbAdmins, lecturers, students };
-    } catch {
-        // The table shows the error; the cards keep their last values.
+    } catch (error) {
+        metricsError.value = toApiError(error);
     }
 }
 
@@ -109,16 +103,31 @@ const formPrograms = computed(() =>
 
 // Lecturers of the chosen program that have no account yet (or belong to the edited one).
 const lecturerOptions = ref<Lecturer[]>([]);
+const lecturerOptionsError = ref<ApiError | null>(null);
+const lecturersLoading = ref(false);
+let lecturerRequestId = 0;
 
 async function loadLecturers(): Promise<void> {
+    const requestId = ++lecturerRequestId;
     lecturerOptions.value = [];
+    lecturerOptionsError.value = null;
 
     if (!needsLecturer.value || form.data.study_program_id === '') {
         return;
     }
 
-    const response = await api.get<Paginated<Lecturer>>('lecturers', { params: { study_program_id: form.data.study_program_id, per_page: 100 } });
-    lecturerOptions.value = response.data.data.filter((l) => l.user_id === null || l.user_id === editing.value?.id);
+    lecturersLoading.value = true;
+
+    try {
+        const response = await api.get<Paginated<Lecturer>>('lecturers', { params: { study_program_id: form.data.study_program_id, per_page: 100 } });
+        if (requestId === lecturerRequestId) {
+            lecturerOptions.value = response.data.data.filter((l) => l.user_id === null || l.user_id === editing.value?.id);
+        }
+    } catch (error) {
+        if (requestId === lecturerRequestId) lecturerOptionsError.value = toApiError(error);
+    } finally {
+        if (requestId === lecturerRequestId) lecturersLoading.value = false;
+    }
 }
 
 watch(() => [form.data.role, form.data.study_program_id], () => void loadLecturers());
@@ -224,21 +233,20 @@ async function toggleStatus(): Promise<void> {
             </div>
 
             <Alert v-if="flash" variant="success" :title="flash" dismissible @dismiss="flash = null" />
+            <Alert v-if="facultyError" :title="facultyError.message" />
+            <Alert v-if="programError" :title="programError.message" />
+            <Alert v-if="metricsError" :title="`Gagal memuat ringkasan akun: ${metricsError.message}`" />
 
             <!-- Metrics grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
                 <MetricCard title="Total Pengguna" :value="metrics.total.toLocaleString('id-ID')" unit="Akun" />
-                <div class="bg-white p-5 rounded-2xl shadow-sm border border-gray-100 flex flex-col justify-center">
-                    <p class="text-xs font-bold uppercase tracking-wider text-gray-500">Admin Institusi</p>
-                    <h3 class="text-2xl font-bold text-gray-900 mt-1">{{ metrics.admins.toLocaleString('id-ID') }} <span class="text-xs font-medium text-gray-500">Admin</span></h3>
-                    <p class="text-xs font-medium text-gray-400 mt-1">{{ faculties.length }} Fakultas • {{ programs.length }} Program Studi</p>
-                </div>
+                <MetricCard title="Admin Institusi" :value="metrics.admins.toLocaleString('id-ID')" unit="Admin" />
                 <MetricCard title="Akun Dosen" :value="metrics.lecturers.toLocaleString('id-ID')" unit="Dosen" />
                 <MetricCard title="Mahasiswa Aktif" :value="metrics.students.toLocaleString('id-ID')" unit="Mahasiswa" />
             </div>
 
             <!-- Table & Filters Section -->
-            <Card class="!p-0 border-none shadow-sm">
+            <Panel>
                 <!-- Toolbar -->
                 <div class="p-5 border-b border-gray-100 flex flex-col md:flex-row justify-between gap-4 bg-white">
                     <div class="flex flex-wrap gap-3">
@@ -298,8 +306,8 @@ async function toggleStatus(): Promise<void> {
                                 <td class="py-4 px-6">
                                     <div class="flex items-center gap-3">
                                         <div
-                                            class="w-10 h-10 rounded-lg flex items-center justify-center font-bold text-xs shrink-0"
-                                            :class="user.is_active && user.role ? ROLE_BADGES[user.role] : 'bg-gray-100 text-gray-400'"
+                                            class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-xs font-semibold"
+                                            :class="user.is_active ? 'bg-gray-100 text-gray-700' : 'bg-gray-50 text-gray-400'"
                                         >
                                             {{ initials(user.name) }}
                                         </div>
@@ -313,7 +321,7 @@ async function toggleStatus(): Promise<void> {
                                 </td>
                                 <td class="py-4 px-6 text-gray-700 font-medium">{{ user.email }}</td>
                                 <td class="py-4 px-6">
-                                    <span v-if="user.role" class="px-2.5 py-1 rounded-md text-xs font-semibold" :class="ROLE_BADGES[user.role]">
+                                    <span v-if="user.role" class="text-sm text-gray-700">
                                         {{ ROLE_LABELS[user.role] }}
                                     </span>
                                 </td>
@@ -322,17 +330,13 @@ async function toggleStatus(): Promise<void> {
                                     <p class="text-xs text-gray-500">{{ userUnit(user, programById, facultyById).subtitle }}</p>
                                 </td>
                                 <td class="py-4 px-6 text-center">
-                                    <span
-                                        v-if="user.is_active"
-                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-green-50 text-green-700 border border-green-200"
-                                    >
-                                        <span class="w-1.5 h-1.5 rounded-full bg-green-600 animate-pulse"></span>Aktif
+                                    <span v-if="user.is_active" class="inline-flex items-center gap-1.5 text-xs font-medium text-green-700">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-green-600"></span>
+                                        Aktif
                                     </span>
-                                    <span
-                                        v-else
-                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold bg-red-50 text-red-700 border border-red-200"
-                                    >
-                                        <span class="w-1.5 h-1.5 rounded-full bg-red-600"></span>Nonaktif
+                                    <span v-else class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-gray-400"></span>
+                                        Nonaktif
                                     </span>
                                 </td>
                                 <td class="py-4 px-6 text-center">
@@ -340,7 +344,7 @@ async function toggleStatus(): Promise<void> {
                                         <button
                                             v-if="user.can_update"
                                             type="button"
-                                            class="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-900 transition-colors"
+                                            class="text-sm font-medium text-gray-700 hover:text-primary hover:underline"
                                             @click="openEdit(user)"
                                         >
                                             Edit
@@ -348,8 +352,8 @@ async function toggleStatus(): Promise<void> {
                                         <button
                                             v-if="user.can_update_status"
                                             type="button"
-                                            class="p-1.5 rounded transition-colors"
-                                            :class="user.is_active ? 'text-gray-400 hover:bg-red-50 hover:text-red-600' : 'text-gray-400 hover:bg-green-50 hover:text-green-700'"
+                                            class="text-sm font-medium hover:underline"
+                                            :class="user.is_active ? 'text-red-600' : 'text-primary'"
                                             @click="askStatus(user)"
                                         >
                                             {{ user.is_active ? 'Nonaktifkan' : 'Aktifkan' }}
@@ -362,20 +366,15 @@ async function toggleStatus(): Promise<void> {
                 </div>
 
                 <Pagination v-model:page="page" :pagination="pagination" label="akun" />
-            </Card>
+            </Panel>
         </div>
 
         <!-- Create / Edit Modal -->
         <Modal :show="isModalOpen" @close="isModalOpen = false" maxWidth="2xl">
             <div class="flex justify-between items-center p-6 border-b border-gray-100 bg-gray-50 rounded-t-lg">
-                <div class="flex items-center gap-4">
-                    <div class="w-10 h-10 bg-primary/10 rounded-xl flex items-center justify-center text-primary">
-                        <Users class="w-5 h-5" aria-hidden="true" />
-                    </div>
-                    <div>
-                        <h2 class="text-lg font-bold text-gray-900">{{ editing ? 'Ubah Akun Pengguna' : 'Tambah Akun Pengguna Baru' }}</h2>
-                        <p class="text-sm text-gray-500">Konfigurasi data akun institusi dan otorisasi role</p>
-                    </div>
+                <div>
+                    <h2 class="text-lg font-bold text-gray-900">{{ editing ? 'Ubah Akun Pengguna' : 'Tambah Akun Pengguna Baru' }}</h2>
+                    <p class="text-sm text-gray-500">Konfigurasi data akun institusi dan otorisasi role</p>
                 </div>
                 <button type="button" @click="isModalOpen = false" class="text-gray-400 hover:text-gray-900 transition">
                     Tutup
@@ -383,6 +382,7 @@ async function toggleStatus(): Promise<void> {
             </div>
             <form @submit.prevent="save" class="p-6 space-y-6">
                 <Alert v-if="form.failure.value" :title="form.failure.value.message" />
+                <Alert v-if="lecturerOptionsError" :title="lecturerOptionsError.message" />
 
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
@@ -454,8 +454,8 @@ async function toggleStatus(): Promise<void> {
 
                 <div v-if="needsLecturer">
                     <label for="user-lecturer" class="block text-sm font-semibold text-gray-900 mb-1.5">Data Dosen</label>
-                    <select id="user-lecturer" v-model="form.data.lecturer_id" :class="fieldClass" :disabled="form.data.study_program_id === ''" required>
-                        <option value="" disabled>{{ form.data.study_program_id === '' ? 'Pilih program studi dulu' : 'Pilih dosen yang belum punya akun...' }}</option>
+                    <select id="user-lecturer" v-model="form.data.lecturer_id" :class="fieldClass" :disabled="form.data.study_program_id === '' || lecturersLoading" required>
+                        <option value="" disabled>{{ form.data.study_program_id === '' ? 'Pilih program studi dulu' : lecturersLoading ? 'Memuat daftar dosen...' : 'Pilih dosen yang belum punya akun...' }}</option>
                         <option v-for="lecturer in lecturerOptions" :key="lecturer.id" :value="lecturer.id">{{ lecturer.name }} ({{ lecturer.nip }})</option>
                     </select>
                     <p v-if="form.errors.value.lecturer_id" class="mt-1 text-xs text-red-600">{{ form.errors.value.lecturer_id }}</p>
@@ -474,13 +474,10 @@ async function toggleStatus(): Promise<void> {
                     <p v-if="form.errors.value.password" class="mt-1 text-xs text-red-600">{{ form.errors.value.password }}</p>
                 </div>
 
-                <div class="p-3 bg-blue-50 border border-blue-100 rounded-lg flex items-start gap-3">
-                    <Info class="w-5 h-5 text-blue-600 shrink-0 mt-0.5" aria-hidden="true" />
-                    <p class="text-sm text-blue-800">
-                        Setiap perubahan akun dan role dicatat di <strong>Log Aktivitas</strong>. Akun baru langsung aktif. Tanpa password awal,
-                        akun memakai password default; minta pengguna menggantinya di halaman profil.
-                    </p>
-                </div>
+                <p class="text-sm text-gray-500">
+                    Setiap perubahan akun dan role dicatat di Log Aktivitas. Akun baru langsung aktif. Tanpa password awal,
+                    akun memakai password default; minta pengguna menggantinya di halaman profil.
+                </p>
 
                 <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
                     <Button type="button" @click="isModalOpen = false" variant="ghost" class="bg-gray-100 hover:bg-gray-200">Batal</Button>

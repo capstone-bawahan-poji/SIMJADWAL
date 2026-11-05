@@ -1,17 +1,4 @@
-/** Sample data for the prodi and faculty dashboards. Replace with API data (see TODO-BACKEND.md). */
-
-export interface ChecklistItem {
-    id: number;
-    label: string;
-    info: string;
-    state: 'success' | 'warning';
-}
-
-export interface ProdiDashboardMock {
-    constraintCompleteness: number;
-    checklist: ChecklistItem[];
-    schedule: { statusLabel: string; decree: string; classes: number; sks: number; hardConflicts: number; note: string };
-}
+/** Sample data for the faculty dashboard. */
 
 export interface ProblemRoom {
     id: number;
@@ -35,23 +22,6 @@ export interface FakultasDashboardMock {
     problemRooms: ProblemRoom[];
     conflicts: RoomConflict[];
 }
-
-export const prodiDashboard: ProdiDashboardMock = {
-    constraintCompleteness: 92,
-    checklist: [
-        { id: 1, label: 'Preferensi SKS & Waktu', info: 'Lengkap (112 SKS)', state: 'success' },
-        { id: 2, label: 'Bobot Penalti', info: 'Lengkap (Default Fakultas)', state: 'success' },
-        { id: 3, label: 'Preferensi Sesi Dosen', info: '3 Dosen Belum Isi', state: 'warning' },
-    ],
-    schedule: {
-        statusLabel: 'Sudah Ditetapkan',
-        decree: 'SK Dekan No. 104/FIK/2024',
-        classes: 48,
-        sks: 112,
-        hardConflicts: 0,
-        note: 'Jadwal telah diverifikasi Dekanat pada 18 Oktober 2024 tanpa bentrok.',
-    },
-};
 
 export const fakultasDashboard: FakultasDashboardMock = {
     period: 'Semester Ganjil 2024/2025',

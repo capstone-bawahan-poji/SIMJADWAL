@@ -4,6 +4,7 @@ namespace App\Models\Constraint;
 
 use App\Enums\Constraint\ConstraintCategory;
 use App\Enums\Constraint\ConstraintCode;
+use App\Extensions\Models\Traits\BroadcastsChanges;
 use App\Models\Scheduling\ViolationLog;
 use App\Policies\Constraint\ConstraintTypePolicy;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -18,6 +19,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 #[UsePolicy(ConstraintTypePolicy::class)]
 class ConstraintType extends Model
 {
+    use BroadcastsChanges;
+
     protected function casts(): array
     {
         return [

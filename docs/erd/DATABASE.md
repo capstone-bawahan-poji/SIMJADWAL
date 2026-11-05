@@ -29,7 +29,7 @@ Dokumen ini adalah sumber kebenaran tunggal untuk migration, model, seeder, dan 
 4. **SKS menentukan jumlah pertemuan:** 2 dan 3 SKS = 1 pertemuan, 4 SKS = 2 pertemuan. Mata kuliah di luar 2/3/4 SKS (KP, TA, dsb.) di luar cakupan.
 5. **Slot bertipe 2 atau 3** (durasi dalam satuan SKS). SC_SKS dievaluasi dari `waktu_slot.tipe`, bukan dari input prodi.
 6. **Preferensi dosen bersifat per slot** dengan dua polaritas (`SC_INGIN`, `SC_HINDARI`). Preferensi "sesi X" = satu baris per hari untuk sesi X.
-7. **Bobot constraint bersifat global** di `jenis_constraint`, diatur Admin Fakultas, lalu dibekukan ke `scheduling_run.parameter_snapshot` saat run dibuat.
+7. **Bobot constraint bersifat global** di `jenis_constraint`, diatur Admin Fakultas, lalu dibekukan ke `scheduling_run.parameter_snapshot` saat run dibuat. Pengecualian: bobot **SC** boleh di-override per prodi lewat `ga_parameter_preset.sc_overrides` (nilai `> 0`). HC tidak pernah di-override.
 8. **Submit & lock per prodi** lewat `prodi.status_constraint`. Saat `submitted`, master data dan preferensi dosen prodi tersebut read-only (enforce di Policy).
 9. **Manual override hanya mengubah `waktu_slot_id` dan `ruangan_id`** di `jadwal_detail`, dan divalidasi terhadap HC di application layer. Jika melanggar HC, override ditolak.
 10. **`jadwal_detail` menyimpan snapshot** `mata_kuliah_id`, `kelas_paralel_ke`, `dosen_id` (bukan FK ke `mata_kuliah_dosen`) agar histori run tidak berubah saat mapping diedit.
@@ -91,6 +91,7 @@ erDiagram
 9.  jenis_constraint
 10. preferensi
 11. ga_parameter_preset
+11a. academic_periods
 12. scheduling_run
 13. jadwal_detail
 14. log_pelanggaran
@@ -216,11 +217,24 @@ UNIQUE `(dosen_id, waktu_slot_id)`: satu slot hanya boleh punya satu polaritas p
 
 ### 5.4 Penjadwalan GA
 
+#### `academic_periods`
+Tanggal kuliah per periode, dipakai export .ics (event mingguan dari `start_date` sampai `end_date`). CRUD oleh superadmin.
+
+| Kolom | Tipe | Null | Default | Keterangan |
+|---|---|---|---|---|
+| id | BIGSERIAL | – | – | PK |
+| code | VARCHAR(20) | NO | – | UNIQUE. Format periode `YYYY/YYYY-GANJIL\|GENAP`, sama dengan `scheduling_run.periode` |
+| start_date | DATE | NO | – | Hari kuliah pertama |
+| end_date | DATE | NO | – | Hari kuliah terakhir. CHECK `end_date > start_date` |
+
+Tidak ada FK dari `scheduling_run.periode` (kolom teks). Service menolak ubah `code` atau hapus baris selama masih dipakai run (409 `RESOURCE_IN_USE`).
+
 #### `ga_parameter_preset`
 | Kolom | Tipe | Null | Default | Keterangan |
 |---|---|---|---|---|
 | id | BIGSERIAL | – | – | PK |
-| nama_preset | VARCHAR(100) | NO | – | |
+| fakultas_id | BIGINT | NO | – | FK → fakultas. Preset dipakai bersama admin satu fakultas |
+| nama_preset | VARCHAR(100) | NO | – | UNIQUE `(fakultas_id, nama_preset)` |
 | pop_size | INT | NO | `100` | CHECK `> 0` |
 | generasi_min | INT | NO | `500` | CHECK `> 0` |
 | generasi_maks | INT | NO | `1000` | CHECK `generasi_maks >= generasi_min` |
@@ -230,6 +244,10 @@ UNIQUE `(dosen_id, waktu_slot_id)`: satu slot hanya boleh punya satu polaritas p
 | selection_size | INT | NO | `2` | Tournament size, CHECK `>= 2` |
 | operator_seleksi | VARCHAR(3) | NO | – | Enum §6 |
 | batas_kelas_paralel | SMALLINT | NO | `5` | Parameter HC4. CHECK `>= 1` |
+| fitness_constant | INT | NO | `500` | Konstanta C (Laporan TA §4.4). CHECK `> 0` |
+| base_seed | BIGINT | NO | `12345` | Seed run = `base_seed + run_index` |
+| run_count | SMALLINT | NO | `10` | Jumlah run per skenario. CHECK `BETWEEN 1 AND 10` |
+| sc_overrides | JSONB | NO | `{}` | `{"<prodi_id>": {"SC_INGIN": 2}}`. Hanya kode SC, nilai `> 0` |
 | created_by | BIGINT | YES | – | FK → users |
 
 #### `scheduling_run`
@@ -257,6 +275,8 @@ Satu baris = satu eksekusi GA sekaligus satu jadwal hasil.
 | finished_at | TIMESTAMP | YES | – | |
 | published_by | BIGINT | YES | – | FK → users |
 | published_at | TIMESTAMP | YES | – | |
+| client_run_id | UUID | YES | – | UNIQUE. Kunci idempotensi upload dari desktop |
+| dataset_fingerprint | VARCHAR(80) | YES | – | Fingerprint dataset saat run dihitung; upload ditolak `409 DATASET_CHANGED` bila data berubah |
 
 Index tambahan: `(batch_id)`, `(fakultas_id, periode)`. Partial unique + CHECK di §7.
 
@@ -371,24 +391,31 @@ CHECK sederhana di §5 (rentang angka, `jam_selesai > jam_mulai`, dsb.) ditulis 
 ### `scheduling_run.parameter_snapshot`
 ```json
 {
-  "pop_size": 100,
-  "generasi_min": 500,
-  "generasi_maks": 1000,
-  "batas_stagnasi": 200,
+  "population_size": 100,
+  "min_generations": 500,
+  "max_generations": 1000,
+  "stagnation_limit": 200,
   "crossover_rate": 0.8,
   "mutation_rate": 0.1,
-  "operator_seleksi": "TSR",
-  "selection_size": 2,
-  "batas_kelas_paralel": 5,
+  "selection_operator": "TSR",
+  "tournament_size": 2,
+  "parallel_class_limit": 5,
+  "fitness_constant": 500,
+  "base_seed": 12345,
   "seed": 12345,
-  "run_ke": 0,
-  "bobot": {
+  "run_index": 0,
+  "weights": {
     "HC1": 10, "HC2": 10, "HC3": 10, "HC4": 10,
     "SC_INGIN": 1, "SC_HINDARI": 1, "SC_SKS": 2
+  },
+  "sc_weights_by_study_program": {
+    "3": { "SC_INGIN": 2 }
   }
 }
 ```
+- Nama kunci memakai bahasa Inggris, sama dengan kolom `ga_parameter_presets`.
 - Dibuat saat run di-queue: salin parameter + seluruh `jenis_constraint.bobot` saat itu + seed (§9.4).
+- `sc_weights_by_study_program`: override bobot SC per prodi (kunci = `study_program_id`, nilai `> 0`). Kode HC tidak boleh muncul di sini.
 - **Engine GA wajib membaca parameter dan bobot dari snapshot ini**, bukan dari tabel live.
 - Cast di model: `'parameter_snapshot' => 'array'`.
 
@@ -446,7 +473,7 @@ Dijalankan setelah GA selesai, di luar fungsi fitness. Untuk setiap `jadwal_deta
 1. Kandidat = `ruangan` dengan `fakultas_id` = fakultas run **atau** `NULL`.
 2. Keluarkan ruangan yang sudah dipakai pada `waktu_slot_id` yang sama, baik di run ini maupun di run `is_aktif` fakultas lain pada `periode` yang sama.
 3. Keluarkan ruangan dengan `kapasitas < mata_kuliah.kapasitas_kelas`.
-4. Pilih kapasitas terkecil yang cukup (best fit). Jika tidak ada kandidat, `ruangan_id = NULL`.
+4. First-fit sesuai Laporan TA §4.7.2: proses gen mulai dari `kapasitas_kelas` terbesar, urutkan kandidat dari kapasitas terkecil lalu `id`, dan pilih kandidat **pertama**. Jika tidak ada kandidat, `ruangan_id = NULL`.
 
 ### 9.4 Pembentukan Batch Multi-Run
 
@@ -469,7 +496,7 @@ Request multi-run berisi parameter dasar + daftar nilai yang di-grid:
 
 - Jumlah run = produk kartesius seluruh daftar × `run_count`. Semua run memakai `batch_id` yang sama.
 - `seed` tiap run = `base_seed + run_ke`, dengan `run_ke` = 0..`run_count − 1`. Kombinasi parameter berbeda memakai deret seed yang sama agar perbandingan TS vs TSR adil.
-- Batasi dengan `config('ga.max_runs_per_batch')` (default 100). Grid penuh Laporan TA (9 Cr × 9 Mr × 2 operator × 2 batas paralel × 10 run = 3.240 run) dijalankan lewat Artisan command, bukan dari UI.
+- Engine berjalan di aplikasi desktop. `run_count` maksimal 10 per kombinasi, total maksimal 40 run per batch. Grid penuh Laporan TA (3.240 run) di luar cakupan sistem.
 
 ---
 
@@ -506,8 +533,8 @@ Konfigurasi `.env`:
 | `SUPERADMIN_EMAIL` | `superadmin@penjadwalan.test` | SuperadminSeeder |
 | `SUPERADMIN_PASSWORD` | – (wajib diisi) | SuperadminSeeder |
 | `SEED_DEFAULT_PASSWORD` | `password` | DemoAccountSeeder |
-| `SEED_KAPASITAS_RUANGAN` | `40` | RuanganSeeder (sampai data kapasitas riil tersedia) |
-| `SEED_KAPASITAS_KELAS` | `40` | MasterDataCsvSeeder, jika kolom `kapasitas_kelas` di CSV kosong |
+| `SEED_KAPASITAS_RUANGAN` | `50` | RuanganSeeder, untuk ruangan tanpa kapasitas khusus di `rooms.json` |
+| `SEED_KAPASITAS_KELAS` | `50` | MasterDataCsvSeeder, jika kolom `kapasitas_kelas` di CSV kosong |
 
 ### 10.2 `FakultasProdiSeeder` — 3 fakultas, 26 prodi
 
@@ -525,10 +552,10 @@ Hari 1–5 (Senin–Jumat) × 4 sesi berikut:
 
 | sesi_ke | jam_mulai | jam_selesai | tipe |
 |---|---|---|---|
-| 1 | 08:00 | 10:30 | 3 |
-| 2 | 10:30 | 12:00 | 2 |
+| 1 | 07:30 | 10:00 | 3 |
+| 2 | 10:20 | 12:00 | 2 |
 | 3 | 13:00 | 15:30 | 3 |
-| 4 | 15:30 | 17:00 | 2 |
+| 4 | 15:50 | 17:30 | 2 |
 
 ### 10.4 `RuanganSeeder` — 54 ruangan
 
@@ -540,7 +567,7 @@ Gedung `E`, `F`, `G`, masing-masing 18 ruangan:
 | 2 | 201–205 | 5 |
 | 3 | 301–307 | 7 |
 
-`nama_ruangan` = gedung + nomor (mis. `E101`, `G307`). `fakultas_id = NULL` (shared). `kapasitas = SEED_KAPASITAS_RUANGAN`.
+`nama_ruangan` = gedung + nomor (mis. `E101`, `G307`). `fakultas_id = NULL` (shared). `kapasitas = SEED_KAPASITAS_RUANGAN` (50), kecuali nomor 102, 106, 202, 205, 305 di gedung E, F, G berkapasitas 100 (ditulis sebagai `{code, capacity}` di `rooms.json`). Kelas TPB umumnya 80 mahasiswa.
 
 ### 10.5 `JenisConstraintSeeder` — 7 baris
 

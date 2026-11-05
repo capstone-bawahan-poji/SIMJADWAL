@@ -20,7 +20,7 @@ class CourseFactory extends Factory
             'sks' => fake()->randomElement([2, 3, 4]),
             'semester' => fake()->numberBetween(1, 8),
             'parallel_class_count' => 1,
-            'class_capacity' => 40,
+            'class_capacity' => 50,
         ];
     }
 

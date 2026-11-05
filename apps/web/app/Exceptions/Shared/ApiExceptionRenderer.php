@@ -11,12 +11,14 @@ use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Validation\ValidationException;
 use Symfony\Component\HttpKernel\Exception\HttpExceptionInterface;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
 
 /**
- * Renders API errors in the contract shape {"message", "code", "errors"} (docs/api/openapi.yaml).
- * Returns null for requests outside api/* so web pages keep Laravel's default rendering.
+ * Renders API errors in the contract shape {"message", "code", "errors"} (docs/api/CONVENTIONS.md).
+ * Every error under api/* gets a code, unexpected ones included. Returns null for requests
+ * outside api/* so web pages keep Laravel's default rendering.
  */
 class ApiExceptionRenderer
 {
@@ -45,8 +47,24 @@ class ApiExceptionRenderer
             ),
             $e instanceof HttpExceptionInterface && $e->getStatusCode() === 403 => $this->json(__('Forbidden.'), 'FORBIDDEN', 403),
             $e instanceof HttpExceptionInterface && $e->getStatusCode() === 419 => $this->json(__('Your session has expired. Please reload the page.'), 'SESSION_EXPIRED', 419),
-            default => null,
+            $e instanceof MethodNotAllowedHttpException => $this->json(__('Method not allowed.'), 'METHOD_NOT_ALLOWED', 405)
+                ->withHeaders($e->getHeaders()),
+            $e instanceof HttpExceptionInterface => $this->json($e->getMessage() ?: __('Request failed.'), 'HTTP_ERROR', $e->getStatusCode())
+                ->withHeaders($e->getHeaders()),
+            default => $this->serverError($e),
         };
+    }
+
+    /**
+     * The error is still reported (logged) by Laravel. Only debug mode shows the real message.
+     */
+    private function serverError(Throwable $e): JsonResponse
+    {
+        return $this->json(
+            config('app.debug') ? $e->getMessage() : __('Server error.'),
+            'SERVER_ERROR',
+            500,
+        );
     }
 
     private function authorization(AuthorizationException $e): JsonResponse

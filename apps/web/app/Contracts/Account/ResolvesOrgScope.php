@@ -28,6 +28,11 @@ interface ResolvesOrgScope
     public function readsAllFaculties(User $user): bool;
 
     /**
+     * Reads the published schedule of every faculty. A lecturer may teach in several faculties.
+     */
+    public function readsAllFacultySchedules(User $user): bool;
+
+    /**
      * May still change a study program's data after it was submitted and locked.
      */
     public function canBypassSubmissionLock(User $user): bool;

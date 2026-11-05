@@ -6,6 +6,7 @@ use App\Extensions\Permissions\Permissionable;
 use App\Permissions\Account\ActivityLogPermissions;
 use App\Permissions\Account\UserPermissions;
 use App\Permissions\Constraint\ConstraintPermissions;
+use App\Permissions\MasterData\AcademicPeriodPermissions;
 use App\Permissions\MasterData\CourseLecturerPermissions;
 use App\Permissions\MasterData\CoursePermissions;
 use App\Permissions\MasterData\DepartmentPermissions;
@@ -15,6 +16,8 @@ use App\Permissions\MasterData\RoomPermissions;
 use App\Permissions\MasterData\StudyProgramPermissions;
 use App\Permissions\MasterData\TimeSlotPermissions;
 use App\Permissions\MasterData\TpbPermissions;
+use App\Permissions\Scheduling\GaPresetPermissions;
+use App\Permissions\Scheduling\SchedulingPermissions;
 
 readonly class PermissionService
 {
@@ -32,12 +35,15 @@ readonly class PermissionService
             DepartmentPermissions::class,
             StudyProgramPermissions::class,
             TimeSlotPermissions::class,
+            AcademicPeriodPermissions::class,
             RoomPermissions::class,
             LecturerPermissions::class,
             CoursePermissions::class,
             CourseLecturerPermissions::class,
             TpbPermissions::class,
             ConstraintPermissions::class,
+            SchedulingPermissions::class,
+            GaPresetPermissions::class,
         ];
     }
 

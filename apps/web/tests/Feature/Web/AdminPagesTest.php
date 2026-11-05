@@ -61,6 +61,19 @@ class AdminPagesTest extends TestCase
         }
     }
 
+    public function test_shared_schedule_page_is_limited_to_cross_faculty_roles(): void
+    {
+        foreach (['superAdmin', 'tpbAdmin', 'lecturer'] as $state) {
+            $this->actingAs(User::factory()->{$state}()->create());
+            $this->get('/schedule')->assertOk();
+        }
+
+        foreach (['facultyAdmin', 'studyProgramAdmin', 'student'] as $state) {
+            $this->actingAs(User::factory()->{$state}()->create());
+            $this->get('/schedule')->assertForbidden();
+        }
+    }
+
     public function test_dashboard_renders_a_page_per_role(): void
     {
         $this->actingAs(User::factory()->studyProgramAdmin()->create());

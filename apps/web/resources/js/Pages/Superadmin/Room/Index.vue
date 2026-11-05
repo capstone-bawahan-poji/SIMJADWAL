@@ -1,15 +1,15 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
-import { UserRound } from 'lucide-vue-next';
 import { computed, onMounted, ref, watch } from 'vue';
 import Button from '@/Components/ui/Button.vue';
-import Card from '@/Components/ui/Card.vue';
+import MetricCard from '@/Components/ui/MetricCard.vue';
+import Panel from '@/Components/ui/Panel.vue';
 import Modal from '@/Components/Modal.vue';
 import Alert from '@/Components/ui/Alert.vue';
 import ConfirmDialog from '@/Components/ui/ConfirmDialog.vue';
 import Pagination from '@/Components/ui/Pagination.vue';
-import { destroy } from '@/lib/api';
+import { destroy, toApiError, type ApiError } from '@/lib/api';
 import { queryParam } from '@/lib/query';
 import { countOf, useCollection, usePaginatedList } from '@/composables/useApiList';
 import { useApiForm } from '@/composables/useApiForm';
@@ -18,9 +18,10 @@ import type { FacultySummary, Room } from '@/types/models';
 /** Owner filter: a faculty id, or "shared" for rooms without a faculty. */
 type Owner = number | 'shared' | '';
 
-const fieldClass = 'w-full rounded-xl border-gray-200 bg-gray-50 text-gray-900 text-sm focus:border-primary focus:ring-primary';
+const fieldClass = 'w-full rounded-lg border-gray-200 bg-gray-50 text-gray-900 text-sm focus:border-primary focus:ring-primary';
+const selectClass = 'rounded-lg border-gray-200 text-sm focus:border-primary focus:ring-primary text-gray-700';
 
-const { items: faculties } = useCollection<FacultySummary>('faculties');
+const { items: faculties, error: facultyError } = useCollection<FacultySummary>('faculties');
 
 const owner = ref<Owner>('');
 const { filters, items: rooms, pagination, page, loading, error: listError, reload } = usePaginatedList<Room, {
@@ -28,21 +29,26 @@ const { filters, items: rooms, pagination, page, loading, error: listError, relo
     faculty_id: number | '';
     shared: boolean | '';
     in_use: boolean | '';
-}>('rooms', { q: queryParam('q'), faculty_id: '', shared: '', in_use: '' });
+}>('rooms', { q: queryParam('q'), faculty_id: '', shared: '', in_use: '' }, 20, ['scheduling_runs']);
 
 watch(owner, (value) => {
     filters.faculty_id = typeof value === 'number' ? value : '';
     filters.shared = value === 'shared' ? true : '';
 });
 
+const showOwner = computed(() => rooms.value.some((room) => room.faculty));
+
 const metrics = ref({ total: 0, available: 0, inUse: 0 });
+const metricsError = ref<ApiError | null>(null);
 
 async function loadMetrics(): Promise<void> {
+    metricsError.value = null;
+
     try {
         const [total, inUse] = await Promise.all([countOf('rooms'), countOf('rooms', { in_use: true })]);
         metrics.value = { total, available: total - inUse, inUse };
-    } catch {
-        // The table shows the error; the cards keep their last values.
+    } catch (error) {
+        metricsError.value = toApiError(error);
     }
 }
 
@@ -64,7 +70,7 @@ const form = useApiForm(() => ({
     name: '',
     building: '',
     floor: '' as number | '',
-    capacity: 40 as number | '',
+    capacity: 50 as number | '',
     faculty_id: '' as number | '',
 }));
 
@@ -143,58 +149,33 @@ async function confirmDelete(): Promise<void> {
     <Head title="Data Ruangan" />
 
     <AppLayout>
-        <div class="p-6 md:p-8 space-y-8">
-            <!-- Header section -->
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                <div class="flex items-center gap-2.5">
-                    <h2 class="text-2xl font-bold text-gray-900 tracking-tight">Data Ruangan</h2>
-                </div>
-                <div class="flex items-center gap-3">
-                    <Button @click="openCreate" class="bg-primary hover:bg-primary-hover text-white">
-                        + Tambah Ruangan
-                    </Button>
-                </div>
+        <div class="space-y-8 p-6 md:p-8">
+            <div class="flex flex-col justify-between gap-4 md:flex-row md:items-center">
+                <h2 class="text-2xl font-bold tracking-tight text-gray-900">Data Ruangan</h2>
+                <Button @click="openCreate" class="bg-primary text-white hover:bg-primary-hover">
+                    + Tambah Ruangan
+                </Button>
             </div>
 
             <Alert v-if="flash" variant="success" :title="flash" dismissible @dismiss="flash = null" />
+            <Alert v-if="facultyError" :title="facultyError.message" />
+            <Alert v-if="metricsError" :title="`Gagal memuat ringkasan ruangan: ${metricsError.message}`" />
 
-            <!-- Metrics grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-3 gap-5">
-                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
-                    <div class="flex items-center gap-2 mb-2">
-                        <span class="w-2 h-2 rounded-full bg-blue-600"></span>
-                        <p class="text-[11px] font-bold uppercase tracking-wider text-gray-500">Total Ruangan</p>
-                    </div>
-                    <h3 class="text-2xl font-black text-gray-900">{{ metrics.total }} <span class="text-xs font-semibold text-gray-500">Ruangan</span></h3>
-                </div>
-                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
-                    <div class="flex items-center gap-2 mb-2">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                        <p class="text-[11px] font-bold uppercase tracking-wider text-gray-500">Ruang Tersedia</p>
-                    </div>
-                    <h3 class="text-2xl font-black text-gray-900">{{ metrics.available }} <span class="text-xs font-semibold text-gray-500">Ruang</span></h3>
-                </div>
-                <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm hover:shadow-md transition-all">
-                    <div class="flex items-center gap-2 mb-2">
-                        <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                        <p class="text-[11px] font-bold uppercase tracking-wider text-gray-500">Digunakan</p>
-                    </div>
-                    <h3 class="text-2xl font-black text-gray-900">{{ metrics.inUse }} <span class="text-xs font-semibold text-gray-500">Ruang</span></h3>
-                    <p class="text-[11px] text-gray-400 mt-1">Terpakai di jadwal aktif</p>
-                </div>
+            <div class="grid grid-cols-1 gap-6 sm:grid-cols-3">
+                <MetricCard title="Total Ruangan" :value="metrics.total.toLocaleString('id-ID')" unit="Ruang" />
+                <MetricCard title="Ruang Tersedia" :value="metrics.available.toLocaleString('id-ID')" unit="Ruang" />
+                <MetricCard title="Digunakan" :value="metrics.inUse.toLocaleString('id-ID')" unit="Ruang" description="Terpakai di jadwal aktif" />
             </div>
 
-            <!-- Table & Filters Section -->
-            <Card class="!p-0 border border-gray-100 shadow-sm">
-                <!-- Toolbar -->
-                <div class="p-5 border-b border-gray-100 flex flex-col md:flex-row md:items-center justify-between gap-4 bg-white rounded-t-2xl">
+            <Panel>
+                <div class="flex flex-col justify-between gap-4 border-b border-gray-100 bg-white p-5 md:flex-row">
                     <div class="flex flex-wrap gap-3">
-                        <select v-model="owner" class="rounded-xl border-gray-200 text-xs font-semibold focus:border-primary focus:ring-primary text-gray-700 bg-gray-50 w-56" aria-label="Filter pemilik">
+                        <select v-model="owner" :class="[selectClass, 'w-56']" aria-label="Filter pemilik">
                             <option value="">Semua Pemilik</option>
                             <option value="shared">Ruang Bersama</option>
                             <option v-for="faculty in faculties" :key="faculty.id" :value="faculty.id">{{ faculty.name }}</option>
                         </select>
-                        <select v-model="filters.in_use" class="rounded-xl border-gray-200 text-xs font-semibold focus:border-primary focus:ring-primary text-gray-700 bg-gray-50 w-40" aria-label="Filter status">
+                        <select v-model="filters.in_use" :class="[selectClass, 'w-40']" aria-label="Filter status">
                             <option value="">Semua Status</option>
                             <option :value="false">Tersedia</option>
                             <option :value="true">Digunakan</option>
@@ -205,69 +186,71 @@ async function confirmDelete(): Promise<void> {
                             v-model="filters.q"
                             type="search"
                             placeholder="Cari kode, nama, atau gedung..."
-                            class="w-full rounded-xl border-gray-200 text-xs focus:border-primary focus:ring-primary placeholder-gray-400 bg-gray-50"
+                            aria-label="Cari ruangan"
+                            class="w-full rounded-lg border-gray-200 text-sm placeholder-gray-400 focus:border-primary focus:ring-primary"
                         />
                     </div>
                 </div>
 
                 <Alert v-if="listError" :title="listError.message" class="m-5" />
 
-                <!-- Table -->
-                <div class="overflow-x-auto w-full">
-                    <table class="w-full text-left border-collapse">
+                <div class="w-full overflow-x-auto">
+                    <table class="w-full border-collapse text-left">
                         <thead>
-                            <tr class="bg-gray-50/70 text-[11px] font-bold uppercase tracking-wider text-gray-500 border-b border-gray-100">
-                                <th class="py-4 px-6 min-w-[200px]">Kode & Nama Ruangan</th>
-                                <th class="py-4 px-6">Gedung & Lantai</th>
-                                <th class="py-4 px-6">Kapasitas</th>
-                                <th class="py-4 px-6">Fakultas Pemilik</th>
-                                <th class="py-4 px-6">Status</th>
-                                <th class="py-4 px-6 text-center">Aksi</th>
+                            <tr class="border-b border-gray-100 bg-gray-50 text-xs font-bold uppercase tracking-wider text-gray-500">
+                                <th class="min-w-[200px] whitespace-nowrap px-6 py-4">Ruangan</th>
+                                <th class="whitespace-nowrap px-6 py-4">Gedung &amp; Lantai</th>
+                                <th class="whitespace-nowrap px-6 py-4">Kapasitas</th>
+                                <th v-if="showOwner" class="whitespace-nowrap px-6 py-4">Fakultas Pemilik</th>
+                                <th class="whitespace-nowrap px-6 py-4 text-center">Status</th>
+                                <th class="whitespace-nowrap px-6 py-4 text-center">Aksi</th>
                             </tr>
                         </thead>
-                        <tbody class="divide-y divide-gray-100 text-xs text-gray-700" :class="{ 'opacity-60': loading }">
+                        <tbody class="divide-y divide-gray-100 text-sm" :class="{ 'opacity-60': loading }">
                             <tr v-if="!loading && rooms.length === 0">
-                                <td colspan="6" class="py-10 px-6 text-center text-sm text-gray-500">Tidak ada ruangan yang cocok dengan filter.</td>
+                                <td :colspan="showOwner ? 6 : 5" class="px-6 py-10 text-center text-gray-500">Tidak ada ruangan yang cocok dengan filter.</td>
                             </tr>
-                            <tr v-for="room in rooms" :key="room.id" class="hover:bg-gray-50/60 transition-colors">
-                                <td class="py-4 px-6">
+                            <tr v-for="room in rooms" :key="room.id" class="transition-colors hover:bg-gray-50/50">
+                                <td class="px-6 py-4">
                                     <div class="flex items-center gap-3">
-                                        <div class="w-9 h-9 rounded-lg bg-primary/10 text-primary flex items-center justify-center font-bold text-[10px] shrink-0">{{ room.code }}</div>
-                                        <div>
-                                            <p class="font-bold text-gray-900">{{ room.name ?? `Ruang ${room.code}` }}</p>
-                                            <p class="text-[11px] text-gray-400">KODE: {{ room.code }}</p>
+                                        <div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-gray-100 text-xs font-bold text-gray-700">
+                                            {{ room.code }}
                                         </div>
+                                        <p class="font-bold text-gray-900">{{ room.name ?? `Ruang ${room.code}` }}</p>
                                     </div>
                                 </td>
-                                <td class="py-4 px-6">
-                                    <p class="font-semibold text-gray-800">{{ room.building ?? '-' }}</p>
-                                    <p v-if="room.floor !== null" class="text-[11px] text-gray-400">Lantai {{ room.floor }}</p>
+                                <td class="whitespace-nowrap px-6 py-4">
+                                    <p class="font-semibold text-gray-900">{{ room.building ?? '-' }}</p>
+                                    <p v-if="room.floor !== null" class="text-xs text-gray-500">Lantai {{ room.floor }}</p>
                                 </td>
-                                <td class="py-4 px-6">
-                                    <span class="inline-flex items-center gap-1.5 font-bold text-gray-800 bg-gray-100 px-2.5 py-1 rounded-md">
-                                        <UserRound class="w-3.5 h-3.5 text-gray-400" aria-hidden="true" />
-                                        {{ room.capacity }} Kursi
+                                <td class="whitespace-nowrap px-6 py-4 font-medium text-gray-700">{{ room.capacity }} Kursi</td>
+                                <td v-if="showOwner" class="whitespace-nowrap px-6 py-4 text-gray-700">{{ room.faculty?.name ?? 'Ruang Bersama' }}</td>
+                                <td class="whitespace-nowrap px-6 py-4 text-center">
+                                    <span v-if="room.is_in_use" class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-700">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-primary"></span>Digunakan
+                                    </span>
+                                    <span v-else class="inline-flex items-center gap-1.5 text-xs font-medium text-green-700">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-green-600"></span>Tersedia
                                     </span>
                                 </td>
-                                <td class="py-4 px-6 font-medium text-gray-700">{{ room.faculty?.name ?? 'Ruang Bersama' }}</td>
-                                <td class="py-4 px-6">
-                                    <span
-                                        v-if="room.is_in_use"
-                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-amber-50 text-amber-700 border border-amber-100"
-                                    >
-                                        <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>Digunakan
-                                    </span>
-                                    <span
-                                        v-else
-                                        class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-semibold bg-green-50 text-green-700 border border-green-100"
-                                    >
-                                        <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>Tersedia
-                                    </span>
-                                </td>
-                                <td class="py-4 px-6 text-center">
-                                    <div class="flex justify-center gap-2">
-                                        <button v-if="room.can_update" type="button" class="p-1.5 rounded hover:bg-primary/10 text-gray-400 hover:text-primary transition-colors" @click="openEdit(room)">Edit</button>
-                                        <button v-if="room.can_delete" type="button" class="p-1.5 rounded hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors" @click="askDelete(room)">Hapus</button>
+                                <td class="px-6 py-4 text-center">
+                                    <div class="flex justify-center gap-3">
+                                        <button
+                                            v-if="room.can_update"
+                                            type="button"
+                                            class="text-sm font-medium text-gray-700 hover:text-primary hover:underline"
+                                            @click="openEdit(room)"
+                                        >
+                                            Edit
+                                        </button>
+                                        <button
+                                            v-if="room.can_delete"
+                                            type="button"
+                                            class="text-sm font-medium text-red-600 hover:underline"
+                                            @click="askDelete(room)"
+                                        >
+                                            Hapus
+                                        </button>
                                     </div>
                                 </td>
                             </tr>
@@ -276,12 +259,12 @@ async function confirmDelete(): Promise<void> {
                 </div>
 
                 <Pagination v-model:page="page" :pagination="pagination" label="ruangan" />
-            </Card>
+            </Panel>
         </div>
 
         <!-- Create / Edit Modal -->
         <Modal :show="isModalOpen" @close="isModalOpen = false" maxWidth="2xl">
-            <div class="flex justify-between items-center p-6 border-b border-gray-100 bg-gray-50 rounded-t-lg">
+            <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
                 <div>
                     <h2 class="text-lg font-bold text-gray-900">{{ title }}</h2>
                     <p class="text-sm text-gray-500">Ruangan tanpa fakultas pemilik dipakai bersama semua fakultas</p>

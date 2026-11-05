@@ -1,0 +1,37 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+html, body, #app {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  font-family: 'IBM Plex Sans Variable', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 20px;
+  background: #f5f6f8;
+  color: #101828;
+  -webkit-font-smoothing: antialiased;
+  overflow: hidden;
+}
+
+input[type='checkbox'], input[type='radio'] {
+  accent-color: #1e3a8a;
+  width: 16px;
+  height: 16px;
+  margin: 0;
+  cursor: pointer;
+}
+
+input[type='checkbox']:disabled, input[type='radio']:disabled { cursor: not-allowed; }
+
+/* Numbers line up in columns. */
+.tabular { font-variant-numeric: tabular-nums; }
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: #d0d5dd; border-radius: 9999px; border: 2px solid transparent; background-clip: padding-box; }
+::-webkit-scrollbar-thumb:hover { background: #98a2b3; border: 2px solid transparent; background-clip: padding-box; }
+
+.fade-enter-active, .fade-leave-active { transition: opacity 0.15s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }

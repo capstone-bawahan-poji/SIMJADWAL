@@ -29,4 +29,13 @@ class StudyProgramFactory extends Factory
             'constraint_submitted_at' => now(),
         ]);
     }
+
+    public function accepted(): static
+    {
+        return $this->state(fn () => [
+            'constraint_status' => ConstraintStatus::ACCEPTED,
+            'constraint_submitted_at' => now(),
+            'constraint_reviewed_at' => now(),
+        ]);
+    }
 }

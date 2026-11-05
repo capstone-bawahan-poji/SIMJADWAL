@@ -3,6 +3,7 @@
 namespace App\Models\MasterData;
 
 use App\Enums\MasterData\Day;
+use App\Extensions\Models\Traits\BroadcastsChanges;
 use App\Models\Constraint\LecturerPreference;
 use App\Models\Scheduling\ScheduleDetail;
 use App\Policies\MasterData\TimeSlotPolicy;
@@ -22,7 +23,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 class TimeSlot extends Model
 {
     /** @use HasFactory<TimeSlotFactory> */
-    use HasFactory;
+    use BroadcastsChanges, HasFactory;
 
     protected function casts(): array
     {

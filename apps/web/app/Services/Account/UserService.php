@@ -8,6 +8,7 @@ use App\Enums\Account\Role;
 use App\Exceptions\Shared\ApiException;
 use App\Models\MasterData\Lecturer;
 use App\Models\User;
+use App\Services\Shared\ChangeRecorder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\Eloquent\Builder;
@@ -19,6 +20,7 @@ readonly class UserService
         private Lecturer $lecturer,
         private DatabaseManager $db,
         private ActivityLogService $activityLog,
+        private ChangeRecorder $changes,
     ) {}
 
     /**
@@ -96,6 +98,8 @@ readonly class UserService
 
             $user->save();
             $user->syncRoles([$data->role->value]);
+            // A role change alone writes model_has_roles only and fires no model event.
+            $this->changes->record($user->getTable(), $user->id);
             $this->syncLecturer($user, $data->lecturerId);
             $this->activityLog->userUpdated($user, $before, passwordChanged: $data->password !== null);
         });
@@ -149,5 +153,7 @@ readonly class UserService
         if ($lecturerId !== null) {
             $this->lecturer->newQuery()->whereKey($lecturerId)->update(['user_id' => $user->id]);
         }
+
+        $this->changes->record($this->lecturer->getTable());
     }
 }
