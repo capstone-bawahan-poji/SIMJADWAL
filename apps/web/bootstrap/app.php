@@ -19,6 +19,11 @@ return Application::configure(basePath: dirname(__DIR__))
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware): void {
+        // Production sits behind Traefik, which terminates TLS. The app container publishes no
+        // port, so every request comes through the proxy. Without this, URLs come out as http
+        // and the login/reset throttles key on the proxy IP for every user.
+        $middleware->trustProxies(at: '*');
+
         $middleware->web(append: [
             EnsureUserIsActive::class,
             HandleInertiaRequests::class,

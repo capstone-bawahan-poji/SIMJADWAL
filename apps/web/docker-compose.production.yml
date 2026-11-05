@@ -1,0 +1,77 @@
+services:
+  simjadwal:
+    build:
+      context: '.'
+      dockerfile: 'docker/production/Dockerfile'
+      # Baked into the frontend bundle at build time. Read from .env.production via deploy.sh --env-file.
+      args:
+        VITE_APP_NAME: '${APP_NAME:-SIMJADWAL}'
+        VITE_REVERB_APP_KEY: '${REVERB_APP_KEY}'
+        VITE_REVERB_HOST: '${APP_HOST}'
+        VITE_REVERB_PORT: '443'
+        VITE_REVERB_SCHEME: 'https'
+    restart: unless-stopped
+    env_file:
+      - path: '.env.production'
+        required: true
+    volumes:
+      - 'storage-data:/var/www/html/storage'
+    networks:
+      - simjadwal
+      - web_proxy
+    labels:
+      - 'traefik.enable=true'
+      - 'traefik.docker.network=web_proxy'
+      # Web + API (nginx, port 80)
+      - 'traefik.http.routers.simjadwal.rule=Host(`${APP_HOST}`)'
+      - 'traefik.http.routers.simjadwal.entrypoints=websecure'
+      - 'traefik.http.routers.simjadwal.tls.certresolver=myresolver'
+      - 'traefik.http.routers.simjadwal.service=simjadwal'
+      - 'traefik.http.services.simjadwal.loadbalancer.server.port=80'
+      # Reverb websocket (port 8080). Echo connects to /app/{key}; the PHP side posts events to /apps/{id}.
+      - 'traefik.http.routers.simjadwal-reverb.rule=Host(`${APP_HOST}`) && (PathPrefix(`/app/`) || PathPrefix(`/apps/`))'
+      - 'traefik.http.routers.simjadwal-reverb.priority=100'
+      - 'traefik.http.routers.simjadwal-reverb.entrypoints=websecure'
+      - 'traefik.http.routers.simjadwal-reverb.tls.certresolver=myresolver'
+      - 'traefik.http.routers.simjadwal-reverb.service=simjadwal-reverb'
+      - 'traefik.http.services.simjadwal-reverb.loadbalancer.server.port=8080'
+    depends_on:
+      pgsql:
+        condition: service_healthy
+      gotenberg:
+        condition: service_started
+
+  pgsql:
+    image: 'postgres:17-alpine'
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: '${DB_DATABASE}'
+      POSTGRES_USER: '${DB_USERNAME}'
+      POSTGRES_PASSWORD: '${DB_PASSWORD}'
+    volumes:
+      - 'pgsql-data:/var/lib/postgresql/data'
+    networks:
+      - simjadwal
+    healthcheck:
+      test: ['CMD', 'pg_isready', '-q', '-d', '${DB_DATABASE}', '-U', '${DB_USERNAME}']
+      retries: 10
+      timeout: 5s
+
+  # HTML to PDF for schedule exports. Internal only: no port published.
+  gotenberg:
+    image: 'gotenberg/gotenberg:8'
+    restart: unless-stopped
+    expose:
+      - 3000
+    networks:
+      - simjadwal
+
+networks:
+  simjadwal:
+    driver: bridge
+  web_proxy:
+    external: true
+
+volumes:
+  storage-data:
+  pgsql-data:
