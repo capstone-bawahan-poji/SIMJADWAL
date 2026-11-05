@@ -16,6 +16,13 @@ services:
         required: true
     volumes:
       - 'storage-data:/var/www/html/storage'
+    # Healthy only after entrypoint.sh finished migrating and nginx serves /up. deploy.sh waits on it.
+    healthcheck:
+      test: ['CMD', 'curl', '-fsS', 'http://127.0.0.1/up']
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      start_period: 120s
     networks:
       - simjadwal
       - web_proxy

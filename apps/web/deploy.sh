@@ -26,7 +26,8 @@ if [ ! -f .env.production ]; then
 fi
 
 git pull origin "$BRANCH"
-"${DC[@]}" up -d --build simjadwal
+# --wait blocks until the healthcheck passes, i.e. entrypoint.sh has run migrations.
+"${DC[@]}" up -d --build --wait --wait-timeout 300 simjadwal
 
 if [ "$FRESH" -eq 1 ]; then
     read -r -p "This deletes ALL database data. Type 'fresh' to continue: " answer
