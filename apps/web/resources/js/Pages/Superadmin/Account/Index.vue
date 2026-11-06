@@ -341,23 +341,15 @@ async function toggleStatus(): Promise<void> {
                                 </td>
                                 <td class="py-4 px-6 text-center">
                                     <div class="flex justify-center gap-2">
-                                        <button
-                                            v-if="user.can_update"
-                                            type="button"
-                                            class="text-sm font-medium text-gray-700 hover:text-primary hover:underline"
-                                            @click="openEdit(user)"
-                                        >
-                                            Edit
-                                        </button>
-                                        <button
+                                        <Button v-if="user.can_update" variant="secondary" size="sm" @click="openEdit(user)">Edit</Button>
+                                        <Button
                                             v-if="user.can_update_status"
-                                            type="button"
-                                            class="text-sm font-medium hover:underline"
-                                            :class="user.is_active ? 'text-red-600' : 'text-primary'"
+                                            :variant="user.is_active ? 'danger' : 'secondary'"
+                                            size="sm"
                                             @click="askStatus(user)"
                                         >
                                             {{ user.is_active ? 'Nonaktifkan' : 'Aktifkan' }}
-                                        </button>
+                                        </Button>
                                     </div>
                                 </td>
                             </tr>
@@ -370,15 +362,10 @@ async function toggleStatus(): Promise<void> {
         </div>
 
         <!-- Create / Edit Modal -->
-        <Modal :show="isModalOpen" @close="isModalOpen = false" maxWidth="2xl">
-            <div class="flex justify-between items-center p-6 border-b border-gray-100 bg-gray-50 rounded-t-lg">
-                <div>
-                    <h2 class="text-lg font-bold text-gray-900">{{ editing ? 'Ubah Akun Pengguna' : 'Tambah Akun Pengguna Baru' }}</h2>
-                    <p class="text-sm text-gray-500">Konfigurasi data akun institusi dan otorisasi role</p>
-                </div>
-                <button type="button" @click="isModalOpen = false" class="text-gray-400 hover:text-gray-900 transition">
-                    Tutup
-                </button>
+        <Modal :show="isModalOpen" @close="isModalOpen = false" maxWidth="2xl" close-button>
+            <div class="p-6 pr-14 border-b border-gray-100 bg-gray-50 rounded-t-lg">
+                <h2 class="text-lg font-bold text-gray-900">{{ editing ? 'Ubah Akun Pengguna' : 'Tambah Akun Pengguna Baru' }}</h2>
+                <p class="text-sm text-gray-500">Konfigurasi data akun institusi dan otorisasi role</p>
             </div>
             <form @submit.prevent="save" class="p-6 space-y-6">
                 <Alert v-if="form.failure.value" :title="form.failure.value.message" />
@@ -480,7 +467,7 @@ async function toggleStatus(): Promise<void> {
                 </p>
 
                 <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                    <Button type="button" @click="isModalOpen = false" variant="ghost" class="bg-gray-100 hover:bg-gray-200">Batal</Button>
+                    <Button type="button" @click="isModalOpen = false" variant="secondary">Batal</Button>
                     <Button type="submit" :loading="form.processing.value">Simpan Akun</Button>
                 </div>
             </form>
