@@ -1,16 +1,19 @@
 <script setup lang="ts">
+import { X } from 'lucide-vue-next';
 import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 
 const props = withDefaults(
     defineProps<{
         show?: boolean;
-        maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl';
+        maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl';
         closeable?: boolean;
+        closeButton?: boolean;
     }>(),
     {
         show: false,
         maxWidth: '2xl',
         closeable: true,
+        closeButton: false,
     },
 );
 
@@ -76,6 +79,9 @@ const maxWidthClass = computed(() => {
         lg: 'sm:max-w-lg',
         xl: 'sm:max-w-xl',
         '2xl': 'sm:max-w-2xl',
+        '3xl': 'sm:max-w-3xl',
+        '4xl': 'sm:max-w-4xl',
+        '5xl': 'sm:max-w-5xl',
     }[props.maxWidth];
 });
 </script>
@@ -118,9 +124,18 @@ const maxWidthClass = computed(() => {
             >
                 <div
                     v-show="show"
-                    class="mb-6 transform overflow-hidden rounded-lg bg-white shadow-xl transition-all sm:mx-auto sm:w-full"
+                    class="relative mb-6 transform overflow-hidden rounded-lg bg-white shadow-xl transition-all sm:mx-auto sm:w-full"
                     :class="maxWidthClass"
                 >
+                    <button
+                        v-if="closeButton && closeable"
+                        type="button"
+                        aria-label="Tutup"
+                        class="absolute right-3 top-3 z-10 rounded-md p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                        @click="close"
+                    >
+                        <X class="size-4" aria-hidden="true" />
+                    </button>
                     <slot v-if="showSlot" />
                 </div>
             </Transition>
