@@ -233,7 +233,7 @@ async function confirmDelete(): Promise<void> {
                             :placeholder="`Cari nama atau kode ${ENTITY_LABELS[tab].toLowerCase()}...`"
                             class="rounded-xl border-gray-200 text-sm focus:border-primary focus:ring-primary w-full lg:w-64 placeholder-gray-400"
                         />
-                        <Button @click="openCreate()" variant="ghost" class="bg-gray-100 hover:bg-gray-200 text-primary font-semibold whitespace-nowrap">
+                        <Button @click="openCreate()" class="whitespace-nowrap">
                             + {{ ENTITY_LABELS[tab] }} Baru
                         </Button>
                     </div>
@@ -280,8 +280,8 @@ async function confirmDelete(): Promise<void> {
                                 </td>
                                 <td class="py-4 px-6 text-center">
                                     <div class="flex justify-center gap-2">
-                                        <button v-if="program.can_update" type="button" class="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-900 transition-colors" @click="openEdit('study-programs', program)">Edit</button>
-                                        <button v-if="program.can_delete" type="button" class="p-1.5 rounded hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors" @click="askDelete('study-programs', program)">Hapus</button>
+                                        <Button v-if="program.can_update" variant="secondary" size="sm" @click="openEdit('study-programs', program)">Edit</Button>
+                                        <Button v-if="program.can_delete" variant="danger" size="sm" @click="askDelete('study-programs', program)">Hapus</Button>
                                     </div>
                                 </td>
                             </tr>
@@ -314,8 +314,8 @@ async function confirmDelete(): Promise<void> {
                                 <td class="py-4 px-6 font-semibold text-gray-900">{{ department.study_programs_count }} Prodi</td>
                                 <td class="py-4 px-6 text-center">
                                     <div class="flex justify-center gap-2">
-                                        <button v-if="department.can_update" type="button" class="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-900 transition-colors" @click="openEdit('departments', department)">Edit</button>
-                                        <button v-if="department.can_delete" type="button" class="p-1.5 rounded hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors" @click="askDelete('departments', department)">Hapus</button>
+                                        <Button v-if="department.can_update" variant="secondary" size="sm" @click="openEdit('departments', department)">Edit</Button>
+                                        <Button v-if="department.can_delete" variant="danger" size="sm" @click="askDelete('departments', department)">Hapus</Button>
                                     </div>
                                 </td>
                             </tr>
@@ -347,8 +347,8 @@ async function confirmDelete(): Promise<void> {
                                 <td class="py-4 px-6 font-semibold text-gray-900">{{ faculty.study_programs_count }} Prodi</td>
                                 <td class="py-4 px-6 text-center">
                                     <div class="flex justify-center gap-2">
-                                        <button v-if="faculty.can_update" type="button" class="p-1.5 rounded hover:bg-gray-100 text-gray-400 hover:text-gray-900 transition-colors" @click="openEdit('faculties', faculty)">Edit</button>
-                                        <button v-if="faculty.can_delete" type="button" class="p-1.5 rounded hover:bg-red-50 text-gray-400 hover:text-red-600 transition-colors" @click="askDelete('faculties', faculty)">Hapus</button>
+                                        <Button v-if="faculty.can_update" variant="secondary" size="sm" @click="openEdit('faculties', faculty)">Edit</Button>
+                                        <Button v-if="faculty.can_delete" variant="danger" size="sm" @click="askDelete('faculties', faculty)">Hapus</Button>
                                     </div>
                                 </td>
                             </tr>
@@ -359,13 +359,10 @@ async function confirmDelete(): Promise<void> {
         </div>
 
         <!-- Create / Edit Modal -->
-        <Modal :show="isModalOpen" @close="isModalOpen = false" maxWidth="2xl">
-            <div class="flex justify-between items-center p-6 border-b border-gray-100 bg-gray-50 rounded-t-lg">
-                <div>
-                    <h2 class="text-lg font-bold text-gray-900">{{ editingId ? 'Ubah' : 'Tambah' }} {{ ENTITY_LABELS[entityType] }}</h2>
-                    <p class="text-sm text-gray-500">Struktur akademik: Fakultas → Jurusan (opsional) → Program Studi</p>
-                </div>
-                <button type="button" @click="isModalOpen = false" class="text-gray-400 hover:text-gray-900 transition">Tutup</button>
+        <Modal :show="isModalOpen" @close="isModalOpen = false" maxWidth="2xl" close-button>
+            <div class="p-6 pr-14 border-b border-gray-100 bg-gray-50 rounded-t-lg">
+                <h2 class="text-lg font-bold text-gray-900">{{ editingId ? 'Ubah' : 'Tambah' }} {{ ENTITY_LABELS[entityType] }}</h2>
+                <p class="text-sm text-gray-500">Struktur akademik: Fakultas → Jurusan (opsional) → Program Studi</p>
             </div>
             <form @submit.prevent="save" class="p-6 space-y-6">
                 <Alert v-if="form.failure.value" :title="form.failure.value.message" />
@@ -409,7 +406,7 @@ async function confirmDelete(): Promise<void> {
                     </div>
                 </div>
                 <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                    <Button type="button" @click="isModalOpen = false" variant="ghost" class="bg-gray-100 hover:bg-gray-200">Batal</Button>
+                    <Button type="button" @click="isModalOpen = false" variant="secondary">Batal</Button>
                     <Button type="submit" :loading="form.processing.value">Simpan Entitas</Button>
                 </div>
             </form>
