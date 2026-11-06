@@ -239,14 +239,11 @@ async function act(action: 'accept' | 'return'): Promise<void> {
             </Panel>
         </div>
 
-        <Modal :show="reviewing !== null" max-width="2xl" @close="reviewing = null">
+        <Modal :show="reviewing !== null" max-width="4xl" close-button @close="reviewing = null">
             <div class="flex max-h-[85vh] flex-col">
-                <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-                    <div>
-                        <h2 class="text-lg font-bold text-gray-900">{{ reviewing?.name }}</h2>
-                        <p v-if="reviewing" class="text-sm text-gray-500">{{ STATUS_LABEL[reviewing.constraint_status] }} · Submit {{ formatDate(reviewing.constraint_submitted_at) }}</p>
-                    </div>
-                    <button type="button" class="text-gray-400 transition hover:text-gray-900" @click="reviewing = null">Tutup</button>
+                <div class="border-b border-gray-200 py-4 pl-6 pr-14">
+                    <h2 class="text-lg font-bold text-gray-900">{{ reviewing?.name }}</h2>
+                    <p v-if="reviewing" class="text-sm text-gray-500">{{ STATUS_LABEL[reviewing.constraint_status] }} · Submit {{ formatDate(reviewing.constraint_submitted_at) }}</p>
                 </div>
 
                 <div class="space-y-4 overflow-y-auto p-6">
