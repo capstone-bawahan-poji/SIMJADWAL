@@ -240,20 +240,21 @@ async function act(action: 'accept' | 'return'): Promise<void> {
             </Panel>
         </div>
 
-        <Modal :show="reviewing !== null" max-width="4xl" close-button @close="reviewing = null">
-            <div class="flex max-h-[85vh] flex-col">
-                <div class="border-b border-gray-200 py-4 pl-6 pr-14">
+        <Modal :show="reviewing !== null" max-width="5xl" close-button @close="reviewing = null">
+            <!-- 4.5rem = Modal.vue's py-6 + mb-6, so the panel never overflows the viewport (no outer scroll). -->
+            <div class="flex max-h-[calc(100vh-4.5rem)] flex-col">
+                <div class="shrink-0 border-b border-gray-200 py-4 pl-6 pr-14">
                     <h2 class="text-lg font-bold text-gray-900">{{ reviewing?.name }}</h2>
                     <p v-if="reviewing" class="text-sm text-gray-500">{{ STATUS_LABEL[reviewing.constraint_status] }} · Submit {{ formatDate(reviewing.constraint_submitted_at) }}</p>
                 </div>
 
-                <div class="space-y-4 overflow-y-auto p-6">
+                <div class="max-h-[75vh] min-h-0 space-y-4 overflow-y-auto p-6">
                     <Alert v-if="detailError" :title="detailError.message" />
                     <p v-if="detailLoading" class="text-sm text-gray-500">Memuat...</p>
                     <ConstraintPreview v-if="detail" :detail="detail" :constraint-types="detailTypes" :time-slots="timeSlots" />
                 </div>
 
-                <div v-if="reviewing?.can_review && ['submitted', 'accepted'].includes(reviewing.constraint_status)" class="space-y-3 border-t border-gray-200 p-6">
+                <div v-if="reviewing?.can_review && ['submitted', 'accepted'].includes(reviewing.constraint_status)" class="shrink-0 space-y-3 border-t border-gray-200 p-6">
                     <Alert v-if="actionError" :title="actionError" />
                     <div v-if="returning">
                         <label for="return-note" class="mb-1.5 block text-sm font-semibold text-gray-900">Alasan pengembalian</label>
