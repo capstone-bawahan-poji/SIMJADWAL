@@ -2,496 +2,613 @@
     "prefix": "TL",
     "lecturers": [
         {
-            "nip": "198001012010011174",
-            "name": "Dosen Teknik Lingkungan 01"
+            "nip": "199001012020000127",
+            "name": "Basransyah, M.T.",
+            "email": "dosen_Basransyah@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011175",
-            "name": "Dosen Teknik Lingkungan 02"
+            "nip": "199001012020000128",
+            "name": "Chandra Suryani R., B.Sc., M.Sc",
+            "email": "chandra.suryani03@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011176",
-            "name": "Dosen Teknik Lingkungan 03"
+            "nip": "199001012020000129",
+            "name": "Cut Keumala Banaget, S.T., M.T.",
+            "email": "dosen_Cut@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011177",
-            "name": "Dosen Teknik Lingkungan 04"
+            "nip": "199001012020000130",
+            "name": "Dr. Eng. Muhammad Maarij Harfadli, S.T., M.T",
+            "email": "dosen_Muhammad_Harfadli@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011178",
-            "name": "Dosen Teknik Lingkungan 05"
+            "nip": "199001012020000131",
+            "name": "Eka Masrifatus Anifah S.T., M.Sc.",
+            "email": "ekamasrifatus@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011179",
-            "name": "Dosen Teknik Lingkungan 06"
+            "nip": "199001012020000132",
+            "name": "Iitra Achbar Sahdian, M.T.",
+            "email": "dosen_Iitra@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011180",
-            "name": "Dosen Teknik Lingkungan 07"
+            "nip": "199001012020000133",
+            "name": "Intan Dwi Wahyu Setyo Rini, S.T., M.T.",
+            "email": "intan@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011181",
-            "name": "Dosen Teknik Lingkungan 08"
+            "nip": "199001012020000134",
+            "name": "Ismi Khairunnissa Ariani, B.Sc., M.Sc.",
+            "email": "dosen_Ismi@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011182",
-            "name": "Dosen Teknik Lingkungan 09"
+            "nip": "199001012020000135",
+            "name": "Marita Wulandari, S.T., M.T., Ph.D.",
+            "email": "dosen_Marita@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011183",
-            "name": "Dosen Teknik Lingkungan 10"
+            "nip": "199001012020000136",
+            "name": "Melisa Triandini Maulani, M.T.",
+            "email": "dosen_Melisa@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000137",
+            "name": "Muhamad Nur Ibnu Luthfi Saud, S.T., M.T.",
+            "email": "dosen_MuhamadNur@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000138",
+            "name": "Muhammad Ma'arij Harfadli, S.T., M.T., Ph.D.",
+            "email": "maarijharfadli@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000139",
+            "name": "Nia Febrianti S.T., M.T.",
+            "email": "dosen_NiaFebrianti@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000140",
+            "name": "Nia Febrianti, S.T., M.T.",
+            "email": "niafebrianti@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000141",
+            "name": "RINA NOOR HAYATI, S.SI., M.Si",
+            "email": "dosen_Rina@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000142",
+            "name": "Rahmi Yorika, S.Si., M.Sc.",
+            "email": "rahmiyorika@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000143",
+            "name": "Riza Hudayarizka, B.Sc., M.Sc",
+            "email": "dosen_RizaHudayarizka@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000144",
+            "name": "Umi Sholikah, S.Si., MT",
+            "email": "umisholikah@lecturer.itk.ac.id"
         }
     ],
     "courses": [
         {
             "code": "TL2514001",
-            "name": "Mata Kuliah Teknik Lingkungan 01",
+            "name": "Menggambar Teknik",
             "sks": 3,
-            "semester": 5,
+            "semester": 1,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011183"
+                    "lecturer_nip": "199001012020000139"
                 }
             ]
         },
         {
             "code": "TL2514002",
-            "name": "Mata Kuliah Teknik Lingkungan 02",
+            "name": "Hidrologi dan Geohidrologi",
             "sks": 2,
-            "semester": 7,
+            "semester": 1,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011179"
+                    "lecturer_nip": "199001012020000130"
                 }
             ]
         },
         {
             "code": "TL2514003",
-            "name": "Mata Kuliah Teknik Lingkungan 03",
+            "name": "Pengantar Hukum Lingkungan",
             "sks": 2,
-            "semester": 5,
+            "semester": 1,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011177"
+                    "lecturer_nip": "199001012020000136"
                 }
             ]
         },
         {
             "code": "TL2514004",
-            "name": "Mata Kuliah Teknik Lingkungan 04",
+            "name": "Kimia Lingkungan",
             "sks": 2,
-            "semester": 7,
+            "semester": 2,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011182"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011174"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011181"
+                    "lecturer_nip": "199001012020000141"
                 }
             ]
         },
         {
             "code": "TL2514005",
-            "name": "Mata Kuliah Teknik Lingkungan 05",
+            "name": "Mekanika Tanah",
             "sks": 2,
-            "semester": 7,
+            "semester": 2,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011180"
+                    "lecturer_nip": "199001012020000135"
                 }
             ]
         },
         {
             "code": "TL2514006",
-            "name": "Mata Kuliah Teknik Lingkungan 06",
-            "sks": 2,
+            "name": "Mekanika Fluida",
+            "sks": 3,
             "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011175"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011178"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011176"
+                    "lecturer_nip": "199001012020000134"
                 }
             ]
         },
         {
             "code": "TL2514007",
-            "name": "Mata Kuliah Teknik Lingkungan 07",
-            "sks": 2,
-            "semester": 1,
+            "name": "Mikrobiologi",
+            "sks": 3,
+            "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011175"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011181"
+                    "lecturer_nip": "199001012020000137"
                 }
             ]
         },
         {
             "code": "TL2514008",
-            "name": "Mata Kuliah Teknik Lingkungan 08",
-            "sks": 2,
-            "semester": 1,
+            "name": "Laboratorium Lingkungan",
+            "sks": 3,
+            "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011178"
+                    "lecturer_nip": "199001012020000141"
                 }
             ]
         },
         {
             "code": "TL2514009",
-            "name": "Mata Kuliah Teknik Lingkungan 09",
-            "sks": 2,
-            "semester": 1,
+            "name": "Pengantar Perpetaan dan Informasi Geografis",
+            "sks": 3,
+            "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011183"
+                    "lecturer_nip": "199001012020000137"
                 }
             ]
         },
         {
             "code": "TL2514010",
-            "name": "Mata Kuliah Teknik Lingkungan 10",
-            "sks": 2,
-            "semester": 1,
+            "name": "Matematika 3",
+            "sks": 3,
+            "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011179"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011180"
+                    "lecturer_nip": "199001012020000134"
                 }
             ]
         },
         {
             "code": "TL2514011",
-            "name": "Mata Kuliah Teknik Lingkungan 11",
+            "name": "Kesehatan Lingkungan",
             "sks": 2,
             "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011177"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011176"
+                    "lecturer_nip": "199001012020000139"
                 }
             ]
         },
         {
             "code": "TL2514012",
-            "name": "Mata Kuliah Teknik Lingkungan 12",
+            "name": "Pengantar Perencanaan Struktur",
             "sks": 2,
-            "semester": 5,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011174"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011182"
+                    "lecturer_nip": "199001012020000135"
                 }
             ]
         },
         {
             "code": "TL2514013",
-            "name": "Mata Kuliah Teknik Lingkungan 13",
+            "name": "Termodinamika",
             "sks": 2,
-            "semester": 7,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011178"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011179"
+                    "lecturer_nip": "199001012020000141"
                 }
             ]
         },
         {
             "code": "TL2514014",
-            "name": "Mata Kuliah Teknik Lingkungan 14",
+            "name": "Unit Operasi Teknik Lingkungan",
             "sks": 3,
-            "semester": 1,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011183"
+                    "lecturer_nip": "199001012020000134"
                 }
             ]
         },
         {
             "code": "TL2514015",
-            "name": "Mata Kuliah Teknik Lingkungan 15",
+            "name": "Unit Proses Teknik Lingkungan",
             "sks": 3,
-            "semester": 3,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011175"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011176"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011174"
+                    "lecturer_nip": "199001012020000143"
                 }
             ]
         },
         {
             "code": "TL2514016",
-            "name": "Mata Kuliah Teknik Lingkungan 16",
+            "name": "Pengelolaan Sampah",
             "sks": 3,
-            "semester": 7,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011182"
+                    "lecturer_nip": "199001012020000139"
                 }
             ]
         },
         {
             "code": "TL2514017",
-            "name": "Mata Kuliah Teknik Lingkungan 17",
+            "name": "Sistem Penyediaan Air Minum",
             "sks": 3,
-            "semester": 5,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011180"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011177"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011181"
+                    "lecturer_nip": "199001012020000139"
                 }
             ]
         },
         {
             "code": "TL2514018",
-            "name": "Mata Kuliah Teknik Lingkungan 18",
-            "sks": 3,
-            "semester": 5,
+            "name": "Ekotoksikologi Lingkungan",
+            "sks": 2,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011183"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011178"
+                    "lecturer_nip": "199001012020000130"
                 }
             ]
         },
         {
             "code": "TL2514019",
-            "name": "Mata Kuliah Teknik Lingkungan 19",
+            "name": "Remediasi Lingkungan",
             "sks": 2,
-            "semester": 7,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011180"
+                    "lecturer_nip": "199001012020000135"
                 }
             ]
         },
         {
             "code": "TL2514020",
-            "name": "Mata Kuliah Teknik Lingkungan 20",
-            "sks": 2,
-            "semester": 7,
+            "name": "Pengendalian Pencemaran Udara",
+            "sks": 3,
+            "semester": 5,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011177"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011175"
+                    "lecturer_nip": "199001012020000130"
                 }
             ]
         },
         {
             "code": "TL2514021",
-            "name": "Mata Kuliah Teknik Lingkungan 21",
-            "sks": 3,
-            "semester": 3,
+            "name": "Drainase dan Sistem Penyaluran Air Limbah",
+            "sks": 4,
+            "semester": 5,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011181"
+                    "lecturer_nip": "199001012020000143"
                 }
             ]
         },
         {
             "code": "TL2514022",
-            "name": "Mata Kuliah Teknik Lingkungan 22",
-            "sks": 2,
-            "semester": 3,
+            "name": "Pengelolaan Limbah B3",
+            "sks": 3,
+            "semester": 5,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011179"
-                },
+                    "lecturer_nip": "199001012020000130"
+                }
+            ]
+        },
+        {
+            "code": "TL2514023",
+            "name": "Teknologi Bersih",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
                 {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011182"
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000141"
+                }
+            ]
+        },
+        {
+            "code": "TL2514024",
+            "name": "Ekonomi Lingkungan",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000136"
+                }
+            ]
+        },
+        {
+            "code": "TL2514025",
+            "name": "Kesehatan dan Keselamatan Kerja",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000137"
+                }
+            ]
+        },
+        {
+            "code": "TL2514026",
+            "name": "Pengelolaan Kualitas Air",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000139"
+                }
+            ]
+        },
+        {
+            "code": "TL2514027",
+            "name": "Perencanaan Bangunan Pengolahan Air Minum",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000135"
+                }
+            ]
+        },
+        {
+            "code": "TL2514028",
+            "name": "Perencanaan Bangunan Pengolahan Air Limbah",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000127"
+                }
+            ]
+        },
+        {
+            "code": "TL2514029",
+            "name": "Analisis Mengenai Dampak Lingkungan",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000141"
+                }
+            ]
+        },
+        {
+            "code": "TL2514030",
+            "name": "Manajemen Proyek",
+            "sks": 2,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000137"
+                }
+            ]
+        },
+        {
+            "code": "TL2514031",
+            "name": "Desain Fasilitas Pengelolaan Lingkungan",
+            "sks": 4,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000132"
+                }
+            ]
+        },
+        {
+            "code": "TL2514032",
+            "name": "Audit dan Sistem Manajemen Lingkungan",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000129"
+                }
+            ]
+        },
+        {
+            "code": "TL2515002",
+            "name": "Teknologi Membran",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000143"
+                }
+            ]
+        },
+        {
+            "code": "TL2515003",
+            "name": "Penyediaan Air Minum dan Sanitasi Berbasis Masyarakat",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000141"
+                }
+            ]
+        },
+        {
+            "code": "TL2515005",
+            "name": "Pengolahan Lumpur",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000127"
+                }
+            ]
+        },
+        {
+            "code": "TL2515006",
+            "name": "Teknologi Energi Terbarukan",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000139"
+                }
+            ]
+        },
+        {
+            "code": "TL2515015",
+            "name": "Permodelan Teknik Lingkungan",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000132"
+                }
+            ]
+        },
+        {
+            "code": "TL2515016",
+            "name": "Manajemen Lingkungan Kota",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000135"
+                }
+            ]
+        },
+        {
+            "code": "TL2515017",
+            "name": "Teknik Konservasi Lingkungan",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000139"
+                }
+            ]
+        },
+        {
+            "code": "TL2515018",
+            "name": "Perencanaan TPA",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000130"
+                }
+            ]
+        },
+        {
+            "code": "TL2516001",
+            "name": "Kerja Praktik",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000127"
+                }
+            ]
+        },
+        {
+            "code": "TL2517001",
+            "name": "Metodologi Penelitian",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000141"
+                }
+            ]
+        },
+        {
+            "code": "TL2517002",
+            "name": "Tugas Akhir",
+            "sks": 4,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000127"
                 }
             ]
         }
     ],
-    "preferences": [
-        {
-            "lecturer_nip": "198001012010011175",
-            "constraint_code": "SC_INGIN",
-            "day": 3,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011175",
-            "constraint_code": "SC_INGIN",
-            "day": 5,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011175",
-            "constraint_code": "SC_HINDARI",
-            "day": 5,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011176",
-            "constraint_code": "SC_INGIN",
-            "day": 1,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011176",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011176",
-            "constraint_code": "SC_INGIN",
-            "day": 5,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011177",
-            "constraint_code": "SC_INGIN",
-            "day": 5,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011178",
-            "constraint_code": "SC_INGIN",
-            "day": 1,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011178",
-            "constraint_code": "SC_INGIN",
-            "day": 3,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011178",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011178",
-            "constraint_code": "SC_HINDARI",
-            "day": 4,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011180",
-            "constraint_code": "SC_INGIN",
-            "day": 3,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011180",
-            "constraint_code": "SC_HINDARI",
-            "day": 1,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011182",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011182",
-            "constraint_code": "SC_INGIN",
-            "day": 5,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011182",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011183",
-            "constraint_code": "SC_INGIN",
-            "day": 4,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011183",
-            "constraint_code": "SC_INGIN",
-            "day": 3,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011183",
-            "constraint_code": "SC_HINDARI",
-            "day": 3,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011183",
-            "constraint_code": "SC_HINDARI",
-            "day": 2,
-            "session": 1
-        }
-    ]
+    "preferences": []
 }

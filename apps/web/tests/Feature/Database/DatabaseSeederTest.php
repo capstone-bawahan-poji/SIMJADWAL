@@ -32,7 +32,7 @@ class DatabaseSeederTest extends TestCase
         $this->seed(DatabaseSeeder::class);
 
         $this->assertSame(3, Faculty::count());
-        $this->assertSame(26, StudyProgram::count());
+        $this->assertSame(25, StudyProgram::count());
         $this->assertSame(20, TimeSlot::count());
         $this->assertSame(54, Room::count());
         $this->assertSame(7, ConstraintType::count());
@@ -52,8 +52,8 @@ class DatabaseSeederTest extends TestCase
         $this->assertSame(['Gedung E', 1], [Room::where('code', 'E101')->value('building'), Room::where('code', 'E101')->value('floor')]);
         $this->assertSame(6, Department::count());
         $this->assertSame(
-            ['IF' => 'JTEIB', 'TL' => 'JTK', 'GM' => 'JTSP', 'TI' => 'JTI', 'TP' => 'JRI'],
-            collect(['IF', 'TL', 'GM', 'TI', 'TP'])->mapWithKeys(fn (string $code) => [$code => StudyProgram::where('code', $code)->first()->department->code])->all(),
+            ['IF' => 'JTEIB', 'TL' => 'JTK', 'SL' => 'JTSP', 'TI' => 'JTI', 'TP' => 'JRI'],
+            collect(['IF', 'TL', 'SL', 'TI', 'TP'])->mapWithKeys(fn (string $code) => [$code => StudyProgram::where('code', $code)->first()->department->code])->all(),
         );
         $this->assertSame(0, StudyProgram::whereNull('department_id')->count());
         $this->assertSame(
@@ -77,24 +77,55 @@ class DatabaseSeederTest extends TestCase
     {
         $this->seed(DatabaseSeeder::class);
 
-        $this->assertSame(26, StudyProgram::where('constraint_status', ConstraintStatus::SUBMITTED)->count());
+        $this->assertSame(25, StudyProgram::where('constraint_status', ConstraintStatus::SUBMITTED)->count());
         $this->assertSame(0, StudyProgram::doesntHave('courses')->count());
 
         $informatics = StudyProgram::where('name', 'Informatika')->first();
-        $this->assertSame(26, Course::where('study_program_id', $informatics->id)->count());
-        $this->assertSame(51, CourseLecturer::whereRelation('course', 'study_program_id', $informatics->id)->count());
+        $this->assertSame(25, Course::where('study_program_id', $informatics->id)->count());
+        $this->assertSame(44, CourseLecturer::whereRelation('course', 'study_program_id', $informatics->id)->count());
 
-        $teaching = ['Ilmu Aktuaria' => 9, 'Bisnis Digital' => 9, 'Fisika' => 11, 'Informatika' => 13,
-            'Matematika' => 8, 'Sistem Informasi' => 13, 'Statistika' => 9, 'Teknik Elektro' => 12];
+        $teaching = ['Ilmu Aktuaria' => 9, 'Bisnis Digital' => 9, 'Fisika' => 11, 'Informatika' => 15,
+            'Matematika' => 8, 'Sistem Informasi' => 13, 'Statistika' => 9, 'Teknik Elektro' => 13];
 
         foreach ($teaching as $program => $count) {
             $this->assertSame($count, CourseLecturer::whereRelation('course.studyProgram', 'name', $program)->distinct()->count('lecturer_id'), $program);
         }
 
-        $this->assertSame(263, Lecturer::count());
-        $this->assertTrue(Lecturer::pluck('name')->every(fn (string $name) => preg_match('/^Dosen .+ \d{2}$/', $name) === 1));
-        $this->assertSame([1, 3, 5, 7], Course::distinct()->orderBy('semester')->pluck('semester')->all());
+        // FPB, FRTI and Informatika carry real lecturers and courses; the other FSTI programs are still anonymized.
+        $this->assertSame(329, Lecturer::count());
+        $this->assertSame(80, Lecturer::where('name', 'like', 'Dosen % __')->count());
+        $this->assertSame([1, 2, 3, 4, 5, 6, 7, 8], Course::distinct()->orderBy('semester')->pluck('semester')->all());
         $this->assertGreaterThan(0, LecturerPreference::count());
+    }
+
+    public function test_real_lecturers_teach_across_study_programs(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+
+        $shipbuilding = StudyProgram::where('name', 'Teknik Perkapalan')->first();
+        $this->assertSame(22, Lecturer::where('study_program_id', $shipbuilding->id)->count());
+
+        // Teknik Sistem Perkapalan and Teknik Transportasi Laut are taught by Teknik Perkapalan lecturers.
+        foreach (['Teknik Sistem Perkapalan', 'Teknik Transportasi Laut'] as $program) {
+            $homes = CourseLecturer::whereRelation('course.studyProgram', 'name', $program)
+                ->with('lecturer.studyProgram:id,name')->get()->pluck('lecturer.studyProgram.name')->unique()->values()->all();
+
+            $this->assertContains('Teknik Perkapalan', $homes, $program);
+        }
+
+        $this->assertSame(0, LecturerPreference::whereIn('lecturer_id', Lecturer::whereIn('study_program_id', StudyProgram::whereIn('name', ['Teknik Industri', 'Teknik Mesin'])->pluck('id'))->pluck('id'))->count());
+    }
+
+    public function test_real_lecturers_get_accounts_from_their_email(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+
+        $lecturer = Lecturer::where('name', 'like', 'Amanda Dwi Wantira%')->firstOrFail();
+
+        $this->assertSame('dosen_Amanda@dosen.itk.ac.id', $lecturer->user->email);
+        $this->assertTrue($lecturer->user->hasRole(Role::LECTURER->value));
+        // Every lecturer with an email in data/master (249), except the first Informatika lecturer, who uses dosen.if01 instead.
+        $this->assertSame(249, Lecturer::whereNotNull('user_id')->count());
     }
 
     public function test_demo_accounts_exist_for_every_faculty_and_study_program(): void
@@ -102,9 +133,9 @@ class DatabaseSeederTest extends TestCase
         $this->seed(DatabaseSeeder::class);
 
         $this->assertSame(3, User::query()->role(Role::FACULTY_ADMIN->value)->whereNotNull('faculty_id')->count());
-        $this->assertSame(26, User::query()->role(Role::STUDY_PROGRAM_ADMIN->value)->distinct()->count('study_program_id'));
+        $this->assertSame(25, User::query()->role(Role::STUDY_PROGRAM_ADMIN->value)->distinct()->count('study_program_id'));
         $this->assertSame('Informatika', User::where('email', 'admin.if@example.test')->first()->studyProgram->name);
-        $this->assertSame('Dosen Informatika 01', User::where('email', 'dosen.if01@example.test')->first()->lecturer->name);
+        $this->assertSame('Nur Fajri Azhar S.Kom., M.Kom.', User::where('email', 'dosen.if01@example.test')->first()->lecturer->name);
         $this->assertTrue(User::where('email', 'admin.tpb@example.test')->first()->hasRole(Role::TPB_ADMIN->value));
     }
 

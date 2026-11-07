@@ -2,450 +2,892 @@
     "prefix": "TI",
     "lecturers": [
         {
-            "nip": "198001012010011144",
-            "name": "Dosen Teknik Industri 01"
+            "nip": "199001012020000072",
+            "name": "A. M. Adhitya A. Walenna, S.T., M.T.",
+            "email": "dosen_Adhitya@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011145",
-            "name": "Dosen Teknik Industri 02"
+            "nip": "199001012020000073",
+            "name": "Ahmad Jamil, S.Si., M.Si.",
+            "email": "dosen_AhmadJamil@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011146",
-            "name": "Dosen Teknik Industri 03"
+            "nip": "199001012020000074",
+            "name": "Alvin Muhammad 'Ainul Yaqin, S.T., M.T., M.B.A.",
+            "email": "dosen_Alvin@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011147",
-            "name": "Dosen Teknik Industri 04"
+            "nip": "199001012020000075",
+            "name": "Arini Anestesia Purba, S.T., M.T.",
+            "email": "dosen_Arini@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011148",
-            "name": "Dosen Teknik Industri 05"
+            "nip": "199001012020000076",
+            "name": "Bayu Nur Abdallah, S.T., M.T.",
+            "email": "dosen_Bayu@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011149",
-            "name": "Dosen Teknik Industri 06"
+            "nip": "199001012020000077",
+            "name": "Budiani Fitria Endrawati, S.T.P., M.T.",
+            "email": "dosen_Budiani@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011150",
-            "name": "Dosen Teknik Industri 07"
+            "nip": "199001012020000078",
+            "name": "Christopher Davito Prabandewa Hertadi, S.Si., M.T.",
+            "email": "dosen_Christopher@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011151",
-            "name": "Dosen Teknik Industri 08"
+            "nip": "199001012020000079",
+            "name": "Dea Dita Krisnasari, S.T., M.T.",
+            "email": "dosen_Dea@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011152",
-            "name": "Dosen Teknik Industri 09"
+            "nip": "199001012020000080",
+            "name": "Eka Pratiwi Briant Pakiding, S.T., M.Sc.",
+            "email": "dosen_Eka@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011153",
-            "name": "Dosen Teknik Industri 10"
+            "nip": "199001012020000081",
+            "name": "Faishal Arham Pratikno, S.T., M.T.",
+            "email": "dosen_Faishal@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000082",
+            "name": "Ir. Arini Anestesia Purba, S.T., M.T.,IPM.",
+            "email": "arini.anestesia@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000083",
+            "name": "Ir. Mochamad Sulaiman, S.Pd., M.MT., CIIQA.",
+            "email": "mochamad.sulaiman@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000084",
+            "name": "Ir. Muqimuddin, S.T., M.T",
+            "email": "muqimuddin@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000085",
+            "name": "Melati Salma, S.Ds., M.T.",
+            "email": "dosen_Melati@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000086",
+            "name": "Muhamad Imron Zamzani M.T.",
+            "email": "dosen_MuhamadImron@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000087",
+            "name": "Muhamad Imron Zamzani S.T., M.T.",
+            "email": "imron@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000088",
+            "name": "Muhammad Hudzaly Hatala, S.Kom., M.T.",
+            "email": "dosen_Muhammad@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000089",
+            "name": "Muqimuddin, S.T., M.T.",
+            "email": "dosen_Muqimuddin@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000090",
+            "name": "Sigit Rahmat Rizalmi, S.T., M.Sc., CSCA",
+            "email": "dosen_Sigit@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000091",
+            "name": "Vridayani Anggi Leksono, S.Si., M.T.",
+            "email": "dosen_Vridayani@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000092",
+            "name": "Windi Auliana, S.T., M.T.",
+            "email": "dosen_Windi@dosen.itk.ac.id"
         }
     ],
     "courses": [
         {
             "code": "TI2514001",
-            "name": "Mata Kuliah Teknik Industri 01",
-            "sks": 3,
-            "semester": 3,
+            "name": "Fisiologi",
+            "sks": 2,
+            "semester": 1,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011150"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011148"
+                    "lecturer_nip": "199001012020000077"
                 }
             ]
         },
         {
             "code": "TI2514002",
-            "name": "Mata Kuliah Teknik Industri 02",
-            "sks": 3,
-            "semester": 5,
+            "name": "Pengantar Teknik Industri",
+            "sks": 2,
+            "semester": 1,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011145"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011149"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011146"
+                    "lecturer_nip": "199001012020000092"
                 }
             ]
         },
         {
             "code": "TI2514003",
-            "name": "Mata Kuliah Teknik Industri 03",
-            "sks": 2,
-            "semester": 7,
+            "name": "Teori Probabilitas",
+            "sks": 3,
+            "semester": 1,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011153"
+                    "lecturer_nip": "199001012020000072"
                 }
             ]
         },
         {
             "code": "TI2514004",
-            "name": "Mata Kuliah Teknik Industri 04",
+            "name": "Aljabar Linier",
             "sks": 3,
-            "semester": 5,
+            "semester": 2,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011151"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011147"
+                    "lecturer_nip": "199001012020000073"
                 }
             ]
         },
         {
             "code": "TI2514005",
-            "name": "Mata Kuliah Teknik Industri 05",
-            "sks": 2,
-            "semester": 1,
+            "name": "Analisis dan Estimasi Biaya",
+            "sks": 3,
+            "semester": 2,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011152"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011144"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011148"
+                    "lecturer_nip": "199001012020000086"
                 }
             ]
         },
         {
             "code": "TI2514006",
-            "name": "Mata Kuliah Teknik Industri 06",
-            "sks": 2,
-            "semester": 3,
+            "name": "Statistika",
+            "sks": 3,
+            "semester": 2,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011147"
+                    "lecturer_nip": "199001012020000073"
                 }
             ]
         },
         {
             "code": "TI2514007",
-            "name": "Mata Kuliah Teknik Industri 07",
+            "name": "Ekologi",
             "sks": 3,
-            "semester": 5,
+            "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011146"
+                    "lecturer_nip": "199001012020000080"
                 }
             ]
         },
         {
             "code": "TI2514008",
-            "name": "Mata Kuliah Teknik Industri 08",
+            "name": "Ekonomika",
             "sks": 3,
-            "semester": 1,
+            "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011149"
+                    "lecturer_nip": "199001012020000086"
                 }
             ]
         },
         {
             "code": "TI2514009",
-            "name": "Mata Kuliah Teknik Industri 09",
+            "name": "Ergonomika",
             "sks": 3,
             "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011152"
+                    "lecturer_nip": "199001012020000085"
                 }
             ]
         },
         {
             "code": "TI2514010",
-            "name": "Mata Kuliah Teknik Industri 10",
+            "name": "Gambar Teknik",
             "sks": 3,
-            "semester": 7,
+            "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011153"
+                    "lecturer_nip": "199001012020000081"
                 }
             ]
         },
         {
             "code": "TI2514011",
-            "name": "Mata Kuliah Teknik Industri 11",
+            "name": "Ilmu Material",
             "sks": 2,
             "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011150"
+                    "lecturer_nip": "199001012020000079"
                 }
             ]
         },
         {
             "code": "TI2514012",
-            "name": "Mata Kuliah Teknik Industri 12",
+            "name": "Mekanika Teknik",
             "sks": 2,
             "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011145"
+                    "lecturer_nip": "199001012020000089"
                 }
             ]
         },
         {
             "code": "TI2514013",
-            "name": "Mata Kuliah Teknik Industri 13",
+            "name": "Riset Operasi 1",
             "sks": 3,
             "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011144"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011151"
+                    "lecturer_nip": "199001012020000078"
                 }
             ]
         },
         {
             "code": "TI2514014",
-            "name": "Mata Kuliah Teknik Industri 14",
-            "sks": 2,
-            "semester": 1,
+            "name": "Perancangan Sistem Kerja",
+            "sks": 3,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011148"
+                    "lecturer_nip": "199001012020000080"
                 }
             ]
         },
         {
             "code": "TI2514015",
-            "name": "Mata Kuliah Teknik Industri 15",
-            "sks": 2,
-            "semester": 3,
+            "name": "Analisis Multivariat",
+            "sks": 3,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011145"
+                    "lecturer_nip": "199001012020000072"
                 }
             ]
         },
         {
             "code": "TI2514016",
-            "name": "Mata Kuliah Teknik Industri 16",
-            "sks": 2,
-            "semester": 7,
+            "name": "Kesehatan dan Keselamatan Kerja",
+            "sks": 3,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011144"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011152"
+                    "lecturer_nip": "199001012020000085"
                 }
             ]
         },
         {
             "code": "TI2514017",
-            "name": "Mata Kuliah Teknik Industri 17",
+            "name": "Manajemen Organisasi dan Sumber Daya Manusia",
             "sks": 3,
-            "semester": 1,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011153"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011150"
+                    "lecturer_nip": "199001012020000091"
                 }
             ]
         },
         {
             "code": "TI2514018",
-            "name": "Mata Kuliah Teknik Industri 18",
+            "name": "Proses dan Sistem Manufaktur",
             "sks": 3,
-            "semester": 1,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011151"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011149"
+                    "lecturer_nip": "199001012020000077"
                 }
             ]
         },
         {
             "code": "TI2514019",
-            "name": "Mata Kuliah Teknik Industri 19",
-            "sks": 2,
-            "semester": 5,
+            "name": "Riset Operasi 2",
+            "sks": 3,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011147"
+                    "lecturer_nip": "199001012020000078"
                 }
             ]
         },
         {
             "code": "TI2514020",
-            "name": "Mata Kuliah Teknik Industri 20",
-            "sks": 3,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011146"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011144"
-                }
-            ]
-        },
-        {
-            "code": "TI2514021",
-            "name": "Mata Kuliah Teknik Industri 21",
+            "name": "Analisis Keputusan",
             "sks": 3,
             "semester": 5,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011146"
+                    "lecturer_nip": "199001012020000074"
+                }
+            ]
+        },
+        {
+            "code": "TI2514021",
+            "name": "Manajemen Proyek",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000092"
                 }
             ]
         },
         {
             "code": "TI2514022",
-            "name": "Mata Kuliah Teknik Industri 22",
+            "name": "Pemodelan dan Simulasi Sistem",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000073"
+                }
+            ]
+        },
+        {
+            "code": "TI2514023",
+            "name": "Perancangan dan Pengembangan Produk",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000088"
+                }
+            ]
+        },
+        {
+            "code": "TI2514024",
+            "name": "Perencanaan dan Pengendalian Produksi",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000075"
+                }
+            ]
+        },
+        {
+            "code": "TI2514025",
+            "name": "Pengendalian dan Penjaminan Mutu",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000081"
+                }
+            ]
+        },
+        {
+            "code": "TI2514026",
+            "name": "Manajemen Kinerja",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000092"
+                }
+            ]
+        },
+        {
+            "code": "TI2514027",
+            "name": "Manajemen Rantai Pasok",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000075"
+                }
+            ]
+        },
+        {
+            "code": "TI2514028",
+            "name": "Pemodelan Prediktif",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000074"
+                }
+            ]
+        },
+        {
+            "code": "TI2514029",
+            "name": "Perancangan Fasilitas",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000088"
+                }
+            ]
+        },
+        {
+            "code": "TI2514030",
+            "name": "Desain Riset",
             "sks": 2,
             "semester": 7,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011151"
-                },
+                    "lecturer_nip": "199001012020000072"
+                }
+            ]
+        },
+        {
+            "code": "TI2514032",
+            "name": "Perancangan Sistem Terpadu",
+            "sks": 4,
+            "semester": 7,
+            "classes": [
                 {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011152"
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000089"
+                }
+            ]
+        },
+        {
+            "code": "TI2515001",
+            "name": "Green Lean Six Sigma",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000089"
+                }
+            ]
+        },
+        {
+            "code": "TI2515002",
+            "name": "Manajemen Pergudangan",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000146"
+                }
+            ]
+        },
+        {
+            "code": "TI2515003",
+            "name": "Manajemen Persediaan",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000079"
+                }
+            ]
+        },
+        {
+            "code": "TI2515004",
+            "name": "Manufaktur Berkelanjutan",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000077"
+                }
+            ]
+        },
+        {
+            "code": "TI2515005",
+            "name": "Pemeliharaan dan Teknik Keandalan",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000081"
+                }
+            ]
+        },
+        {
+            "code": "TI2515006",
+            "name": "Standarisasi Mutu",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000081"
+                }
+            ]
+        },
+        {
+            "code": "TI2515007",
+            "name": "Rekayasa Produktivitas",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000089"
+                }
+            ]
+        },
+        {
+            "code": "TI2515008",
+            "name": "Rekayasa Kualitas",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000081"
+                }
+            ]
+        },
+        {
+            "code": "TI2515009",
+            "name": "Ergonomika Kognitif Lanjut",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000085"
+                }
+            ]
+        },
+        {
+            "code": "TI2515010",
+            "name": "Ergonomika Fisik Lanjut",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000080"
+                }
+            ]
+        },
+        {
+            "code": "TI2515011",
+            "name": "Topik Mutakhir di Bidang Ergonomika",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000080"
+                }
+            ]
+        },
+        {
+            "code": "TI2515012",
+            "name": "Ergonomika Lingkungan",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000090"
+                }
+            ]
+        },
+        {
+            "code": "TI2515013",
+            "name": "Ergonomika makro",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000090"
+                }
+            ]
+        },
+        {
+            "code": "TI2515014",
+            "name": "Antropometri dalam Desain Kerja",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000080"
+                }
+            ]
+        },
+        {
+            "code": "TI2515015",
+            "name": "Analitika Pemasaran",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000074"
+                }
+            ]
+        },
+        {
+            "code": "TI2515016",
+            "name": "Analitika Pembangunan Berkelanjutan",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000074"
+                }
+            ]
+        },
+        {
+            "code": "TI2515017",
+            "name": "Aplikasi Kecerdasan Buatan",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000072"
+                }
+            ]
+        },
+        {
+            "code": "TI2515018",
+            "name": "Dinamika Sistem",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000078"
+                }
+            ]
+        },
+        {
+            "code": "TI2515019",
+            "name": "Metaheuristika",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000078"
+                }
+            ]
+        },
+        {
+            "code": "TI2515020",
+            "name": "Pemodelan Berbasis Agen",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000073"
+                }
+            ]
+        },
+        {
+            "code": "TI2515021",
+            "name": "Pemrograman Matematis Terapan",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000074"
+                }
+            ]
+        },
+        {
+            "code": "TI2515022",
+            "name": "Penjadwalan",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000073"
+                }
+            ]
+        },
+        {
+            "code": "TI2515023",
+            "name": "Teori Permainan",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000076"
+                }
+            ]
+        },
+        {
+            "code": "TI2515024",
+            "name": "Visualisasi Data",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000076"
+                }
+            ]
+        },
+        {
+            "code": "TI2515025",
+            "name": "Manajemen Hubungan Pelanggan",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000086"
+                }
+            ]
+        },
+        {
+            "code": "TI2515026",
+            "name": "Manajemen Strategi",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000091"
+                }
+            ]
+        },
+        {
+            "code": "TI2515027",
+            "name": "Pemasaran Digital",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000086"
+                }
+            ]
+        },
+        {
+            "code": "TI2515028",
+            "name": "Rekayasa Proses Bisnis",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000092"
+                }
+            ]
+        },
+        {
+            "code": "TI2515030",
+            "name": "Manajemen Risiko",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000086"
+                }
+            ]
+        },
+        {
+            "code": "TI2515031",
+            "name": "Manajemen Pengetahuan",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000091"
+                }
+            ]
+        },
+        {
+            "code": "TI2515039",
+            "name": "Sertifikasi Kompetensi",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000089"
+                }
+            ]
+        },
+        {
+            "code": "TI2515040",
+            "name": "Pendampingan Kompetisi Akademik",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000089"
+                }
+            ]
+        },
+        {
+            "code": "TI2515041",
+            "name": "Pengembangan Profesional",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000089"
+                }
+            ]
+        },
+        {
+            "code": "TI2516031",
+            "name": "Kerja Praktik",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000078"
                 }
             ]
         }
     ],
-    "preferences": [
-        {
-            "lecturer_nip": "198001012010011145",
-            "constraint_code": "SC_INGIN",
-            "day": 5,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011147",
-            "constraint_code": "SC_INGIN",
-            "day": 1,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011148",
-            "constraint_code": "SC_INGIN",
-            "day": 3,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011148",
-            "constraint_code": "SC_HINDARI",
-            "day": 2,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011148",
-            "constraint_code": "SC_HINDARI",
-            "day": 5,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011149",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011149",
-            "constraint_code": "SC_INGIN",
-            "day": 4,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011149",
-            "constraint_code": "SC_HINDARI",
-            "day": 2,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011149",
-            "constraint_code": "SC_HINDARI",
-            "day": 1,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011150",
-            "constraint_code": "SC_INGIN",
-            "day": 1,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011150",
-            "constraint_code": "SC_INGIN",
-            "day": 1,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011150",
-            "constraint_code": "SC_INGIN",
-            "day": 3,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011152",
-            "constraint_code": "SC_INGIN",
-            "day": 3,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011152",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011152",
-            "constraint_code": "SC_INGIN",
-            "day": 3,
-            "session": 1
-        }
-    ]
+    "preferences": []
 }

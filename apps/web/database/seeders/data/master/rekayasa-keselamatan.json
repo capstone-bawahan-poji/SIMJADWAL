@@ -2,47 +2,199 @@
     "prefix": "RK",
     "lecturers": [
         {
-            "nip": "198001012010011081",
-            "name": "Dosen Rekayasa Keselamatan 01"
+            "nip": "199001012020000060",
+            "name": "Adiek Astika Clara Sudarni, S.ST., M.T",
+            "email": "dosen_Adiek@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011082",
-            "name": "Dosen Rekayasa Keselamatan 02"
+            "nip": "199001012020000061",
+            "name": "Anis Rohmana Malik, S.K.M., M.K.K.K",
+            "email": "dosen_Anis@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011083",
-            "name": "Dosen Rekayasa Keselamatan 03"
+            "nip": "199001012020000062",
+            "name": "Anisa Novi Andriani, S.T., M.Eng.",
+            "email": "dosen_Anisa@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011084",
-            "name": "Dosen Rekayasa Keselamatan 04"
+            "nip": "199001012020000063",
+            "name": "Arlita Dwi Agustine, S.Si., M.T.",
+            "email": "dosen_Arlita@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011085",
-            "name": "Dosen Rekayasa Keselamatan 05"
+            "nip": "199001012020000064",
+            "name": "Aulia Rahma, S.T., M.T.",
+            "email": "dosen_Aulia@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011086",
-            "name": "Dosen Rekayasa Keselamatan 06"
+            "nip": "199001012020000065",
+            "name": "Mayati Isabella M.T.",
+            "email": "dosen_Mayati@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011087",
-            "name": "Dosen Rekayasa Keselamatan 07"
+            "nip": "199001012020000066",
+            "name": "Mayati Isabella, S.T., M.T",
+            "email": "mayati.isabella@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011088",
-            "name": "Dosen Rekayasa Keselamatan 08"
+            "nip": "199001012020000067",
+            "name": "Muchammad Chandra Cahyo Utomo, S. Kom., M. Kom.",
+            "email": "dosen_Muchammad@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011089",
-            "name": "Dosen Rekayasa Keselamatan 09"
+            "nip": "199001012020000068",
+            "name": "Muthi’ah Nur Fadlilah, S.T.,M.T",
+            "email": "dosen_Muthiah@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011090",
-            "name": "Dosen Rekayasa Keselamatan 10"
+            "nip": "199001012020000069",
+            "name": "Novita Lizza Anggraini, S.K.M., M.P.H",
+            "email": "dosen_Novita@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000070",
+            "name": "Riski Arif Mardika, S.ST., M.T.",
+            "email": "dosen_Riski@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000071",
+            "name": "Tri Hardiyanti Asmaningrum, S.Pd., M.T.",
+            "email": "dosen_Tri@dosen.itk.ac.id"
         }
     ],
     "courses": [
+        {
+            "code": "RK2514001",
+            "name": "Pengantar Rekayasa Keselamatan Proses",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000065"
+                }
+            ]
+        },
+        {
+            "code": "RK2514002",
+            "name": "Standar dan Regulasi K3",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000070"
+                }
+            ]
+        },
+        {
+            "code": "RK2514003",
+            "name": "Manajemen keselamatan proses",
+            "sks": 2,
+            "semester": 2,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000060"
+                }
+            ]
+        },
+        {
+            "code": "RK2514004",
+            "name": "Termodinamika",
+            "sks": 3,
+            "semester": 2,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000062"
+                }
+            ]
+        },
+        {
+            "code": "RK2514005",
+            "name": "Gambar Teknik",
+            "sks": 2,
+            "semester": 2,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000071"
+                }
+            ]
+        },
+        {
+            "code": "RK2514006",
+            "name": "Manajemen risiko keselamatan proses",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000068"
+                }
+            ]
+        },
+        {
+            "code": "RK2514007",
+            "name": "Aplikasi Ergonomi",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000061"
+                }
+            ]
+        },
+        {
+            "code": "RK2514008",
+            "name": "Konsep Kecelakaan dan Investigasi",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000060"
+                }
+            ]
+        },
+        {
+            "code": "RK2514009",
+            "name": "Higiene Industri",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000069"
+                }
+            ]
+        },
+        {
+            "code": "RK2514010",
+            "name": "Mekanika Fluida",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000062"
+                }
+            ]
+        },
+        {
+            "code": "RK2514011",
+            "name": "Fisiologi dan Toksikologi",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000069"
+                }
+            ]
+        },
         {
             "code": "RK2514012",
             "name": "Dasar Simulasi dan Komputasi Keselamatan",
@@ -51,453 +203,478 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011051"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011053"
-                }
-            ]
-        },
-        {
-            "code": "RK2514002",
-            "name": "Mata Kuliah Rekayasa Keselamatan 02",
-            "sks": 2,
-            "semester": 7,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011087"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011082"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011084"
-                }
-            ]
-        },
-        {
-            "code": "RK2514003",
-            "name": "Mata Kuliah Rekayasa Keselamatan 03",
-            "sks": 2,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011088"
-                }
-            ]
-        },
-        {
-            "code": "RK2514004",
-            "name": "Mata Kuliah Rekayasa Keselamatan 04",
-            "sks": 2,
-            "semester": 1,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011085"
-                }
-            ]
-        },
-        {
-            "code": "RK2514005",
-            "name": "Mata Kuliah Rekayasa Keselamatan 05",
-            "sks": 3,
-            "semester": 7,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011081"
-                }
-            ]
-        },
-        {
-            "code": "RK2514006",
-            "name": "Mata Kuliah Rekayasa Keselamatan 06",
-            "sks": 2,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011086"
-                }
-            ]
-        },
-        {
-            "code": "RK2514007",
-            "name": "Mata Kuliah Rekayasa Keselamatan 07",
-            "sks": 2,
-            "semester": 7,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011083"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011090"
-                }
-            ]
-        },
-        {
-            "code": "RK2514008",
-            "name": "Mata Kuliah Rekayasa Keselamatan 08",
-            "sks": 3,
-            "semester": 1,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011089"
-                }
-            ]
-        },
-        {
-            "code": "RK2514009",
-            "name": "Mata Kuliah Rekayasa Keselamatan 09",
-            "sks": 2,
-            "semester": 7,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011085"
-                }
-            ]
-        },
-        {
-            "code": "RK2514010",
-            "name": "Mata Kuliah Rekayasa Keselamatan 10",
-            "sks": 2,
-            "semester": 1,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011081"
-                }
-            ]
-        },
-        {
-            "code": "RK2514011",
-            "name": "Mata Kuliah Rekayasa Keselamatan 11",
-            "sks": 3,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011082"
-                }
-            ]
-        },
-        {
-            "code": "RK2514012",
-            "name": "Mata Kuliah Rekayasa Keselamatan 12",
-            "sks": 2,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011083"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011086"
+                    "lecturer_nip": "199001012020000067"
                 }
             ]
         },
         {
             "code": "RK2514013",
-            "name": "Mata Kuliah Rekayasa Keselamatan 13",
-            "sks": 2,
-            "semester": 7,
+            "name": "Sistem Manajemen Keselamatan Kerja (SMK3)",
+            "sks": 3,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011084"
+                    "lecturer_nip": "199001012020000069"
                 }
             ]
         },
         {
             "code": "RK2514014",
-            "name": "Mata Kuliah Rekayasa Keselamatan 14",
-            "sks": 2,
-            "semester": 5,
+            "name": "Rekayasa Faktor Manusia",
+            "sks": 3,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011089"
+                    "lecturer_nip": "199001012020000061"
                 }
             ]
         },
         {
             "code": "RK2514015",
-            "name": "Mata Kuliah Rekayasa Keselamatan 15",
-            "sks": 2,
-            "semester": 3,
+            "name": "Statistika Pengendalian Risiko",
+            "sks": 3,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011088"
+                    "lecturer_nip": "199001012020000061"
                 }
             ]
         },
         {
             "code": "RK2514016",
-            "name": "Mata Kuliah Rekayasa Keselamatan 16",
-            "sks": 2,
-            "semester": 7,
+            "name": "Sistem Kontrol Cerdas",
+            "sks": 3,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011087"
+                    "lecturer_nip": "199001012020000149"
                 }
             ]
         },
         {
             "code": "RK2514017",
-            "name": "Mata Kuliah Rekayasa Keselamatan 17",
-            "sks": 2,
-            "semester": 1,
+            "name": "Rekayasa Keselamatan Bahan Kimia",
+            "sks": 3,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011090"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011081"
+                    "lecturer_nip": "199001012020000069"
                 }
             ]
         },
         {
             "code": "RK2514018",
-            "name": "Mata Kuliah Rekayasa Keselamatan 18",
-            "sks": 3,
-            "semester": 3,
+            "name": "Desain Produk",
+            "sks": 2,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011087"
+                    "lecturer_nip": "199001012020000071"
                 }
             ]
         },
         {
             "code": "RK2514019",
-            "name": "Mata Kuliah Rekayasa Keselamatan 19",
-            "sks": 2,
-            "semester": 3,
+            "name": "Perencanaan Tanggap Darurat",
+            "sks": 3,
+            "semester": 5,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011089"
+                    "lecturer_nip": "199001012020000071"
                 }
             ]
         },
         {
             "code": "RK2514020",
-            "name": "Mata Kuliah Rekayasa Keselamatan 20",
-            "sks": 2,
+            "name": "Keandalan Keselamatan Kerja",
+            "sks": 3,
             "semester": 5,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011083"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011084"
+                    "lecturer_nip": "199001012020000070"
                 }
             ]
         },
         {
             "code": "RK2514021",
-            "name": "Mata Kuliah Rekayasa Keselamatan 21",
+            "name": "Pengolahan Limbah",
             "sks": 3,
-            "semester": 1,
+            "semester": 5,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011086"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011088"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011082"
+                    "lecturer_nip": "199001012020000063"
                 }
             ]
         },
         {
             "code": "RK2514022",
-            "name": "Mata Kuliah Rekayasa Keselamatan 22",
+            "name": "Perpindahan Panas",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000064"
+                }
+            ]
+        },
+        {
+            "code": "RK2514023",
+            "name": "Pengendalian Ledakan dan Bahaya Listrik",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000069"
+                }
+            ]
+        },
+        {
+            "code": "RK2514024",
+            "name": "Rekayasa Perlindungan Ledakan",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000070"
+                }
+            ]
+        },
+        {
+            "code": "RK2514025",
+            "name": "Ventilasi Industri",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000063"
+                }
+            ]
+        },
+        {
+            "code": "RK2514026",
+            "name": "Analisis dan Desain Proteksi",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000064"
+                }
+            ]
+        },
+        {
+            "code": "RK2514027",
+            "name": "Performance Insurance and Assurance",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000060"
+                }
+            ]
+        },
+        {
+            "code": "RK2514028",
+            "name": "Analisis Konsekuensi di Luar Lokasi Industri",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000064"
+                }
+            ]
+        },
+        {
+            "code": "RK2514029",
+            "name": "Calculation Review",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000075"
+                }
+            ]
+        },
+        {
+            "code": "RK2514031",
+            "name": "Metodologi Penelitian",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000061"
+                }
+            ]
+        },
+        {
+            "code": "RK2515033",
+            "name": "Sistem Dinamis",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000061"
+                }
+            ]
+        },
+        {
+            "code": "RK2515034",
+            "name": "Cross-cultural Management",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000065"
+                }
+            ]
+        },
+        {
+            "code": "RK2515035",
+            "name": "K3 Listrik",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000069"
+                }
+            ]
+        },
+        {
+            "code": "RK2515036",
+            "name": "K3 Mekanik",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000063"
+                }
+            ]
+        },
+        {
+            "code": "RK2515037",
+            "name": "Analisis Mengenai Dampak Lingkungan (AMDAL)",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000063"
+                }
+            ]
+        },
+        {
+            "code": "RK2515038",
+            "name": "Ergonomi Makro",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000061"
+                }
+            ]
+        },
+        {
+            "code": "RK2515039",
+            "name": "K3 Migas",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000064"
+                }
+            ]
+        },
+        {
+            "code": "RK2515040",
+            "name": "Transportasi Pipeline",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000071"
+                }
+            ]
+        },
+        {
+            "code": "RK2515041",
+            "name": "Fire Control System",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000060"
+                }
+            ]
+        },
+        {
+            "code": "RK2515042",
+            "name": "Kapita Selekta",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000063"
+                }
+            ]
+        },
+        {
+            "code": "RK2515043",
+            "name": "K3 Pertambangan",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000065"
+                }
+            ]
+        },
+        {
+            "code": "RK2515044",
+            "name": "K3 Maritim",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000060"
+                }
+            ]
+        },
+        {
+            "code": "RK2515045",
+            "name": "Analisis Multivariat",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000061"
+                }
+            ]
+        },
+        {
+            "code": "RK2515046",
+            "name": "Analisis Biaya K3",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000060"
+                }
+            ]
+        },
+        {
+            "code": "RK2515047",
+            "name": "Perancangan Sistem Informasi K3",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000063"
+                }
+            ]
+        },
+        {
+            "code": "RK2515048",
+            "name": "Keselamatan Transportasi",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000071"
+                }
+            ]
+        },
+        {
+            "code": "RK2515049",
+            "name": "Manajemen Pemeliharaan",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000070"
+                }
+            ]
+        },
+        {
+            "code": "RK2515050",
+            "name": "Desain Proses Industri",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000064"
+                }
+            ]
+        },
+        {
+            "code": "RK2515051",
+            "name": "K3 Konstruksi",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000071"
+                }
+            ]
+        },
+        {
+            "code": "RK2515052",
+            "name": "K3 Pesawat Uap dan Bejana Tekanan",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000062"
+                }
+            ]
+        },
+        {
+            "code": "RK2516030",
+            "name": "Kerja Praktik",
             "sks": 2,
             "semester": 7,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011090"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011085"
+                    "lecturer_nip": "199001012020000070"
                 }
             ]
         }
     ],
-    "preferences": [
-        {
-            "lecturer_nip": "198001012010011081",
-            "constraint_code": "SC_INGIN",
-            "day": 4,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011081",
-            "constraint_code": "SC_INGIN",
-            "day": 3,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011084",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011084",
-            "constraint_code": "SC_HINDARI",
-            "day": 1,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011084",
-            "constraint_code": "SC_HINDARI",
-            "day": 5,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011084",
-            "constraint_code": "SC_HINDARI",
-            "day": 3,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011086",
-            "constraint_code": "SC_INGIN",
-            "day": 5,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011086",
-            "constraint_code": "SC_INGIN",
-            "day": 1,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011086",
-            "constraint_code": "SC_HINDARI",
-            "day": 3,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011086",
-            "constraint_code": "SC_HINDARI",
-            "day": 2,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011087",
-            "constraint_code": "SC_INGIN",
-            "day": 5,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011087",
-            "constraint_code": "SC_HINDARI",
-            "day": 5,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011087",
-            "constraint_code": "SC_HINDARI",
-            "day": 1,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011087",
-            "constraint_code": "SC_HINDARI",
-            "day": 5,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011087",
-            "constraint_code": "SC_HINDARI",
-            "day": 2,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011088",
-            "constraint_code": "SC_INGIN",
-            "day": 5,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011088",
-            "constraint_code": "SC_INGIN",
-            "day": 4,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011088",
-            "constraint_code": "SC_HINDARI",
-            "day": 2,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011089",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011089",
-            "constraint_code": "SC_INGIN",
-            "day": 4,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011089",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011090",
-            "constraint_code": "SC_INGIN",
-            "day": 5,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011090",
-            "constraint_code": "SC_HINDARI",
-            "day": 3,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011090",
-            "constraint_code": "SC_HINDARI",
-            "day": 5,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011090",
-            "constraint_code": "SC_HINDARI",
-            "day": 2,
-            "session": 2
-        }
-    ]
+    "preferences": []
 }

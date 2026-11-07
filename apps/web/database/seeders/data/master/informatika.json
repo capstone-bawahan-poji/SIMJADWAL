@@ -2,56 +2,74 @@
     "prefix": "IF",
     "lecturers": [
         {
-            "nip": "198001012010011050",
-            "name": "Dosen Informatika 01"
+            "nip": "199001012020000227",
+            "name": "Nur Fajri Azhar S.Kom., M.Kom.",
+            "email": "fajri@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011051",
-            "name": "Dosen Informatika 02"
+            "nip": "199001012020000228",
+            "name": "Yustina Fitriani, S.Pd., M.Pd.",
+            "email": "yustina@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011052",
-            "name": "Dosen Informatika 03"
+            "nip": "199001012020000229",
+            "name": "Aninditya Anggari Nuryono, S.T., M.Eng.",
+            "email": "aninditya.nuryono@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011053",
-            "name": "Dosen Informatika 04"
+            "nip": "199001012020000230",
+            "name": "Bima Prihasto, S.Si., M.Si., Ph.D.",
+            "email": "bima@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011054",
-            "name": "Dosen Informatika 05"
+            "nip": "199001012020000231",
+            "name": "Boby Mugi Pratama, S.Si., M.Han.",
+            "email": "bmpratama@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011055",
-            "name": "Dosen Informatika 06"
+            "nip": "199001012020000232",
+            "name": "Bowo Nugroho, S.Kom., M.Eng.",
+            "email": "bowo.nugroho@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011056",
-            "name": "Dosen Informatika 07"
+            "nip": "199001012020000233",
+            "name": "Darmansyah, S.Si., M.T.I",
+            "email": "darmansyah@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011057",
-            "name": "Dosen Informatika 08"
+            "nip": "199001012020000234",
+            "name": "Gusti Ahmad Fanshuri Alfarisy, S.Kom., M.Kom., Ph.D.",
+            "email": "gusti.alfarisy@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011058",
-            "name": "Dosen Informatika 09"
+            "nip": "199001012020000235",
+            "name": "Nisa Rizqiya Fadhliana, S.Kom., M.T.",
+            "email": "nisafadhliana@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011059",
-            "name": "Dosen Informatika 10"
+            "nip": "199001012020000236",
+            "name": "Ramadhan Paninggalih S.Si., M.Si., M.Sc.",
+            "email": "ramadhan.paninggalih@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011060",
-            "name": "Dosen Informatika 11"
+            "nip": "199001012020000237",
+            "name": "Riska Kurniyanto Abdullah, S.T., M.Kom.",
+            "email": "riska.abdullah@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011061",
-            "name": "Dosen Informatika 12"
+            "nip": "199001012020000238",
+            "name": "Rizal Kusuma Putra, M.T.",
+            "email": "rizal.putra@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011062",
-            "name": "Dosen Informatika 13"
+            "nip": "199001012020000239",
+            "name": "Rizky Amelia, S.Si., M.Han.",
+            "email": "rizky.amelia@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000240",
+            "name": "Tegar Palyus Fiqar, S.T., M.Kom., Ph.D.",
+            "email": "tegar@lecturer.itk.ac.id"
         }
     ],
     "courses": [
@@ -59,15 +77,19 @@
             "code": "IF2514101",
             "name": "Matematika Diskrit",
             "sks": 3,
-            "semester": 5,
+            "semester": 1,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011050"
+                    "lecturer_nip": "199001012020000236"
                 },
                 {
                     "class_number": 2,
-                    "lecturer_nip": "198001012010011050"
+                    "lecturer_nip": "199001012020000236"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_nip": "199001012020000236"
                 }
             ]
         },
@@ -75,15 +97,19 @@
             "code": "IF2514102",
             "name": "Pengantar Informatika",
             "sks": 2,
-            "semester": 5,
+            "semester": 1,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011051"
+                    "lecturer_nip": "199001012020000229"
                 },
                 {
                     "class_number": 2,
-                    "lecturer_nip": "198001012010011051"
+                    "lecturer_nip": "199001012020000229"
+                },
+                {
+                    "class_number": 3,
+                    "lecturer_nip": "199001012020000228"
                 }
             ]
         },
@@ -91,35 +117,19 @@
             "code": "IF2514103",
             "name": "Sistem Digital",
             "sks": 3,
-            "semester": 3,
+            "semester": 1,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011052"
+                    "lecturer_nip": "199001012020000231"
                 },
                 {
                     "class_number": 2,
-                    "lecturer_nip": "198001012010011052"
+                    "lecturer_nip": "199001012020000231"
                 },
                 {
                     "class_number": 3,
-                    "lecturer_nip": "198001012010011052"
-                }
-            ]
-        },
-        {
-            "code": "IF2514201",
-            "name": "Aljabar Linier dan Geometri",
-            "sks": 3,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011050"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011050"
+                    "lecturer_nip": "199001012020000231"
                 }
             ]
         },
@@ -127,19 +137,15 @@
             "code": "IF2514301",
             "name": "Arsitektur Komputer",
             "sks": 2,
-            "semester": 1,
+            "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011053"
+                    "lecturer_nip": "199001012020000237"
                 },
                 {
                     "class_number": 2,
-                    "lecturer_nip": "198001012010011054"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011053"
+                    "lecturer_nip": "199001012020000237"
                 }
             ]
         },
@@ -151,15 +157,11 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011055"
+                    "lecturer_nip": "199001012020000230"
                 },
                 {
                     "class_number": 2,
-                    "lecturer_nip": "198001012010011056"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011055"
+                    "lecturer_nip": "199001012020000230"
                 }
             ]
         },
@@ -167,19 +169,31 @@
             "code": "IF2514303",
             "name": "Sistem Operasi",
             "sks": 3,
-            "semester": 7,
+            "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011057"
+                    "lecturer_nip": "199001012020000233"
                 },
                 {
                     "class_number": 2,
-                    "lecturer_nip": "198001012010011057"
+                    "lecturer_nip": "199001012020000233"
+                }
+            ]
+        },
+        {
+            "code": "IF2514304",
+            "name": "Statistika dan Probabilitas",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000239"
                 },
                 {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011057"
+                    "class_number": 2,
+                    "lecturer_nip": "199001012020000239"
                 }
             ]
         },
@@ -187,19 +201,15 @@
             "code": "IF2514305",
             "name": "Struktur Data",
             "sks": 3,
-            "semester": 5,
+            "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011051"
+                    "lecturer_nip": "199001012020000067"
                 },
                 {
                     "class_number": 2,
-                    "lecturer_nip": "198001012010011051"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011058"
+                    "lecturer_nip": "199001012020000067"
                 }
             ]
         },
@@ -207,15 +217,15 @@
             "code": "IF2514501",
             "name": "Desain Web",
             "sks": 2,
-            "semester": 1,
+            "semester": 5,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011059"
+                    "lecturer_nip": "199001012020000238"
                 },
                 {
                     "class_number": 2,
-                    "lecturer_nip": "198001012010011059"
+                    "lecturer_nip": "199001012020000238"
                 }
             ]
         },
@@ -223,19 +233,15 @@
             "code": "IF2514502",
             "name": "Interaksi Manusia dan Komputer",
             "sks": 2,
-            "semester": 7,
+            "semester": 5,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011060"
+                    "lecturer_nip": "199001012020000235"
                 },
                 {
                     "class_number": 2,
-                    "lecturer_nip": "198001012010011060"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011060"
+                    "lecturer_nip": "199001012020000235"
                 }
             ]
         },
@@ -243,19 +249,15 @@
             "code": "IF2514503",
             "name": "Implementasi dan Pengujian Perangkat Lunak",
             "sks": 2,
-            "semester": 1,
+            "semester": 5,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011061"
+                    "lecturer_nip": "199001012020000227"
                 },
                 {
                     "class_number": 2,
-                    "lecturer_nip": "198001012010011061"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011061"
+                    "lecturer_nip": "199001012020000227"
                 }
             ]
         },
@@ -263,19 +265,15 @@
             "code": "IF2514504",
             "name": "Manajemen Basis Data",
             "sks": 2,
-            "semester": 3,
+            "semester": 5,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011058"
+                    "lecturer_nip": "199001012020000232"
                 },
                 {
                     "class_number": 2,
-                    "lecturer_nip": "198001012010011058"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011058"
+                    "lecturer_nip": "199001012020000232"
                 }
             ]
         },
@@ -283,15 +281,15 @@
             "code": "IF2514505",
             "name": "Pengolahan Citra Digital",
             "sks": 3,
-            "semester": 3,
+            "semester": 5,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011062"
+                    "lecturer_nip": "199001012020000239"
                 },
                 {
                     "class_number": 2,
-                    "lecturer_nip": "198001012010011062"
+                    "lecturer_nip": "199001012020000239"
                 }
             ]
         },
@@ -299,43 +297,15 @@
             "code": "IF2514506",
             "name": "Pemrograman Fungsional",
             "sks": 3,
-            "semester": 7,
+            "semester": 5,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011056"
+                    "lecturer_nip": "199001012020000234"
                 },
                 {
                     "class_number": 2,
-                    "lecturer_nip": "198001012010011056"
-                }
-            ]
-        },
-        {
-            "code": "IF2514601",
-            "name": "Deep Learning",
-            "sks": 2,
-            "semester": 1,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011052"
-                }
-            ]
-        },
-        {
-            "code": "IF2514604",
-            "name": "Sistem Paralel dan Terdistribusi",
-            "sks": 3,
-            "semester": 7,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011054"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011054"
+                    "lecturer_nip": "199001012020000234"
                 }
             ]
         },
@@ -347,7 +317,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011050"
+                    "lecturer_nip": "199001012020000236"
                 }
             ]
         },
@@ -355,15 +325,15 @@
             "code": "IF2514702",
             "name": "Keprofesian Informatika",
             "sks": 2,
-            "semester": 5,
+            "semester": 7,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011061"
+                    "lecturer_nip": "199001012020000227"
                 },
                 {
                     "class_number": 2,
-                    "lecturer_nip": "198001012010011057"
+                    "lecturer_nip": "199001012020000233"
                 }
             ]
         },
@@ -371,15 +341,15 @@
             "code": "IF2514704",
             "name": "Pengembangan Aplikasi Perangkat Bergerak",
             "sks": 3,
-            "semester": 1,
+            "semester": 7,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011059"
+                    "lecturer_nip": "199001012020000232"
                 },
                 {
                     "class_number": 2,
-                    "lecturer_nip": "198001012010011059"
+                    "lecturer_nip": "199001012020000232"
                 }
             ]
         },
@@ -387,11 +357,23 @@
             "code": "IF2515002",
             "name": "Kapita Selekta",
             "sks": 2,
-            "semester": 5,
+            "semester": 7,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011060"
+                    "lecturer_nip": "199001012020000235"
+                }
+            ]
+        },
+        {
+            "code": "IF2515101",
+            "name": "Komputasi Awan",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000237"
                 }
             ]
         },
@@ -399,47 +381,35 @@
             "code": "IF2515102",
             "name": "Keamanan Siber",
             "sks": 2,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011057"
-                }
-            ]
-        },
-        {
-            "code": "IF2515203",
-            "name": "Kecerdasan Web",
-            "sks": 2,
-            "semester": 1,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011056"
-                }
-            ]
-        },
-        {
-            "code": "IF2515206",
-            "name": "Pemrosesan Bahasa Alami",
-            "sks": 2,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011055"
-                }
-            ]
-        },
-        {
-            "code": "IF2515301",
-            "name": "Manajemen Proyek TIK",
-            "sks": 2,
             "semester": 7,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011054"
+                    "lecturer_nip": "199001012020000233"
+                }
+            ]
+        },
+        {
+            "code": "IF2515103",
+            "name": "Pemrograman Permainan Digital",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000235"
+                }
+            ]
+        },
+        {
+            "code": "IF2515303",
+            "name": "Tata Kelola Teknologi Informasi",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000237"
                 }
             ]
         },
@@ -451,7 +421,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011050"
+                    "lecturer_nip": "199001012020000236"
                 }
             ]
         },
@@ -463,137 +433,22 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011062"
+                    "lecturer_nip": "199001012020000240"
+                }
+            ]
+        },
+        {
+            "code": "IF2517801",
+            "name": "Proposal Tugas Akhir",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000235"
                 }
             ]
         }
     ],
-    "preferences": [
-        {
-            "lecturer_nip": "198001012010011050",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011050",
-            "constraint_code": "SC_INGIN",
-            "day": 1,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011050",
-            "constraint_code": "SC_INGIN",
-            "day": 5,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011050",
-            "constraint_code": "SC_HINDARI",
-            "day": 1,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011051",
-            "constraint_code": "SC_INGIN",
-            "day": 1,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011051",
-            "constraint_code": "SC_INGIN",
-            "day": 5,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011051",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011053",
-            "constraint_code": "SC_INGIN",
-            "day": 5,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011053",
-            "constraint_code": "SC_INGIN",
-            "day": 4,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011057",
-            "constraint_code": "SC_INGIN",
-            "day": 5,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011057",
-            "constraint_code": "SC_INGIN",
-            "day": 1,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011058",
-            "constraint_code": "SC_INGIN",
-            "day": 4,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011058",
-            "constraint_code": "SC_INGIN",
-            "day": 5,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011058",
-            "constraint_code": "SC_HINDARI",
-            "day": 4,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011059",
-            "constraint_code": "SC_INGIN",
-            "day": 5,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011059",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011059",
-            "constraint_code": "SC_HINDARI",
-            "day": 3,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011059",
-            "constraint_code": "SC_HINDARI",
-            "day": 4,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011060",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011060",
-            "constraint_code": "SC_INGIN",
-            "day": 4,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011060",
-            "constraint_code": "SC_HINDARI",
-            "day": 3,
-            "session": 1
-        }
-    ]
+    "preferences": []
 }

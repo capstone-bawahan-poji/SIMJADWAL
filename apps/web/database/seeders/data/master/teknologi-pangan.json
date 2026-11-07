@@ -2,458 +2,566 @@
     "prefix": "TP",
     "lecturers": [
         {
-            "nip": "198001012010011254",
-            "name": "Dosen Teknologi Pangan 01"
+            "nip": "199001012020000216",
+            "name": "Amalia Nur Kumalaningrum, S.Si., M.AgrSc.",
+            "email": "dosen_AmaliaNur@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011255",
-            "name": "Dosen Teknologi Pangan 02"
+            "nip": "199001012020000217",
+            "name": "Anggela, S.TP., M.Sc.",
+            "email": "dosen_Anggela@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011256",
-            "name": "Dosen Teknologi Pangan 03"
+            "nip": "199001012020000218",
+            "name": "Fadeli Muhammad Habibie, S.TP., MP., M.Sc",
+            "email": "dosen_Fadeli@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011257",
-            "name": "Dosen Teknologi Pangan 04"
+            "nip": "199001012020000219",
+            "name": "Gevbry Ranti Ramadhani Simamora, S.Pi., M.Si",
+            "email": "dosen_Gevbry@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011258",
-            "name": "Dosen Teknologi Pangan 05"
+            "nip": "199001012020000220",
+            "name": "Michael Alexander Hutabarat, S.T.P, M.Si",
+            "email": "dosen_Michael@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011259",
-            "name": "Dosen Teknologi Pangan 06"
+            "nip": "199001012020000221",
+            "name": "Ni'matus Sholihah, S.TP.,M.T.P",
+            "email": "nimatus.sholihah@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011260",
-            "name": "Dosen Teknologi Pangan 07"
+            "nip": "199001012020000222",
+            "name": "Nimatus Sholihah S.TP., M.T.P.",
+            "email": "dosen_Nimatus@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011261",
-            "name": "Dosen Teknologi Pangan 08"
+            "nip": "199001012020000223",
+            "name": "Rahmi Azzahra, S.T.P., M.Sc.",
+            "email": "rahmi.azzahra@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011262",
-            "name": "Dosen Teknologi Pangan 09"
+            "nip": "199001012020000224",
+            "name": "Siti Munfarida, S.T., M.T.",
+            "email": "siti.munfarida@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011263",
-            "name": "Dosen Teknologi Pangan 10"
+            "nip": "199001012020000225",
+            "name": "Siti Munfarida. S.T., M.T.",
+            "email": "dosen_Siti@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000226",
+            "name": "Yuvita Lira Vesti Arista, S.T.P., M.Si",
+            "email": "dosen_Yuvita@dosen.itk.ac.id"
         }
     ],
     "courses": [
         {
-            "code": "TP2514001",
-            "name": "Mata Kuliah Teknologi Pangan 01",
-            "sks": 3,
-            "semester": 7,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011262"
-                }
-            ]
-        },
-        {
-            "code": "TP2514002",
-            "name": "Mata Kuliah Teknologi Pangan 02",
-            "sks": 3,
-            "semester": 7,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011261"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011258"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011255"
-                }
-            ]
-        },
-        {
-            "code": "TP2514003",
-            "name": "Mata Kuliah Teknologi Pangan 03",
-            "sks": 2,
-            "semester": 7,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011260"
-                }
-            ]
-        },
-        {
-            "code": "TP2514004",
-            "name": "Mata Kuliah Teknologi Pangan 04",
-            "sks": 2,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011257"
-                }
-            ]
-        },
-        {
-            "code": "TP2514005",
-            "name": "Mata Kuliah Teknologi Pangan 05",
-            "sks": 3,
-            "semester": 1,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011263"
-                }
-            ]
-        },
-        {
-            "code": "TP2514006",
-            "name": "Mata Kuliah Teknologi Pangan 06",
-            "sks": 2,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011256"
-                }
-            ]
-        },
-        {
-            "code": "TP2514007",
-            "name": "Mata Kuliah Teknologi Pangan 07",
-            "sks": 3,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011259"
-                }
-            ]
-        },
-        {
-            "code": "TP2514008",
-            "name": "Mata Kuliah Teknologi Pangan 08",
-            "sks": 2,
-            "semester": 7,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011254"
-                }
-            ]
-        },
-        {
-            "code": "TP2514009",
-            "name": "Mata Kuliah Teknologi Pangan 09",
-            "sks": 3,
-            "semester": 7,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011263"
-                }
-            ]
-        },
-        {
-            "code": "TP2514010",
-            "name": "Mata Kuliah Teknologi Pangan 10",
-            "sks": 2,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011257"
-                }
-            ]
-        },
-        {
-            "code": "TP2514011",
-            "name": "Mata Kuliah Teknologi Pangan 11",
-            "sks": 2,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011260"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011259"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011254"
-                }
-            ]
-        },
-        {
-            "code": "TP2514012",
-            "name": "Mata Kuliah Teknologi Pangan 12",
-            "sks": 2,
-            "semester": 7,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011256"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011258"
-                }
-            ]
-        },
-        {
-            "code": "TP2514013",
-            "name": "Mata Kuliah Teknologi Pangan 13",
-            "sks": 3,
-            "semester": 7,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011262"
-                }
-            ]
-        },
-        {
-            "code": "TP2514014",
-            "name": "Mata Kuliah Teknologi Pangan 14",
-            "sks": 2,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011261"
-                }
-            ]
-        },
-        {
-            "code": "TP2514015",
-            "name": "Mata Kuliah Teknologi Pangan 15",
-            "sks": 2,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011255"
-                }
-            ]
-        },
-        {
-            "code": "TP2514016",
-            "name": "Mata Kuliah Teknologi Pangan 16",
-            "sks": 3,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011258"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011255"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011254"
-                }
-            ]
-        },
-        {
-            "code": "TP2514017",
-            "name": "Mata Kuliah Teknologi Pangan 17",
+            "code": "PA2514001",
+            "name": "Pengantar Teknologi Pangan",
             "sks": 2,
             "semester": 1,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011259"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011262"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011263"
+                    "lecturer_nip": "199001012020000220"
                 }
             ]
         },
         {
-            "code": "TP2514018",
-            "name": "Mata Kuliah Teknologi Pangan 18",
+            "code": "PA2514002",
+            "name": "Biologi",
             "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000226"
+                }
+            ]
+        },
+        {
+            "code": "PA2514003",
+            "name": "Mikrobiologi Dasar",
+            "sks": 3,
+            "semester": 2,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000218"
+                }
+            ]
+        },
+        {
+            "code": "PA2514004",
+            "name": "Kimia Organik",
+            "sks": 3,
+            "semester": 2,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000216"
+                }
+            ]
+        },
+        {
+            "code": "PA2514005",
+            "name": "Mikrobiologi Pangan",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000218"
+                }
+            ]
+        },
+        {
+            "code": "PA2514006",
+            "name": "Kimia Analitik",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000216"
+                }
+            ]
+        },
+        {
+            "code": "PA2514007",
+            "name": "Kimia Pangan",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000216"
+                }
+            ]
+        },
+        {
+            "code": "PA2514008",
+            "name": "Neraca Massa dan Energi",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000225"
+                }
+            ]
+        },
+        {
+            "code": "PA2514009",
+            "name": "Karakteristik Bahan Pangan",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000226"
+                }
+            ]
+        },
+        {
+            "code": "PA2514010",
+            "name": "Komunikasi dan Etika Profesi",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000220"
+                }
+            ]
+        },
+        {
+            "code": "PA2514011",
+            "name": "Teknologi Pengolahan Hasil Perairan",
+            "sks": 3,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000219"
+                }
+            ]
+        },
+        {
+            "code": "PA2514012",
+            "name": "Analisis Pangan",
+            "sks": 3,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000216"
+                }
+            ]
+        },
+        {
+            "code": "PA2514013",
+            "name": "Unit Operasi Industri Pangan 1",
+            "sks": 3,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000225"
+                }
+            ]
+        },
+        {
+            "code": "PA2514014",
+            "name": "Bahan Tambahan Pangan",
+            "sks": 2,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000226"
+                }
+            ]
+        },
+        {
+            "code": "PA2514015",
+            "name": "Biokimia Pangan",
+            "sks": 3,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000226"
+                }
+            ]
+        },
+        {
+            "code": "PA2514016",
+            "name": "Analisa Sensori",
+            "sks": 3,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000217"
+                }
+            ]
+        },
+        {
+            "code": "PA2514017",
+            "name": "Rantai Pasok Pangan",
+            "sks": 3,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000220"
+                }
+            ]
+        },
+        {
+            "code": "PA2514018",
+            "name": "Ilmu Gizi",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000217"
+                }
+            ]
+        },
+        {
+            "code": "PA2514019",
+            "name": "Unit Operasi Industri Pangan 2",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000225"
+                }
+            ]
+        },
+        {
+            "code": "PA2514020",
+            "name": "Teknologi Pengolahan Pangan",
+            "sks": 4,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000222"
+                }
+            ]
+        },
+        {
+            "code": "PA2514021",
+            "name": "Keamanan Pangan",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000219"
+                }
+            ]
+        },
+        {
+            "code": "PA2514022",
+            "name": "Analisa Pangan Lanjut",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000216"
+                }
+            ]
+        },
+        {
+            "code": "PA2514023",
+            "name": "Teknologi Pengemasan dan Penyimpanan Bahan Pangan",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000220"
+                }
+            ]
+        },
+        {
+            "code": "PA2514024",
+            "name": "Pangan Fungsional",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000217"
+                }
+            ]
+        },
+        {
+            "code": "PA2514025",
+            "name": "Rancangan Penelitian Pangan",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000222"
+                }
+            ]
+        },
+        {
+            "code": "PA2514026",
+            "name": "Manajemen Mutu Pangan",
+            "sks": 4,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000218"
+                }
+            ]
+        },
+        {
+            "code": "PA2514027",
+            "name": "Perancangan Proses Pangan",
+            "sks": 4,
             "semester": 7,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011257"
+                    "lecturer_nip": "199001012020000222"
                 }
             ]
         },
         {
-            "code": "TP2514019",
-            "name": "Mata Kuliah Teknologi Pangan 19",
+            "code": "PA2515001",
+            "name": "Teknologi Hasil Perkebunan dan Hortikultura",
             "sks": 3,
             "semester": 7,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011260"
+                    "lecturer_nip": "199001012020000226"
                 }
             ]
         },
         {
-            "code": "TP2514020",
-            "name": "Mata Kuliah Teknologi Pangan 20",
-            "sks": 2,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011261"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011256"
-                }
-            ]
-        },
-        {
-            "code": "TP2514021",
-            "name": "Mata Kuliah Teknologi Pangan 21",
-            "sks": 2,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011257"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011256"
-                }
-            ]
-        },
-        {
-            "code": "TP2514022",
-            "name": "Mata Kuliah Teknologi Pangan 22",
+            "code": "PA2515002",
+            "name": "Teknologi Pastry dan Bakery",
             "sks": 3,
-            "semester": 5,
+            "semester": 7,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011258"
+                    "lecturer_nip": "199001012020000222"
+                }
+            ]
+        },
+        {
+            "code": "PA2515003",
+            "name": "Teknologi Hasil Ternak",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000226"
+                }
+            ]
+        },
+        {
+            "code": "PA2515004",
+            "name": "Teknologi Serealia, Umbi-Umbian, dan Kacang-Kacangan",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000225"
+                }
+            ]
+        },
+        {
+            "code": "PA2515005",
+            "name": "Teknologi Lemak dan Minyak",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000222"
+                }
+            ]
+        },
+        {
+            "code": "PA2515006",
+            "name": "Teknologi Protein",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000216"
+                }
+            ]
+        },
+        {
+            "code": "PA2515007",
+            "name": "Teknologi Herbal dan Rempah",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000219"
+                }
+            ]
+        },
+        {
+            "code": "PA2515008",
+            "name": "Pengolahan Produk Samping",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000217"
+                }
+            ]
+        },
+        {
+            "code": "PA2515009",
+            "name": "Bioteknologi Pangan",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000218"
+                }
+            ]
+        },
+        {
+            "code": "PA2515010",
+            "name": "Probiotik dan Prebiotik",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000217"
+                }
+            ]
+        },
+        {
+            "code": "PA2515011",
+            "name": "Inovasi Produk Pangan",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000218"
+                }
+            ]
+        },
+        {
+            "code": "PA2515012",
+            "name": "Pengembangan Talenta",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000226"
+                }
+            ]
+        },
+        {
+            "code": "PA2515013",
+            "name": "Pengembangan Profesi",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000225"
+                }
+            ]
+        },
+        {
+            "code": "PA2515014",
+            "name": "Kapita Selekta",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000220"
+                }
+            ]
+        },
+        {
+            "code": "PA2516001",
+            "name": "Kerja Praktik",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000217"
                 }
             ]
         }
     ],
-    "preferences": [
-        {
-            "lecturer_nip": "198001012010011256",
-            "constraint_code": "SC_INGIN",
-            "day": 5,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011257",
-            "constraint_code": "SC_INGIN",
-            "day": 4,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011257",
-            "constraint_code": "SC_INGIN",
-            "day": 3,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011257",
-            "constraint_code": "SC_HINDARI",
-            "day": 3,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011257",
-            "constraint_code": "SC_HINDARI",
-            "day": 5,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011258",
-            "constraint_code": "SC_INGIN",
-            "day": 1,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011258",
-            "constraint_code": "SC_INGIN",
-            "day": 4,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011258",
-            "constraint_code": "SC_HINDARI",
-            "day": 1,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011258",
-            "constraint_code": "SC_HINDARI",
-            "day": 2,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011259",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011259",
-            "constraint_code": "SC_HINDARI",
-            "day": 3,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011259",
-            "constraint_code": "SC_HINDARI",
-            "day": 5,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011259",
-            "constraint_code": "SC_HINDARI",
-            "day": 1,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011261",
-            "constraint_code": "SC_INGIN",
-            "day": 3,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011261",
-            "constraint_code": "SC_HINDARI",
-            "day": 4,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011262",
-            "constraint_code": "SC_INGIN",
-            "day": 3,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011263",
-            "constraint_code": "SC_INGIN",
-            "day": 3,
-            "session": 1
-        }
-    ]
+    "preferences": []
 }

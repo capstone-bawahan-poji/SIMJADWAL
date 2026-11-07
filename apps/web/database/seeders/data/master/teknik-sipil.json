@@ -2,432 +2,844 @@
     "prefix": "SL",
     "lecturers": [
         {
-            "nip": "198001012010011224",
-            "name": "Dosen Teknik Sipil 01"
+            "nip": "199001012020000241",
+            "name": "Afif Taufiiqul Hakim, S.T., M.Sc.",
+            "email": "dosen_Afif@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011225",
-            "name": "Dosen Teknik Sipil 02"
+            "nip": "199001012020000242",
+            "name": "Arief Nugraha Pontoh, S.T., M.Eng.",
+            "email": "dosen_Arief_Pontoh@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011226",
-            "name": "Dosen Teknik Sipil 03"
+            "nip": "199001012020000243",
+            "name": "Dr. Hijriah, S.T., M.T.",
+            "email": "dosen_Hijriah@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011227",
-            "name": "Dosen Teknik Sipil 04"
+            "nip": "199001012020000244",
+            "name": "Dwi Aneka Kartini, S.T., M.T.",
+            "email": "dosen_Dwi@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011228",
-            "name": "Dosen Teknik Sipil 05"
+            "nip": "199001012020000245",
+            "name": "Fachreza Akbar, S.T., M.T.",
+            "email": "dosen_Fachreza@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011229",
-            "name": "Dosen Teknik Sipil 06"
+            "nip": "199001012020000246",
+            "name": "Oryza Lhara Sari, S.T., M.T.",
+            "email": "dosen_Oryza@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011230",
-            "name": "Dosen Teknik Sipil 07"
+            "nip": "199001012020000247",
+            "name": "Priyo Wibisono, S.T., M.T",
+            "email": "dosen_Priyo@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011231",
-            "name": "Dosen Teknik Sipil 08"
+            "nip": "199001012020000248",
+            "name": "Raftonado Situmorang, S.T., M.T.",
+            "email": "dosen_Raftonado@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011232",
-            "name": "Dosen Teknik Sipil 09"
-        },
-        {
-            "nip": "198001012010011233",
-            "name": "Dosen Teknik Sipil 10"
+            "nip": "199001012020000249",
+            "name": "Riyan Benny Sukmara, S.T., M.T.",
+            "email": "dosen_Riyan@dosen.itk.ac.id"
         }
     ],
     "courses": [
         {
-            "code": "SL2514001",
-            "name": "Mata Kuliah Teknik Sipil 01",
-            "sks": 3,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011232"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011229"
-                }
-            ]
-        },
-        {
-            "code": "SL2514002",
-            "name": "Mata Kuliah Teknik Sipil 02",
-            "sks": 3,
-            "semester": 1,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011230"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011233"
-                }
-            ]
-        },
-        {
-            "code": "SL2514003",
-            "name": "Mata Kuliah Teknik Sipil 03",
-            "sks": 3,
-            "semester": 1,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011226"
-                }
-            ]
-        },
-        {
-            "code": "SL2514004",
-            "name": "Mata Kuliah Teknik Sipil 04",
+            "code": "TS2514011",
+            "name": "Menggambar Bangunan Sipil",
             "sks": 2,
             "semester": 1,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011228"
+                    "lecturer_nip": "199001012020000249"
                 }
             ]
         },
         {
-            "code": "SL2514005",
-            "name": "Mata Kuliah Teknik Sipil 05",
+            "code": "TS2514013",
+            "name": "Pengantar Geologi dan Geoteknik",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000242"
+                }
+            ]
+        },
+        {
+            "code": "TS2514021",
+            "name": "Struktur Statis Tertentu",
+            "sks": 3,
+            "semester": 2,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000245"
+                }
+            ]
+        },
+        {
+            "code": "TS2514022",
+            "name": "Fisika Teknik",
+            "sks": 4,
+            "semester": 2,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000243"
+                }
+            ]
+        },
+        {
+            "code": "TS2514023",
+            "name": "Geomatika dan Sistem Informasi Geografi",
+            "sks": 2,
+            "semester": 2,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000249"
+                }
+            ]
+        },
+        {
+            "code": "TS2514024",
+            "name": "Mekanika Fluida dan Hidraulika",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000249"
+                }
+            ]
+        },
+        {
+            "code": "TS2514025",
+            "name": "Mekanika Tanah 1",
+            "sks": 2,
+            "semester": 2,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000242"
+                }
+            ]
+        },
+        {
+            "code": "TS2514031",
+            "name": "Rekayasa Hidrologi",
+            "sks": 3,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000249"
+                }
+            ]
+        },
+        {
+            "code": "TS2514032",
+            "name": "Proyek dan Konstruksi",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000248"
+                }
+            ]
+        },
+        {
+            "code": "TS2514033",
+            "name": "Rekayasa Lalu Lintas",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000247"
+                }
+            ]
+        },
+        {
+            "code": "TS2514034",
+            "name": "Mekanika Bahan",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000245"
+                }
+            ]
+        },
+        {
+            "code": "TS2514035",
+            "name": "Mekanika Tanah 2",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000242"
+                }
+            ]
+        },
+        {
+            "code": "TS2514036",
+            "name": "Analisis Diferensial dan Metode Numerik",
+            "sks": 4,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000245"
+                }
+            ]
+        },
+        {
+            "code": "TS2514041",
+            "name": "Teknologi Bahan Konstruksi",
+            "sks": 3,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000243"
+                }
+            ]
+        },
+        {
+            "code": "TS2514042",
+            "name": "Struktur Statis Tak Tentu",
+            "sks": 3,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000245"
+                }
+            ]
+        },
+        {
+            "code": "TS2514043",
+            "name": "Pengendalian Biaya Waktu Konstruksi",
+            "sks": 2,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000246"
+                }
+            ]
+        },
+        {
+            "code": "TS2514044",
+            "name": "Perencanaan Geometrik Jalan Raya",
+            "sks": 2,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000247"
+                }
+            ]
+        },
+        {
+            "code": "TS2514045",
+            "name": "Rekayasa Drainase",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000249"
+                }
+            ]
+        },
+        {
+            "code": "TS2514046",
+            "name": "Teknik Fondasi Dangkal",
+            "sks": 2,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000242"
+                }
+            ]
+        },
+        {
+            "code": "TS2514047",
+            "name": "Ekonomi Teknik",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000246"
+                }
+            ]
+        },
+        {
+            "code": "TS2514051",
+            "name": "Teknik Irigasi dan Bangunan Air",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000249"
+                }
+            ]
+        },
+        {
+            "code": "TS2514052",
+            "name": "Teknik Fondasi Dalam",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000242"
+                }
+            ]
+        },
+        {
+            "code": "TS2514053",
+            "name": "Konstruksi Berkelanjutan",
+            "sks": 2,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000246"
+                }
+            ]
+        },
+        {
+            "code": "TS2514054",
+            "name": "Elemen Struktur Beton",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000243"
+                }
+            ]
+        },
+        {
+            "code": "TS2514055",
+            "name": "Elemen Struktur Baja",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000245"
+                }
+            ]
+        },
+        {
+            "code": "TS2514056",
+            "name": "Dinamika Struktur dan Gempa",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000243"
+                }
+            ]
+        },
+        {
+            "code": "TS2514057",
+            "name": "Analisis Statika Metode Matriks",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000245"
+                }
+            ]
+        },
+        {
+            "code": "TS2514061",
+            "name": "Manajemen Keselamatan dan Dampak Konstruksi",
+            "sks": 2,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000246"
+                }
+            ]
+        },
+        {
+            "code": "TS2514062",
+            "name": "Struktur Perkerasan Jalan",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000247"
+                }
+            ]
+        },
+        {
+            "code": "TS2514063",
+            "name": "Teknik Sungai",
             "sks": 2,
             "semester": 7,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011227"
+                    "lecturer_nip": "199001012020000249"
                 }
             ]
         },
         {
-            "code": "SL2514006",
-            "name": "Mata Kuliah Teknik Sipil 06",
+            "code": "TS2514064",
+            "name": "Perancangan Struktur Gedung",
+            "sks": 4,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000245"
+                }
+            ]
+        },
+        {
+            "code": "TS2514065",
+            "name": "Perangkat Lunak Teknik Sipil",
             "sks": 2,
-            "semester": 5,
+            "semester": 6,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011231"
+                    "lecturer_nip": "199001012020000241"
                 }
             ]
         },
         {
-            "code": "SL2514007",
-            "name": "Mata Kuliah Teknik Sipil 07",
-            "sks": 3,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011224"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011225"
-                }
-            ]
-        },
-        {
-            "code": "SL2514008",
-            "name": "Mata Kuliah Teknik Sipil 08",
-            "sks": 3,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011225"
-                }
-            ]
-        },
-        {
-            "code": "SL2514009",
-            "name": "Mata Kuliah Teknik Sipil 09",
+            "code": "TS2514066",
+            "name": "Aspek Hukum dan Etika Profesi",
             "sks": 2,
             "semester": 7,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011226"
+                    "lecturer_nip": "199001012020000244"
                 }
             ]
         },
         {
-            "code": "SL2514010",
-            "name": "Mata Kuliah Teknik Sipil 10",
-            "sks": 3,
-            "semester": 7,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011233"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011229"
-                }
-            ]
-        },
-        {
-            "code": "SL2514011",
-            "name": "Mata Kuliah Teknik Sipil 11",
-            "sks": 3,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011231"
-                }
-            ]
-        },
-        {
-            "code": "SL2514012",
-            "name": "Mata Kuliah Teknik Sipil 12",
-            "sks": 3,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011228"
-                }
-            ]
-        },
-        {
-            "code": "SL2514013",
-            "name": "Mata Kuliah Teknik Sipil 13",
-            "sks": 2,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011224"
-                }
-            ]
-        },
-        {
-            "code": "SL2514014",
-            "name": "Mata Kuliah Teknik Sipil 14",
-            "sks": 2,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011227"
-                }
-            ]
-        },
-        {
-            "code": "SL2514015",
-            "name": "Mata Kuliah Teknik Sipil 15",
-            "sks": 3,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011232"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011230"
-                }
-            ]
-        },
-        {
-            "code": "SL2514016",
-            "name": "Mata Kuliah Teknik Sipil 16",
-            "sks": 3,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011225"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011233"
-                }
-            ]
-        },
-        {
-            "code": "SL2514017",
-            "name": "Mata Kuliah Teknik Sipil 17",
-            "sks": 2,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011228"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011227"
-                }
-            ]
-        },
-        {
-            "code": "SL2514018",
-            "name": "Mata Kuliah Teknik Sipil 18",
-            "sks": 3,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011232"
-                }
-            ]
-        },
-        {
-            "code": "SL2514019",
-            "name": "Mata Kuliah Teknik Sipil 19",
+            "code": "TS2514071",
+            "name": "Kerja Praktek",
             "sks": 2,
             "semester": 7,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011230"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011229"
+                    "lecturer_nip": "199001012020000242"
                 }
             ]
         },
         {
-            "code": "SL2514020",
-            "name": "Mata Kuliah Teknik Sipil 20",
-            "sks": 3,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011224"
-                }
-            ]
-        },
-        {
-            "code": "SL2514021",
-            "name": "Mata Kuliah Teknik Sipil 21",
-            "sks": 3,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011231"
-                }
-            ]
-        },
-        {
-            "code": "SL2514022",
-            "name": "Mata Kuliah Teknik Sipil 22",
-            "sks": 3,
+            "code": "TS2514072",
+            "name": "Perencanaan Bandar Udara",
+            "sks": 2,
             "semester": 7,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011226"
-                },
+                    "lecturer_nip": "199001012020000247"
+                }
+            ]
+        },
+        {
+            "code": "TS2514073",
+            "name": "Teknik Pantai dan Pelabuhan",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
                 {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011230"
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000243"
+                }
+            ]
+        },
+        {
+            "code": "TS2514074",
+            "name": "Perancangan Infrastruktur Teknik Sipil",
+            "sks": 4,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000245"
+                }
+            ]
+        },
+        {
+            "code": "TS2514075",
+            "name": "Infrastruktur Tanah Gambut dan Rawa",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000249"
+                }
+            ]
+        },
+        {
+            "code": "TS2515011",
+            "name": "Struktur Baja Daktail",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000243"
+                }
+            ]
+        },
+        {
+            "code": "TS2515012",
+            "name": "Struktur Beton Prategang",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000245"
+                }
+            ]
+        },
+        {
+            "code": "TS2515013",
+            "name": "Struktur Kayu",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000245"
+                }
+            ]
+        },
+        {
+            "code": "TS2515014",
+            "name": "Struktur Lepas Pantai",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000243"
+                }
+            ]
+        },
+        {
+            "code": "TS2515021",
+            "name": "Metode Perbaikan Tanah",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000242"
+                }
+            ]
+        },
+        {
+            "code": "TS2515022",
+            "name": "Penyelidikan Lokasi",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000242"
+                }
+            ]
+        },
+        {
+            "code": "TS2515023",
+            "name": "Stabilitas Galian",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000242"
+                }
+            ]
+        },
+        {
+            "code": "TS2515024",
+            "name": "Mekanika Batuan",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000242"
+                }
+            ]
+        },
+        {
+            "code": "TS2515025",
+            "name": "Aplikasi Geosintetik",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000242"
+                }
+            ]
+        },
+        {
+            "code": "TS2515031",
+            "name": "Pengendalian Banjir Terpadu",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000249"
+                }
+            ]
+        },
+        {
+            "code": "TS2515032",
+            "name": "Pengelolaan Sumber dan Daya Air",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000249"
+                }
+            ]
+        },
+        {
+            "code": "TS2515033",
+            "name": "Rekayasa Bendungan",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000241"
+                }
+            ]
+        },
+        {
+            "code": "TS2515034",
+            "name": "Penyediaan Air Bersih",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000249"
+                }
+            ]
+        },
+        {
+            "code": "TS2515035",
+            "name": "Pengendalian Erosi dan Sedimentasi",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000241"
+                }
+            ]
+        },
+        {
+            "code": "TS2515041",
+            "name": "Perencanaan Jalan Rel",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000247"
+                }
+            ]
+        },
+        {
+            "code": "TS2515042",
+            "name": "Permodelan Transportasi",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000247"
+                }
+            ]
+        },
+        {
+            "code": "TS2515043",
+            "name": "Rekayasa Lalu Lintas Lanjut",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000247"
+                }
+            ]
+        },
+        {
+            "code": "TS2515044",
+            "name": "Sistem Transportasi Publik",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000247"
+                }
+            ]
+        },
+        {
+            "code": "TS2515051",
+            "name": "Ekonomi Jalan Raya",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000247"
+                }
+            ]
+        },
+        {
+            "code": "TS2515052",
+            "name": "Optimasi Konstruksi",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000246"
+                }
+            ]
+        },
+        {
+            "code": "TS2515055",
+            "name": "Metode Pelaksanaan Konstruksi",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000248"
+                }
+            ]
+        },
+        {
+            "code": "TS2515056",
+            "name": "Pemeliharaan Bangunan Sipil",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000248"
+                }
+            ]
+        },
+        {
+            "code": "TS2515057",
+            "name": "Topik Khusus",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000248"
+                }
+            ]
+        },
+        {
+            "code": "TS2515061",
+            "name": "Metode Penelitian dan Penulisan Ilmiah",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000246"
+                }
+            ]
+        },
+        {
+            "code": "TS2515062",
+            "name": "Pengenalan Manajemen Bencana Alam",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000249"
+                }
+            ]
+        },
+        {
+            "code": "TS2515063",
+            "name": "Kepemimpinan (Leadership)",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000245"
+                }
+            ]
+        },
+        {
+            "code": "TS2515065",
+            "name": "Pengembangan soft skills dan kreatifitas",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000248"
+                }
+            ]
+        },
+        {
+            "code": "TS2515066",
+            "name": "Kapita Selekta",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000246"
                 }
             ]
         }
     ],
-    "preferences": [
-        {
-            "lecturer_nip": "198001012010011224",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011225",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011225",
-            "constraint_code": "SC_HINDARI",
-            "day": 3,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011225",
-            "constraint_code": "SC_HINDARI",
-            "day": 4,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011228",
-            "constraint_code": "SC_INGIN",
-            "day": 4,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011228",
-            "constraint_code": "SC_HINDARI",
-            "day": 5,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011230",
-            "constraint_code": "SC_INGIN",
-            "day": 4,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011230",
-            "constraint_code": "SC_HINDARI",
-            "day": 3,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011230",
-            "constraint_code": "SC_HINDARI",
-            "day": 5,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011231",
-            "constraint_code": "SC_INGIN",
-            "day": 1,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011231",
-            "constraint_code": "SC_HINDARI",
-            "day": 2,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011233",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011233",
-            "constraint_code": "SC_HINDARI",
-            "day": 3,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011233",
-            "constraint_code": "SC_HINDARI",
-            "day": 3,
-            "session": 2
-        }
-    ]
+    "preferences": []
 }

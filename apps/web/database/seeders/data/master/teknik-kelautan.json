@@ -2,494 +2,607 @@
     "prefix": "KL",
     "lecturers": [
         {
-            "nip": "198001012010011154",
-            "name": "Dosen Teknik Kelautan 01"
+            "nip": "199001012020000093",
+            "name": "Destyariani Liana Putri, S.T., M.T.",
+            "email": "dosen_Destyariani@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011155",
-            "name": "Dosen Teknik Kelautan 02"
+            "nip": "199001012020000094",
+            "name": "Indah Melati Suci, S.T., M.T.",
+            "email": "dosen_Indah@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011156",
-            "name": "Dosen Teknik Kelautan 03"
+            "nip": "199001012020000095",
+            "name": "Ir. Anggoronadhi Dianiswara, S.T., M.T.",
+            "email": "anggoronadhi@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011157",
-            "name": "Dosen Teknik Kelautan 04"
+            "nip": "199001012020000096",
+            "name": "Ir. Destyariani Liana Putri, S.T., M.T",
+            "email": "putridestyariani@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011158",
-            "name": "Dosen Teknik Kelautan 05"
+            "nip": "199001012020000097",
+            "name": "Ir. Rima Gusriana Harahap, S.T., M.T.",
+            "email": "rimagusrianahrp@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011159",
-            "name": "Dosen Teknik Kelautan 06"
+            "nip": "199001012020000098",
+            "name": "Luh Putri Adnyani, S.T., M.T., MRINA",
+            "email": "dosen_Luh@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011160",
-            "name": "Dosen Teknik Kelautan 07"
+            "nip": "199001012020000099",
+            "name": "Muhammad Abdul Ghofur Al Hakim, S.Kel., M.Si",
+            "email": "dosen_Muhammad_Hakim@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011161",
-            "name": "Dosen Teknik Kelautan 08"
+            "nip": "199001012020000100",
+            "name": "Muhammad Iqra Prasetya, S.Si., M.Si",
+            "email": "dosen_Muhammad_Prasetya@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011162",
-            "name": "Dosen Teknik Kelautan 09"
+            "nip": "199001012020000101",
+            "name": "Muhammad Khaisar Wirawan, S.Kel., M.Si.",
+            "email": "khaisar.wirawan@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011163",
-            "name": "Dosen Teknik Kelautan 10"
+            "nip": "199001012020000102",
+            "name": "Muhammad Khaisar Wirawan. S.Kel., M.Si.",
+            "email": "dosen_Muhammad_Khaisar@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000103",
+            "name": "Nurmawati S.Kel., M.Si.",
+            "email": "dosen_Nurmawati@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000104",
+            "name": "Nurmawati, S.Kel., M.Si.",
+            "email": "nurmawati@lecturer.itk.ac.id"
         }
     ],
     "courses": [
         {
-            "code": "KL2514001",
-            "name": "Mata Kuliah Teknik Kelautan 01",
-            "sks": 3,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011162"
-                }
-            ]
-        },
-        {
-            "code": "KL2514002",
-            "name": "Mata Kuliah Teknik Kelautan 02",
-            "sks": 2,
-            "semester": 7,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011163"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011154"
-                }
-            ]
-        },
-        {
-            "code": "KL2514003",
-            "name": "Mata Kuliah Teknik Kelautan 03",
-            "sks": 2,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011158"
-                }
-            ]
-        },
-        {
-            "code": "KL2514004",
-            "name": "Mata Kuliah Teknik Kelautan 04",
-            "sks": 3,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011159"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011156"
-                }
-            ]
-        },
-        {
-            "code": "KL2514005",
-            "name": "Mata Kuliah Teknik Kelautan 05",
+            "code": "KE2514101",
+            "name": "Pengantar Teknik Kelautan",
             "sks": 2,
             "semester": 1,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011155"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011161"
+                    "lecturer_nip": "199001012020000102"
                 }
             ]
         },
         {
-            "code": "KL2514006",
-            "name": "Mata Kuliah Teknik Kelautan 06",
-            "sks": 2,
-            "semester": 7,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011160"
-                }
-            ]
-        },
-        {
-            "code": "KL2514007",
-            "name": "Mata Kuliah Teknik Kelautan 07",
-            "sks": 3,
-            "semester": 1,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011157"
-                }
-            ]
-        },
-        {
-            "code": "KL2514008",
-            "name": "Mata Kuliah Teknik Kelautan 08",
-            "sks": 3,
-            "semester": 1,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011157"
-                }
-            ]
-        },
-        {
-            "code": "KL2514009",
-            "name": "Mata Kuliah Teknik Kelautan 09",
-            "sks": 3,
-            "semester": 7,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011160"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011158"
-                }
-            ]
-        },
-        {
-            "code": "KL2514010",
-            "name": "Mata Kuliah Teknik Kelautan 10",
-            "sks": 2,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011156"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011161"
-                }
-            ]
-        },
-        {
-            "code": "KL2514011",
-            "name": "Mata Kuliah Teknik Kelautan 11",
+            "code": "KE2514102",
+            "name": "Menggambar Teknik +Praktikum",
             "sks": 2,
             "semester": 1,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011163"
+                    "lecturer_nip": "199001012020000098"
                 }
             ]
         },
         {
-            "code": "KL2514012",
-            "name": "Mata Kuliah Teknik Kelautan 12",
-            "sks": 2,
+            "code": "KE2514103",
+            "name": "Teori Bangunan Apung",
+            "sks": 3,
             "semester": 1,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011155"
+                    "lecturer_nip": "199001012020000098"
                 }
             ]
         },
         {
-            "code": "KL2514013",
-            "name": "Mata Kuliah Teknik Kelautan 13",
+            "code": "KE2514204",
+            "name": "Fisika Fluida",
             "sks": 2,
-            "semester": 5,
+            "semester": 2,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011159"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011162"
+                    "lecturer_nip": "199001012020000102"
                 }
             ]
         },
         {
-            "code": "KL2514014",
-            "name": "Mata Kuliah Teknik Kelautan 14",
-            "sks": 3,
-            "semester": 7,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011154"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011154"
-                }
-            ]
-        },
-        {
-            "code": "KL2514015",
-            "name": "Mata Kuliah Teknik Kelautan 15",
-            "sks": 3,
-            "semester": 7,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011161"
-                }
-            ]
-        },
-        {
-            "code": "KL2514016",
-            "name": "Mata Kuliah Teknik Kelautan 16",
+            "code": "KE2514205",
+            "name": "Mekanika Teknik 1",
             "sks": 2,
-            "semester": 7,
+            "semester": 2,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011157"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011160"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011155"
+                    "lecturer_nip": "199001012020000103"
                 }
             ]
         },
         {
-            "code": "KL2514017",
-            "name": "Mata Kuliah Teknik Kelautan 17",
-            "sks": 2,
-            "semester": 7,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011159"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011163"
-                }
-            ]
-        },
-        {
-            "code": "KL2514018",
-            "name": "Mata Kuliah Teknik Kelautan 18",
-            "sks": 2,
-            "semester": 7,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011158"
-                }
-            ]
-        },
-        {
-            "code": "KL2514019",
-            "name": "Mata Kuliah Teknik Kelautan 19",
+            "code": "KE2514306",
+            "name": "Oseanografi",
             "sks": 3,
             "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011156"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011162"
+                    "lecturer_nip": "199001012020000103"
                 }
             ]
         },
         {
-            "code": "KL2514020",
-            "name": "Mata Kuliah Teknik Kelautan 20",
+            "code": "KE2514307",
+            "name": "Perencanaan Bangunan Laut",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000093"
+                }
+            ]
+        },
+        {
+            "code": "KE2514308",
+            "name": "Mekanika Tanah dan Geoteknik Kelautan + Praktikum",
             "sks": 3,
             "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011161"
+                    "lecturer_nip": "199001012020000215"
                 }
             ]
         },
         {
-            "code": "KL2514021",
-            "name": "Mata Kuliah Teknik Kelautan 21",
-            "sks": 2,
-            "semester": 7,
+            "code": "KE2514309",
+            "name": "Perancangan Pelabuhan dan Struktur Pantai",
+            "sks": 3,
+            "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011154"
+                    "lecturer_nip": "199001012020000093"
                 }
             ]
         },
         {
-            "code": "KL2514022",
-            "name": "Mata Kuliah Teknik Kelautan 22",
+            "code": "KE2514310",
+            "name": "Mekanika Teknik 2",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000098"
+                }
+            ]
+        },
+        {
+            "code": "KE2514311",
+            "name": "Gelombang Air",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000102"
+                }
+            ]
+        },
+        {
+            "code": "KE2514312",
+            "name": "Dinamika Struktur",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000094"
+                }
+            ]
+        },
+        {
+            "code": "KE2514313",
+            "name": "Matematika Lanjut",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000103"
+                }
+            ]
+        },
+        {
+            "code": "KE2514414",
+            "name": "Teknologi Bahan dan Bangunan Laut+Praktikum",
+            "sks": 3,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000215"
+                }
+            ]
+        },
+        {
+            "code": "KE2514415",
+            "name": "Perancangan Bangunan Laut Terpancang",
+            "sks": 3,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000098"
+                }
+            ]
+        },
+        {
+            "code": "KE2514416",
+            "name": "Analisis Transpor Sedimen",
+            "sks": 2,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000102"
+                }
+            ]
+        },
+        {
+            "code": "KE2514417",
+            "name": "Metode Aplikasi Elemen Hingga",
+            "sks": 2,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000103"
+                }
+            ]
+        },
+        {
+            "code": "KE2514418",
+            "name": "Hidrodinamika",
+            "sks": 2,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000093"
+                }
+            ]
+        },
+        {
+            "code": "KE2514419",
+            "name": "Konstruksi Bangunan Laut",
+            "sks": 2,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000098"
+                }
+            ]
+        },
+        {
+            "code": "KE2514520",
+            "name": "Perancangan Bangunan Laut Terapung",
             "sks": 3,
             "semester": 5,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011163"
+                    "lecturer_nip": "199001012020000098"
+                }
+            ]
+        },
+        {
+            "code": "KE2514521",
+            "name": "Transportasi dan Instalasi Bangunan Laut",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000098"
+                }
+            ]
+        },
+        {
+            "code": "KE2514522",
+            "name": "Hidrografi dan Akustik Bawah Air + Praktikum",
+            "sks": 4,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000102"
+                }
+            ]
+        },
+        {
+            "code": "KE2514523",
+            "name": "Teknologi Mooring",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000098"
+                }
+            ]
+        },
+        {
+            "code": "KE2514524",
+            "name": "Pipa Bawah Laut dan Riser",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000093"
+                }
+            ]
+        },
+        {
+            "code": "KE2514530",
+            "name": "Analisis dan Pemodelan Numerik",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000103"
+                }
+            ]
+        },
+        {
+            "code": "KE2514534",
+            "name": "Kelelahan dan Mekanika Kepecahan",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000098"
+                }
+            ]
+        },
+        {
+            "code": "KE2514625",
+            "name": "Teknologi dan Inspeksi Las + Praktikum",
+            "sks": 4,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000102"
+                }
+            ]
+        },
+        {
+            "code": "KE2514626",
+            "name": "Energi Laut",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000102"
+                }
+            ]
+        },
+        {
+            "code": "KE2514627",
+            "name": "Ekonomi Teknik dan Manajemen Proyek",
+            "sks": 2,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000215"
+                }
+            ]
+        },
+        {
+            "code": "KE2514628",
+            "name": "Kesehatan dan Keselamatan Kerja (K3) Kemaritiman",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000102"
+                }
+            ]
+        },
+        {
+            "code": "KE2514629",
+            "name": "Perancangan Sistem dan Struktur Bawah Air",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000093"
+                }
+            ]
+        },
+        {
+            "code": "KE2514631",
+            "name": "Riset Operasi dan Optimasi",
+            "sks": 2,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000093"
+                }
+            ]
+        },
+        {
+            "code": "KE2514732",
+            "name": "Metodologi Penelitian",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000103"
+                }
+            ]
+        },
+        {
+            "code": "KE2514733",
+            "name": "Reklamasi dan Pengerukan",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000103"
+                }
+            ]
+        },
+        {
+            "code": "KE2514735",
+            "name": "Inovasi Perancangan Bangunan Laut (Capstone Design)",
+            "sks": 4,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000093"
+                }
+            ]
+        },
+        {
+            "code": "KE2514736",
+            "name": "Pekerjaan Bawah Air",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000102"
+                }
+            ]
+        },
+        {
+            "code": "KE2515701",
+            "name": "Penginderaan Jarak Jauh Kelautan",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000099"
+                }
+            ]
+        },
+        {
+            "code": "KE2515702",
+            "name": "Mitigasi Bencana Kelautan",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000102"
+                }
+            ]
+        },
+        {
+            "code": "KE2515703",
+            "name": "Pengelolaan Wilayah Pesisir Terpadu",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000100"
+                }
+            ]
+        },
+        {
+            "code": "KE2515812",
+            "name": "Instrumentasi Kelautan",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000099"
+                }
+            ]
+        },
+        {
+            "code": "KE2515813",
+            "name": "Pemodelan Kelautan",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000215"
+                }
+            ]
+        },
+        {
+            "code": "KE2515814",
+            "name": "Pencemaran Kelautan",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000103"
+                }
+            ]
+        },
+        {
+            "code": "KE2515816",
+            "name": "Pembongkaran dan penutupan Bangunan Lepas Pantai",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000098"
+                }
+            ]
+        },
+        {
+            "code": "KE2515818",
+            "name": "Sistem dan Manajemen Kepelabuhanan",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000093"
+                }
+            ]
+        },
+        {
+            "code": "KE2516737",
+            "name": "Kerja Praktik",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000093"
                 }
             ]
         }
     ],
-    "preferences": [
-        {
-            "lecturer_nip": "198001012010011154",
-            "constraint_code": "SC_INGIN",
-            "day": 4,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011154",
-            "constraint_code": "SC_HINDARI",
-            "day": 1,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011156",
-            "constraint_code": "SC_INGIN",
-            "day": 3,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011156",
-            "constraint_code": "SC_INGIN",
-            "day": 4,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011156",
-            "constraint_code": "SC_HINDARI",
-            "day": 2,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011156",
-            "constraint_code": "SC_HINDARI",
-            "day": 5,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011157",
-            "constraint_code": "SC_INGIN",
-            "day": 3,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011157",
-            "constraint_code": "SC_INGIN",
-            "day": 1,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011157",
-            "constraint_code": "SC_INGIN",
-            "day": 5,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011157",
-            "constraint_code": "SC_HINDARI",
-            "day": 4,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011159",
-            "constraint_code": "SC_INGIN",
-            "day": 1,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011159",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011159",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011160",
-            "constraint_code": "SC_INGIN",
-            "day": 1,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011160",
-            "constraint_code": "SC_INGIN",
-            "day": 4,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011160",
-            "constraint_code": "SC_HINDARI",
-            "day": 2,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011160",
-            "constraint_code": "SC_HINDARI",
-            "day": 5,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011162",
-            "constraint_code": "SC_INGIN",
-            "day": 5,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011162",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011162",
-            "constraint_code": "SC_INGIN",
-            "day": 3,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011163",
-            "constraint_code": "SC_INGIN",
-            "day": 5,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011163",
-            "constraint_code": "SC_INGIN",
-            "day": 4,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011163",
-            "constraint_code": "SC_INGIN",
-            "day": 3,
-            "session": 3
-        }
-    ]
+    "preferences": []
 }

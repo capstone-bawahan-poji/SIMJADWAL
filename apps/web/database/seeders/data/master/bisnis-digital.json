@@ -102,7 +102,7 @@
         {
             "code": "BD2514004",
             "name": "Manajemen Organisasi",
-            "sks": 3,
+            "sks": 2,
             "semester": 3,
             "classes": [
                 {
@@ -234,7 +234,7 @@
         {
             "code": "BD2514016",
             "name": "Statistika Inferensial",
-            "sks": 3,
+            "sks": 2,
             "semester": 1,
             "classes": [
                 {
@@ -278,7 +278,7 @@
         {
             "code": "BD2514024",
             "name": "Manajemen Rantai Pasok",
-            "sks": 3,
+            "sks": 2,
             "semester": 1,
             "classes": [
                 {
@@ -310,7 +310,7 @@
         {
             "code": "BD2514026",
             "name": "Manajemen Sosial Media",
-            "sks": 3,
+            "sks": 2,
             "semester": 3,
             "classes": [
                 {
