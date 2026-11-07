@@ -40,7 +40,6 @@ class FacultyStudyProgramSeeder extends Seeder
                 'PW' => 'Perencanaan Wilayah dan Kota',
                 'AR' => 'Arsitektur',
                 'DK' => 'Desain Komunikasi Visual',
-                'GM' => 'Teknik Geomatika',
             ],
         ],
         'FRTI' => [
@@ -68,7 +67,7 @@ class FacultyStudyProgramSeeder extends Seeder
         ],
         'FPB' => [
             'JTK' => ['name' => 'Jurusan Teknologi Kemaritiman', 'programs' => ['PK', 'KL', 'TL', 'SP', 'TT']],
-            'JTSP' => ['name' => 'Jurusan Teknik Sipil dan Perencanaan', 'programs' => ['SL', 'PW', 'AR', 'DK', 'GM']],
+            'JTSP' => ['name' => 'Jurusan Teknik Sipil dan Perencanaan', 'programs' => ['SL', 'PW', 'AR', 'DK']],
         ],
         'FRTI' => [
             'JTI' => ['name' => 'Jurusan Teknologi Industri', 'programs' => ['MS', 'TI', 'LG', 'MM']],

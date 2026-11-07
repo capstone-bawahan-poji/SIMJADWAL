@@ -2,390 +2,791 @@
     "prefix": "MM",
     "lecturers": [
         {
-            "nip": "198001012010011194",
-            "name": "Dosen Teknik Material dan Metalurgi 01"
+            "nip": "199001012020000151",
+            "name": "Ade Wahyu Yusariarta P. P., S.T., M.T.",
+            "email": "adewahyu27@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011195",
-            "name": "Dosen Teknik Material dan Metalurgi 02"
+            "nip": "199001012020000152",
+            "name": "Ade Wahyu Yusariarta Putra Parmita, S.T., M.T.",
+            "email": "dosen_Ade@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011196",
-            "name": "Dosen Teknik Material dan Metalurgi 03"
+            "nip": "199001012020000153",
+            "name": "Ainun Zulfikar S.T., M.T.",
+            "email": "dosen_Ainun@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011197",
-            "name": "Dosen Teknik Material dan Metalurgi 04"
+            "nip": "199001012020000154",
+            "name": "Ainun Zulfikar, S.T., M.T.",
+            "email": "ainun@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011198",
-            "name": "Dosen Teknik Material dan Metalurgi 05"
+            "nip": "199001012020000155",
+            "name": "Amilita Medisa Rizky Dharmayanti, M.Si.",
+            "email": "dosen_Amilita@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011199",
-            "name": "Dosen Teknik Material dan Metalurgi 06"
+            "nip": "199001012020000156",
+            "name": "Andromeda Dwi Laksono, S.T., M.Sc., Ph.D.",
+            "email": "dosen_Andromeda@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011200",
-            "name": "Dosen Teknik Material dan Metalurgi 07"
+            "nip": "199001012020000157",
+            "name": "Dr. Eng. Yunita Triana",
+            "email": "nita@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011201",
-            "name": "Dosen Teknik Material dan Metalurgi 08"
+            "nip": "199001012020000158",
+            "name": "Fikan Mubarok Rohimsyah S.T., M.Sc",
+            "email": "dosen_Fikan@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011202",
-            "name": "Dosen Teknik Material dan Metalurgi 09"
+            "nip": "199001012020000159",
+            "name": "Fikan Mubarok Rohimsyah, S.T., M.Sc.",
+            "email": "fikan.mubarok@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011203",
-            "name": "Dosen Teknik Material dan Metalurgi 10"
+            "nip": "199001012020000160",
+            "name": "Gusti Umindya Nur Tajalla, S.T., M.T.",
+            "email": "gusti.unt@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000161",
+            "name": "Hizkia Alpha Dewanto, S.T., M.Sc.",
+            "email": "dosen_Hizkia@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000162",
+            "name": "Ir. Rifqi Aulia Tanjung, S.T., M.T.",
+            "email": "rifqi.aulia@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000163",
+            "name": "Jatmoko Awali, S.T., M.T.",
+            "email": "dosen_Jatmoko@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000164",
+            "name": "Lia Amalia, S.T., M.T.",
+            "email": "lia.amalia@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000165",
+            "name": "Muthia Putri Darsini Lubis S.T., M.T.",
+            "email": "dosen_Muthia@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000166",
+            "name": "Muthia Putri Darsini Lubis, S.T., M.T.",
+            "email": "muthia_lubis@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000167",
+            "name": "Nia Sasria S.Si., M.T.",
+            "email": "dosen_NiaSasria@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000168",
+            "name": "Nia Sasria, S.Si., M.T.",
+            "email": "niasasria@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000169",
+            "name": "Rachmad Sulaksono Prabowo, S.T., M.T.",
+            "email": "dosen_Rachmad@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000170",
+            "name": "Rifqi Aulia Tanjung, S.T., M.T.",
+            "email": "dosen_Rifqi@dosen.itk.ac.id"
         }
     ],
     "courses": [
         {
-            "code": "MM2514001",
-            "name": "Mata Kuliah Teknik Material dan Metalurgi 01",
+            "code": "MM2514101",
+            "name": "Pengenalan Teknik Material dan Metalurgi",
             "sks": 2,
             "semester": 1,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011203"
+                    "lecturer_nip": "199001012020000156"
                 }
             ]
         },
         {
-            "code": "MM2514002",
-            "name": "Mata Kuliah Teknik Material dan Metalurgi 02",
+            "code": "MM2514102",
+            "name": "Gambar Teknik",
+            "sks": 3,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000165"
+                }
+            ]
+        },
+        {
+            "code": "MM2514201",
+            "name": "Kimia Organik",
+            "sks": 2,
+            "semester": 2,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000167"
+                }
+            ]
+        },
+        {
+            "code": "MM2514202",
+            "name": "Statika dan Mekanika Material",
+            "sks": 3,
+            "semester": 2,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000152"
+                }
+            ]
+        },
+        {
+            "code": "MM2514203",
+            "name": "Fisika Padatan",
+            "sks": 2,
+            "semester": 2,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000155"
+                }
+            ]
+        },
+        {
+            "code": "MM2514301",
+            "name": "Material Polimer",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000153"
+                }
+            ]
+        },
+        {
+            "code": "MM2514302",
+            "name": "Matematika 3",
             "sks": 2,
             "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011198"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011202"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011194"
+                    "lecturer_nip": "199001012020000169"
                 }
             ]
         },
         {
-            "code": "MM2514003",
-            "name": "Mata Kuliah Teknik Material dan Metalurgi 03",
+            "code": "MM2514303",
+            "name": "Karakterisasi Material",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000167"
+                }
+            ]
+        },
+        {
+            "code": "MM2514304",
+            "name": "Pemecahan Masalah Komputasional",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000158"
+                }
+            ]
+        },
+        {
+            "code": "MM2514305",
+            "name": "Perilaku Elektromagnetik Material",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000155"
+                }
+            ]
+        },
+        {
+            "code": "MM2514306",
+            "name": "Kimia Analitik",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000198"
+                }
+            ]
+        },
+        {
+            "code": "MM2514307",
+            "name": "Termodinamika Material",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000155"
+                }
+            ]
+        },
+        {
+            "code": "MM2514308",
+            "name": "Perilaku Mekanik Material",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000169"
+                }
+            ]
+        },
+        {
+            "code": "MM2514401",
+            "name": "Analisis Numerik",
+            "sks": 2,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000169"
+                }
+            ]
+        },
+        {
+            "code": "MM2514402",
+            "name": "Transformasi Fasa",
+            "sks": 3,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000156"
+                }
+            ]
+        },
+        {
+            "code": "MM2514403",
+            "name": "Material Logam",
+            "sks": 3,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000158"
+                }
+            ]
+        },
+        {
+            "code": "MM2514404",
+            "name": "Elektrokimia",
+            "sks": 3,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000198"
+                }
+            ]
+        },
+        {
+            "code": "MM2514405",
+            "name": "Pengolahan Mineral dan Ekstraksi",
+            "sks": 3,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000161"
+                }
+            ]
+        },
+        {
+            "code": "MM2514406",
+            "name": "Fenomena Transport",
+            "sks": 3,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000155"
+                }
+            ]
+        },
+        {
+            "code": "MM2514501",
+            "name": "Material Komposit",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000152"
+                }
+            ]
+        },
+        {
+            "code": "MM2514502",
+            "name": "Material Keramik",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000155"
+                }
+            ]
+        },
+        {
+            "code": "MM2514503",
+            "name": "Pengolahan Besi dan Baja",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000158"
+                }
+            ]
+        },
+        {
+            "code": "MM2514504",
+            "name": "Pemrosesan Logam dan Pengecoran",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000163"
+                }
+            ]
+        },
+        {
+            "code": "MM2514505",
+            "name": "Korosi",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000170"
+                }
+            ]
+        },
+        {
+            "code": "MM2514506",
+            "name": "Mekanisme Patahan dan Fraktografi",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000170"
+                }
+            ]
+        },
+        {
+            "code": "MM2514601",
+            "name": "Teknologi Pengelasan",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000163"
+                }
+            ]
+        },
+        {
+            "code": "MM2514602",
+            "name": "Metode Inspeksi",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000169"
+                }
+            ]
+        },
+        {
+            "code": "MM2514603",
+            "name": "Perlakuan Panas",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000156"
+                }
+            ]
+        },
+        {
+            "code": "MM2514604",
+            "name": "Analisis Kegagalan",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000170"
+                }
+            ]
+        },
+        {
+            "code": "MM2514605",
+            "name": "Manajemen Produksi dan Ekonomi Teknik",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000165"
+                }
+            ]
+        },
+        {
+            "code": "MM2514701",
+            "name": "Perancangan Proses dan Produk",
+            "sks": 4,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000158"
+                }
+            ]
+        },
+        {
+            "code": "MM2515201",
+            "name": "Keselamatan, kesehatan kerja dan lingkungan",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000165"
+                }
+            ]
+        },
+        {
+            "code": "MM2515202",
+            "name": "Sensor Elektrokimia",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000198"
+                }
+            ]
+        },
+        {
+            "code": "MM2515203",
+            "name": "Teknologi Serat",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000152"
+                }
+            ]
+        },
+        {
+            "code": "MM2515204",
+            "name": "Metalurgi Serbuk",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000161"
+                }
+            ]
+        },
+        {
+            "code": "MM2515205",
+            "name": "Keramik Fungsional",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000155"
+                }
+            ]
+        },
+        {
+            "code": "MM2515206",
+            "name": "Material Biokompatibel",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000161"
+                }
+            ]
+        },
+        {
+            "code": "MM2515208",
+            "name": "Material Kriogenik",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000156"
+                }
+            ]
+        },
+        {
+            "code": "MM2515209",
+            "name": "Teknologi Penyambungan Solder",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000156"
+                }
+            ]
+        },
+        {
+            "code": "MM2515210",
+            "name": "Material Berbasis Karbon",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000169"
+                }
+            ]
+        },
+        {
+            "code": "MM2515211",
+            "name": "Material Refraktori",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000161"
+                }
+            ]
+        },
+        {
+            "code": "MM2515212",
+            "name": "Polimer Hayati",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000167"
+                }
+            ]
+        },
+        {
+            "code": "MM2515213",
+            "name": "Kapita Selekta",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000158"
+                }
+            ]
+        },
+        {
+            "code": "MM2515301",
+            "name": "Ultrasonic Test",
             "sks": 3,
             "semester": 7,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011201"
+                    "lecturer_nip": "199001012020000163"
                 }
             ]
         },
         {
-            "code": "MM2514004",
-            "name": "Mata Kuliah Teknik Material dan Metalurgi 04",
-            "sks": 3,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011200"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011196"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011197"
-                }
-            ]
-        },
-        {
-            "code": "MM2514005",
-            "name": "Mata Kuliah Teknik Material dan Metalurgi 05",
-            "sks": 2,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011195"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011199"
-                }
-            ]
-        },
-        {
-            "code": "MM2514006",
-            "name": "Mata Kuliah Teknik Material dan Metalurgi 06",
-            "sks": 3,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011199"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011203"
-                }
-            ]
-        },
-        {
-            "code": "MM2514007",
-            "name": "Mata Kuliah Teknik Material dan Metalurgi 07",
-            "sks": 3,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011195"
-                }
-            ]
-        },
-        {
-            "code": "MM2514008",
-            "name": "Mata Kuliah Teknik Material dan Metalurgi 08",
-            "sks": 2,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011196"
-                }
-            ]
-        },
-        {
-            "code": "MM2514009",
-            "name": "Mata Kuliah Teknik Material dan Metalurgi 09",
-            "sks": 3,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011198"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011194"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011201"
-                }
-            ]
-        },
-        {
-            "code": "MM2514010",
-            "name": "Mata Kuliah Teknik Material dan Metalurgi 10",
-            "sks": 2,
-            "semester": 1,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011202"
-                }
-            ]
-        },
-        {
-            "code": "MM2514011",
-            "name": "Mata Kuliah Teknik Material dan Metalurgi 11",
-            "sks": 3,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011200"
-                }
-            ]
-        },
-        {
-            "code": "MM2514012",
-            "name": "Mata Kuliah Teknik Material dan Metalurgi 12",
-            "sks": 2,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011197"
-                }
-            ]
-        },
-        {
-            "code": "MM2514013",
-            "name": "Mata Kuliah Teknik Material dan Metalurgi 13",
-            "sks": 2,
-            "semester": 1,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011196"
-                }
-            ]
-        },
-        {
-            "code": "MM2514014",
-            "name": "Mata Kuliah Teknik Material dan Metalurgi 14",
-            "sks": 3,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011198"
-                }
-            ]
-        },
-        {
-            "code": "MM2514015",
-            "name": "Mata Kuliah Teknik Material dan Metalurgi 15",
-            "sks": 3,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011202"
-                }
-            ]
-        },
-        {
-            "code": "MM2514016",
-            "name": "Mata Kuliah Teknik Material dan Metalurgi 16",
-            "sks": 2,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011197"
-                }
-            ]
-        },
-        {
-            "code": "MM2514017",
-            "name": "Mata Kuliah Teknik Material dan Metalurgi 17",
-            "sks": 3,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011201"
-                }
-            ]
-        },
-        {
-            "code": "MM2514018",
-            "name": "Mata Kuliah Teknik Material dan Metalurgi 18",
-            "sks": 3,
-            "semester": 1,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011195"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011194"
-                }
-            ]
-        },
-        {
-            "code": "MM2514019",
-            "name": "Mata Kuliah Teknik Material dan Metalurgi 19",
+            "code": "MM2515302",
+            "name": "Teknologi Cor Lanjut",
             "sks": 3,
             "semester": 7,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011199"
+                    "lecturer_nip": "199001012020000163"
                 }
             ]
         },
         {
-            "code": "MM2514020",
-            "name": "Mata Kuliah Teknik Material dan Metalurgi 20",
-            "sks": 2,
-            "semester": 5,
+            "code": "MM2515303",
+            "name": "Baterai",
+            "sks": 3,
+            "semester": 7,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011200"
+                    "lecturer_nip": "199001012020000198"
                 }
             ]
         },
         {
-            "code": "MM2514021",
-            "name": "Mata Kuliah Teknik Material dan Metalurgi 21",
+            "code": "MM2515304",
+            "name": "Manufaktur Komposit",
+            "sks": 3,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000155"
+                }
+            ]
+        },
+        {
+            "code": "MM2515305",
+            "name": "Sistesis Keramik Maju",
+            "sks": 3,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000155"
+                }
+            ]
+        },
+        {
+            "code": "MM2515306",
+            "name": "Teknologi Pemrosesan Polimer",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000169"
+                }
+            ]
+        },
+        {
+            "code": "MM2515307",
+            "name": "Nanomaterial",
+            "sks": 3,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000152"
+                }
+            ]
+        },
+        {
+            "code": "MM2515308",
+            "name": "Pencegahan Korosi",
+            "sks": 3,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000170"
+                }
+            ]
+        },
+        {
+            "code": "MM2515309",
+            "name": "Teknologi Pelapisan",
+            "sks": 3,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000170"
+                }
+            ]
+        },
+        {
+            "code": "MM2515310",
+            "name": "Komputasi Terapan dalam Dinamika Fluida Material",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000158"
+                }
+            ]
+        },
+        {
+            "code": "MM2515311",
+            "name": "Material Cerdas",
+            "sks": 3,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000169"
+                }
+            ]
+        },
+        {
+            "code": "MM2515312",
+            "name": "Metalurgi Ekstraksi Lanjut",
+            "sks": 3,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000161"
+                }
+            ]
+        },
+        {
+            "code": "MM2515313",
+            "name": "Karakterisasi dan Teknologi Batu Bara",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000165"
+                }
+            ]
+        },
+        {
+            "code": "MM2517001",
+            "name": "Metodologi Penelitian",
             "sks": 2,
             "semester": 7,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011203"
-                }
-            ]
-        },
-        {
-            "code": "MM2514022",
-            "name": "Mata Kuliah Teknik Material dan Metalurgi 22",
-            "sks": 3,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011201"
+                    "lecturer_nip": "199001012020000198"
                 }
             ]
         }
     ],
-    "preferences": [
-        {
-            "lecturer_nip": "198001012010011195",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011195",
-            "constraint_code": "SC_HINDARI",
-            "day": 4,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011202",
-            "constraint_code": "SC_INGIN",
-            "day": 3,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011202",
-            "constraint_code": "SC_HINDARI",
-            "day": 5,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011202",
-            "constraint_code": "SC_HINDARI",
-            "day": 3,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011203",
-            "constraint_code": "SC_INGIN",
-            "day": 5,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011203",
-            "constraint_code": "SC_HINDARI",
-            "day": 2,
-            "session": 1
-        }
-    ]
+    "preferences": []
 }

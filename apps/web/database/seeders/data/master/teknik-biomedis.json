@@ -45,183 +45,187 @@
     "courses": [
         {
             "code": "TB2514001",
-            "name": "Mata Kuliah Teknik Biomedis 01",
+            "name": "Biologi",
             "sks": 3,
-            "semester": 5,
+            "semester": 1,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011114"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011122"
+                    "lecturer_nip": "198001012010011113"
                 }
             ]
         },
         {
             "code": "TB2514002",
-            "name": "Mata Kuliah Teknik Biomedis 02",
-            "sks": 2,
+            "name": "Aljabar Linear",
+            "sks": 3,
             "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011116"
+                    "lecturer_nip": "198001012010011114"
                 }
             ]
         },
         {
             "code": "TB2514003",
-            "name": "Mata Kuliah Teknik Biomedis 03",
+            "name": "Anatomi dan Fisiologi",
             "sks": 3,
-            "semester": 7,
+            "semester": 5,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011119"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011118"
+                    "lecturer_nip": "198001012010011115"
                 }
             ]
         },
         {
             "code": "TB2514004",
-            "name": "Mata Kuliah Teknik Biomedis 04",
+            "name": "Rangkaian Listrik",
             "sks": 3,
-            "semester": 5,
+            "semester": 7,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011113"
+                    "lecturer_nip": "198001012010011116"
                 }
             ]
         },
         {
             "code": "TB2514005",
-            "name": "Mata Kuliah Teknik Biomedis 05",
+            "name": "Rangkaian Digital",
             "sks": 3,
             "semester": 1,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011115"
+                    "lecturer_nip": "198001012010011117"
                 }
             ]
         },
         {
             "code": "TB2514006",
-            "name": "Mata Kuliah Teknik Biomedis 06",
-            "sks": 2,
-            "semester": 1,
+            "name": "Rangkaian Elektronika",
+            "sks": 3,
+            "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011121"
+                    "lecturer_nip": "198001012010011118"
                 }
             ]
         },
         {
             "code": "TB2514007",
-            "name": "Mata Kuliah Teknik Biomedis 07",
+            "name": "Biomekanika",
             "sks": 3,
             "semester": 5,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011120"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011117"
+                    "lecturer_nip": "198001012010011119"
                 }
             ]
         },
         {
             "code": "TB2514008",
-            "name": "Mata Kuliah Teknik Biomedis 08",
-            "sks": 2,
-            "semester": 3,
+            "name": "Sinyal dan Sistem",
+            "sks": 3,
+            "semester": 7,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011113"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011122"
+                    "lecturer_nip": "198001012010011120"
                 }
             ]
         },
         {
             "code": "TB2514009",
-            "name": "Mata Kuliah Teknik Biomedis 09",
-            "sks": 3,
-            "semester": 3,
+            "name": "Gambar Teknik",
+            "sks": 2,
+            "semester": 1,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011117"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011116"
+                    "lecturer_nip": "198001012010011121"
                 }
             ]
         },
         {
             "code": "TB2514010",
-            "name": "Mata Kuliah Teknik Biomedis 10",
-            "sks": 2,
-            "semester": 7,
+            "name": "Persamaan Diferensial",
+            "sks": 3,
+            "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011118"
+                    "lecturer_nip": "198001012010011122"
                 }
             ]
         },
         {
             "code": "TB2514011",
-            "name": "Mata Kuliah Teknik Biomedis 11",
+            "name": "Teknik Kendali",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "198001012010011113"
+                }
+            ]
+        },
+        {
+            "code": "TB2514012",
+            "name": "Biomaterial",
             "sks": 3,
             "semester": 7,
             "classes": [
                 {
                     "class_number": 1,
                     "lecturer_nip": "198001012010011114"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011119"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011120"
-                }
-            ]
-        },
-        {
-            "code": "TB2514012",
-            "name": "Mata Kuliah Teknik Biomedis 12",
-            "sks": 3,
-            "semester": 1,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011121"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011115"
                 }
             ]
         },
         {
             "code": "TB2514013",
-            "name": "Mata Kuliah Teknik Biomedis 13",
+            "name": "Metode Numerik",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "198001012010011115"
+                }
+            ]
+        },
+        {
+            "code": "TB2514014",
+            "name": "Sistem Tertanam",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "198001012010011116"
+                }
+            ]
+        },
+        {
+            "code": "TB2514015",
+            "name": "Pengolahan Sinyal Biomedis",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "198001012010011117"
+                }
+            ]
+        },
+        {
+            "code": "TB2514016",
+            "name": "Sistem Basis Data",
             "sks": 3,
             "semester": 7,
             "classes": [
@@ -232,44 +236,44 @@
             ]
         },
         {
-            "code": "TB2514014",
-            "name": "Mata Kuliah Teknik Biomedis 14",
-            "sks": 3,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011116"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011121"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011114"
-                }
-            ]
-        },
-        {
-            "code": "TB2514015",
-            "name": "Mata Kuliah Teknik Biomedis 15",
+            "code": "TB2514017",
+            "name": "Teknik Biomagnetika",
             "sks": 3,
             "semester": 1,
             "classes": [
                 {
                     "class_number": 1,
                     "lecturer_nip": "198001012010011119"
-                },
+                }
+            ]
+        },
+        {
+            "code": "TB2514018",
+            "name": "Instrumentasi Biomedis",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
                 {
-                    "class_number": 2,
+                    "class_number": 1,
                     "lecturer_nip": "198001012010011120"
                 }
             ]
         },
         {
-            "code": "TB2514016",
-            "name": "Mata Kuliah Teknik Biomedis 16",
+            "code": "TB2514019",
+            "name": "Penginderaan Medis",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "198001012010011121"
+                }
+            ]
+        },
+        {
+            "code": "TB2514020",
+            "name": "Teknologi Pencitraan Medis",
             "sks": 3,
             "semester": 7,
             "classes": [
@@ -280,54 +284,22 @@
             ]
         },
         {
-            "code": "TB2514017",
-            "name": "Mata Kuliah Teknik Biomedis 17",
-            "sks": 3,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011115"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011117"
-                }
-            ]
-        },
-        {
-            "code": "TB2514018",
-            "name": "Mata Kuliah Teknik Biomedis 18",
+            "code": "TB2514021",
+            "name": "Sistem Cerdas",
             "sks": 3,
             "semester": 1,
             "classes": [
                 {
                     "class_number": 1,
                     "lecturer_nip": "198001012010011113"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011121"
                 }
             ]
         },
         {
-            "code": "TB2514019",
-            "name": "Mata Kuliah Teknik Biomedis 19",
+            "code": "TB2514022",
+            "name": "Peralatan Medis Non-invasif",
             "sks": 3,
-            "semester": 1,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011117"
-                }
-            ]
-        },
-        {
-            "code": "TB2514020",
-            "name": "Mata Kuliah Teknik Biomedis 20",
-            "sks": 3,
-            "semester": 5,
+            "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
@@ -336,9 +308,57 @@
             ]
         },
         {
-            "code": "TB2514021",
-            "name": "Mata Kuliah Teknik Biomedis 21",
+            "code": "TB2514023",
+            "name": "Teknologi Asistif dan Welfare",
             "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "198001012010011115"
+                }
+            ]
+        },
+        {
+            "code": "TB2514024",
+            "name": "Telemedisin",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "198001012010011116"
+                }
+            ]
+        },
+        {
+            "code": "TB2514025",
+            "name": "Bioetika",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "198001012010011117"
+                }
+            ]
+        },
+        {
+            "code": "TB2514026",
+            "name": "Sistem Informasi Pusat Kesehatan Masyarakat",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "198001012010011118"
+                }
+            ]
+        },
+        {
+            "code": "TB2514027",
+            "name": "Teknik Rehabilitiasi",
+            "sks": 2,
             "semester": 5,
             "classes": [
                 {
@@ -348,14 +368,50 @@
             ]
         },
         {
-            "code": "TB2514022",
-            "name": "Mata Kuliah Teknik Biomedis 22",
-            "sks": 3,
-            "semester": 3,
+            "code": "TB2514028",
+            "name": "Proyek Teknik Biomedis 1",
+            "sks": 2,
+            "semester": 7,
             "classes": [
                 {
                     "class_number": 1,
                     "lecturer_nip": "198001012010011120"
+                }
+            ]
+        },
+        {
+            "code": "TB2514029",
+            "name": "Regulasi Alat Medis",
+            "sks": 2,
+            "semester": 1,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "198001012010011121"
+                }
+            ]
+        },
+        {
+            "code": "TB2514030",
+            "name": "Proyek Teknik Biomedis 2",
+            "sks": 4,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "198001012010011122"
+                }
+            ]
+        },
+        {
+            "code": "TB2516001",
+            "name": "Kerja Praktik",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "198001012010011113"
                 }
             ]
         }

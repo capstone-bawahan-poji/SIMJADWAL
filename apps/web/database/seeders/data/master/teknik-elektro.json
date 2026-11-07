@@ -71,7 +71,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011053"
+                    "lecturer_nip": "199001012020000229"
                 },
                 {
                     "class_number": 2,
@@ -258,7 +258,7 @@
         {
             "code": "TE2514018",
             "name": "Sistem Tertanam",
-            "sks": 3,
+            "sks": 2,
             "semester": 1,
             "classes": [
                 {
@@ -371,7 +371,7 @@
                 },
                 {
                     "class_number": 2,
-                    "lecturer_nip": "198001012010011053"
+                    "lecturer_nip": "199001012020000230"
                 }
             ]
         },
@@ -406,7 +406,7 @@
         {
             "code": "TE2514030",
             "name": "Sistem Energi Baru dan Terbarukan",
-            "sks": 3,
+            "sks": 2,
             "semester": 1,
             "classes": [
                 {

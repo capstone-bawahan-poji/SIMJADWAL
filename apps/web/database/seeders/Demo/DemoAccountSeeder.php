@@ -9,10 +9,6 @@ use App\Models\MasterData\StudyProgram;
 use App\Models\User;
 use Illuminate\Database\Seeder;
 
-/**
- * Demo accounts for testing and the thesis demo (DATABASE.md §10.8): one admin per faculty,
- * one admin per study program (email from the program prefix in data/master), one TPB admin, plus one student and one lecturer.
- */
 class DemoAccountSeeder extends Seeder
 {
     private const FACULTY_ABBREVIATIONS = [
@@ -35,13 +31,15 @@ class DemoAccountSeeder extends Seeder
             $this->account("admin.{$prefix}@example.test", "Admin {$program->name}", Role::STUDY_PROGRAM_ADMIN, ['study_program_id' => $program->id]);
         }
 
-        $this->account('admin.tpb@example.test', 'Admin TPB', Role::TPB_ADMIN);
-
         $informatics = StudyProgram::query()->where('name', 'Informatika')->firstOrFail();
-        $this->account('mahasiswa.if@example.test', 'Mahasiswa Informatika', Role::STUDENT, ['study_program_id' => $informatics->id]);
 
-        // First lecturer of data/master/informatika.json ("Dosen Informatika 01").
+        // First lecturer of data/master/informatika.json by NIP. dosen.if01 is their account, so the email-based one skips them.
         $lecturer = Lecturer::query()->where('study_program_id', $informatics->id)->orderBy('nip')->first();
+
+        $this->lecturerAccounts($lecturer?->id);
+
+        $this->account('admin.tpb@example.test', 'Admin TPB', Role::TPB_ADMIN);
+        $this->account('mahasiswa.if@example.test', 'Mahasiswa Informatika', Role::STUDENT, ['study_program_id' => $informatics->id]);
 
         if ($lecturer === null) {
             $this->command?->warn('No Informatika lecturer found, skipping dosen.if01@example.test. Add data/master/informatika.json.');
@@ -51,6 +49,29 @@ class DemoAccountSeeder extends Seeder
 
         $user = $this->account('dosen.if01@example.test', $lecturer->name, Role::LECTURER);
         $lecturer->update(['user_id' => $user->id]);
+    }
+
+    private function lecturerAccounts(?int $skipLecturerId): void
+    {
+        foreach (MasterDataSeeder::programs() as ['data' => $data]) {
+            foreach ($data['lecturers'] as $row) {
+                if (empty($row['email'])) {
+                    continue;
+                }
+
+                $lecturer = Lecturer::query()->where('nip', $row['nip'])->firstOrFail();
+
+                if ($lecturer->id === $skipLecturerId) {
+                    continue;
+                }
+
+                $user = $this->account($row['email'], $lecturer->name, Role::LECTURER);
+
+                if ($lecturer->user_id === null) {
+                    $lecturer->update(['user_id' => $user->id]);
+                }
+            }
+        }
     }
 
     /**

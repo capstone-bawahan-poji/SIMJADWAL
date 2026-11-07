@@ -2,442 +2,933 @@
     "prefix": "MS",
     "lecturers": [
         {
-            "nip": "198001012010011204",
-            "name": "Dosen Teknik Mesin 01"
+            "nip": "199001012020000171",
+            "name": "Alfian Djafar, S.T., M.T",
+            "email": "dosen_Alfian@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011205",
-            "name": "Dosen Teknik Mesin 02"
+            "nip": "199001012020000172",
+            "name": "Andi Idhil Ismail, S.T., M.Sc., Ph.D",
+            "email": "dosen_AndiIdhil@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011206",
-            "name": "Dosen Teknik Mesin 03"
+            "nip": "199001012020000173",
+            "name": "Andre Amba Matarru, S.T., M.Han",
+            "email": "andre.amba@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011207",
-            "name": "Dosen Teknik Mesin 04"
+            "nip": "199001012020000174",
+            "name": "Azhar Syafiq Putra, S.T., M.Eng.,",
+            "email": "dosen_Azhar@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011208",
-            "name": "Dosen Teknik Mesin 05"
+            "nip": "199001012020000175",
+            "name": "Chaerul Qalbi AM S.T., M.Sc.",
+            "email": "dosen_Chaerul@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011209",
-            "name": "Dosen Teknik Mesin 06"
+            "nip": "199001012020000176",
+            "name": "Chaerul Qalbi AM, S.T., M.Sc.",
+            "email": "chaerul.qalbi@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011210",
-            "name": "Dosen Teknik Mesin 07"
+            "nip": "199001012020000177",
+            "name": "Diniar Mungil Kurniawati, S.T., M.T.",
+            "email": "dosen_Diniar@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011211",
-            "name": "Dosen Teknik Mesin 08"
+            "nip": "199001012020000178",
+            "name": "Dr.Eng. Devy Setiorini Sa’adiyah, S.T., M.S.",
+            "email": "dosen_Devy@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011212",
-            "name": "Dosen Teknik Mesin 09"
+            "nip": "199001012020000179",
+            "name": "Faisal Manta, S.T., M.T.",
+            "email": "dosen_FaisalManta@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011213",
-            "name": "Dosen Teknik Mesin 10"
+            "nip": "199001012020000180",
+            "name": "Gad Gunawan S.T., M.T.",
+            "email": "dosen_Gad@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000181",
+            "name": "I Made Ivan Wiyarta Cakra Sujana, S.T., M.T",
+            "email": "dosen_Made@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000182",
+            "name": "Illa Rizianiza, S.T., M.T.",
+            "email": "dosen_Illa@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000183",
+            "name": "Ir. Alfian Djafar, S.T., M.T.",
+            "email": "alfian.djafar@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000184",
+            "name": "Ir. Doddy Suanggana, S.T., M.T",
+            "email": "doddy.suanggana@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000185",
+            "name": "Ir. Gad Gunawan, S.T., M.T.",
+            "email": "gad_gunawan@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000186",
+            "name": "Ir. Hadhimas Dwi Haryono, S.T., M.Eng",
+            "email": "hadhimas@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000187",
+            "name": "Kholiq Deliasgarin Radyantho, S.T., M.T.",
+            "email": "dosen_Kholiq@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000188",
+            "name": "Martina Puspita Sari, S.T., M.T.,",
+            "email": "dosen_Martina@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000189",
+            "name": "Muchammad Jamil, S.T., M.T.",
+            "email": "jamilo6@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000190",
+            "name": "Ridhwan Haliq, S.T., M.T.",
+            "email": "dosen_Ridhwan@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000191",
+            "name": "Rijal Surya Rahmany, S.T., M.T.",
+            "email": "dosen_Rijal@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000192",
+            "name": "Yongki Christandi Batubara, S.T., M.Eng",
+            "email": "dosen_Yongki@dosen.itk.ac.id"
         }
     ],
     "courses": [
         {
-            "code": "MS2514001",
-            "name": "Mata Kuliah Teknik Mesin 01",
-            "sks": 3,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011205"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011211"
-                }
-            ]
-        },
-        {
-            "code": "MS2514002",
-            "name": "Mata Kuliah Teknik Mesin 02",
-            "sks": 2,
-            "semester": 7,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011206"
-                }
-            ]
-        },
-        {
-            "code": "MS2514003",
-            "name": "Mata Kuliah Teknik Mesin 03",
-            "sks": 2,
-            "semester": 7,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011204"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011208"
-                }
-            ]
-        },
-        {
-            "code": "MS2514004",
-            "name": "Mata Kuliah Teknik Mesin 04",
+            "code": "TM2514101",
+            "name": "Aljabar Linier",
             "sks": 3,
             "semester": 1,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011212"
+                    "lecturer_nip": "199001012020000174"
                 }
             ]
         },
         {
-            "code": "MS2514005",
-            "name": "Mata Kuliah Teknik Mesin 05",
+            "code": "TM2514202",
+            "name": "Gambar Mesin",
+            "sks": 4,
+            "semester": 2,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000192"
+                }
+            ]
+        },
+        {
+            "code": "TM2514203",
+            "name": "Statika Struktur",
             "sks": 3,
-            "semester": 5,
+            "semester": 2,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011210"
+                    "lecturer_nip": "199001012020000191"
                 }
             ]
         },
         {
-            "code": "MS2514006",
-            "name": "Mata Kuliah Teknik Mesin 06",
-            "sks": 3,
-            "semester": 1,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011209"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011207"
-                }
-            ]
-        },
-        {
-            "code": "MS2514007",
-            "name": "Mata Kuliah Teknik Mesin 07",
-            "sks": 2,
-            "semester": 7,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011213"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011213"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011204"
-                }
-            ]
-        },
-        {
-            "code": "MS2514008",
-            "name": "Mata Kuliah Teknik Mesin 08",
-            "sks": 2,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011210"
-                }
-            ]
-        },
-        {
-            "code": "MS2514009",
-            "name": "Mata Kuliah Teknik Mesin 09",
-            "sks": 3,
-            "semester": 7,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011206"
-                }
-            ]
-        },
-        {
-            "code": "MS2514010",
-            "name": "Mata Kuliah Teknik Mesin 10",
-            "sks": 2,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011212"
-                }
-            ]
-        },
-        {
-            "code": "MS2514011",
-            "name": "Mata Kuliah Teknik Mesin 11",
-            "sks": 2,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011207"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011205"
-                }
-            ]
-        },
-        {
-            "code": "MS2514012",
-            "name": "Mata Kuliah Teknik Mesin 12",
-            "sks": 3,
-            "semester": 1,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011211"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011208"
-                }
-            ]
-        },
-        {
-            "code": "MS2514013",
-            "name": "Mata Kuliah Teknik Mesin 13",
-            "sks": 3,
-            "semester": 1,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011209"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011212"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011209"
-                }
-            ]
-        },
-        {
-            "code": "MS2514014",
-            "name": "Mata Kuliah Teknik Mesin 14",
+            "code": "TM2514304",
+            "name": "Biologi",
             "sks": 2,
             "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011208"
+                    "lecturer_nip": "199001012020000188"
                 }
             ]
         },
         {
-            "code": "MS2514015",
-            "name": "Mata Kuliah Teknik Mesin 15",
+            "code": "TM2514305",
+            "name": "Kinematika Mekanisme",
             "sks": 2,
-            "semester": 5,
+            "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011205"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011211"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011206"
+                    "lecturer_nip": "199001012020000171"
                 }
             ]
         },
         {
-            "code": "MS2514016",
-            "name": "Mata Kuliah Teknik Mesin 16",
-            "sks": 3,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011210"
-                }
-            ]
-        },
-        {
-            "code": "MS2514017",
-            "name": "Mata Kuliah Teknik Mesin 17",
-            "sks": 3,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011213"
-                }
-            ]
-        },
-        {
-            "code": "MS2514018",
-            "name": "Mata Kuliah Teknik Mesin 18",
-            "sks": 3,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011204"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011207"
-                }
-            ]
-        },
-        {
-            "code": "MS2514019",
-            "name": "Mata Kuliah Teknik Mesin 19",
+            "code": "TM2514306",
+            "name": "Matematika 3",
             "sks": 3,
             "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011209"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011207"
+                    "lecturer_nip": "199001012020000172"
                 }
             ]
         },
         {
-            "code": "MS2514020",
-            "name": "Mata Kuliah Teknik Mesin 20",
+            "code": "TM2514307",
+            "name": "Material Teknik 1",
             "sks": 3,
             "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011204"
+                    "lecturer_nip": "199001012020000179"
                 }
             ]
         },
         {
-            "code": "MS2514021",
-            "name": "Mata Kuliah Teknik Mesin 21",
+            "code": "TM2514308",
+            "name": "Mekanika Fluida 1",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000178"
+                }
+            ]
+        },
+        {
+            "code": "TM2514309",
+            "name": "Mekanika Kekuatan Material",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000191"
+                }
+            ]
+        },
+        {
+            "code": "TM2514310",
+            "name": "Statistika",
+            "sks": 2,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000182"
+                }
+            ]
+        },
+        {
+            "code": "TM2514311",
+            "name": "Termodinamika 1",
+            "sks": 3,
+            "semester": 3,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000175"
+                }
+            ]
+        },
+        {
+            "code": "TM2514412",
+            "name": "Dinamika Teknik",
+            "sks": 3,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000171"
+                }
+            ]
+        },
+        {
+            "code": "TM2514413",
+            "name": "Elemen Mesin 1",
+            "sks": 3,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000187"
+                }
+            ]
+        },
+        {
+            "code": "TM2514414",
+            "name": "Matematika 4",
+            "sks": 3,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000190"
+                }
+            ]
+        },
+        {
+            "code": "TM2514415",
+            "name": "Material Teknik 2",
+            "sks": 3,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000190"
+                }
+            ]
+        },
+        {
+            "code": "TM2514416",
+            "name": "Mekanika Fluida 2",
+            "sks": 3,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000178"
+                }
+            ]
+        },
+        {
+            "code": "TM2514417",
+            "name": "Perpindahan Kalor dan Massa 1",
+            "sks": 2,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000177"
+                }
+            ]
+        },
+        {
+            "code": "TM2514418",
+            "name": "Termodinamika 2",
+            "sks": 3,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000175"
+                }
+            ]
+        },
+        {
+            "code": "TM2514519",
+            "name": "Elemen Mesin 2",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000187"
+                }
+            ]
+        },
+        {
+            "code": "TM2514520",
+            "name": "Kesehatan dan Keselamatan Kerja",
             "sks": 2,
             "semester": 5,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011205"
+                    "lecturer_nip": "199001012020000190"
                 }
             ]
         },
         {
-            "code": "MS2514022",
-            "name": "Mata Kuliah Teknik Mesin 22",
+            "code": "TM2514521",
+            "name": "Getaran mekanik",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000171"
+                }
+            ]
+        },
+        {
+            "code": "TM2514522",
+            "name": "Metode Numerik",
             "sks": 2,
             "semester": 5,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011213"
+                    "lecturer_nip": "199001012020000182"
+                }
+            ]
+        },
+        {
+            "code": "TM2514523",
+            "name": "Pengukuran Teknik",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000181"
+                }
+            ]
+        },
+        {
+            "code": "TM2514524",
+            "name": "Perpindahan Kalor dan Massa 2",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000177"
+                }
+            ]
+        },
+        {
+            "code": "TM2514525",
+            "name": "Proses Manufaktur 1",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000181"
+                }
+            ]
+        },
+        {
+            "code": "TM2514526",
+            "name": "Teknik Tenaga Listrik",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000192"
+                }
+            ]
+        },
+        {
+            "code": "TM2514627",
+            "name": "Mekatronika",
+            "sks": 2,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000181"
+                }
+            ]
+        },
+        {
+            "code": "TM2514628",
+            "name": "Mesin Konversi Energi",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000180"
+                }
+            ]
+        },
+        {
+            "code": "TM2514629",
+            "name": "Metode Elemen Hingga",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000172"
+                }
+            ]
+        },
+        {
+            "code": "TM2514630",
+            "name": "Metodologi Penelitian",
+            "sks": 2,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000178"
+                }
+            ]
+        },
+        {
+            "code": "TM2514631",
+            "name": "Proses Manufaktur 2",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000181"
+                }
+            ]
+        },
+        {
+            "code": "TM2514632",
+            "name": "Sistem Dinamik dan Kendali",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000191"
+                }
+            ]
+        },
+        {
+            "code": "TM2514633",
+            "name": "Teknik dan Manajemen Perawatan",
+            "sks": 2,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000190"
+                }
+            ]
+        },
+        {
+            "code": "TM2514734",
+            "name": "Rancang Bangun Mesin",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000192"
+                }
+            ]
+        },
+        {
+            "code": "TM2515101",
+            "name": "Alat Berat",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000188"
+                }
+            ]
+        },
+        {
+            "code": "TM2515102",
+            "name": "Mekanisme Robot",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000171"
+                }
+            ]
+        },
+        {
+            "code": "TM2515103",
+            "name": "Metode matriks untuk analisis struktur",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000190"
+                }
+            ]
+        },
+        {
+            "code": "TM2515104",
+            "name": "Perancangan Sistem Mekanikal Bangunan Gedung",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000171"
+                }
+            ]
+        },
+        {
+            "code": "TM2515105",
+            "name": "Sistem Hidrolik dan Pneumatik",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000180"
+                }
+            ]
+        },
+        {
+            "code": "TM2515106",
+            "name": "Teknik Kendaraan",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000174"
+                }
+            ]
+        },
+        {
+            "code": "TM2515201",
+            "name": "Audit Energi",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000175"
+                }
+            ]
+        },
+        {
+            "code": "TM2515202",
+            "name": "Bahan Bakar dan Pembakaran",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000178"
+                }
+            ]
+        },
+        {
+            "code": "TM2515203",
+            "name": "Energi Baru dan TerbarukanÂ",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000177"
+                }
+            ]
+        },
+        {
+            "code": "TM2515204",
+            "name": "Komputasi Dinamika Fluida",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000180"
+                }
+            ]
+        },
+        {
+            "code": "TM2515205",
+            "name": "Motor Bakar",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000192"
+                }
+            ]
+        },
+        {
+            "code": "TM2515206",
+            "name": "Penukar Kalor",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000175"
+                }
+            ]
+        },
+        {
+            "code": "TM2515207",
+            "name": "Pompa dan Kompresor",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000178"
+                }
+            ]
+        },
+        {
+            "code": "TM2515208",
+            "name": "Sistem Pembangkit Tenaga Uap",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000175"
+                }
+            ]
+        },
+        {
+            "code": "TM2515209",
+            "name": "Teknik Pendingin",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000175"
+                }
+            ]
+        },
+        {
+            "code": "TM2515301",
+            "name": "Ekonomi Teknik",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000174"
+                }
+            ]
+        },
+        {
+            "code": "TM2515302",
+            "name": "Manajemen Operasional",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000179"
+                }
+            ]
+        },
+        {
+            "code": "TM2515303",
+            "name": "Mesin Perkakas",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000179"
+                }
+            ]
+        },
+        {
+            "code": "TM2515304",
+            "name": "Perancangan dan Perencanaan Produk",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000187"
+                }
+            ]
+        },
+        {
+            "code": "TM2515305",
+            "name": "Riset Operasi",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000187"
+                }
+            ]
+        },
+        {
+            "code": "TM2515306",
+            "name": "Teknik Pengecoran",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000179"
+                }
+            ]
+        },
+        {
+            "code": "TM2515307",
+            "name": "Teknik Pengelasan",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000179"
+                }
+            ]
+        },
+        {
+            "code": "TM2515401",
+            "name": "Korosi",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000172"
+                }
+            ]
+        },
+        {
+            "code": "TM2515402",
+            "name": "Logam Paduan",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000179"
+                }
+            ]
+        },
+        {
+            "code": "TM2515403",
+            "name": "Mekanika Patahan dan Kegagalan",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000172"
+                }
+            ]
+        },
+        {
+            "code": "TM2515404",
+            "name": "Pemilihan Bahan dan Proses",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000190"
+                }
+            ]
+        },
+        {
+            "code": "TM2515405",
+            "name": "Perlakuan Panas",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000190"
+                }
+            ]
+        },
+        {
+            "code": "TM2515501",
+            "name": "Kapita Selekta A",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000174"
+                }
+            ]
+        },
+        {
+            "code": "TM2515502",
+            "name": "Kapita Selekta B",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000178"
+                }
+            ]
+        },
+        {
+            "code": "TM2515503",
+            "name": "Kapita Selekta C",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000187"
+                }
+            ]
+        },
+        {
+            "code": "TM2515504",
+            "name": "Kapita Selekta D",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000190"
+                }
+            ]
+        },
+        {
+            "code": "TM2516701",
+            "name": "Kerja Praktik",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000180"
+                }
+            ]
+        },
+        {
+            "code": "TM2517701",
+            "name": "Proposal Tugas Akhir",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000180"
+                }
+            ]
+        },
+        {
+            "code": "TM2517802",
+            "name": "Tugas Akhir",
+            "sks": 4,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000180"
                 }
             ]
         }
     ],
-    "preferences": [
-        {
-            "lecturer_nip": "198001012010011206",
-            "constraint_code": "SC_INGIN",
-            "day": 3,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011206",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011206",
-            "constraint_code": "SC_INGIN",
-            "day": 4,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011209",
-            "constraint_code": "SC_INGIN",
-            "day": 5,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011209",
-            "constraint_code": "SC_INGIN",
-            "day": 4,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011209",
-            "constraint_code": "SC_INGIN",
-            "day": 3,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011210",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011210",
-            "constraint_code": "SC_INGIN",
-            "day": 4,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011211",
-            "constraint_code": "SC_INGIN",
-            "day": 1,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011211",
-            "constraint_code": "SC_HINDARI",
-            "day": 4,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011213",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011213",
-            "constraint_code": "SC_HINDARI",
-            "day": 4,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011213",
-            "constraint_code": "SC_HINDARI",
-            "day": 5,
-            "session": 4
-        }
-    ]
+    "preferences": []
 }

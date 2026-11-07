@@ -20,7 +20,7 @@ use RuntimeException;
  * Loads anonymized demo master data from database/seeders/data/master/{Str::slug(study program name)}.json:
  *
  *   prefix       two-letter program code, also used for admin account emails
- *   lecturers    [{nip, name}]
+ *   lecturers    [{nip, name, email?}] (email is only used by DemoAccountSeeder)
  *   courses      [{code, name, sks, semester, classes: [{class_number, lecturer_nip}]}]
  *   preferences  [{lecturer_nip, constraint_code, day, session}]
  *
