@@ -131,7 +131,7 @@ const maxWidthClass = computed(() => {
                         v-if="closeButton && closeable"
                         type="button"
                         aria-label="Tutup"
-                        class="absolute right-3 top-3 z-10 rounded-md p-1.5 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                        class="absolute right-3 top-3 z-10 rounded-md p-1.5 text-red-500 transition-colors hover:bg-red-50 hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
                         @click="close"
                     >
                         <X class="size-4" aria-hidden="true" />
