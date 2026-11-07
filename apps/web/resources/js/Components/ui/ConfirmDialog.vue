@@ -25,8 +25,8 @@ defineEmits<{ confirm: []; close: [] }>();
             <div class="text-sm text-gray-600"><slot /></div>
             <Alert v-if="error" title="Tidak dapat diproses">{{ error }}</Alert>
             <div class="flex justify-end gap-3 pt-2">
-                <Button variant="ghost" class="border border-gray-200" @click="$emit('close')">Batal</Button>
-                <Button :class="{ '!bg-red-600 !shadow-red-600/20 hover:!bg-red-700': danger }" :loading="processing" @click="$emit('confirm')">
+                <Button variant="secondary" @click="$emit('close')">Batal</Button>
+                <Button :variant="danger ? 'danger' : 'primary'" :loading="processing" @click="$emit('confirm')">
                     {{ confirmLabel }}
                 </Button>
             </div>

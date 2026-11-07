@@ -4,7 +4,7 @@ import AppLogo from '@/Components/shared/AppLogo.vue';
 import GlobalSearch from '@/Components/shared/GlobalSearch.vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import { initials, ROLE_LABELS } from '@/lib/labels';
-import { navFor, PORTAL_LABELS, PROFILE_ICON } from '@/lib/navigation';
+import { navFor, type NavItem, PORTAL_LABELS, PROFILE_ICON } from '@/lib/navigation';
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
@@ -14,8 +14,8 @@ const roleLabel = computed(() => (user.value?.role ? ROLE_LABELS[user.value.role
 const isSuperAdmin = computed(() => user.value?.role === 'superadmin');
 const sidebarOpen = ref(false);
 
-const navItems = computed(() => [
-    ...navFor(user.value?.role).map((item) => ({ ...item, href: item.href ?? route(item.routeName) })),
+const navItems = computed<NavItem[]>(() => [
+    ...navFor(user.value?.role).map((item) => (item.external ? item : { ...item, href: item.href ?? route(item.routeName) })),
     { label: 'Profil Saya', href: route('profile.edit'), routeName: 'profile.edit', icon: PROFILE_ICON },
 ]);
 
@@ -23,7 +23,11 @@ watch(() => page.url, () => {
     sidebarOpen.value = false;
 });
 
-function isActive(routeName: string, href?: string) {
+function isActive(item: NavItem) {
+    if (item.external) return false;
+
+    const { routeName, href } = item;
+
     try {
         if (!route().current(routeName)) return false;
         if (!href?.includes('?')) return true;
@@ -64,14 +68,16 @@ function isActive(routeName: string, href?: string) {
             </div>
 
             <nav class="flex-1 space-y-0.5 overflow-y-auto p-3" aria-label="Menu utama">
-                <Link
+                <component
+                    :is="item.external ? 'a' : Link"
                     v-for="item in navItems"
                     :key="item.label"
                     :href="item.href"
-                    :aria-current="isActive(item.routeName, item.href) ? 'page' : undefined"
+                    v-bind="item.external ? { target: '_blank', rel: 'noopener noreferrer' } : {}"
+                    :aria-current="isActive(item) ? 'page' : undefined"
                     :class="[
                         'flex items-center gap-3 rounded-lg px-3 py-2 text-sm transition-colors',
-                        isActive(item.routeName, item.href)
+                        isActive(item)
                             ? 'bg-gray-100 font-semibold text-gray-900'
                             : 'font-medium text-gray-600 hover:bg-gray-50 hover:text-gray-900',
                     ]"
@@ -79,7 +85,7 @@ function isActive(routeName: string, href?: string) {
                 >
                     <svg
                         class="h-5 w-5 shrink-0"
-                        :class="isActive(item.routeName) ? 'text-primary' : 'text-gray-400'"
+                        :class="isActive(item) ? 'text-primary' : 'text-gray-400'"
                         fill="none"
                         stroke="currentColor"
                         stroke-width="1.8"
@@ -88,7 +94,7 @@ function isActive(routeName: string, href?: string) {
                         v-html="item.icon"
                     />
                     {{ item.label }}
-                </Link>
+                </component>
             </nav>
 
             <div class="flex shrink-0 items-center gap-3 border-t border-gray-200 p-4">

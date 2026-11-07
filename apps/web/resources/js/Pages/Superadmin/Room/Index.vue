@@ -234,23 +234,9 @@ async function confirmDelete(): Promise<void> {
                                     </span>
                                 </td>
                                 <td class="px-6 py-4 text-center">
-                                    <div class="flex justify-center gap-3">
-                                        <button
-                                            v-if="room.can_update"
-                                            type="button"
-                                            class="text-sm font-medium text-gray-700 hover:text-primary hover:underline"
-                                            @click="openEdit(room)"
-                                        >
-                                            Edit
-                                        </button>
-                                        <button
-                                            v-if="room.can_delete"
-                                            type="button"
-                                            class="text-sm font-medium text-red-600 hover:underline"
-                                            @click="askDelete(room)"
-                                        >
-                                            Hapus
-                                        </button>
+                                    <div class="flex justify-center gap-2">
+                                        <Button v-if="room.can_update" variant="secondary" size="sm" @click="openEdit(room)">Edit</Button>
+                                        <Button v-if="room.can_delete" variant="danger" size="sm" @click="askDelete(room)">Hapus</Button>
                                     </div>
                                 </td>
                             </tr>
@@ -263,13 +249,10 @@ async function confirmDelete(): Promise<void> {
         </div>
 
         <!-- Create / Edit Modal -->
-        <Modal :show="isModalOpen" @close="isModalOpen = false" maxWidth="2xl">
-            <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-                <div>
-                    <h2 class="text-lg font-bold text-gray-900">{{ title }}</h2>
-                    <p class="text-sm text-gray-500">Ruangan tanpa fakultas pemilik dipakai bersama semua fakultas</p>
-                </div>
-                <button type="button" @click="isModalOpen = false" class="text-gray-400 hover:text-gray-900 transition">Tutup</button>
+        <Modal :show="isModalOpen" @close="isModalOpen = false" maxWidth="2xl" close-button>
+            <div class="border-b border-gray-200 py-4 pl-6 pr-14">
+                <h2 class="text-lg font-bold text-gray-900">{{ title }}</h2>
+                <p class="text-sm text-gray-500">Ruangan tanpa fakultas pemilik dipakai bersama semua fakultas</p>
             </div>
             <form @submit.prevent="save" class="p-6 space-y-6">
                 <Alert v-if="form.failure.value" :title="form.failure.value.message" />
@@ -312,7 +295,7 @@ async function confirmDelete(): Promise<void> {
                     <p v-if="form.errors.value.faculty_id" class="mt-1 text-xs text-red-600">{{ form.errors.value.faculty_id }}</p>
                 </div>
                 <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                    <Button type="button" @click="isModalOpen = false" variant="ghost" class="bg-gray-100 hover:bg-gray-200">Batal</Button>
+                    <Button type="button" @click="isModalOpen = false" variant="secondary">Batal</Button>
                     <Button type="submit" :loading="form.processing.value">Simpan Ruangan</Button>
                 </div>
             </form>

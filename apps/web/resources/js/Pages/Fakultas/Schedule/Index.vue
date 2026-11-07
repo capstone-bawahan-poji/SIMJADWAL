@@ -3,11 +3,12 @@ import Alert from '@/Components/ui/Alert.vue';
 import Card from '@/Components/ui/Card.vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { onResourcesChanged } from '@/composables/useResourceChanges';
+import { useSemesterOptions } from '@/composables/useSemesterOptions';
 import { api, toApiError, type ApiError } from '@/lib/api';
 import { formatTime } from '@/lib/labels';
 import type { AcademicPeriod, Collection, Schedule, StudyProgramSummary, TimeSlot } from '@/types/models';
-import { Head } from '@inertiajs/vue3';
-import { computed, onMounted, reactive, ref, watch } from 'vue';
+import { Head, usePage } from '@inertiajs/vue3';
+import { computed, onMounted, reactive, ref, toRef, watch } from 'vue';
 
 type ScheduleRow = Schedule['schedule_details'][number];
 
@@ -39,6 +40,14 @@ const referencesFailure = ref<ApiError | null>(null);
 const failure = ref<ApiError | null>(null);
 const initialized = ref(false);
 let scheduleRequest = 0;
+
+const page = usePage();
+const user = computed(() => page.props.auth.user);
+// "Periode berjalan" ('') resolves to the current period so its parity still applies.
+const semesterOptions = useSemesterOptions(
+    () => filters.period || periods.value.find((period) => period.is_current)?.code || '',
+    toRef(filters, 'semester'),
+);
 
 const days = computed(() => [...new Set(timeSlots.value.map((slot) => slot.day))].sort((a, b) => a - b));
 const visibleDays = computed(() => filters.day ? [Number(filters.day)] : days.value);
@@ -88,7 +97,10 @@ async function loadReferences(): Promise<void> {
     try {
         const [periodResponse, programResponse, slotResponse] = await Promise.all([
             api.get<Collection<AcademicPeriod>>('academic-periods'),
-            api.get<Collection<StudyProgramSummary>>('study-programs'),
+            // Faculty admins only pick from their own faculty; superadmin and TPB admins see every program.
+            api.get<Collection<StudyProgramSummary>>('study-programs', {
+                params: user.value.role === 'admin_fakultas' && user.value.faculty_id ? { faculty_id: user.value.faculty_id } : {},
+            }),
             api.get<Collection<TimeSlot>>('time-slots'),
         ]);
         periods.value = periodResponse.data.data;
@@ -179,7 +191,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details'], () => {
                         Semester
                         <select v-model="filters.semester" class="block" :class="fieldClass">
                             <option value="">Semua semester</option>
-                            <option v-for="semester in 14" :key="semester" :value="String(semester)">{{ semester }}</option>
+                            <option v-for="semester in semesterOptions" :key="semester" :value="String(semester)">{{ semester }}</option>
                         </select>
                     </label>
                     <label class="space-y-1 text-xs font-semibold text-gray-600">

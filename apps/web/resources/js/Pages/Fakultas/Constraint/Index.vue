@@ -173,22 +173,23 @@ async function act(action: 'accept' | 'return'): Promise<void> {
                                     {{ row.incomplete_courses_count }} <span class="font-normal text-gray-400">/ {{ row.courses_count }}</span>
                                 </td>
                                 <td class="whitespace-nowrap px-6 py-3.5 text-right">
-                                    <button
+                                    <Button
                                         v-if="row.constraint_status === 'submitted' && row.can_review"
                                         type="button"
-                                        class="rounded-md bg-primary px-3 py-1.5 text-sm font-semibold text-white hover:bg-primary-hover"
+                                        size="sm"
                                         @click="openReview(row)"
                                     >
                                         Review
-                                    </button>
-                                    <button
+                                    </Button>
+                                    <Button
                                         v-else
                                         type="button"
-                                        class="rounded-md border border-gray-200 px-3 py-1.5 text-sm font-medium text-gray-700 hover:border-primary hover:text-primary"
+                                        variant="secondary"
+                                        size="sm"
                                         @click="openReview(row)"
                                     >
                                         Lihat
-                                    </button>
+                                    </Button>
                                 </td>
                             </tr>
                         </tbody>
@@ -226,7 +227,7 @@ async function act(action: 'accept' | 'return'): Promise<void> {
                             />
                             <Button
                                 type="button"
-                                class="h-9 px-3 text-xs disabled:bg-gray-100 disabled:text-gray-400"
+                                size="sm"
                                 :disabled="!type.can_update || weightDrafts[type.id] === undefined"
                                 :loading="savingWeight === type.id"
                                 @click="saveWeight(type)"
@@ -239,23 +240,21 @@ async function act(action: 'accept' | 'return'): Promise<void> {
             </Panel>
         </div>
 
-        <Modal :show="reviewing !== null" max-width="2xl" @close="reviewing = null">
-            <div class="flex max-h-[85vh] flex-col">
-                <div class="flex items-center justify-between border-b border-gray-200 px-6 py-4">
-                    <div>
-                        <h2 class="text-lg font-bold text-gray-900">{{ reviewing?.name }}</h2>
-                        <p v-if="reviewing" class="text-sm text-gray-500">{{ STATUS_LABEL[reviewing.constraint_status] }} · Submit {{ formatDate(reviewing.constraint_submitted_at) }}</p>
-                    </div>
-                    <button type="button" class="text-gray-400 transition hover:text-gray-900" @click="reviewing = null">Tutup</button>
+        <Modal :show="reviewing !== null" max-width="5xl" close-button @close="reviewing = null">
+            <!-- 4.5rem = Modal.vue's py-6 + mb-6, so the panel never overflows the viewport (no outer scroll). -->
+            <div class="flex max-h-[calc(100vh-4.5rem)] flex-col">
+                <div class="shrink-0 border-b border-gray-200 py-4 pl-6 pr-14">
+                    <h2 class="text-lg font-bold text-gray-900">{{ reviewing?.name }}</h2>
+                    <p v-if="reviewing" class="text-sm text-gray-500">{{ STATUS_LABEL[reviewing.constraint_status] }} · Submit {{ formatDate(reviewing.constraint_submitted_at) }}</p>
                 </div>
 
-                <div class="space-y-4 overflow-y-auto p-6">
+                <div class="max-h-[75vh] min-h-0 space-y-4 overflow-y-auto p-6">
                     <Alert v-if="detailError" :title="detailError.message" />
                     <p v-if="detailLoading" class="text-sm text-gray-500">Memuat...</p>
                     <ConstraintPreview v-if="detail" :detail="detail" :constraint-types="detailTypes" :time-slots="timeSlots" />
                 </div>
 
-                <div v-if="reviewing?.can_review && ['submitted', 'accepted'].includes(reviewing.constraint_status)" class="space-y-3 border-t border-gray-200 p-6">
+                <div v-if="reviewing?.can_review && ['submitted', 'accepted'].includes(reviewing.constraint_status)" class="shrink-0 space-y-3 border-t border-gray-200 p-6">
                     <Alert v-if="actionError" :title="actionError" />
                     <div v-if="returning">
                         <label for="return-note" class="mb-1.5 block text-sm font-semibold text-gray-900">Alasan pengembalian</label>
@@ -270,11 +269,11 @@ async function act(action: 'accept' | 'return'): Promise<void> {
                     </div>
                     <div class="flex justify-end gap-3">
                         <template v-if="returning">
-                            <Button type="button" variant="ghost" class="bg-gray-100 hover:bg-gray-200" @click="returning = false">Batal</Button>
+                            <Button type="button" variant="secondary" @click="returning = false">Batal</Button>
                             <Button type="button" :loading="processing" :disabled="note.trim() === ''" @click="act('return')">Kembalikan ke Prodi</Button>
                         </template>
                         <template v-else>
-                            <Button type="button" variant="ghost" class="bg-gray-100 hover:bg-gray-200" @click="returning = true">Kembalikan</Button>
+                            <Button type="button" variant="secondary" @click="returning = true">Kembalikan</Button>
                             <Button v-if="reviewing.constraint_status === 'submitted'" type="button" :loading="processing" @click="act('accept')">Terima</Button>
                         </template>
                     </div>

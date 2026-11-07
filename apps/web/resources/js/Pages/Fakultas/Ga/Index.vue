@@ -339,7 +339,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
             <section v-if="compareBatchId">
                 <div class="mb-3 flex items-center justify-between">
                     <h2 class="text-base font-semibold text-gray-900">Perbandingan run dalam batch</h2>
-                    <button class="text-sm text-gray-500 hover:text-gray-900 hover:underline" @click="compareBatchId = null">Tutup</button>
+                    <Button variant="secondary" size="sm" @click="compareBatchId = null">Tutup</Button>
                 </div>
                 <p v-if="compareLoading" class="text-sm text-gray-500">Memuat perbandingan…</p>
                 <div v-else class="overflow-x-auto rounded-xl border border-gray-100 bg-white">

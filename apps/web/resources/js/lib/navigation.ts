@@ -1,12 +1,28 @@
 import type { Role } from '@/types';
 
-export interface NavItem {
+interface NavItemBase {
     label: string;
-    routeName: string;
-    href?: string;
     /** SVG inner markup (24x24 outline), rendered with v-html. */
     icon: string;
 }
+
+/** Internal page, navigated via Inertia. */
+export interface RouteNavItem extends NavItemBase {
+    routeName: string;
+    href?: string;
+    external?: false;
+}
+
+/** Link outside the app: opened in a new tab, never marked active. */
+export interface ExternalNavItem extends NavItemBase {
+    external: true;
+    href: string;
+    routeName?: never;
+}
+
+export type NavItem = RouteNavItem | ExternalNavItem;
+
+export const APP_RELEASES_URL = 'https://github.com/capstone-bawahan-poji/SIMJADWAL/releases';
 
 const icons = {
     dashboard: `<path d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z" stroke-linecap="round" stroke-linejoin="round"/>`,
@@ -19,15 +35,17 @@ const icons = {
     mapping: `<path d="M7.5 21L3 16.5m0 0L7.5 12M3 16.5h13.5m0-13.5L21 7.5m0 0L16.5 12M21 7.5H7.5" stroke-linecap="round" stroke-linejoin="round"/>`,
     sliders: `<path d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" stroke-linecap="round" stroke-linejoin="round"/>`,
     matrix: `<path d="M3.75 5.25h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5M7.5 5.25v13.5m9-13.5v13.5" stroke-linecap="round" stroke-linejoin="round"/>`,
+    download: `<path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" stroke-linecap="round" stroke-linejoin="round"/>`,
     bolt: `<path d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" stroke-linecap="round" stroke-linejoin="round"/>`,
 };
 
 const dashboard: NavItem = { label: 'Dashboard', routeName: 'dashboard', icon: icons.dashboard };
-const schedule: NavItem = { label: 'Jadwal Kuliah', routeName: 'schedule.index', icon: icons.matrix };
+const schedule: RouteNavItem = { label: 'Jadwal Kuliah', routeName: 'schedule.index', icon: icons.matrix };
+const downloadApp: ExternalNavItem = { label: 'Unduh Aplikasi', href: APP_RELEASES_URL, external: true, icon: icons.download };
 
 /**
  * Sidebar entries per role. Roles without a management area still get the shared schedule.
- * Every routeName must exist in routes/web.php.
+ * Every routeName must exist in routes/web.php (external items have none).
  */
 export const NAV_BY_ROLE: Partial<Record<Role, NavItem[]>> = {
     superadmin: [
@@ -37,6 +55,7 @@ export const NAV_BY_ROLE: Partial<Record<Role, NavItem[]>> = {
         { label: 'Data Fakultas & Prodi', routeName: 'superadmin.faculty-program.index', icon: icons.institution },
         { label: 'Data Ruangan', routeName: 'superadmin.rooms.index', icon: icons.room },
         { label: 'Data Jadwal', routeName: 'superadmin.slots.index', icon: icons.clock },
+        downloadApp,
     ],
     admin_prodi: [
         dashboard,
@@ -52,6 +71,7 @@ export const NAV_BY_ROLE: Partial<Record<Role, NavItem[]>> = {
         { label: 'Kelola Constraint', routeName: 'fakultas.constraints.index', icon: icons.sliders },
         { label: 'Penjadwalan GA', routeName: 'fakultas.ga.index', icon: icons.bolt },
         { label: 'Alokasi Ruangan', routeName: 'fakultas.rooms.index', icon: icons.room },
+        downloadApp,
     ],
     admin_tpb: [
         dashboard,
