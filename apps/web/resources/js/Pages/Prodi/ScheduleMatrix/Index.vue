@@ -6,12 +6,13 @@ import ScheduleOverrideModal from '@/Components/scheduling/ScheduleOverrideModal
 import LecturerPreferences from '@/Pages/Dosen/Preferences.vue';
 import { fetchAll } from '@/composables/useApiList';
 import { onResourcesChanged } from '@/composables/useResourceChanges';
+import { useSemesterOptions } from '@/composables/useSemesterOptions';
 import { api, toApiError, type ApiError } from '@/lib/api';
 import { formatTime } from '@/lib/labels';
 import type { AcademicPeriod, Collection, FacultySummary, Lecturer, Room, Schedule, ScheduleDetailBase, ScheduleExportFormat, StudyProgramSummary, TimeSlot } from '@/types/models';
 import { AxiosError } from 'axios';
 import { Head, usePage } from '@inertiajs/vue3';
-import { computed, onMounted, reactive, ref, watch } from 'vue';
+import { computed, onMounted, reactive, ref, toRef, watch } from 'vue';
 
 type ScheduleRow = Schedule['schedule_details'][number];
 type Filters = {
@@ -87,6 +88,11 @@ const failure = ref<ApiError | null>(null);
 const referencesFailure = ref<ApiError | null>(null);
 const overrideTarget = ref<ScheduleDetailBase | null>(null);
 let scheduleRequest = 0;
+// "Periode berjalan" ('') resolves to the current period so its parity still applies.
+const semesterOptions = useSemesterOptions(
+    () => filters.period || periods.value.find((period) => period.is_current)?.code || '',
+    toRef(filters, 'semester'),
+);
 
 const visiblePrograms = computed(() => programs.value.filter((program) => !filters.faculty_id || program.faculty_id === Number(filters.faculty_id)));
 const visibleLecturers = computed(() =>
@@ -541,7 +547,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details'], () => void loadSched
                         Semester
                         <select v-model="filters.semester" class="block" :class="fieldClass">
                             <option value="">Semua semester</option>
-                            <option v-for="semester in 14" :key="semester" :value="String(semester)">{{ semester }}</option>
+                            <option v-for="semester in semesterOptions" :key="semester" :value="String(semester)">{{ semester }}</option>
                         </select>
                     </label>
                     <label v-if="canChooseFaculty" class="space-y-1 text-xs font-semibold text-gray-600">
@@ -562,7 +568,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details'], () => void loadSched
                         Semester
                         <select v-model="filters.semester" class="block" :class="fieldClass">
                             <option value="">Semua semester</option>
-                            <option v-for="semester in 14" :key="semester" :value="String(semester)">{{ semester }}</option>
+                            <option v-for="semester in semesterOptions" :key="semester" :value="String(semester)">{{ semester }}</option>
                         </select>
                     </label>
                     <label v-if="!isStudent" class="space-y-1 text-xs font-semibold text-gray-600">

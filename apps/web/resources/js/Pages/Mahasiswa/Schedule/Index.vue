@@ -2,12 +2,13 @@
 import Alert from '@/Components/ui/Alert.vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { onResourcesChanged } from '@/composables/useResourceChanges';
+import { useSemesterOptions } from '@/composables/useSemesterOptions';
 import { api, toApiError, type ApiError } from '@/lib/api';
 import { formatTime } from '@/lib/labels';
 import type { AcademicPeriod, Collection, Schedule, ScheduleExportFormat, TimeSlot } from '@/types/models';
 import { AxiosError } from 'axios';
 import { Head, usePage } from '@inertiajs/vue3';
-import { computed, onMounted, reactive, ref, watch } from 'vue';
+import { computed, onMounted, reactive, ref, toRef, watch } from 'vue';
 
 type ScheduleRow = Schedule['schedule_details'][number];
 type CourseOption = {
@@ -47,6 +48,11 @@ const downloadFailure = ref<string | null>(null);
 const downloadingFormat = ref<ScheduleExportFormat | null>(null);
 const initialized = ref(false);
 let scheduleRequest = 0;
+// "Periode berjalan" ('') resolves to the current period so its parity still applies.
+const semesterOptions = useSemesterOptions(
+    () => filters.period || periods.value.find((period) => period.is_current)?.code || '',
+    toRef(filters, 'semester'),
+);
 
 const days = computed(() => [...new Set(timeSlots.value.map((slot) => slot.day))].sort((a, b) => a - b));
 const sessions = computed(() => [...new Set(timeSlots.value.map((slot) => slot.session))].sort((a, b) => a - b));
@@ -336,7 +342,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details'], () => {
                     Semester
                     <select v-model="filters.semester" class="block" :class="fieldClass">
                         <option value="">Semua semester</option>
-                        <option v-for="semester in 14" :key="semester" :value="String(semester)">Semester {{ semester }}</option>
+                        <option v-for="semester in semesterOptions" :key="semester" :value="String(semester)">Semester {{ semester }}</option>
                     </select>
                 </label>
             </div>
