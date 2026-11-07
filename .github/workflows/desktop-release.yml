@@ -97,7 +97,7 @@ jobs:
           releaseBody: |
             Installer SIMJADWAL Desktop.
             - Windows: unduh file `.msi` atau `-setup.exe`.
-            - macOS: unduh file `.dmg`. Aplikasi belum ditandatangani; buka lewat klik kanan > Open saat pertama kali dijalankan.
+            - macOS: unduh file `.dmg`, lalu pindahkan SIMJADWAL ke Applications. Aplikasi belum ditandatangani Apple, sehingga muncul peringatan "Not Opened" saat pertama kali dibuka. Klik Done, buka System Settings > Privacy & Security, lalu klik Open Anyway. Alternatif: jalankan `xattr -dr com.apple.quarantine /Applications/SIMJADWAL.app` di Terminal.
           releaseDraft: true
           prerelease: false
           args: ${{ matrix.args }}
