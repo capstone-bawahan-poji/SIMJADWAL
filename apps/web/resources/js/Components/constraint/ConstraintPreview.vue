@@ -101,17 +101,17 @@ const lecturers = computed(() => {
         </section>
 
         <section class="overflow-hidden rounded-lg border border-gray-200 bg-white">
-            <div class="flex flex-col gap-3 border-b border-gray-200 p-5 md:flex-row md:items-center md:justify-between">
-                <div>
+            <div class="flex flex-wrap items-center justify-between gap-x-6 gap-y-3 border-b border-gray-200 p-5">
+                <div class="min-w-0">
                     <h3 class="text-sm font-semibold text-gray-900">Preferensi waktu dosen</h3>
                     <p class="mt-0.5 text-sm text-gray-500">
                         Slot per hari:
-                        <span class="font-medium text-emerald-700">+ diinginkan</span>,
-                        <span class="font-medium text-red-600">− dihindari</span>.
+                        <span class="whitespace-nowrap font-medium text-emerald-700">+ diinginkan</span>,
+                        <span class="whitespace-nowrap font-medium text-red-600">− dihindari</span>.
                     </p>
                 </div>
-                <div class="flex flex-col gap-3 sm:flex-row sm:items-center">
-                    <label class="flex items-center gap-2 text-sm text-gray-600">
+                <div class="flex w-full flex-wrap items-center gap-x-4 gap-y-3 sm:w-auto">
+                    <label class="flex shrink-0 items-center gap-2 whitespace-nowrap text-sm text-gray-600">
                         <input v-model="hideEmpty" type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary" />
                         Sembunyikan yang belum mengisi
                     </label>
@@ -131,9 +131,9 @@ const lecturers = computed(() => {
                 <table class="w-full border-collapse text-left text-sm">
                     <thead>
                         <tr class="border-b border-gray-200 bg-gray-50 text-xs font-medium text-gray-500">
-                            <th class="px-6 py-3">Dosen</th>
-                            <th v-for="day in days" :key="day.day" class="px-3 py-3 text-center">{{ day.label }}</th>
-                            <th class="px-6 py-3 text-right">Total</th>
+                            <th class="min-w-[200px] px-6 py-3">Dosen</th>
+                            <th v-for="day in days" :key="day.day" class="whitespace-nowrap px-3 py-3 text-center">{{ day.label }}</th>
+                            <th class="whitespace-nowrap px-6 py-3 text-right">Total</th>
                         </tr>
                     </thead>
                     <tbody class="divide-y divide-gray-100">
@@ -142,7 +142,7 @@ const lecturers = computed(() => {
                                 <p class="font-semibold text-gray-900">{{ lecturer.name }}<span v-if="lecturer.title" class="font-normal text-gray-500">, {{ lecturer.title }}</span></p>
                                 <p class="text-xs tabular-nums text-gray-500">{{ lecturer.nip }}</p>
                             </td>
-                            <td v-for="cell in lecturer.perDay" :key="cell.label" class="px-3 py-3 text-center tabular-nums">
+                            <td v-for="cell in lecturer.perDay" :key="cell.label" class="whitespace-nowrap px-3 py-3 text-center tabular-nums">
                                 <template v-if="cell.want || cell.avoid">
                                     <span v-if="cell.want" class="font-medium text-emerald-700">+{{ cell.want }}</span>
                                     <span v-if="cell.avoid" class="ml-1.5 font-medium text-red-600">−{{ cell.avoid }}</span>

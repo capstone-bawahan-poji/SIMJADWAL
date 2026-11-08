@@ -2,504 +2,558 @@
     "prefix": "AR",
     "lecturers": [
         {
-            "nip": "198001012010011001",
-            "name": "Dosen Arsitektur 01"
+            "nip": "199001012020000001",
+            "name": "Andi Sahputra Depari, S.T., M.Arch.",
+            "email": "dosen_AndiSahputra@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011002",
-            "name": "Dosen Arsitektur 02"
+            "nip": "199001012020000002",
+            "name": "Ar. Muhammad Yogi Raditya, S.T., M.Eng., IAI",
+            "email": "yogi.raditya@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011003",
-            "name": "Dosen Arsitektur 03"
+            "nip": "199001012020000003",
+            "name": "Ar. Rizky Nur Rahman, S.Ars., M.Ars., IAI",
+            "email": "rizky.rahman@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011004",
-            "name": "Dosen Arsitektur 04"
+            "nip": "199001012020000004",
+            "name": "Claudia Olla Mandayu, S.Ars., M.Ars.",
+            "email": "dosen_Claudia@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011005",
-            "name": "Dosen Arsitektur 05"
+            "nip": "199001012020000005",
+            "name": "Denny Huldiansyah, S. T., M. Arch.",
+            "email": "dosen_Denny@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011006",
-            "name": "Dosen Arsitektur 06"
+            "nip": "199001012020000006",
+            "name": "Diah Oktaffenti, S.T., M.Ars.",
+            "email": "dosen_Diah@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011007",
-            "name": "Dosen Arsitektur 07"
+            "nip": "199001012020000007",
+            "name": "Ir. Andi Sahputra Depari, S.T., M.Arch.",
+            "email": "andi.sahputra@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011008",
-            "name": "Dosen Arsitektur 08"
+            "nip": "199001012020000008",
+            "name": "Ir. Denny Huldiansyah, S.T., M.Arch., IPP.",
+            "email": "denny.huldiansyah@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011009",
-            "name": "Dosen Arsitektur 09"
+            "nip": "199001012020000009",
+            "name": "Ir. Nadia Almira Jordan, S.T., M.T.",
+            "email": "nadiajordan@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011010",
-            "name": "Dosen Arsitektur 10"
+            "nip": "199001012020000010",
+            "name": "Ir. Rulliannor Syah Putra, S.T., M.Ars.",
+            "email": "rulliannor.syah@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000011",
+            "name": "Megan Afkasiga Ririhena, S.T., M.Arch.",
+            "email": "dosen_Megan@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000012",
+            "name": "Rizky Nur Rahman, M.Ars.",
+            "email": "dosen_Rizky@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000013",
+            "name": "Rulliannor Syah Putra, S.T., M.Ars.",
+            "email": "dosen_Rulliannor@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000014",
+            "name": "Sherlia S.T., M.Eng.",
+            "email": "dosen_Sherlia@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000015",
+            "name": "Sherlia, S.T., M.Eng.",
+            "email": "sherlia@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000016",
+            "name": "Sintia Kori Febriana, S.Ars., M.Ars.",
+            "email": "dosen_Sintia@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000017",
+            "name": "Tiara Rukmaya Dewi S.T., M.Sc.",
+            "email": "dosen_Tiara@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000018",
+            "name": "Tiara Rukmaya Dewi, S.T., M.Sc.",
+            "email": "tiararukmaya@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000019",
+            "name": "Zahrotur Rahmania Firliani, S.Ars., M.Ars.",
+            "email": "dosen_Zahrotur@dosen.itk.ac.id"
         }
     ],
     "courses": [
         {
-            "code": "AR2514001",
-            "name": "Mata Kuliah Arsitektur 01",
-            "sks": 2,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011005"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011009"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011001"
-                }
-            ]
-        },
-        {
             "code": "AR2514002",
-            "name": "Mata Kuliah Arsitektur 02",
-            "sks": 3,
-            "semester": 5,
+            "name": "Pengantar Teori dan Sejarah Arsitektur",
+            "sks": 2,
+            "semester": 1,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011008"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011006"
+                    "lecturer_nip": "199001012020000005"
                 }
             ]
         },
         {
             "code": "AR2514003",
-            "name": "Mata Kuliah Arsitektur 03",
+            "name": "Prinsip Desain Arsitektur",
             "sks": 2,
-            "semester": 5,
+            "semester": 1,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011002"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011010"
-                }
-            ]
-        },
-        {
-            "code": "AR2514004",
-            "name": "Mata Kuliah Arsitektur 04",
-            "sks": 3,
-            "semester": 7,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011004"
+                    "lecturer_nip": "199001012020000006"
                 }
             ]
         },
         {
             "code": "AR2514005",
-            "name": "Mata Kuliah Arsitektur 05",
+            "name": "Arsitektur Nusantara",
             "sks": 2,
-            "semester": 3,
+            "semester": 2,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011007"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011003"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011004"
+                    "lecturer_nip": "199001012020000005"
                 }
             ]
         },
         {
             "code": "AR2514006",
-            "name": "Mata Kuliah Arsitektur 06",
+            "name": "Metode Perancangan",
             "sks": 2,
-            "semester": 7,
+            "semester": 2,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011007"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011008"
+                    "lecturer_nip": "199001012020000014"
                 }
             ]
         },
         {
             "code": "AR2514007",
-            "name": "Mata Kuliah Arsitektur 07",
+            "name": "Desain Tapak",
             "sks": 3,
-            "semester": 3,
+            "semester": 2,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011003"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011010"
-                }
-            ]
-        },
-        {
-            "code": "AR2514008",
-            "name": "Mata Kuliah Arsitektur 08",
-            "sks": 2,
-            "semester": 7,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011006"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011002"
+                    "lecturer_nip": "199001012020000006"
                 }
             ]
         },
         {
             "code": "AR2514009",
-            "name": "Mata Kuliah Arsitektur 09",
+            "name": "Struktur dan Konstruksi Bangunan 1",
             "sks": 2,
             "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011009"
+                    "lecturer_nip": "199001012020000012"
                 }
             ]
         },
         {
             "code": "AR2514010",
-            "name": "Mata Kuliah Arsitektur 10",
-            "sks": 2,
-            "semester": 5,
+            "name": "Komputasi Desain",
+            "sks": 3,
+            "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011005"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011001"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011002"
+                    "lecturer_nip": "199001012020000001"
                 }
             ]
         },
         {
             "code": "AR2514011",
-            "name": "Mata Kuliah Arsitektur 11",
+            "name": "Fisika Bangunan",
             "sks": 3,
             "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011004"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011001"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011003"
+                    "lecturer_nip": "199001012020000011"
                 }
             ]
         },
         {
             "code": "AR2514012",
-            "name": "Mata Kuliah Arsitektur 12",
-            "sks": 3,
+            "name": "Sejarah dan Teori Arsitektur Global",
+            "sks": 2,
             "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011007"
+                    "lecturer_nip": "199001012020000014"
                 }
             ]
         },
         {
             "code": "AR2514013",
-            "name": "Mata Kuliah Arsitektur 13",
-            "sks": 2,
-            "semester": 1,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011008"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011005"
-                }
-            ]
-        },
-        {
-            "code": "AR2514014",
-            "name": "Mata Kuliah Arsitektur 14",
-            "sks": 2,
-            "semester": 5,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011010"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011006"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011009"
-                }
-            ]
-        },
-        {
-            "code": "AR2514015",
-            "name": "Mata Kuliah Arsitektur 15",
-            "sks": 2,
-            "semester": 1,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011001"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011002"
-                }
-            ]
-        },
-        {
-            "code": "AR2514016",
-            "name": "Mata Kuliah Arsitektur 16",
-            "sks": 3,
-            "semester": 1,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011009"
-                }
-            ]
-        },
-        {
-            "code": "AR2514017",
-            "name": "Mata Kuliah Arsitektur 17",
-            "sks": 2,
-            "semester": 7,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011008"
-                }
-            ]
-        },
-        {
-            "code": "AR2514018",
-            "name": "Mata Kuliah Arsitektur 18",
+            "name": "Dasar Perancangan Kota",
             "sks": 3,
             "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011007"
+                    "lecturer_nip": "199001012020000016"
+                }
+            ]
+        },
+        {
+            "code": "AR2514015",
+            "name": "Struktur dan Konstruksi Bangunan 2",
+            "sks": 2,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000012"
+                }
+            ]
+        },
+        {
+            "code": "AR2514016",
+            "name": "Adaptive Reuse",
+            "sks": 2,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000004"
+                }
+            ]
+        },
+        {
+            "code": "AR2514017",
+            "name": "Utilitas Bangunan",
+            "sks": 2,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000001"
+                }
+            ]
+        },
+        {
+            "code": "AR2514018",
+            "name": "Arsitektur Digital",
+            "sks": 3,
+            "semester": 4,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000001"
                 }
             ]
         },
         {
             "code": "AR2514019",
-            "name": "Mata Kuliah Arsitektur 19",
-            "sks": 2,
-            "semester": 7,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011005"
-                }
-            ]
-        },
-        {
-            "code": "AR2514020",
-            "name": "Mata Kuliah Arsitektur 20",
+            "name": "Perancangan Kota",
             "sks": 3,
-            "semester": 7,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011003"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011004"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011006"
+                    "lecturer_nip": "199001012020000014"
                 }
             ]
         },
         {
             "code": "AR2514021",
-            "name": "Mata Kuliah Arsitektur 21",
-            "sks": 2,
-            "semester": 7,
+            "name": "Tekno Ekonomi Bangunan",
+            "sks": 3,
+            "semester": 5,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011010"
+                    "lecturer_nip": "199001012020000012"
                 }
             ]
         },
         {
             "code": "AR2514022",
-            "name": "Mata Kuliah Arsitektur 22",
-            "sks": 3,
-            "semester": 1,
+            "name": "Building Information Modeling",
+            "sks": 2,
+            "semester": 5,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011004"
-                },
+                    "lecturer_nip": "199001012020000001"
+                }
+            ]
+        },
+        {
+            "code": "AR2514024",
+            "name": "Manajemen Proyek",
+            "sks": 2,
+            "semester": 6,
+            "classes": [
                 {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011009"
-                },
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000012"
+                }
+            ]
+        },
+        {
+            "code": "AR2514025",
+            "name": "Metodologi Penelitian",
+            "sks": 2,
+            "semester": 6,
+            "classes": [
                 {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011006"
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000005"
+                }
+            ]
+        },
+        {
+            "code": "AR2514026",
+            "name": "Metodologi Perancangan",
+            "sks": 2,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000005"
+                }
+            ]
+        },
+        {
+            "code": "AR2514027",
+            "name": "Simulasi Sains Arsitektur",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000011"
+                }
+            ]
+        },
+        {
+            "code": "AR2514029",
+            "name": "Perilaku dan Lingkungan Binaan",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000016"
+                }
+            ]
+        },
+        {
+            "code": "AR2514030",
+            "name": "Etika Profesi dan Pranata Pembangunan",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000017"
+                }
+            ]
+        },
+        {
+            "code": "AR2515001",
+            "name": "Bangunan Pintar",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000001"
+                }
+            ]
+        },
+        {
+            "code": "AR2515002",
+            "name": "Evaluasi Bangunan Hijau",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000001"
+                }
+            ]
+        },
+        {
+            "code": "AR2515003",
+            "name": "Arsitektur Bangunan Industri",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000001"
+                }
+            ]
+        },
+        {
+            "code": "AR2515004",
+            "name": "Material Maju",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000001"
+                }
+            ]
+        },
+        {
+            "code": "AR2515005",
+            "name": "Pengantar Real Estate",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000013"
+                }
+            ]
+        },
+        {
+            "code": "AR2515007",
+            "name": "Ekologi Lingkungan Perkotaan",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000013"
+                }
+            ]
+        },
+        {
+            "code": "AR2515008",
+            "name": "Urban Redevelopment",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000001"
+                }
+            ]
+        },
+        {
+            "code": "AR2515009",
+            "name": "Space Syntax dalam Arsitektur",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000014"
+                }
+            ]
+        },
+        {
+            "code": "AR2515010",
+            "name": "Interior Bangunan",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000006"
+                }
+            ]
+        },
+        {
+            "code": "AR2515012",
+            "name": "Fotografi Arsitektur",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000005"
+                }
+            ]
+        },
+        {
+            "code": "AR2515014",
+            "name": "Kritik Arsitektur",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000005"
+                }
+            ]
+        },
+        {
+            "code": "AR2515015",
+            "name": "Arsitektur Lanskap",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000005"
+                }
+            ]
+        },
+        {
+            "code": "AR2515016",
+            "name": "Arsitektur Tepian Air",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000017"
+                }
+            ]
+        },
+        {
+            "code": "AR2515017",
+            "name": "Health and Wellbeing Architecture",
+            "sks": 2,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000017"
+                }
+            ]
+        },
+        {
+            "code": "AR2515019",
+            "name": "Arsitektur Tradisional Kalimantan Timur",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000005"
                 }
             ]
         }
     ],
-    "preferences": [
-        {
-            "lecturer_nip": "198001012010011001",
-            "constraint_code": "SC_INGIN",
-            "day": 5,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011001",
-            "constraint_code": "SC_HINDARI",
-            "day": 4,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011001",
-            "constraint_code": "SC_HINDARI",
-            "day": 4,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011003",
-            "constraint_code": "SC_INGIN",
-            "day": 5,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011003",
-            "constraint_code": "SC_INGIN",
-            "day": 1,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011003",
-            "constraint_code": "SC_INGIN",
-            "day": 3,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011003",
-            "constraint_code": "SC_HINDARI",
-            "day": 3,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011004",
-            "constraint_code": "SC_INGIN",
-            "day": 4,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011004",
-            "constraint_code": "SC_HINDARI",
-            "day": 3,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011005",
-            "constraint_code": "SC_INGIN",
-            "day": 4,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011005",
-            "constraint_code": "SC_HINDARI",
-            "day": 3,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011007",
-            "constraint_code": "SC_INGIN",
-            "day": 5,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011007",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011007",
-            "constraint_code": "SC_HINDARI",
-            "day": 1,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011008",
-            "constraint_code": "SC_INGIN",
-            "day": 3,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011008",
-            "constraint_code": "SC_INGIN",
-            "day": 1,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011008",
-            "constraint_code": "SC_INGIN",
-            "day": 1,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011010",
-            "constraint_code": "SC_INGIN",
-            "day": 5,
-            "session": 4
-        }
-    ]
+    "preferences": []
 }

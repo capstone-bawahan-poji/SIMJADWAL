@@ -2,432 +2,742 @@
     "prefix": "PW",
     "lecturers": [
         {
-            "nip": "198001012010011071",
-            "name": "Dosen Perencanaan Wilayah dan Kota 01"
+            "nip": "199001012020000033",
+            "name": "Achmad Ghozali, S.T., M.T.",
+            "email": "ghozali@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011072",
-            "name": "Dosen Perencanaan Wilayah dan Kota 02"
+            "nip": "199001012020000034",
+            "name": "Ajeng Nugrahaning Dewanti, S.T., M.T., M.Sc.",
+            "email": "ajengnd@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011073",
-            "name": "Dosen Perencanaan Wilayah dan Kota 03"
+            "nip": "199001012020000035",
+            "name": "Ariyaningsih, S.T., M.T., M.Sc., P.hD.",
+            "email": "dosen_Ariyaningsih@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011074",
-            "name": "Dosen Perencanaan Wilayah dan Kota 04"
+            "nip": "199001012020000036",
+            "name": "Bimo Aji Widyantoro, S.T., M.Eng.",
+            "email": "dosen_Bimo@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011075",
-            "name": "Dosen Perencanaan Wilayah dan Kota 05"
+            "nip": "199001012020000037",
+            "name": "Devi Triwidya Sitaresmi, S.T., M.T.",
+            "email": "dsitaresmi@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011076",
-            "name": "Dosen Perencanaan Wilayah dan Kota 06"
+            "nip": "199001012020000038",
+            "name": "Dhyah Puspita Dewi, S.T., M.P.W.K.",
+            "email": "dosen_Dhyah@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011077",
-            "name": "Dosen Perencanaan Wilayah dan Kota 07"
+            "nip": "199001012020000039",
+            "name": "Dr. Devi Triwidya Sitaresmi S.T., M.T.",
+            "email": "dosen_Devi@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011078",
-            "name": "Dosen Perencanaan Wilayah dan Kota 08"
+            "nip": "199001012020000040",
+            "name": "Dr. Eng. Arief Hidayat",
+            "email": "dosen_Arief_Hidayat@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011079",
-            "name": "Dosen Perencanaan Wilayah dan Kota 09"
+            "nip": "199001012020000041",
+            "name": "Dwiana Novianti Tufail, S.T., M.T.",
+            "email": "dwianatufail@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011080",
-            "name": "Dosen Perencanaan Wilayah dan Kota 10"
+            "nip": "199001012020000042",
+            "name": "Dwinsani Pratiwi Astha, S.T., M.T.",
+            "email": "dwinsani.pratiwi@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000043",
+            "name": "Elin Diyah Syafitri, S.T., M.Sc.",
+            "email": "dosen_Elin@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000044",
+            "name": "Fathiyah Rahmi Hidayat, S.T., M.P.W.K.",
+            "email": "dosen_Fathiyah@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000045",
+            "name": "Ir. Bimo Aji Widyantoro, S.T., M.Eng.",
+            "email": "bimo.widyantoro@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000046",
+            "name": "Ir. Rahmat Aris Pratomo, S.T., M.T., M.Sc., IPM.",
+            "email": "dosen_Rahmat@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000047",
+            "name": "Kaulika Anjani Putri, S.T., M.P.W.K.",
+            "email": "kaulika.putri@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000048",
+            "name": "Khairi Ahza Hail Keliwar, M.P.W.K.",
+            "email": "dosen_Khairi@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000049",
+            "name": "Khairunnisa Adhar, S.T., M.Sc.",
+            "email": "dosen_Khairunnisa@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000050",
+            "name": "Maryo Inri Pratama, S.T., M.T.",
+            "email": "dosen_Maryo@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000051",
+            "name": "Mega Ulimaz, S.T., M.T.",
+            "email": "megaulimaz@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000052",
+            "name": "Mohtana Kharisma Kadri S.T.,M.Eng.",
+            "email": "dosen_Mohtana@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000053",
+            "name": "Mohtana Kharisma Kadri, S.T., M.Eng.",
+            "email": "mohtana.kharisma@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000054",
+            "name": "Rizky Arif Nugroho, S.T., M.T.",
+            "email": "arif.rizky@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000055",
+            "name": "Sarah Membala, S.Ars., M.URP.",
+            "email": "dosen_Sarah@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000056",
+            "name": "Srirahadita Pamungkas, S.T., M.T.",
+            "email": "dosen_Srirahadita@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000057",
+            "name": "Umar Mustofa S.Pd., M.Sc.",
+            "email": "dosen_Umar@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000058",
+            "name": "Umar Mustofa, M.Sc.",
+            "email": "umar.mustofa@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000059",
+            "name": "Ummu Kultsum Muhammad, M.P.W.K",
+            "email": "dosen_Ummu@dosen.itk.ac.id"
         }
     ],
     "courses": [
         {
             "code": "PW2514001",
-            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 01",
+            "name": "Pengantar Perencanaan Wilayah dan Kota",
             "sks": 3,
-            "semester": 3,
+            "semester": 1,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011073"
+                    "lecturer_nip": "199001012020000049"
                 }
             ]
         },
         {
             "code": "PW2514002",
-            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 02",
+            "name": "Sosial dan Demografi",
             "sks": 2,
-            "semester": 3,
+            "semester": 1,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011077"
+                    "lecturer_nip": "199001012020000039"
                 }
             ]
         },
         {
             "code": "PW2514003",
-            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 03",
-            "sks": 2,
-            "semester": 7,
+            "name": "Pengantar Presentasi dan Data Spasial",
+            "sks": 3,
+            "semester": 1,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011074"
+                    "lecturer_nip": "199001012020000056"
                 }
             ]
         },
         {
             "code": "PW2514004",
-            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 04",
-            "sks": 3,
-            "semester": 5,
+            "name": "Perumahan dan Permukiman",
+            "sks": 2,
+            "semester": 2,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011071"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011079"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011072"
+                    "lecturer_nip": "199001012020000049"
                 }
             ]
         },
         {
             "code": "PW2514005",
-            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 05",
+            "name": "Teori Perencanaan",
             "sks": 2,
-            "semester": 3,
+            "semester": 2,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011075"
+                    "lecturer_nip": "199001012020000048"
                 }
             ]
         },
         {
             "code": "PW2514006",
-            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 06",
-            "sks": 2,
-            "semester": 3,
+            "name": "Sistem Infrastruktur",
+            "sks": 3,
+            "semester": 2,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011078"
+                    "lecturer_nip": "199001012020000044"
                 }
             ]
         },
         {
             "code": "PW2514007",
-            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 07",
-            "sks": 3,
-            "semester": 1,
+            "name": "Pengembangan Masyarakat",
+            "sks": 2,
+            "semester": 2,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011076"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011080"
+                    "lecturer_nip": "199001012020000043"
                 }
             ]
         },
         {
             "code": "PW2514008",
-            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 08",
-            "sks": 2,
-            "semester": 7,
+            "name": "Analisis Data Spasial",
+            "sks": 3,
+            "semester": 2,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011077"
+                    "lecturer_nip": "199001012020000057"
                 }
             ]
         },
         {
             "code": "PW2514009",
-            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 09",
+            "name": "Ekonomi Wilayah dan Kota",
             "sks": 3,
-            "semester": 1,
+            "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011080"
+                    "lecturer_nip": "199001012020000043"
                 }
             ]
         },
         {
             "code": "PW2514010",
-            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 10",
+            "name": "Teknik Analisis Perencanaan",
             "sks": 3,
-            "semester": 7,
+            "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011079"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011076"
+                    "lecturer_nip": "199001012020000046"
                 }
             ]
         },
         {
             "code": "PW2514011",
-            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 11",
-            "sks": 2,
+            "name": "Pola Lokasi dan Guna Lahan",
+            "sks": 3,
             "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011073"
+                    "lecturer_nip": "199001012020000052"
                 }
             ]
         },
         {
             "code": "PW2514012",
-            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 12",
-            "sks": 2,
-            "semester": 1,
+            "name": "Studio Proses Perencanaan",
+            "sks": 4,
+            "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011074"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011075"
+                    "lecturer_nip": "199001012020000038"
                 }
             ]
         },
         {
             "code": "PW2514013",
-            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 13",
-            "sks": 2,
-            "semester": 7,
+            "name": "Perencanaan Kota",
+            "sks": 3,
+            "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011078"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011071"
+                    "lecturer_nip": "199001012020000052"
                 }
             ]
         },
         {
             "code": "PW2514014",
-            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 14",
-            "sks": 3,
-            "semester": 5,
+            "name": "Perencanaan Kota Tangguh",
+            "sks": 2,
+            "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011072"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011073"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011075"
+                    "lecturer_nip": "199001012020000057"
                 }
             ]
         },
         {
             "code": "PW2514015",
-            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 15",
+            "name": "Rancang Kota",
             "sks": 2,
-            "semester": 1,
+            "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011077"
+                    "lecturer_nip": "199001012020000055"
                 }
             ]
         },
         {
             "code": "PW2514016",
-            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 16",
+            "name": "Sistem Transportasi",
             "sks": 3,
-            "semester": 7,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011079"
-                }
-            ]
-        },
-        {
-            "code": "PW2514017",
-            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 17",
-            "sks": 2,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "198001012010011072"
+                    "lecturer_nip": "199001012020000040"
                 }
             ]
         },
         {
             "code": "PW2514018",
-            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 18",
-            "sks": 2,
-            "semester": 7,
+            "name": "Perencanaan Wilayah",
+            "sks": 3,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011080"
+                    "lecturer_nip": "199001012020000044"
                 }
             ]
         },
         {
             "code": "PW2514019",
-            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 19",
-            "sks": 2,
-            "semester": 5,
+            "name": "Perencanaan Tapak",
+            "sks": 3,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011078"
+                    "lecturer_nip": "199001012020000055"
                 }
             ]
         },
         {
             "code": "PW2514020",
-            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 20",
+            "name": "Perencanaan Pariwisata",
             "sks": 2,
-            "semester": 3,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011071"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011074"
+                    "lecturer_nip": "199001012020000043"
                 }
             ]
         },
         {
             "code": "PW2514021",
-            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 21",
-            "sks": 2,
+            "name": "Perencanaan Transportasi",
+            "sks": 3,
             "semester": 5,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011076"
+                    "lecturer_nip": "199001012020000040"
                 }
             ]
         },
         {
-            "code": "PW2514022",
-            "name": "Mata Kuliah Perencanaan Wilayah dan Kota 22",
+            "code": "PW2514023",
+            "name": "Perencanaan Pesisir",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000050"
+                }
+            ]
+        },
+        {
+            "code": "PW2514024",
+            "name": "Perencanaan Infrastruktur dan Permukiman",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000043"
+                }
+            ]
+        },
+        {
+            "code": "PW2514025",
+            "name": "Perancangan Kawasan",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000055"
+                }
+            ]
+        },
+        {
+            "code": "PW2514026",
+            "name": "Metode Penelitian",
+            "sks": 3,
+            "semester": 5,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000035"
+                }
+            ]
+        },
+        {
+            "code": "PW2514027",
+            "name": "Hukum Perencanaan",
+            "sks": 2,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000036"
+                }
+            ]
+        },
+        {
+            "code": "PW2514031",
+            "name": "Pembiayaan Pembangunan",
+            "sks": 2,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000050"
+                }
+            ]
+        },
+        {
+            "code": "PW2514032",
+            "name": "Pembangunan Berkelanjutan",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000046"
+                }
+            ]
+        },
+        {
+            "code": "PW2514033",
+            "name": "Perencanaan Lingkungan Hidup Strategis",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000036"
+                }
+            ]
+        },
+        {
+            "code": "PW2514034",
+            "name": "Pengendalian Pembangunan",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000036"
+                }
+            ]
+        },
+        {
+            "code": "PW2514035",
+            "name": "Seminar",
+            "sks": 4,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000043"
+                }
+            ]
+        },
+        {
+            "code": "PW2514036",
+            "name": "Evaluasi Perencanaan",
+            "sks": 3,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000044"
+                }
+            ]
+        },
+        {
+            "code": "PW2515001",
+            "name": "Pembangunan Ekonomi Pedesaan",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000044"
+                }
+            ]
+        },
+        {
+            "code": "PW2515002",
+            "name": "Pembangunan Kawasan Perbatasan",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000052"
+                }
+            ]
+        },
+        {
+            "code": "PW2515003",
+            "name": "Pengelolaan Wilayah Pesisir Terpadu",
             "sks": 2,
             "semester": 7,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011076"
+                    "lecturer_nip": "199001012020000050"
+                }
+            ]
+        },
+        {
+            "code": "PW2515004",
+            "name": "Interaksi Desa Kota",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000046"
+                }
+            ]
+        },
+        {
+            "code": "PW2515005",
+            "name": "Smart Urban Mobility",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000048"
+                }
+            ]
+        },
+        {
+            "code": "PW2515006",
+            "name": "Manajemen Transportasi Publik",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000040"
+                }
+            ]
+        },
+        {
+            "code": "PW2515007",
+            "name": "Permodelan Transportasi",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000040"
+                }
+            ]
+        },
+        {
+            "code": "PW2515008",
+            "name": "Pemodelan Wilayah dan Kota",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000036"
+                }
+            ]
+        },
+        {
+            "code": "PW2515009",
+            "name": "Pendekatan Sistem",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000049"
+                }
+            ]
+        },
+        {
+            "code": "PW2515010",
+            "name": "Infrastruktur Tangguh dan Berkelanjutan",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000038"
+                }
+            ]
+        },
+        {
+            "code": "PW2515011",
+            "name": "Pengembangan Kota Cerdas",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000059"
+                }
+            ]
+        },
+        {
+            "code": "PW2515012",
+            "name": "Pengembangan Kota Baru",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000046"
+                }
+            ]
+        },
+        {
+            "code": "PW2515013",
+            "name": "Kampung Kota",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000039"
+                }
+            ]
+        },
+        {
+            "code": "PW2515014",
+            "name": "Manajemen Resiko Bencana",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000035"
+                }
+            ]
+        },
+        {
+            "code": "PW2515016",
+            "name": "Remote Sensing untuk Perencanaan Spasial",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000056"
+                }
+            ]
+        },
+        {
+            "code": "PW2515017",
+            "name": "Pengembangan Spasial berbasis Internet dan Web-GIS",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000036"
+                }
+            ]
+        },
+        {
+            "code": "PW2515018",
+            "name": "Analisis Big Data untuk Perencanaan",
+            "sks": 2,
+            "semester": 8,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000036"
+                }
+            ]
+        },
+        {
+            "code": "PW2515019",
+            "name": "Manajemen Sektor Publik",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000052"
+                }
+            ]
+        },
+        {
+            "code": "PW2515020",
+            "name": "Sosiologi Perkotaan",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000055"
                 }
             ]
         }
     ],
-    "preferences": [
-        {
-            "lecturer_nip": "198001012010011071",
-            "constraint_code": "SC_INGIN",
-            "day": 3,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011071",
-            "constraint_code": "SC_HINDARI",
-            "day": 1,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011071",
-            "constraint_code": "SC_HINDARI",
-            "day": 2,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011073",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011073",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011073",
-            "constraint_code": "SC_INGIN",
-            "day": 4,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011073",
-            "constraint_code": "SC_HINDARI",
-            "day": 4,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011076",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011076",
-            "constraint_code": "SC_INGIN",
-            "day": 3,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011078",
-            "constraint_code": "SC_INGIN",
-            "day": 1,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011078",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011080",
-            "constraint_code": "SC_INGIN",
-            "day": 4,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011080",
-            "constraint_code": "SC_INGIN",
-            "day": 4,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011080",
-            "constraint_code": "SC_HINDARI",
-            "day": 3,
-            "session": 2
-        }
-    ]
+    "preferences": []
 }

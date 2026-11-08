@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import InputError from '@/Components/InputError.vue';
 import InputLabel from '@/Components/InputLabel.vue';
-import PrimaryButton from '@/Components/PrimaryButton.vue';
+import Button from '@/Components/ui/Button.vue';
 import TextInput from '@/Components/TextInput.vue';
 import { useForm, usePage } from '@inertiajs/vue3';
 
@@ -65,7 +65,14 @@ const form = useForm({
             </div>
 
             <div class="flex items-center gap-4">
-                <PrimaryButton :disabled="form.processing">Simpan</PrimaryButton>
+                <Button
+                    variant="primary"
+                    type="submit"
+                    :disabled="form.processing"
+                    :loading="form.processing"
+                >
+                    Simpan
+                </Button>
 
                 <Transition
                     enter-active-class="transition ease-in-out"

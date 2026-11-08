@@ -256,13 +256,12 @@ async function confirmDelete(): Promise<void> {
         </div>
 
         <!-- Create / Edit Modal -->
-        <Modal :show="isModalOpen" @close="isModalOpen = false" maxWidth="lg">
-            <div class="flex justify-between items-center p-6 border-b border-gray-100 bg-gray-50 rounded-t-lg">
+        <Modal :show="isModalOpen" @close="isModalOpen = false" maxWidth="lg" close-button>
+            <div class="flex justify-between items-center py-6 pl-6 pr-14 border-b border-gray-100 bg-gray-50 rounded-t-lg">
                 <div>
                     <h2 class="text-lg font-bold text-gray-900">{{ editing ? `Ubah Slot ${slotCode(editing)}` : 'Tambah Slot Waktu' }}</h2>
                     <p class="text-sm text-gray-500">Slot yang sudah dipakai preferensi, grup TPB, atau jadwal tidak dapat diubah</p>
                 </div>
-                <button type="button" @click="isModalOpen = false" class="text-gray-400 hover:text-gray-900 transition">Tutup</button>
             </div>
             <form @submit.prevent="save" class="p-6 space-y-6">
                 <Alert v-if="form.failure.value" :title="form.failure.value.message" />
@@ -302,7 +301,7 @@ async function confirmDelete(): Promise<void> {
                     <p v-if="form.errors.value.type" class="mt-1 text-xs text-red-600">{{ form.errors.value.type }}</p>
                 </div>
                 <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                    <Button type="button" @click="isModalOpen = false" variant="ghost" class="bg-gray-100 hover:bg-gray-200">Batal</Button>
+                    <Button type="button" @click="isModalOpen = false" variant="secondary">Batal</Button>
                     <Button type="submit" :loading="form.processing.value">Simpan Slot</Button>
                 </div>
             </form>

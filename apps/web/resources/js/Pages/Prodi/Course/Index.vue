@@ -177,8 +177,8 @@ async function confirmDelete(): Promise<void> {
                                 </td>
                                 <td v-if="hasActions" class="whitespace-nowrap px-6 py-3.5 text-right">
                                     <div class="flex justify-end gap-4">
-                                        <button v-if="course.can_update" type="button" class="font-medium text-gray-700 hover:text-primary hover:underline" @click="openEdit(course)">Edit</button>
-                                        <button v-if="course.can_delete" type="button" class="font-medium text-red-600 hover:underline" @click="askDelete(course)">Hapus</button>
+                                        <Button v-if="course.can_update" variant="secondary" size="sm" @click="openEdit(course)">Edit</Button>
+                                        <Button v-if="course.can_delete" variant="danger" size="sm" @click="askDelete(course)">Hapus</Button>
                                     </div>
                                 </td>
                             </tr>
@@ -190,10 +190,9 @@ async function confirmDelete(): Promise<void> {
             </Panel>
         </div>
 
-        <Modal :show="isModalOpen" max-width="2xl" @close="isModalOpen = false">
-            <div class="flex items-center justify-between rounded-t-lg border-b border-gray-100 bg-gray-50 p-6">
+        <Modal :show="isModalOpen" max-width="2xl" close-button @close="isModalOpen = false">
+            <div class="flex items-center justify-between rounded-t-lg border-b border-gray-100 bg-gray-50 py-6 pl-6 pr-14">
                 <h2 class="text-lg font-bold text-gray-900">{{ editing ? `Ubah Mata Kuliah ${editing.code}` : 'Tambah Mata Kuliah' }}</h2>
-                <button type="button" class="text-gray-400 transition hover:text-gray-900" @click="isModalOpen = false">Tutup</button>
             </div>
             <form class="space-y-6 p-6" @submit.prevent="save">
                 <Alert v-if="form.failure.value" :title="form.failure.value.message" />
@@ -239,7 +238,7 @@ async function confirmDelete(): Promise<void> {
                     </div>
                 </div>
                 <div class="flex justify-end gap-3 border-t border-gray-100 pt-4">
-                    <Button type="button" variant="ghost" class="bg-gray-100 hover:bg-gray-200" @click="isModalOpen = false">Batal</Button>
+                    <Button type="button" variant="secondary" @click="isModalOpen = false">Batal</Button>
                     <Button type="submit" :loading="form.processing.value">Simpan Mata Kuliah</Button>
                 </div>
             </form>

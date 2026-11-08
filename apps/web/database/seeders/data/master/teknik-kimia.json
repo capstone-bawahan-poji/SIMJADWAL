@@ -2,462 +2,825 @@
     "prefix": "TK",
     "lecturers": [
         {
-            "nip": "198001012010011164",
-            "name": "Dosen Teknik Kimia 01"
+            "nip": "199001012020000105",
+            "name": "Asful Hariyadi, S.T., M.Eng.",
+            "email": "dosen_Asful@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011165",
-            "name": "Dosen Teknik Kimia 02"
+            "nip": "199001012020000106",
+            "name": "Ashadi Sasongko, S.Si., M.Si.",
+            "email": "ashadisasongko@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011166",
-            "name": "Dosen Teknik Kimia 03"
+            "nip": "199001012020000107",
+            "name": "Bangkit Gotama, S.T., M.T., Ph.D",
+            "email": "dosen_Bangkit@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011167",
-            "name": "Dosen Teknik Kimia 04"
+            "nip": "199001012020000108",
+            "name": "Dr. Eng. Lusi Ernawati, M.Sc.",
+            "email": "dosen_Lusi@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011168",
-            "name": "Dosen Teknik Kimia 05"
+            "nip": "199001012020000109",
+            "name": "Dr. Eng. Rizqy Romadhona Ginting, S.T., M.T.",
+            "email": "dosen_Rizqy@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011169",
-            "name": "Dosen Teknik Kimia 06"
+            "nip": "199001012020000110",
+            "name": "Dr. Ir. Moch. Purwanto, S.Si., M.Si",
+            "email": "m.purwanto@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011170",
-            "name": "Dosen Teknik Kimia 07"
+            "nip": "199001012020000111",
+            "name": "Dr. Moch. Purwanto, S.Si., M.Si.",
+            "email": "dosen_Purwanto@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011171",
-            "name": "Dosen Teknik Kimia 08"
+            "nip": "199001012020000112",
+            "name": "Elizabeth D.C.S. , S.T., M.T.",
+            "email": "elizabeth.sidabutar@lecturer.itk.ac.id"
         },
         {
-            "nip": "198001012010011172",
-            "name": "Dosen Teknik Kimia 09"
+            "nip": "199001012020000113",
+            "name": "Elizabeth Desfelia Ciciolini Sidabutar, M.T.",
+            "email": "dosen_Elizabeth@dosen.itk.ac.id"
         },
         {
-            "nip": "198001012010011173",
-            "name": "Dosen Teknik Kimia 10"
+            "nip": "199001012020000114",
+            "name": "Fadhil Muhammad Tarmidzi, S.T., M.T.",
+            "email": "fadhil.tarmidzi@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000115",
+            "name": "Fika Dwi Oktavia, S.T., M.T.",
+            "email": "dosen_Fika@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000116",
+            "name": "Ir. Adrian Gunawan, M.Si.",
+            "email": "a.gunawan@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000117",
+            "name": "Ir. Asful Hariyadi, S.T., M.Eng., IPP",
+            "email": "asful.hariyadi@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000118",
+            "name": "Ir. Jefri Pandu Hidayat, S.T., M.T., IPP",
+            "email": "jefri.pandu@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000119",
+            "name": "Jefri Pandu Hidayat, S.T., M.T.",
+            "email": "dosen_Jefri@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000120",
+            "name": "Memik Dian Pusfitasari, ST., MT.",
+            "email": "dosen_Memik@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000121",
+            "name": "Mutia Reza, S.T., M.T.",
+            "email": "mutia.reza@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000122",
+            "name": "Nita Ariestiana Putri, S.T., M.Eng",
+            "email": "dosen_Nita@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000123",
+            "name": "Riza Alviany S.T., M.T.",
+            "email": "dosen_RizaAlviany@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000124",
+            "name": "Riza Alviany, S.T., M.T.",
+            "email": "rizaalviany@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000125",
+            "name": "Rizka Ayu Yuniar, S.T ., M.T.",
+            "email": "dosen_Rizka_Yuniar@dosen.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000126",
+            "name": "Rizka Lestari, S.T ., M.Eng.",
+            "email": "dosen_Rizka_Lestari@dosen.itk.ac.id"
         }
     ],
     "courses": [
         {
             "code": "TK2514001",
-            "name": "Mata Kuliah Teknik Kimia 01",
+            "name": "Pengantar Teknik Kimia",
             "sks": 3,
             "semester": 1,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011167"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011173"
+                    "lecturer_nip": "199001012020000113"
                 }
             ]
         },
         {
             "code": "TK2514002",
-            "name": "Mata Kuliah Teknik Kimia 02",
+            "name": "Kimia Analitik",
             "sks": 3,
-            "semester": 5,
+            "semester": 2,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011166"
+                    "lecturer_nip": "199001012020000125"
                 }
             ]
         },
         {
             "code": "TK2514003",
-            "name": "Mata Kuliah Teknik Kimia 03",
+            "name": "Kimia Fisika",
             "sks": 3,
-            "semester": 1,
+            "semester": 2,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011172"
+                    "lecturer_nip": "199001012020000122"
                 }
             ]
         },
         {
             "code": "TK2514004",
-            "name": "Mata Kuliah Teknik Kimia 04",
+            "name": "Neraca Massa",
             "sks": 3,
-            "semester": 7,
+            "semester": 2,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011164"
+                    "lecturer_nip": "199001012020000120"
                 }
             ]
         },
         {
             "code": "TK2514005",
-            "name": "Mata Kuliah Teknik Kimia 05",
-            "sks": 3,
-            "semester": 5,
+            "name": "Transfer Momentum",
+            "sks": 2,
+            "semester": 2,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011169"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011171"
+                    "lecturer_nip": "199001012020000126"
                 }
             ]
         },
         {
             "code": "TK2514006",
-            "name": "Mata Kuliah Teknik Kimia 06",
+            "name": "Kimia Organik",
             "sks": 3,
-            "semester": 5,
+            "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011170"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011168"
+                    "lecturer_nip": "199001012020000119"
                 }
             ]
         },
         {
             "code": "TK2514007",
-            "name": "Mata Kuliah Teknik Kimia 07",
+            "name": "Neraca Energi",
             "sks": 3,
-            "semester": 1,
+            "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011165"
+                    "lecturer_nip": "199001012020000105"
                 }
             ]
         },
         {
             "code": "TK2514008",
-            "name": "Mata Kuliah Teknik Kimia 08",
+            "name": "Termodinamika Teknik Kimia",
             "sks": 3,
             "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011173"
+                    "lecturer_nip": "199001012020000107"
                 }
             ]
         },
         {
             "code": "TK2514009",
-            "name": "Mata Kuliah Teknik Kimia 09",
+            "name": "Mekanika Fluida",
             "sks": 3,
             "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011171"
+                    "lecturer_nip": "199001012020000125"
                 }
             ]
         },
         {
             "code": "TK2514010",
-            "name": "Mata Kuliah Teknik Kimia 10",
-            "sks": 2,
-            "semester": 1,
+            "name": "Transfer Panas dan Massa",
+            "sks": 3,
+            "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011170"
+                    "lecturer_nip": "199001012020000115"
                 }
             ]
         },
         {
             "code": "TK2514011",
-            "name": "Mata Kuliah Teknik Kimia 11",
-            "sks": 3,
-            "semester": 7,
+            "name": "Petrokimia Bersih",
+            "sks": 2,
+            "semester": 3,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011166"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011164"
+                    "lecturer_nip": "199001012020000107"
                 }
             ]
         },
         {
             "code": "TK2514012",
-            "name": "Mata Kuliah Teknik Kimia 12",
-            "sks": 2,
-            "semester": 7,
+            "name": "Kesetimbangan Fasa",
+            "sks": 3,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011172"
+                    "lecturer_nip": "199001012020000109"
                 }
             ]
         },
         {
             "code": "TK2514013",
-            "name": "Mata Kuliah Teknik Kimia 13",
-            "sks": 2,
-            "semester": 1,
+            "name": "Teknik Reaksi Kimia Homogen",
+            "sks": 3,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011168"
+                    "lecturer_nip": "199001012020000113"
                 }
             ]
         },
         {
             "code": "TK2514014",
-            "name": "Mata Kuliah Teknik Kimia 14",
-            "sks": 2,
-            "semester": 7,
+            "name": "Matematika Teknik Kimia",
+            "sks": 4,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011165"
+                    "lecturer_nip": "199001012020000108"
                 }
             ]
         },
         {
             "code": "TK2514015",
-            "name": "Mata Kuliah Teknik Kimia 15",
-            "sks": 2,
-            "semester": 5,
+            "name": "Pengantar Pemrograman",
+            "sks": 3,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011169"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011167"
+                    "lecturer_nip": "199001012020000109"
                 }
             ]
         },
         {
             "code": "TK2514016",
-            "name": "Mata Kuliah Teknik Kimia 16",
+            "name": "Operasi Perpindahan Panas",
             "sks": 3,
-            "semester": 3,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011168"
+                    "lecturer_nip": "199001012020000105"
                 }
             ]
         },
         {
             "code": "TK2514017",
-            "name": "Mata Kuliah Teknik Kimia 17",
+            "name": "Operasi Zat Padat",
             "sks": 2,
-            "semester": 3,
+            "semester": 4,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011164"
-                },
-                {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011169"
-                },
-                {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011167"
+                    "lecturer_nip": "199001012020000119"
                 }
             ]
         },
         {
             "code": "TK2514018",
-            "name": "Mata Kuliah Teknik Kimia 18",
+            "name": "Teknik Reaksi Kimia Heterogen",
             "sks": 3,
             "semester": 5,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011172"
+                    "lecturer_nip": "199001012020000123"
                 }
             ]
         },
         {
             "code": "TK2514019",
-            "name": "Mata Kuliah Teknik Kimia 19",
-            "sks": 2,
+            "name": "Komputasi Numerik Terapan",
+            "sks": 3,
             "semester": 5,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011170"
+                    "lecturer_nip": "199001012020000123"
                 }
             ]
         },
         {
             "code": "TK2514020",
-            "name": "Mata Kuliah Teknik Kimia 20",
-            "sks": 3,
-            "semester": 7,
+            "name": "Operasi Pemisahan Bertingkat",
+            "sks": 4,
+            "semester": 5,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011171"
+                    "lecturer_nip": "199001012020000105"
                 }
             ]
         },
         {
             "code": "TK2514021",
-            "name": "Mata Kuliah Teknik Kimia 21",
+            "name": "Keselamatan Proses",
             "sks": 3,
             "semester": 5,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011166"
+                    "lecturer_nip": "199001012020000125"
                 }
             ]
         },
         {
             "code": "TK2514022",
-            "name": "Mata Kuliah Teknik Kimia 22",
+            "name": "Desain Alat Penukar Panas",
             "sks": 2,
-            "semester": 3,
+            "semester": 5,
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "198001012010011165"
-                },
+                    "lecturer_nip": "199001012020000115"
+                }
+            ]
+        },
+        {
+            "code": "TK2514023",
+            "name": "Material Konstruksi",
+            "sks": 2,
+            "semester": 5,
+            "classes": [
                 {
-                    "class_number": 2,
-                    "lecturer_nip": "198001012010011173"
-                },
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000111"
+                }
+            ]
+        },
+        {
+            "code": "TK2514024",
+            "name": "Metodologi Penelitian",
+            "sks": 2,
+            "semester": 6,
+            "classes": [
                 {
-                    "class_number": 3,
-                    "lecturer_nip": "198001012010011169"
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000111"
+                }
+            ]
+        },
+        {
+            "code": "TK2514025",
+            "name": "Desain Proses",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000126"
+                }
+            ]
+        },
+        {
+            "code": "TK2514026",
+            "name": "Bioproses",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000105"
+                }
+            ]
+        },
+        {
+            "code": "TK2514027",
+            "name": "Pengendalian Proses",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000123"
+                }
+            ]
+        },
+        {
+            "code": "TK2514028",
+            "name": "Utilitas Pabrik Kimia",
+            "sks": 3,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000113"
+                }
+            ]
+        },
+        {
+            "code": "TK2514029",
+            "name": "Manajemen Produksi dan Operasi",
+            "sks": 2,
+            "semester": 6,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000119"
+                }
+            ]
+        },
+        {
+            "code": "TK2514030",
+            "name": "Penelitian",
+            "sks": 4,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000122"
+                }
+            ]
+        },
+        {
+            "code": "TK2514031",
+            "name": "Desain Pabrik Kimia",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000107"
+                }
+            ]
+        },
+        {
+            "code": "TK2514032",
+            "name": "Ekonomi Teknik",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000119"
+                }
+            ]
+        },
+        {
+            "code": "TK2514033",
+            "name": "Desain Bejana Proses",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000105"
+                }
+            ]
+        },
+        {
+            "code": "TK2515001",
+            "name": "Manajemen dan Konservasi Energi",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000109"
+                }
+            ]
+        },
+        {
+            "code": "TK2515002",
+            "name": "Analisa Daur Hidup",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000126"
+                }
+            ]
+        },
+        {
+            "code": "TK2515003",
+            "name": "Teknologi Energi Maju",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000108"
+                }
+            ]
+        },
+        {
+            "code": "TK2515004",
+            "name": "Teknologi Pengolahan Bahan Alam",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000108"
+                }
+            ]
+        },
+        {
+            "code": "TK2515005",
+            "name": "Teknologi Material Maju",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000108"
+                }
+            ]
+        },
+        {
+            "code": "TK2515006",
+            "name": "Teknologi Superkritis",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000109"
+                }
+            ]
+        },
+        {
+            "code": "TK2515007",
+            "name": "Teknologi Membran",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000111"
+                }
+            ]
+        },
+        {
+            "code": "TK2515008",
+            "name": "Teknologi Partikel",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000108"
+                }
+            ]
+        },
+        {
+            "code": "TK2515009",
+            "name": "Teknologi Polimer",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000111"
+                }
+            ]
+        },
+        {
+            "code": "TK2515010",
+            "name": "Optimasi Proses",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000109"
+                }
+            ]
+        },
+        {
+            "code": "TK2515011",
+            "name": "Intensifikasi Proses",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000107"
+                }
+            ]
+        },
+        {
+            "code": "TK2515012",
+            "name": "Simulasi Proses Teknik Kimia",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000109"
+                }
+            ]
+        },
+        {
+            "code": "TK2515013",
+            "name": "Teknologi Konversi Batubara",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000105"
+                }
+            ]
+        },
+        {
+            "code": "TK2515014",
+            "name": "Teknologi Likuifaksi Gas Alam",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000122"
+                }
+            ]
+        },
+        {
+            "code": "TK2515015",
+            "name": "Teknologi Pengolahan Kelapa Sawit",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000119"
+                }
+            ]
+        },
+        {
+            "code": "TK2515016",
+            "name": "Teknologi Pengolahan Mineral",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000105"
+                }
+            ]
+        },
+        {
+            "code": "TK2515017",
+            "name": "Teknologi Pengolahan Minyak Bumi",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000122"
+                }
+            ]
+        },
+        {
+            "code": "TK2515018",
+            "name": "Teknologi Pengolahan Pangan",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000125"
+                }
+            ]
+        },
+        {
+            "code": "TK2515019",
+            "name": "Teknologi Pengolahan Oleokimia",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000119"
+                }
+            ]
+        },
+        {
+            "code": "TK2515020",
+            "name": "Teknologi Pengolahan Semen",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000125"
+                }
+            ]
+        },
+        {
+            "code": "TK2515021",
+            "name": "Pengendalian Pencemaran Air",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000108"
+                }
+            ]
+        },
+        {
+            "code": "TK2515022",
+            "name": "Pengendalian Pencemaran Udara",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000123"
+                }
+            ]
+        },
+        {
+            "code": "TK2515023",
+            "name": "Valorisasi Limbah Industri",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000115"
+                }
+            ]
+        },
+        {
+            "code": "TK2515024",
+            "name": "Pengembangan Bisnis Industri Kimia",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000119"
+                }
+            ]
+        },
+        {
+            "code": "TK2515025",
+            "name": "Kapita Selekta",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000126"
+                }
+            ]
+        },
+        {
+            "code": "TK2516001",
+            "name": "Kerja Praktik",
+            "sks": 2,
+            "semester": 7,
+            "classes": [
+                {
+                    "class_number": 1,
+                    "lecturer_nip": "199001012020000115"
                 }
             ]
         }
     ],
-    "preferences": [
-        {
-            "lecturer_nip": "198001012010011164",
-            "constraint_code": "SC_INGIN",
-            "day": 3,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011164",
-            "constraint_code": "SC_HINDARI",
-            "day": 3,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011164",
-            "constraint_code": "SC_HINDARI",
-            "day": 1,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011164",
-            "constraint_code": "SC_HINDARI",
-            "day": 3,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011164",
-            "constraint_code": "SC_HINDARI",
-            "day": 1,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011167",
-            "constraint_code": "SC_INGIN",
-            "day": 2,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011167",
-            "constraint_code": "SC_INGIN",
-            "day": 5,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011167",
-            "constraint_code": "SC_INGIN",
-            "day": 1,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011167",
-            "constraint_code": "SC_HINDARI",
-            "day": 1,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011168",
-            "constraint_code": "SC_INGIN",
-            "day": 3,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011168",
-            "constraint_code": "SC_INGIN",
-            "day": 4,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011168",
-            "constraint_code": "SC_HINDARI",
-            "day": 1,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011169",
-            "constraint_code": "SC_INGIN",
-            "day": 4,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011169",
-            "constraint_code": "SC_INGIN",
-            "day": 5,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011170",
-            "constraint_code": "SC_INGIN",
-            "day": 3,
-            "session": 4
-        },
-        {
-            "lecturer_nip": "198001012010011170",
-            "constraint_code": "SC_HINDARI",
-            "day": 2,
-            "session": 1
-        },
-        {
-            "lecturer_nip": "198001012010011172",
-            "constraint_code": "SC_INGIN",
-            "day": 1,
-            "session": 2
-        },
-        {
-            "lecturer_nip": "198001012010011172",
-            "constraint_code": "SC_HINDARI",
-            "day": 3,
-            "session": 3
-        },
-        {
-            "lecturer_nip": "198001012010011173",
-            "constraint_code": "SC_INGIN",
-            "day": 5,
-            "session": 3
-        }
-    ]
+    "preferences": []
 }

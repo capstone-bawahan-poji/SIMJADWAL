@@ -449,8 +449,8 @@ async function confirmDelete(): Promise<void> {
                                 <td class="px-6 py-3.5 text-right tabular-nums text-gray-700">{{ course.class_capacity }}</td>
                                 <td v-if="hasCourseActions" class="whitespace-nowrap px-6 py-3.5 text-right">
                                     <div class="flex justify-end gap-4">
-                                        <button v-if="course.can_update" type="button" class="font-medium text-gray-700 hover:text-primary hover:underline" @click="openEditCourse(course)">Edit</button>
-                                        <button v-if="course.can_delete" type="button" class="font-medium text-red-600 hover:underline" @click="askDeleteCourse(course)">Hapus</button>
+                                        <Button v-if="course.can_update" variant="secondary" size="sm" @click="openEditCourse(course)">Edit</Button>
+                                        <Button v-if="course.can_delete" variant="danger" size="sm" @click="askDeleteCourse(course)">Hapus</Button>
                                     </div>
                                 </td>
                             </tr>
@@ -561,8 +561,8 @@ async function confirmDelete(): Promise<void> {
                                 <td class="px-5 py-4 text-right tabular-nums text-gray-700">{{ group.course_lecturers_count }}</td>
                                 <td class="whitespace-nowrap px-5 py-4 text-right">
                                     <div class="flex justify-end gap-4">
-                                        <button v-if="group.can_update" type="button" class="font-medium text-gray-700 hover:text-primary hover:underline" @click="openEditGroup(group)">Edit</button>
-                                        <button v-if="group.can_delete" type="button" class="font-medium text-red-600 hover:underline" @click="askDeleteGroup(group)">Hapus</button>
+                                        <Button v-if="group.can_update" variant="secondary" size="sm" @click="openEditGroup(group)">Edit</Button>
+                                        <Button v-if="group.can_delete" variant="danger" size="sm" @click="askDeleteGroup(group)">Hapus</Button>
                                     </div>
                                 </td>
                             </tr>
@@ -574,10 +574,9 @@ async function confirmDelete(): Promise<void> {
             </Panel>
         </div>
 
-        <Modal :show="courseModalOpen" max-width="2xl" @close="courseModalOpen = false">
-            <div class="flex items-center justify-between rounded-t-lg border-b border-gray-100 bg-gray-50 p-6">
+        <Modal :show="courseModalOpen" max-width="2xl" close-button @close="courseModalOpen = false">
+            <div class="flex items-center justify-between rounded-t-lg border-b border-gray-100 bg-gray-50 py-6 pl-6 pr-14">
                 <h2 class="text-lg font-bold text-gray-900">{{ editingCourse ? `Ubah Mata Kuliah ${editingCourse.code}` : 'Tambah Mata Kuliah TPB' }}</h2>
-                <button type="button" class="text-gray-400 transition hover:text-gray-900" @click="courseModalOpen = false">Tutup</button>
             </div>
             <form class="space-y-6 p-6" @submit.prevent="saveCourse">
                 <Alert v-if="courseForm.failure.value" :title="courseForm.failure.value.message" />
@@ -606,16 +605,15 @@ async function confirmDelete(): Promise<void> {
                     </label>
                 </div>
                 <div class="flex justify-end gap-3 border-t border-gray-100 pt-4">
-                    <Button type="button" variant="ghost" class="bg-gray-100 hover:bg-gray-200" @click="courseModalOpen = false">Batal</Button>
+                    <Button type="button" variant="secondary" @click="courseModalOpen = false">Batal</Button>
                     <Button type="submit" :loading="courseForm.processing.value">Simpan Mata Kuliah</Button>
                 </div>
             </form>
         </Modal>
 
-        <Modal :show="groupModalOpen" max-width="2xl" @close="groupModalOpen = false">
-            <div class="flex items-center justify-between rounded-t-lg border-b border-gray-100 bg-gray-50 p-6">
+        <Modal :show="groupModalOpen" max-width="2xl" close-button @close="groupModalOpen = false">
+            <div class="flex items-center justify-between rounded-t-lg border-b border-gray-100 bg-gray-50 py-6 pl-6 pr-14">
                 <h2 class="text-lg font-bold text-gray-900">{{ editingGroup ? `Ubah Grup ${editingGroup.code}` : 'Tambah Grup TPB' }}</h2>
-                <button type="button" class="text-gray-400 transition hover:text-gray-900" @click="groupModalOpen = false">Tutup</button>
             </div>
             <form class="space-y-5 p-6" @submit.prevent="saveGroup">
                 <Alert v-if="groupForm.failure.value" :title="groupForm.failure.value.message" />
@@ -657,7 +655,7 @@ async function confirmDelete(): Promise<void> {
                     <template v-if="groupForm.failure.value.status === 422">Periksa jadwal bentrok pada slot atau program studi peserta.</template>
                 </Alert>
                 <div class="flex justify-end gap-3 border-t border-gray-100 pt-4">
-                    <Button type="button" variant="ghost" class="bg-gray-100 hover:bg-gray-200" @click="groupModalOpen = false">Batal</Button>
+                    <Button type="button" variant="secondary" @click="groupModalOpen = false">Batal</Button>
                     <Button type="submit" :loading="groupForm.processing.value" :disabled="studyPrograms.length === 0">Simpan Grup</Button>
                 </div>
             </form>
