@@ -10,12 +10,13 @@ use App\Models\MasterData\CourseLecturer;
 use App\Models\MasterData\Faculty;
 use App\Models\MasterData\Room;
 use App\Models\MasterData\TimeSlot;
+use App\Models\MasterData\TpbGroup;
 use App\Models\Scheduling\GaParameterPreset;
 use App\Models\Scheduling\ScheduleDetail;
 use App\Models\Scheduling\SchedulingRun;
 use App\Models\User;
-use App\Services\MasterData\TpbBlockService;
-use App\Services\Scheduling\Period;
+use App\Services\Scheduling\TpbBlockService;
+use App\Services\Scheduling\TpbRunResolver;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
@@ -25,6 +26,7 @@ use Illuminate\Support\Str;
  * from the desktop app. The schedules come from a seeded greedy placement, not from the GA, but
  * keep every hard constraint (lecturer, class, room, parallel limit, TPB slots).
  *
+ *   - TPB: one run, active and published. Faculties are scheduled against it.
  *   - FSTI: one batch of three runs. Run 1 is active and published, with one manual override.
  *   - FPB: one run, active but not published yet (visible to its faculty admin only).
  *
@@ -40,10 +42,14 @@ class SchedulingRunSeeder extends Seeder
     /** @var array<int, array<int, true>> slot => room_id, held by the active runs seeded so far */
     private array $activeRooms = [];
 
-    public function __construct(private readonly TpbBlockService $tpbBlocks) {}
+    public function __construct(
+        private readonly TpbBlockService $tpbBlocks,
+        private readonly TpbRunResolver $tpbRuns,
+    ) {}
 
     public function run(): void
     {
+        $this->seedTpb();
         $this->seedFaculty('Fakultas Sains dan Teknologi Informasi', runs: 3, publish: true);
         $this->seedFaculty('Fakultas Pembangunan Berkelanjutan', runs: 1, publish: false);
     }
@@ -58,6 +64,7 @@ class SchedulingRunSeeder extends Seeder
         $admin = User::query()->role(Role::FACULTY_ADMIN->value)->where('faculty_id', $faculty->id)->first()
             ?? User::query()->role(Role::SUPER_ADMIN->value)->firstOrFail();
         $preset = GaParameterPreset::query()->where('faculty_id', $faculty->id)->orderBy('id')->first();
+        $tpbRunId = $this->tpbRuns->active(self::PERIOD)?->id;
 
         $classes = CourseLecturer::query()
             ->with('course')
@@ -83,6 +90,7 @@ class SchedulingRunSeeder extends Seeder
                 'client_run_id' => (string) Str::uuid(),
                 'batch_id' => $batchId,
                 'faculty_id' => $faculty->id,
+                'tpb_run_id' => $tpbRunId,
                 'period' => self::PERIOD,
                 'preset_id' => $preset?->id,
                 'parameter_snapshot' => $this->snapshot($preset, $seed),
@@ -129,10 +137,10 @@ class SchedulingRunSeeder extends Seeder
         $slots = TimeSlot::query()->orderBy('day')->orderBy('session')->pluck('id')->all();
         $rooms = Room::query()->where(fn ($q) => $q->where('faculty_id', $faculty->id)->orWhereNull('faculty_id'))
             ->orderBy('capacity')->get(['id', 'capacity']);
-        $odd = Period::isOdd(self::PERIOD);
-        $blockedProgram = $this->tpbBlocks->blockedSlotsByStudyProgram($odd);
-        $blockedLecturer = $this->tpbBlocks->blockedSlotsByLecturer($odd);
-        $blockedRoom = $this->tpbBlocks->blockedSlotsByRoom($odd);
+        $blocks = $this->tpbBlocks->blocks(self::PERIOD);
+        $blockedProgram = $blocks['programs'];
+        $blockedLecturer = $blocks['lecturers'];
+        $blockedRoom = $blocks['rooms'];
 
         $takenLecturers = $this->activeLecturers;
         $takenRooms = $this->activeRooms;
@@ -158,7 +166,6 @@ class SchedulingRunSeeder extends Seeder
                     }
 
                     $room = $rooms->first(fn (Room $r) => $r->capacity >= $course->class_capacity
-                        && ($class->room_id === null || $class->room_id === $r->id)
                         && ! isset($takenRooms[$slot][$r->id])
                         && ! in_array($slot, $blockedRoom[$r->id] ?? [], true));
 
@@ -194,6 +201,101 @@ class SchedulingRunSeeder extends Seeder
         }
 
         return $details;
+    }
+
+    /**
+     * The TPB run: every group meeting in one slot shared by its classes, avoiding lecturer clashes
+     * and programs that would attend two regular groups of the same semester at once.
+     */
+    private function seedTpb(): void
+    {
+        if (SchedulingRun::query()->whereNull('faculty_id')->where('period', self::PERIOD)->exists()) {
+            return;
+        }
+        $groups = TpbGroup::query()
+            ->with(['offering.course', 'studyPrograms:id', 'courseLecturers'])
+            ->whereRelation('offering', 'period', self::PERIOD)
+            ->orderBy('id')
+            ->get();
+        if ($groups->isEmpty()) {
+            return;
+        }
+
+        $admin = User::query()->role(Role::TPB_ADMIN->value)->first() ?? User::query()->role(Role::SUPER_ADMIN->value)->firstOrFail();
+        $preset = GaParameterPreset::query()->whereNull('faculty_id')->orderBy('id')->first();
+        $seed = 12345;
+        mt_srand($seed);
+        $slots = TimeSlot::query()->orderBy('day')->orderBy('session')->pluck('id')->all();
+        $rooms = Room::query()->whereNull('faculty_id')->orderBy('capacity')->get(['id', 'capacity']);
+
+        $takenLecturers = $takenRooms = $cohorts = [];
+        $details = [];
+        foreach ($groups->shuffle($seed) as $group) {
+            $offering = $group->offering;
+            $regular = $group->cohort->isRegular();
+            foreach (range(1, $offering->course->sks === 4 ? 2 : 1) as $meeting) {
+                $order = $slots;
+                shuffle($order);
+                $slot = collect($order)->first(fn (int $slot) => $group->courseLecturers->every(fn (CourseLecturer $c) => ! isset($takenLecturers[$slot][$c->lecturer_id]))
+                    && (! $regular || $group->studyPrograms->every(fn ($p) => ! isset($cohorts[$slot]["{$p->id}:{$p->pivot->target_semester}"]))));
+                if ($slot === null) {
+                    $this->command?->warn("No free slot for TPB group {$offering->course->code} {$group->code}.");
+
+                    continue;
+                }
+
+                if ($regular) {
+                    $group->studyPrograms->each(function ($p) use (&$cohorts, $slot) {
+                        $cohorts[$slot]["{$p->id}:{$p->pivot->target_semester}"] = true;
+                    });
+                }
+                foreach ($group->courseLecturers as $class) {
+                    $room = $rooms->first(fn (Room $r) => $r->capacity >= $offering->class_capacity && ! isset($takenRooms[$slot][$r->id]));
+                    $takenLecturers[$slot][$class->lecturer_id] = true;
+                    if ($room !== null) {
+                        $takenRooms[$slot][$room->id] = true;
+                    }
+                    $details[] = [
+                        'course_id' => $offering->course_id,
+                        'class_number' => $class->class_number,
+                        'meeting_number' => $meeting,
+                        'lecturer_id' => $class->lecturer_id,
+                        'time_slot_id' => $slot,
+                        'room_id' => $room?->id,
+                    ];
+                }
+            }
+        }
+
+        $run = SchedulingRun::query()->create([
+            'client_run_id' => (string) Str::uuid(),
+            'batch_id' => (string) Str::uuid(),
+            'faculty_id' => null,
+            'period' => self::PERIOD,
+            'preset_id' => $preset?->id,
+            'parameter_snapshot' => $this->snapshot($preset, $seed),
+            'status' => RunStatus::DONE,
+            'current_generation' => 640,
+            'best_fitness' => 497,
+            'current_fitness' => 497,
+            'max_fitness' => 500,
+            'best_generation' => 431,
+            'fitness_history' => [420, 470, 490, 497],
+            'is_active' => true,
+            'triggered_by' => $admin->id,
+            'started_at' => now()->subHours(2),
+            'finished_at' => now()->subHours(2)->addSeconds(50),
+            'published_by' => $admin->id,
+            'published_at' => now()->subHour(),
+        ]);
+        foreach (array_chunk($details, 500) as $chunk) {
+            ScheduleDetail::query()->insert(array_map(fn (array $d) => ['scheduling_run_id' => $run->id, ...$d], $chunk));
+        }
+
+        // Lecturers and rooms of the TPB schedule are taken for every faculty.
+        $this->activeLecturers = $takenLecturers;
+        $this->activeRooms = $takenRooms;
+        $this->tpbRuns->forget();
     }
 
     private function parallelLimit(?GaParameterPreset $preset): int

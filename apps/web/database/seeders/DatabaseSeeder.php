@@ -4,7 +4,7 @@ namespace Database\Seeders;
 
 use Database\Seeders\Demo\DemoAccountSeeder;
 use Database\Seeders\Demo\MasterDataSeeder;
-use Database\Seeders\Demo\SchedulingRunSeeder;
+use Database\Seeders\Demo\TpbSeeder;
 use Database\Seeders\Reference\AcademicPeriodSeeder;
 use Database\Seeders\Reference\ConstraintTypeSeeder;
 use Database\Seeders\Reference\FacultyStudyProgramSeeder;
@@ -38,6 +38,7 @@ class DatabaseSeeder extends Seeder
         if (! app()->isProduction()) {
             $this->call([
                 MasterDataSeeder::class,
+                TpbSeeder::class,
                 DemoAccountSeeder::class,
             ]);
         }
