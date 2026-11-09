@@ -28,7 +28,6 @@ const { filters, items: lecturers, pagination, page, loading, error, reload } = 
 );
 
 const controlClass = 'rounded-lg border-gray-200 bg-white text-sm text-gray-700 focus:border-primary focus:ring-primary';
-const hasActions = computed(() => lecturers.value.some((lecturer) => lecturer.can_update || lecturer.can_delete));
 const flash = ref<string | null>(null);
 
 function fullName(lecturer: Lecturer): string {
@@ -102,15 +101,18 @@ async function confirmDelete(): Promise<void> {
 
     <AppLayout>
         <div class="w-full space-y-6 p-6 md:p-8">
-            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <header class="flex flex-wrap items-start justify-between gap-4">
                 <div>
                     <h1 class="text-2xl font-bold tracking-tight text-gray-900">Data Dosen</h1>
-                    <p class="mt-1 text-sm text-gray-500">Dosen prodi dan jumlah kelas yang diampu.</p>
+                    <p class="mt-1 text-sm text-gray-600">Kelola data dosen program studi.</p>
                 </div>
-                <Button type="button" :disabled="locked" @click="openCreate">Tambah Dosen</Button>
-            </div>
+                <div class="flex flex-wrap items-center gap-4">
+                    <ProgramLockBanner v-if="locked" :submission="submission" />
+                    <Button type="button" :disabled="locked" @click="openCreate">Tambah Dosen</Button>
+                </div>
+            </header>
 
-            <ProgramLockBanner :submission="submission" />
+            <ProgramLockBanner v-if="!locked" :submission="submission" />
             <Alert v-if="flash" variant="success" :title="flash" dismissible @dismiss="flash = null" />
 
             <Panel>
@@ -133,24 +135,26 @@ async function confirmDelete(): Promise<void> {
                             <tr class="border-b border-gray-200 bg-gray-50 text-xs font-semibold uppercase tracking-wide text-gray-500">
                                 <th class="px-6 py-3">Nama Dosen</th>
                                 <th class="whitespace-nowrap px-6 py-3">NIP</th>
+                                <th class="whitespace-nowrap px-6 py-3">Email</th>
                                 <th class="whitespace-nowrap px-6 py-3 text-right">Kelas diampu</th>
-                                <th v-if="hasActions" class="whitespace-nowrap px-6 py-3 text-right">Aksi</th>
+                                <th class="whitespace-nowrap px-6 py-3 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100" :class="{ 'opacity-60': loading }">
                             <tr v-if="!loading && lecturers.length === 0">
-                                <td :colspan="hasActions ? 4 : 3" class="px-6 py-10 text-center text-gray-500">Tidak ada dosen yang cocok dengan pencarian.</td>
+                                <td colspan="5" class="px-6 py-10 text-center text-gray-500">Tidak ada dosen yang cocok dengan pencarian.</td>
                             </tr>
                             <tr v-for="lecturer in lecturers" :key="lecturer.id" class="hover:bg-gray-50">
                                 <td class="px-6 py-3.5 font-medium text-gray-900">{{ fullName(lecturer) }}</td>
                                 <td class="whitespace-nowrap px-6 py-3.5 tabular-nums text-gray-600">{{ lecturer.nip }}</td>
+                                <td class="whitespace-nowrap px-6 py-3.5 text-gray-600">{{ lecturer.email || '—' }}</td>
                                 <td class="whitespace-nowrap px-6 py-3.5 text-right tabular-nums" :class="lecturer.course_lecturers_count === 0 ? 'text-gray-400' : 'text-gray-900'">
                                     {{ lecturer.course_lecturers_count }}
                                 </td>
-                                <td v-if="hasActions" class="whitespace-nowrap px-6 py-3.5 text-right">
-                                    <div class="flex justify-end gap-4">
-                                        <Button v-if="lecturer.can_update" variant="secondary" size="sm" @click="openEdit(lecturer)">Edit</Button>
-                                        <Button v-if="lecturer.can_delete" variant="danger" size="sm" @click="askDelete(lecturer)">Hapus</Button>
+                                <td class="whitespace-nowrap px-6 py-3.5 text-center">
+                                    <div class="flex justify-center gap-2">
+                                        <Button variant="secondary" size="sm" @click="openEdit(lecturer)">Edit</Button>
+                                        <Button variant="primary" size="sm" @click="askDelete(lecturer)">Hapus</Button>
                                     </div>
                                 </td>
                             </tr>

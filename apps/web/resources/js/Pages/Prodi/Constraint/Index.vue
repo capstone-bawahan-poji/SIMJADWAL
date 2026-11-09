@@ -99,20 +99,23 @@ async function save(): Promise<void> {
 
     <AppLayout>
         <div class="w-full space-y-6 p-6 md:p-8">
-            <div class="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <header class="flex flex-wrap items-start justify-between gap-4">
                 <div>
                     <h1 class="text-2xl font-bold tracking-tight text-gray-900">Constraint &amp; Preferensi</h1>
-                    <p class="mt-1 text-sm text-gray-500">Tandai slot yang diinginkan atau dihindari tiap dosen. Slot kosong dianggap netral.</p>
+                    <p class="mt-1 text-sm text-gray-600">Atur preferensi waktu dan constraint dosen program studi.</p>
                 </div>
-                <Link
-                    :href="route('prodi.constraints.review')"
-                    class="inline-flex w-fit items-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-hover"
-                >
-                    Review &amp; Submit
-                </Link>
-            </div>
+                <div class="flex flex-wrap items-center gap-4">
+                    <ProgramLockBanner v-if="locked" :submission="submission" />
+                    <Link
+                        :href="route('prodi.constraints.review')"
+                        class="inline-flex w-fit items-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-hover"
+                    >
+                        Review
+                    </Link>
+                </div>
+            </header>
 
-            <ProgramLockBanner :submission="submission" />
+            <ProgramLockBanner v-if="!locked" :submission="submission" />
             <Alert v-if="flash" variant="success" :title="flash" dismissible @dismiss="flash = null" />
             <Alert v-if="loadError || saveError" :title="loadError ?? saveError ?? ''" />
 

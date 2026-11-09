@@ -41,7 +41,7 @@ const icons = {
 
 const dashboard: NavItem = { label: 'Dashboard', routeName: 'dashboard', icon: icons.dashboard };
 const schedule: RouteNavItem = { label: 'Jadwal Kuliah', routeName: 'schedule.index', icon: icons.matrix };
-const downloadApp: ExternalNavItem = { label: 'Unduh Aplikasi', href: APP_RELEASES_URL, external: true, icon: icons.download };
+export const DOWNLOAD_APP_ITEM: ExternalNavItem = { label: 'Unduh Aplikasi', href: APP_RELEASES_URL, external: true, icon: icons.download };
 
 /**
  * Sidebar entries per role. Roles without a management area still get the shared schedule.
@@ -55,23 +55,23 @@ export const NAV_BY_ROLE: Partial<Record<Role, NavItem[]>> = {
         { label: 'Data Fakultas & Prodi', routeName: 'superadmin.faculty-program.index', icon: icons.institution },
         { label: 'Data Ruangan', routeName: 'superadmin.rooms.index', icon: icons.room },
         { label: 'Data Jadwal', routeName: 'superadmin.slots.index', icon: icons.clock },
-        downloadApp,
+        DOWNLOAD_APP_ITEM,
     ],
     admin_prodi: [
         dashboard,
-        { label: 'Matriks Jadwal Prodi', routeName: 'prodi.schedule-matrix.index', icon: icons.matrix },
+        { label: 'Jadwal', routeName: 'prodi.schedule-matrix.index', icon: icons.matrix },
         { label: 'Data Mata Kuliah', routeName: 'prodi.courses.index', icon: icons.book },
         { label: 'Data Dosen', routeName: 'prodi.lecturers.index', icon: icons.person },
-        { label: 'Mapping Dosen ke Matkul', routeName: 'prodi.mappings.index', icon: icons.mapping },
-        { label: 'Constraint & Preferensi', routeName: 'prodi.constraints.index', icon: icons.sliders },
+        { label: 'Mapping Dosen', routeName: 'prodi.mappings.index', icon: icons.mapping },
+        { label: 'Constraint', routeName: 'prodi.constraints.index', icon: icons.sliders },
     ],
     admin_fakultas: [
         dashboard,
-        { label: 'Jadwal Fakultas', routeName: 'fakultas.schedule.index', icon: icons.matrix },
-        { label: 'Kelola Constraint', routeName: 'fakultas.constraints.index', icon: icons.sliders },
-        { label: 'Penjadwalan GA', routeName: 'fakultas.ga.index', icon: icons.bolt },
-        { label: 'Alokasi Ruangan', routeName: 'fakultas.rooms.index', icon: icons.room },
-        downloadApp,
+        { label: 'Jadwal', routeName: 'fakultas.schedule.index', icon: icons.matrix },
+        { label: 'Constraint', routeName: 'fakultas.constraints.index', icon: icons.sliders },
+        { label: 'Proses GA', routeName: 'fakultas.ga.index', icon: icons.bolt },
+        { label: 'Alokasi Ruang', routeName: 'fakultas.rooms.index', icon: icons.room },
+        DOWNLOAD_APP_ITEM,
     ],
     admin_tpb: [
         dashboard,
@@ -81,7 +81,6 @@ export const NAV_BY_ROLE: Partial<Record<Role, NavItem[]>> = {
     dosen: [
         { label: 'Dashboard Dosen', routeName: 'dashboard', icon: icons.dashboard },
         { label: 'Jadwal Mengajar', routeName: 'schedule.index', icon: icons.matrix },
-        { label: 'Preferensi Jadwal', routeName: 'schedule.index', href: '/schedule?view=preferences', icon: icons.sliders },
     ],
     mahasiswa: [
         dashboard,

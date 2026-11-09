@@ -99,6 +99,7 @@ export interface LecturerSummary {
 /** App\Data\MasterData\LecturerData */
 export interface Lecturer extends LecturerSummary {
     user_id: number | null;
+    email?: string | null;
     study_program: StudyProgramSummary;
     course_lecturers_count: number;
     can_update: boolean;

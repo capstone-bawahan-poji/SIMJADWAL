@@ -180,7 +180,7 @@ async function confirmDelete(): Promise<void> {
                 </div>
                 <div class="flex items-center gap-3">
                     <Button @click="openCreate()" class="bg-primary hover:bg-primary-hover text-white">
-                        + Tambah Entitas
+                        Tambah Entitas
                     </Button>
                 </div>
             </div>
@@ -234,7 +234,7 @@ async function confirmDelete(): Promise<void> {
                             class="rounded-xl border-gray-200 text-sm focus:border-primary focus:ring-primary w-full lg:w-64 placeholder-gray-400"
                         />
                         <Button @click="openCreate()" class="whitespace-nowrap">
-                            + {{ ENTITY_LABELS[tab] }} Baru
+                            {{ ENTITY_LABELS[tab] }} Baru
                         </Button>
                     </div>
                 </div>
@@ -281,7 +281,7 @@ async function confirmDelete(): Promise<void> {
                                 <td class="py-4 px-6 text-center">
                                     <div class="flex justify-center gap-2">
                                         <Button v-if="program.can_update" variant="secondary" size="sm" @click="openEdit('study-programs', program)">Edit</Button>
-                                        <Button v-if="program.can_delete" variant="danger" size="sm" @click="askDelete('study-programs', program)">Hapus</Button>
+                                        <Button v-if="program.can_delete" variant="primary" size="sm" @click="askDelete('study-programs', program)">Hapus</Button>
                                     </div>
                                 </td>
                             </tr>
@@ -315,7 +315,7 @@ async function confirmDelete(): Promise<void> {
                                 <td class="py-4 px-6 text-center">
                                     <div class="flex justify-center gap-2">
                                         <Button v-if="department.can_update" variant="secondary" size="sm" @click="openEdit('departments', department)">Edit</Button>
-                                        <Button v-if="department.can_delete" variant="danger" size="sm" @click="askDelete('departments', department)">Hapus</Button>
+                                        <Button v-if="department.can_delete" variant="primary" size="sm" @click="askDelete('departments', department)">Hapus</Button>
                                     </div>
                                 </td>
                             </tr>
@@ -348,7 +348,7 @@ async function confirmDelete(): Promise<void> {
                                 <td class="py-4 px-6 text-center">
                                     <div class="flex justify-center gap-2">
                                         <Button v-if="faculty.can_update" variant="secondary" size="sm" @click="openEdit('faculties', faculty)">Edit</Button>
-                                        <Button v-if="faculty.can_delete" variant="danger" size="sm" @click="askDelete('faculties', faculty)">Hapus</Button>
+                                        <Button v-if="faculty.can_delete" variant="primary" size="sm" @click="askDelete('faculties', faculty)">Hapus</Button>
                                     </div>
                                 </td>
                             </tr>

@@ -450,7 +450,7 @@ async function confirmDelete(): Promise<void> {
                                 <td v-if="hasCourseActions" class="whitespace-nowrap px-6 py-3.5 text-right">
                                     <div class="flex justify-end gap-4">
                                         <Button v-if="course.can_update" variant="secondary" size="sm" @click="openEditCourse(course)">Edit</Button>
-                                        <Button v-if="course.can_delete" variant="danger" size="sm" @click="askDeleteCourse(course)">Hapus</Button>
+                                        <Button v-if="course.can_delete" variant="primary" size="sm" @click="askDeleteCourse(course)">Hapus</Button>
                                     </div>
                                 </td>
                             </tr>
@@ -562,7 +562,7 @@ async function confirmDelete(): Promise<void> {
                                 <td class="whitespace-nowrap px-5 py-4 text-right">
                                     <div class="flex justify-end gap-4">
                                         <Button v-if="group.can_update" variant="secondary" size="sm" @click="openEditGroup(group)">Edit</Button>
-                                        <Button v-if="group.can_delete" variant="danger" size="sm" @click="askDeleteGroup(group)">Hapus</Button>
+                                        <Button v-if="group.can_delete" variant="primary" size="sm" @click="askDeleteGroup(group)">Hapus</Button>
                                     </div>
                                 </td>
                             </tr>

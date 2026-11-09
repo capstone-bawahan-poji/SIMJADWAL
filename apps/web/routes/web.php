@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Route;
 | /api/internal/* in routes/api.php.
 */
 
-Route::redirect('/', '/login');
+Route::get('/', fn () => inertia('Public/Index'))->name('home');
 
 Route::middleware('auth')->group(function () {
     Route::get('/dashboard', DashboardController::class)->name('dashboard');

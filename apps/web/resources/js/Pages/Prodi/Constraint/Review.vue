@@ -53,12 +53,15 @@ async function submit(): Promise<void> {
 
     <AppLayout>
         <div class="w-full space-y-6 p-6 md:p-8">
-            <div>
-                <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Review &amp; Submit Constraint</h1>
-                <p class="mt-1 text-sm text-gray-500">Periksa ringkasan, lalu submit ke fakultas. Setelah submit, data prodi terkunci sampai fakultas mengembalikannya.</p>
-            </div>
+            <header class="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Review &amp; Submit Constraint</h1>
+                    <p class="mt-1 text-sm text-gray-600">Periksa ringkasan sebelum dikirim ke fakultas untuk direview.</p>
+                </div>
+                <ProgramLockBanner v-if="locked" :submission="submission" />
+            </header>
 
-            <ProgramLockBanner :submission="submission" />
+            <ProgramLockBanner v-if="!locked" :submission="submission" />
             <Alert v-if="flash" variant="success" :title="flash" dismissible @dismiss="flash = null" />
             <Alert v-if="error" :title="error.message" />
             <div v-if="failure" class="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800" role="alert">
