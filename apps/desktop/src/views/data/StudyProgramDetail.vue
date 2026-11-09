@@ -21,14 +21,19 @@ const tab = ref<Tab>('courses');
 const color = computed(() => colorOf(props.colors, props.program.id));
 const lecturerById = computed(() => new Map(props.dataset.lecturers.map((l) => [l.id, l])));
 
+const attendedGroups = computed(() => new Set(
+  (props.dataset.tpb_groups ?? []).filter((g) => g.study_programs.some((p) => p.id === props.program.id)).map((g) => g.id),
+));
+
 const courses = computed(() =>
   props.dataset.courses
-    .filter((c) => c.study_program_id === props.program.id)
-    .sort((a, b) => a.semester - b.semester || a.code.localeCompare(b.code))
+    .filter((c) => c.study_program_id === props.program.id
+      || props.dataset.classes.some((k) => k.course_id === c.id && k.tpb_group_id != null && attendedGroups.value.has(k.tpb_group_id)))
+    .sort((a, b) => (a.semester ?? 0) - (b.semester ?? 0) || a.code.localeCompare(b.code))
     .map((course) => ({
       ...course,
       classes: props.dataset.classes
-        .filter((k) => k.course_id === course.id)
+        .filter((k) => k.course_id === course.id && (k.tpb_group_id == null || attendedGroups.value.has(k.tpb_group_id)))
         .map((k) => ({ ...k, lecturer: lecturerById.value.get(k.lecturer_id) })),
     })),
 );
@@ -97,7 +102,7 @@ watch(() => props.program.id, () => {
               <td class="py-3 pl-6 pr-4 font-mono text-xs text-ink-tertiary">{{ course.code }}</td>
               <td class="py-3 pr-4 text-ink">{{ course.name }}</td>
               <td class="tabular py-3 pr-4 text-right text-ink-secondary">{{ course.sks }}</td>
-              <td class="tabular py-3 pr-4 text-right text-ink-secondary">{{ course.semester }}</td>
+              <td class="tabular py-3 pr-4 text-right text-ink-secondary">{{ course.semester ?? 'TPB' }}</td>
               <td class="py-3 pr-6">
                 <div class="flex flex-col gap-2">
                   <p v-for="k in course.classes" :key="k.class_number" class="flex items-center gap-2 text-ink-secondary">

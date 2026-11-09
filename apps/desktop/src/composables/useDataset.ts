@@ -9,6 +9,7 @@ const facultyId = ref<number | null>(null);
 const loading = ref(false);
 const error = ref('');
 const stale = ref(false);
+const reviseGroupIds = ref<number[]>([]);
 
 const DATASET_TABLES = [
   'faculties', 'study_programs', 'courses', 'course_lecturers', 'lecturers', 'rooms',
@@ -29,7 +30,7 @@ export function useDataset() {
     loading.value = true;
     error.value = '';
     try {
-      dataset.value = await fetchDataset({ period: period.value ?? undefined, facultyId: facultyId.value });
+      dataset.value = await fetchDataset({ period: period.value ?? undefined, facultyId: facultyId.value, reviseGroupIds: reviseGroupIds.value });
       stale.value = false;
       period.value = dataset.value.period;
     } catch (e) {
@@ -41,6 +42,7 @@ export function useDataset() {
 
   function setPeriod(value: string) {
     period.value = value;
+    reviseGroupIds.value = [];
     return load();
   }
 
@@ -50,7 +52,13 @@ export function useDataset() {
     return value ? load() : Promise.resolve();
   }
 
+  function setRevision(ids: number[]) {
+    reviseGroupIds.value = ids;
+    return load();
+  }
+
   function clear() {
+    reviseGroupIds.value = [];
     dataset.value = null;
     period.value = null;
     facultyId.value = null;
@@ -66,6 +74,7 @@ export function useDataset() {
     error: readonly(error),
     stale: readonly(stale),
     periodOptions: computed(() => periodOptions(period.value)),
-    load, setPeriod, setFaculty, clear,
+    reviseGroupIds: readonly(reviseGroupIds),
+    load, setPeriod, setFaculty, setRevision, clear,
   };
 }

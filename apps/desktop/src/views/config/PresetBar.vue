@@ -11,7 +11,7 @@ import { useGaConfig } from '@/composables/useGaConfig';
 import { useGaPresets } from '@/composables/useGaPresets';
 import type { GaPresetPayload } from '@/types/ga';
 
-const props = defineProps<{ facultyId: number; superAdmin: boolean }>();
+const props = defineProps<{ facultyId: number | null; superAdmin: boolean }>();
 
 const { params, scOverrides, presetId, dirty, errors, applyPreset, markSaved } = useGaConfig();
 const { presets, error: loadError, create, update, remove } = useGaPresets();
@@ -37,7 +37,7 @@ function payload(name: string): GaPresetPayload {
     ...params,
     name,
     sc_overrides: scOverrides.value,
-    ...(props.superAdmin ? { faculty_id: props.facultyId } : {}),
+    ...(props.superAdmin ? (props.facultyId === null ? { scope: 'tpb' as const } : { faculty_id: props.facultyId }) : {}),
   };
 }
 
