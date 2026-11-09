@@ -11,7 +11,8 @@ use Illuminate\Database\DatabaseManager;
 
 /**
  * Activate and publish are two steps. Activating makes a run the official schedule of its
- * faculty and period, still hidden from lecturers and students. Publishing then shows it to them.
+ * faculty (or of TPB) and period, still hidden from lecturers and students. Publishing then shows it to them.
+ * A faculty run built against an older TPB run can still be activated; it is flagged stale.
  * A run that loses its active flag keeps published_at, which the archived scope relies on.
  */
 readonly class SchedulingRunActivationService
@@ -19,6 +20,7 @@ readonly class SchedulingRunActivationService
     public function __construct(
         private DatabaseManager $db,
         private ScheduleSlotCheckerFactory $checkers,
+        private TpbRunResolver $tpbRuns,
     ) {}
 
     public function activate(User $actor, SchedulingRun $run): SchedulingRun
@@ -31,18 +33,22 @@ readonly class SchedulingRunActivationService
         }
 
         $this->db->transaction(function () use ($run) {
-            // Serialises activations of one faculty and period, and covers the clash check below.
+            // Serialises activations of one faculty (or TPB) and period, and covers the checks below.
             $current = SchedulingRun::query()->active()
                 ->where('faculty_id', $run->faculty_id)
                 ->where('period', $run->period)
                 ->lockForUpdate()
                 ->get();
 
-            $this->assertNoClashWithOtherFaculties($run);
+            // A faculty run built on an older TPB schedule is only flagged stale, never refused.
+            if ($run->faculty_id !== null) {
+                $this->assertNoClashWithOtherFaculties($run);
+            }
 
             $current->each(fn (SchedulingRun $old) => $old->update(['is_active' => false]));
             $run->update(['is_active' => true]);
         });
+        $this->tpbRuns->forget();
 
         activity('scheduling')->causedBy($actor)->performedOn($run)->event('scheduling_run.activated')
             ->log(__('Activated scheduling run :id', ['id' => $run->id]));
@@ -61,6 +67,7 @@ readonly class SchedulingRunActivationService
 
         $run->update(['published_by' => $actor->id, 'published_at' => now()]);
 
+        $this->tpbRuns->forget();
         activity('scheduling')->causedBy($actor)->performedOn($run)->event('scheduling_run.published')
             ->log(__('Published scheduling run :id', ['id' => $run->id]));
 

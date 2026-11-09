@@ -22,7 +22,7 @@ class GaPresetData extends BaseData
      */
     public function __construct(
         public int $id,
-        public int $facultyId,
+        public ?int $facultyId,
         public string $name,
         public int $populationSize,
         public int $minGenerations,

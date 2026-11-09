@@ -8,7 +8,8 @@ use App\Models\User;
 use App\Permissions\Scheduling\SchedulingPermissions;
 
 /**
- * Runs are read by the faculty they schedule. superadmin passes through Gate::before.
+ * Runs are read by the faculty they schedule, TPB runs (faculty null) by admin_tpb.
+ * superadmin passes through Gate::before.
  */
 class SchedulingRunPolicy
 {
@@ -21,16 +22,16 @@ class SchedulingRunPolicy
 
     public function view(User $user, SchedulingRun $run): bool
     {
-        return $user->can(SchedulingPermissions::VIEW_RUN) && $this->orgScope->canAccessFaculty($user, $run->faculty_id);
+        return $user->can(SchedulingPermissions::VIEW_RUN) && $this->orgScope->canAccessScheduleScope($user, $run->faculty_id);
     }
 
     public function activate(User $user, SchedulingRun $run): bool
     {
-        return $user->can(SchedulingPermissions::ACTIVATE_RUN) && $this->orgScope->canAccessFaculty($user, $run->faculty_id);
+        return $user->can(SchedulingPermissions::ACTIVATE_RUN) && $this->orgScope->canAccessScheduleScope($user, $run->faculty_id);
     }
 
     public function publish(User $user, SchedulingRun $run): bool
     {
-        return $user->can(SchedulingPermissions::PUBLISH_RUN) && $this->orgScope->canAccessFaculty($user, $run->faculty_id);
+        return $user->can(SchedulingPermissions::PUBLISH_RUN) && $this->orgScope->canAccessScheduleScope($user, $run->faculty_id);
     }
 }

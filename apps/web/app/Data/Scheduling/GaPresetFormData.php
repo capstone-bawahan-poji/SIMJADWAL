@@ -11,7 +11,7 @@ class GaPresetFormData extends Data
      * @param  array<string, array<string, float>>  $scOverrides
      */
     public function __construct(
-        public int $facultyId,
+        public ?int $facultyId,
         public string $name,
         public int $populationSize,
         public int $minGenerations,
@@ -31,7 +31,7 @@ class GaPresetFormData extends Data
     /**
      * @param  array<string, mixed>  $input  validated request (PUT: every field present)
      */
-    public static function fromInput(array $input, int $facultyId): self
+    public static function fromInput(array $input, ?int $facultyId): self
     {
         return new self(
             facultyId: $facultyId,

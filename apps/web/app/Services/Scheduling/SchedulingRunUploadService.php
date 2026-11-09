@@ -30,24 +30,28 @@ readonly class SchedulingRunUploadService
      * @param  array<string, mixed>  $v  validated StoreSchedulingRunRequest
      * @return array{run: SchedulingRun, created: bool}
      */
-    public function store(User $actor, Faculty $faculty, array $v): array
+    public function store(User $actor, ?Faculty $faculty, array $v): array
     {
         $existing = SchedulingRun::query()->where('client_run_id', $v['client_run_id'])->first();
         if ($existing !== null) {
-            if ($existing->faculty_id !== $faculty->id) {
+            if ($existing->faculty_id !== $faculty?->id) {
                 throw ApiException::validation(['client_run_id' => [__('validation.unique', ['attribute' => 'client_run_id'])]]);
             }
 
             return ['run' => $existing, 'created' => false];
         }
 
-        if (isset($v['preset_id']) && ! GaParameterPreset::query()->whereKey($v['preset_id'])->where('faculty_id', $faculty->id)->exists()) {
+        if (isset($v['preset_id']) && ! GaParameterPreset::query()->whereKey($v['preset_id'])->where('faculty_id', $faculty?->id)->exists()) {
             throw ApiException::validation(['preset_id' => [__('The preset does not belong to this faculty.')]]);
         }
 
-        $dataset = $this->datasetService->build($faculty, $v['period']);
+        $dataset = $this->datasetService->build($faculty, $v['period'], array_map('intval', $v['revise_group_ids'] ?? []));
         if (! hash_equals($dataset['fingerprint'], $v['dataset_fingerprint'])) {
             throw ApiException::datasetChanged();
+        }
+
+        if (($dataset['revision']['required'] ?? false) && ($dataset['revision']['revise_group_ids'] ?? []) === []) {
+            throw ApiException::validation(['revise_group_ids' => [__('Faculties are already scheduled against the published TPB schedule. Pick the groups to revise.')]]);
         }
 
         $details = array_values($v['schedule_details']);
@@ -71,7 +75,7 @@ readonly class SchedulingRunUploadService
             throw ApiException::validation($errors);
         }
 
-        $run = $this->db->transaction(fn () => $this->persist($actor, $faculty, $v, $details));
+        $run = $this->db->transaction(fn () => $this->persist($actor, $faculty, $v, $details, $dataset['tpb_run_id'] ?? null));
         activity('scheduling')->performedOn($run)->event('scheduling_run.uploaded')
             ->log(__('Uploaded scheduling run :id', ['id' => $run->id]));
 
@@ -82,14 +86,15 @@ readonly class SchedulingRunUploadService
      * @param  array<string, mixed>  $v
      * @param  list<array<string, int|null>>  $details
      */
-    private function persist(User $actor, Faculty $faculty, array $v, array $details): SchedulingRun
+    private function persist(User $actor, ?Faculty $faculty, array $v, array $details, ?int $tpbRunId): SchedulingRun
     {
         $snapshot = $v['parameter_snapshot'];
 
         $run = SchedulingRun::query()->create([
             'client_run_id' => $v['client_run_id'],
             'batch_id' => $v['batch_id'],
-            'faculty_id' => $faculty->id,
+            'faculty_id' => $faculty?->id,
+            'tpb_run_id' => $tpbRunId,
             'period' => $v['period'],
             'preset_id' => $v['preset_id'] ?? null,
             'dataset_fingerprint' => $v['dataset_fingerprint'],
