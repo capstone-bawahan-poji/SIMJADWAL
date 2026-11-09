@@ -2,26 +2,23 @@
 
 namespace App\Http\Requests\MasterData\TpbGroup;
 
-use App\Models\MasterData\Course;
-use App\Models\MasterData\StudyProgram;
-use App\Models\MasterData\TimeSlot;
+use App\Enums\MasterData\TpbCohort;
 use App\Models\MasterData\TpbGroup;
+use App\Models\MasterData\TpbOffering;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 /**
- * Clash rules (a program in two groups of one slot) are checked in TpbGroupService.
+ * Rules that need the offering (class count, semester parity, programs in two groups) live in TpbGroupService.
  */
 class StoreTpbGroupRequest extends FormRequest
 {
     public function rules(): array
     {
         return [
-            'course_id' => ['required', 'integer', Rule::exists(Course::class, 'id')->withoutTrashed()->where('is_tpb', true)],
-            'code' => ['required', 'string', 'max:20', Rule::unique(TpbGroup::class)->where('course_id', $this->integer('course_id'))],
-            'time_slot_id' => ['nullable', 'integer', Rule::exists(TimeSlot::class, 'id')],
-            'study_program_ids' => ['required', 'array', 'min:1'],
-            'study_program_ids.*' => ['integer', 'distinct', Rule::exists(StudyProgram::class, 'id')->withoutTrashed()],
+            'tpb_offering_id' => ['required', 'integer', Rule::exists(TpbOffering::class, 'id')],
+            'code' => ['required', 'string', 'max:20', Rule::unique(TpbGroup::class)->where('tpb_offering_id', $this->integer('tpb_offering_id'))],
+            ...TpbGroupRules::attributes(['required'], TpbCohort::tryFrom((string) $this->input('cohort'))),
         ];
     }
 }

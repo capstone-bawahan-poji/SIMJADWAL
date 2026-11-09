@@ -6,6 +6,7 @@ use App\Contracts\Account\ResolvesOrgScope;
 use App\Enums\Account\Role;
 use App\Models\User;
 use App\Services\Account\RoleOrgScope;
+use App\Services\Scheduling\TpbRunResolver;
 use App\Services\Shared\ChangeRecorder;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -26,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(ResolvesOrgScope::class, RoleOrgScope::class);
         $this->app->scoped(ChangeRecorder::class);
+        $this->app->scoped(TpbRunResolver::class);
     }
 
     /**
