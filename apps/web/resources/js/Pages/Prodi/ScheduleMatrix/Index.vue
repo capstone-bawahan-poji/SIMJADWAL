@@ -76,7 +76,7 @@ const timeSlots = ref<TimeSlot[]>([]);
 const schedule = ref<Schedule | null>(null);
 const studentBaseSchedule = ref<Schedule | null>(null);
 const studentClasses = ref<string[]>([]);
-const studentClassOptions = ref<{ key: string; courseId: number; courseCode: string; courseName: string; semester: number; classNumber: number }[]>([]);
+const studentClassOptions = ref<{ key: string; courseId: number; courseCode: string; courseName: string; semester: number | null; classNumber: number }[]>([]);
 const studentStorageKey = ref('');
 const studentSelectionSyncing = ref(false);
 const studentDownloadError = ref<string | null>(null);
@@ -122,7 +122,7 @@ const rowsByCell = computed(() => {
 });
 const hasUnpublishedRun = computed(() => schedule.value?.runs.some((run) => run.published_at === null) ?? false);
 const studentCourseOptions = computed(() => {
-    const coursesById = new Map<number, { id: number; code: string; name: string; semester: number; classes: typeof studentClassOptions.value }>();
+    const coursesById = new Map<number, { id: number; code: string; name: string; semester: number | null; classes: typeof studentClassOptions.value }>();
 
     for (const option of studentClassOptions.value) {
         const course = coursesById.get(option.courseId) ?? {
@@ -190,7 +190,7 @@ function syncStudentClassOptions(base: Schedule): void {
 
     for (const row of base.schedule_details) {
         const course = row.course;
-        if (filters.semester && String(course.semester) !== filters.semester) continue;
+        if (filters.semester && course.semester !== null && String(course.semester) !== filters.semester) continue;
 
         const key = classSelectionKey(course.id, row.class_number);
         options.set(key, {
@@ -616,7 +616,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details'], () => void loadSched
                 <div v-else class="mt-4 grid gap-3 md:grid-cols-2">
                     <fieldset v-for="course in studentCourseOptions" :key="course.id" class="rounded-xl border border-gray-100 p-4">
                         <legend class="px-1 text-xs font-bold text-gray-900">{{ course.code }} · {{ course.name }}</legend>
-                        <p class="mb-3 text-[11px] text-gray-500">Semester {{ course.semester }}</p>
+                        <p class="mb-3 text-[11px] text-gray-500">{{ course.semester ? `Semester ${course.semester}` : 'TPB' }}</p>
                         <label v-for="option in course.classes" :key="option.key" class="mr-4 inline-flex items-center gap-2 py-1.5 text-sm text-gray-700">
                             <input
                                 type="radio"

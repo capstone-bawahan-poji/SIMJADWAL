@@ -15,9 +15,14 @@ import { computed, ref } from 'vue';
 
 type RoomIssue = Schedule['schedule_details'][number];
 
-const { filters: roomFilters, items: rooms, pagination, page, loading: roomsLoading, error: roomError } = usePaginatedList<Room, { q: string }>(
+// TPB admins see every room and the TPB schedule's room issues, without changing anything:
+// rooms of the TPB schedule come from the GA only.
+const props = withDefaults(defineProps<{ scope?: 'faculty' | 'tpb' }>(), { scope: 'faculty' });
+const readonly = computed(() => props.scope === 'tpb');
+
+const { filters: roomFilters, items: rooms, pagination, page, loading: roomsLoading, error: roomError } = usePaginatedList<Room, { q: string; shared: string }>(
     'rooms',
-    { q: queryParam('q') },
+    { q: queryParam('q'), shared: '' },
 );
 const DAYS: Record<number, string> = { 1: 'Senin', 2: 'Selasa', 3: 'Rabu', 4: 'Kamis', 5: 'Jumat', 6: 'Sabtu', 7: 'Minggu' };
 const overCapacity = ref<RoomIssue[]>([]);
@@ -40,8 +45,8 @@ async function loadIssues(): Promise<void> {
 
     try {
         const [capacityResponse, unassignedResponse] = await Promise.all([
-            api.get<{ data: Schedule }>('schedules', { params: { period: currentPeriod.value, over_capacity: 1 } satisfies ScheduleFilters }),
-            api.get<{ data: Schedule }>('schedules', { params: { period: currentPeriod.value, unassigned: 1 } satisfies ScheduleFilters }),
+            api.get<{ data: Schedule }>('schedules', { params: { period: currentPeriod.value, over_capacity: 1, scope: props.scope } satisfies ScheduleFilters }),
+            api.get<{ data: Schedule }>('schedules', { params: { period: currentPeriod.value, unassigned: 1, scope: props.scope } satisfies ScheduleFilters }),
         ]);
         if (requestId !== issueRequestId) return;
 
@@ -92,7 +97,10 @@ void loadIssues();
         <div class="w-full space-y-6 p-6 md:p-8">
             <div>
                 <h1 class="text-2xl font-bold tracking-tight text-gray-900">Alokasi Ruangan</h1>
-                <p class="mt-1 text-sm text-gray-500">Jadwal aktif periode {{ currentPeriod || 'berjalan' }}.</p>
+                <p class="mt-1 text-sm text-gray-500">
+                    {{ readonly ? 'Jadwal TPB aktif' : 'Jadwal aktif' }} periode {{ currentPeriod || 'berjalan' }}.
+                    <template v-if="readonly">Ruang kelas TPB ditentukan GA; jalankan ulang GA untuk mengubahnya.</template>
+                </p>
             </div>
 
             <Alert v-if="flash" variant="success" :title="flash" dismissible @dismiss="flash = null" />
@@ -119,7 +127,7 @@ void loadIssues();
             <Panel v-if="unassigned.length > 0">
                 <div class="border-b border-gray-200 px-6 py-4">
                     <h2 class="text-sm font-semibold text-gray-900">Kelas tanpa ruang <span class="ml-1 font-normal text-gray-400">{{ unassigned.length }}</span></h2>
-                    <p class="mt-0.5 text-sm text-gray-500">Pilih ruang yang tersedia untuk kelas berikut.</p>
+                    <p class="mt-0.5 text-sm text-gray-500">{{ readonly ? 'GA tidak menemukan ruang bersama yang kosong untuk kelas berikut.' : 'Pilih ruang yang tersedia untuk kelas berikut.' }}</p>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full border-collapse text-left text-sm">
@@ -129,7 +137,7 @@ void loadIssues();
                                 <th class="px-6 py-3">Mata kuliah</th>
                                 <th class="px-6 py-3">Dosen</th>
                                 <th class="whitespace-nowrap px-6 py-3 text-right">Butuh</th>
-                                <th class="whitespace-nowrap px-6 py-3 text-right">Aksi</th>
+                                <th v-if="!readonly" class="whitespace-nowrap px-6 py-3 text-right">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100" :class="{ 'opacity-60': loadingIssues }">
@@ -144,7 +152,7 @@ void loadIssues();
                                 </td>
                                 <td class="px-6 py-3.5 text-gray-700">{{ detail.lecturer.name }}</td>
                                 <td class="whitespace-nowrap px-6 py-3.5 text-right tabular-nums text-gray-700">{{ detail.course.class_capacity }} kursi</td>
-                                <td class="whitespace-nowrap px-6 py-3.5 text-right">
+                                <td v-if="!readonly" class="whitespace-nowrap px-6 py-3.5 text-right">
                                     <Button class="h-8 px-3 text-xs" @click="openOverride(detail)">Pilih ruang</Button>
                                 </td>
                             </tr>
@@ -166,7 +174,7 @@ void loadIssues();
                                 <th class="px-6 py-3">Mata kuliah</th>
                                 <th class="px-6 py-3">Dosen</th>
                                 <th class="whitespace-nowrap px-6 py-3 text-right">Ruang / kelas</th>
-                                <th class="whitespace-nowrap px-6 py-3 text-right">Aksi</th>
+                                <th v-if="!readonly" class="whitespace-nowrap px-6 py-3 text-right">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100" :class="{ 'opacity-60': loadingIssues }">
@@ -185,7 +193,7 @@ void loadIssues();
                                     <span class="text-gray-500"> / {{ detail.course.class_capacity }} kursi</span>
                                     <p v-if="detail.room" class="text-xs text-gray-500">{{ detail.room.code }}</p>
                                 </td>
-                                <td class="whitespace-nowrap px-6 py-3.5 text-right">
+                                <td v-if="!readonly" class="whitespace-nowrap px-6 py-3.5 text-right">
                                     <Button class="h-8 px-3 text-xs" @click="openOverride(detail)">Pilih ruang</Button>
                                 </td>
                             </tr>
@@ -196,6 +204,11 @@ void loadIssues();
 
             <Panel>
                 <div class="flex flex-col gap-3 border-b border-gray-200 p-4 md:flex-row md:items-center">
+                    <select v-if="readonly" v-model="roomFilters.shared" :class="[controlClass, 'md:w-56']" aria-label="Filter jenis ruangan">
+                        <option value="">Semua ruangan</option>
+                        <option value="1">Ruang bersama (dipakai TPB)</option>
+                        <option value="0">Ruang milik fakultas</option>
+                    </select>
                     <input
                         v-model="roomFilters.q"
                         type="search"
@@ -204,7 +217,7 @@ void loadIssues();
                         :class="[controlClass, 'w-full placeholder-gray-400 md:w-72']"
                     />
                     <p class="text-sm text-gray-500 md:ml-auto">
-                        <span class="font-semibold tabular-nums text-gray-900">{{ pagination.total }}</span> ruangan fakultas
+                        <span class="font-semibold tabular-nums text-gray-900">{{ pagination.total }}</span> {{ readonly ? 'ruangan ITK' : 'ruangan fakultas' }}
                     </p>
                 </div>
 
@@ -246,7 +259,7 @@ void loadIssues();
         </div>
 
         <ScheduleOverrideModal
-            v-if="overrideTarget"
+            v-if="overrideTarget && !readonly"
             :schedule-detail="overrideTarget"
             :show="true"
             @close="overrideTarget = null"

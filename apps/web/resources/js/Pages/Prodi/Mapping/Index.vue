@@ -93,6 +93,7 @@ const loads = computed(() => {
     const totals = new Map<number, { classes: number; sks: number }>();
 
     for (const a of assignments.value) {
+        if (a.lecturer_id === null) continue;
         const row = totals.get(a.lecturer_id) ?? { classes: 0, sks: 0 };
         row.classes++;
         row.sks += a.course.sks;

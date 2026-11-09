@@ -14,6 +14,9 @@ import { Head } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 
 type ConfirmAction = 'activate' | 'publish';
+
+const props = withDefaults(defineProps<{ scope?: 'faculty' | 'tpb' }>(), { scope: 'faculty' });
+const isTpb = computed(() => props.scope === 'tpb');
 const DAYS: Record<number, string> = { 1: 'Senin', 2: 'Selasa', 3: 'Rabu', 4: 'Kamis', 5: 'Jumat', 6: 'Sabtu', 7: 'Minggu' };
 const { items: periods, error: periodError } = useCollection<AcademicPeriod>('academic-periods');
 const { items: timeSlots, error: timeSlotError } = useCollection<TimeSlot>('time-slots');
@@ -43,14 +46,14 @@ const compareLoading = ref(false);
 const overrideTarget = ref<RunScheduleDetail | null>(null);
 let listRequestId = 0;
 
-// The server only lets the active run be overridden (ScheduleOverrideService).
-const canOverride = computed(() => selectedRun.value?.is_active === true);
+const canOverride = computed(() => !isTpb.value && selectedRun.value?.is_active === true);
 
 const programs = computed(() => {
     const unique = new Map<number, { id: number; code: string; name: string }>();
     for (const detail of details.value) {
         const program = detail.course.study_program;
         if (program) unique.set(program.id, program);
+        for (const participant of detail.tpb_group?.study_programs ?? []) unique.set(participant.id, participant);
     }
 
     return [...unique.values()].sort((a, b) => a.code.localeCompare(b.code));
@@ -59,7 +62,9 @@ const days = computed(() => [...new Set(timeSlots.value.map((slot) => slot.day))
 const sessions = computed(() => [...new Set(timeSlots.value.map((slot) => slot.session))].sort((a, b) => a - b));
 const visibleDetails = computed(() =>
     details.value.filter((detail) =>
-        (!programFilter.value || detail.course.study_program?.id === Number(programFilter.value))
+        (!programFilter.value
+            || detail.course.study_program?.id === Number(programFilter.value)
+            || detail.tpb_group?.study_programs.some((program) => program.id === Number(programFilter.value)))
         && (!dayFilter.value || detail.time_slot.day === Number(dayFilter.value)),
     ),
 );
@@ -113,7 +118,7 @@ async function loadRuns(): Promise<void> {
     runError.value = null;
     try {
         const response = await api.get<Paginated<SchedulingRunSummary>>('scheduling-runs', {
-            params: { period: period.value, page: page.value, per_page: 20 },
+            params: { period: period.value, page: page.value, per_page: 20, scope: props.scope },
         });
         if (requestId !== listRequestId) return;
         runs.value = response.data.data;
@@ -142,7 +147,8 @@ async function loadSelectedRun(): Promise<void> {
         const [runResponse, detailResponse, violationResponse] = await Promise.all([
             api.get<{ data: SchedulingRunDetail }>(`scheduling-runs/${id}`),
             api.get<Collection<RunScheduleDetail>>(`scheduling-runs/${id}/schedule-details`, {
-                params: { study_program_id: programFilter.value, day: dayFilter.value },
+                // TPB courses have no program: their participants are filtered here, not on the server.
+                params: { study_program_id: isTpb.value ? '' : programFilter.value, day: dayFilter.value },
             }),
             api.get<Collection<Violation>>(`scheduling-runs/${id}/violations`, {
                 params: category.value ? { category: category.value } : {},
@@ -165,7 +171,7 @@ async function loadCompare(batchId: string): Promise<void> {
     actionError.value = null;
     try {
         const response = await api.get<Paginated<SchedulingRunSummary>>('scheduling-runs', {
-            params: { period: period.value, batch_id: batchId, per_page: 100 },
+            params: { period: period.value, batch_id: batchId, per_page: 100, scope: props.scope },
         });
         compareRuns.value = response.data.data;
     } catch (error) {
@@ -236,13 +242,16 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
 </script>
 
 <template>
-    <Head title="Review Hasil Jadwal GA" />
+    <Head :title="isTpb ? 'Penjadwalan GA TPB' : 'Review Hasil Jadwal GA'" />
     <AppLayout>
         <div class="mx-auto w-full max-w-7xl space-y-10 p-6 md:p-8">
             <header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                    <h1 class="text-2xl font-bold tracking-tight text-gray-900">Review &amp; tetapkan hasil jadwal GA</h1>
-                    <p class="mt-1 text-sm text-gray-600">Tinjau hasil run, cek pelanggaran, lalu aktifkan dan publikasikan jadwal.</p>
+                    <h1 class="text-2xl font-bold tracking-tight text-gray-900">{{ isTpb ? 'Penjadwalan GA TPB' : 'Review & tetapkan hasil jadwal GA' }}</h1>
+                    <p class="mt-1 text-sm text-gray-600">
+                        Tinjau hasil run, cek pelanggaran, lalu aktifkan dan publikasikan jadwal.
+                        <template v-if="isTpb">Jadwal TPB dibuat paling awal: fakultas baru bisa menjalankan GA setelah jadwal TPB aktif.</template>
+                    </p>
                 </div>
                 <label class="text-sm font-medium text-gray-700">
                     Periode
@@ -325,6 +334,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
                                             class="text-sm text-gray-500 hover:text-gray-900 hover:underline"
                                             @click="loadCompare(run.batch_id)"
                                         >Bandingkan batch</button>
+                                        <span v-if="run.is_stale" class="text-xs text-amber-700" title="Jadwal TPB berubah setelah run ini dibuat">Peringatan: TPB berubah</span>
                                         <Button v-if="run.status === 'done' && !run.is_active" @click="confirm('activate', run)">Tetapkan aktif</Button>
                                         <Button v-else-if="run.is_active && !run.published_at" @click="confirm('publish', run)">Publikasikan</Button>
                                     </div>
@@ -376,7 +386,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                     <div>
                         <h2 class="text-lg font-semibold text-gray-900">Detail Run #{{ selectedRun.id }}</h2>
-                        <p class="mt-1 text-sm text-gray-600">{{ selectedRun.faculty?.code }} · {{ selectedRun.period }} · {{ selectedRun.schedule_details_count }} jadwal</p>
+                        <p class="mt-1 text-sm text-gray-600">{{ selectedRun.faculty?.code ?? 'TPB' }} · {{ selectedRun.period }} · {{ selectedRun.schedule_details_count }} jadwal</p>
                     </div>
                     <div class="flex flex-wrap gap-2">
                         <select v-model="programFilter" class="rounded-lg border-gray-200 text-sm" aria-label="Filter prodi">
@@ -402,7 +412,8 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
                     </dl>
 
                     <p class="text-sm text-gray-600">
-                        <template v-if="canOverride">Klik jadwal di grid untuk memindahkan hari, sesi, atau ruangnya.</template>
+                        <template v-if="isTpb">Jadwal TPB tidak diubah manual. Jalankan ulang GA bila hasilnya belum sesuai.</template>
+                        <template v-else-if="canOverride">Klik jadwal di grid untuk memindahkan hari, sesi, atau ruangnya.</template>
                         <template v-else>Jadwal hanya bisa diubah manual setelah run ini ditetapkan aktif.</template>
                     </p>
 
@@ -470,6 +481,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
                                                     <p class="font-medium leading-snug text-gray-900">{{ detail.course.name }}</p>
                                                     <p class="mt-1 text-xs text-gray-500">
                                                         {{ detail.course.code }} · Kelas {{ classLabel(detail.class_number) }}
+                                                        <template v-if="detail.tpb_group"> · Grup {{ detail.tpb_group.code }}</template>
                                                     </p>
                                                     <p class="mt-2 text-xs leading-relaxed text-gray-600">
                                                         {{ detail.lecturer.name }}
@@ -526,6 +538,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
         >
             <template v-if="pendingAction === 'activate'">
                 Jadwal aktif yang lama akan digantikan. Run baru belum langsung terlihat mahasiswa dan dosen sampai dipublikasikan.
+                <p v-if="isTpb" class="mt-2">Slot TPB baru terkunci untuk fakultas setelah jadwal ini dipublikasikan. Jadwal fakultas yang sudah ada tetap berjalan dan hanya diberi peringatan.</p>
                 <p v-if="actionTarget && actionTarget.hc_violations > 0" class="mt-2 font-semibold text-amber-700">Peringatan: run ini memiliki {{ actionTarget.hc_violations }} pelanggaran hard constraint. Server tetap mengizinkan aktivasi.</p>
             </template>
             <template v-else>Setelah dipublikasikan, dosen dan mahasiswa dapat melihat jadwal ini.</template>

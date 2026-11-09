@@ -232,7 +232,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details'], () => {
                                             <div class="border-l-2 border-transparent pl-3">
                                                 <p class="font-medium leading-snug text-gray-900">{{ row.course.name }}</p>
                                                 <p class="mt-1 text-xs text-gray-500">
-                                                    {{ row.course.code }} · Kelas {{ classLabel(row.class_number) }} · Semester {{ row.course.semester }}
+                                                    {{ row.course.code }} · Kelas {{ classLabel(row.class_number) }} · {{ row.course.semester ? `Semester ${row.course.semester}` : `TPB${row.tpb_group ? ` grup ${row.tpb_group.code}` : ''}` }}
                                                 </p>
                                                 <p class="mt-2 text-xs text-gray-500">
                                                     {{ row.course.study_program?.code ?? 'Prodi' }}

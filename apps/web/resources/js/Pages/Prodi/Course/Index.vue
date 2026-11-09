@@ -59,9 +59,9 @@ function openEdit(course: Course): void {
         code: course.code,
         name: course.name,
         sks: course.sks,
-        semester: course.semester,
-        parallel_class_count: course.parallel_class_count,
-        class_capacity: course.class_capacity,
+        semester: course.semester ?? undefined,
+        parallel_class_count: course.parallel_class_count ?? undefined,
+        class_capacity: course.class_capacity ?? undefined,
     });
     isModalOpen.value = true;
 }
@@ -168,11 +168,11 @@ async function confirmDelete(): Promise<void> {
                                 <td class="px-6 py-3.5 text-right tabular-nums text-gray-700">{{ course.semester }}</td>
                                 <td class="px-6 py-3.5 text-right tabular-nums text-gray-700">{{ course.class_capacity }}</td>
                                 <td class="whitespace-nowrap px-6 py-3.5 text-right tabular-nums">
-                                    <span :class="course.course_lecturers_count < course.parallel_class_count ? 'font-semibold text-red-600' : 'text-gray-700'">
+                                    <span :class="course.course_lecturers_count < (course.parallel_class_count ?? 0) ? 'font-semibold text-red-600' : 'text-gray-700'">
                                         {{ course.course_lecturers_count }} / {{ course.parallel_class_count }}
                                     </span>
-                                    <span v-if="course.course_lecturers_count < course.parallel_class_count" class="ml-1.5 text-xs text-red-600">
-                                        kurang {{ course.parallel_class_count - course.course_lecturers_count }}
+                                    <span v-if="course.course_lecturers_count < (course.parallel_class_count ?? 0)" class="ml-1.5 text-xs text-red-600">
+                                        kurang {{ (course.parallel_class_count ?? 0) - course.course_lecturers_count }}
                                     </span>
                                 </td>
                                 <td v-if="hasActions" class="whitespace-nowrap px-6 py-3.5 text-right">

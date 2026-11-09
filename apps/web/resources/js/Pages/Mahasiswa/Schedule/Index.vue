@@ -15,7 +15,8 @@ type CourseOption = {
     id: number;
     code: string;
     name: string;
-    semester: number;
+    /** null for TPB courses. */
+    semester: number | null;
     classes: number[];
 };
 
