@@ -8,25 +8,23 @@ use App\Data\MasterData\TeachingAssignmentFormData;
 use App\Exceptions\Shared\ApiException;
 use App\Models\MasterData\Course;
 use App\Models\MasterData\CourseLecturer;
-use App\Models\MasterData\Room;
-use App\Models\MasterData\TpbGroup;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
  * Teaching assignments (course_lecturers): one lecturer per class of a course.
  * The lecturer may come from any faculty. Rows are hard deleted: schedules keep their own
  * snapshot of course, class and lecturer, so nothing else points at an assignment.
+ *
+ * TPB classes are created and deleted by their group (TpbGroupService). Here they only get,
+ * change or lose their lecturer.
  */
 readonly class TeachingAssignmentService
 {
     public function __construct(
         private CourseLecturer $courseLecturer,
         private ResolvesOrgScope $orgScope,
-        private TpbClashChecker $clashChecker,
-        private DatabaseManager $db,
     ) {}
 
     /**
@@ -37,8 +35,10 @@ readonly class TeachingAssignmentService
         ?int $courseId,
         ?int $lecturerId,
         ?int $studyProgramId,
+        ?int $tpbOfferingId,
         ?int $tpbGroupId,
         int $perPage,
+        ?string $tpbPeriod = null,
     ): LengthAwarePaginator {
         return TeachingAssignmentData::prepareQuery($this->courseLecturer->newQuery())
             ->unless($this->orgScope->readsAllFaculties($actor), fn (Builder $query) => $query->whereHas('course', fn (Builder $query) => $query
@@ -47,7 +47,9 @@ readonly class TeachingAssignmentService
             ->when($courseId, fn (Builder $query) => $query->where('course_id', $courseId))
             ->when($lecturerId, fn (Builder $query) => $query->where('lecturer_id', $lecturerId))
             ->when($studyProgramId, fn (Builder $query) => $query->whereRelation('course', 'study_program_id', $studyProgramId))
+            ->when($tpbOfferingId, fn (Builder $query) => $query->where('tpb_offering_id', $tpbOfferingId))
             ->when($tpbGroupId, fn (Builder $query) => $query->where('tpb_group_id', $tpbGroupId))
+            ->when($tpbPeriod, fn (Builder $query) => $query->whereRelation('tpbOffering', 'period', $tpbPeriod))
             ->orderBy('course_id')
             ->orderBy('class_number')
             ->paginate($perPage)
@@ -61,14 +63,12 @@ readonly class TeachingAssignmentService
 
     public function createAssignment(Course $course, TeachingAssignmentFormData $data): TeachingAssignmentData
     {
+        if ($course->is_tpb) {
+            throw ApiException::validation(['course_id' => [__('TPB classes are created from their group. Pick the lecturer on the class instead.')]]);
+        }
         $this->ensureValid($course, $data);
 
-        $assignment = $this->db->transaction(function () use ($data) {
-            $assignment = $this->courseLecturer->newQuery()->create($this->attributes($data));
-            $this->ensureNoTpbClash($assignment);
-
-            return $assignment;
-        });
+        $assignment = $this->courseLecturer->newQuery()->create($this->attributes($data));
 
         return $this->getAssignment($assignment);
     }
@@ -78,56 +78,31 @@ readonly class TeachingAssignmentService
      */
     public function updateAssignment(CourseLecturer $assignment, TeachingAssignmentFormData $data): TeachingAssignmentData
     {
-        $this->ensureValid($assignment->course, $data);
+        if ($assignment->tpb_offering_id !== null) {
+            $assignment->update(['lecturer_id' => $data->lecturerId]);
 
-        $this->db->transaction(function () use ($assignment, $data) {
-            $assignment->update($this->attributes($data));
-            $this->ensureNoTpbClash($assignment->fresh());
-        });
+            return $this->getAssignment($assignment->fresh());
+        }
+
+        $this->ensureValid($assignment->course, $data);
+        $assignment->update($this->attributes($data));
 
         return $this->getAssignment($assignment->fresh());
     }
 
     public function deleteAssignment(CourseLecturer $assignment): void
     {
+        if ($assignment->tpb_offering_id !== null) {
+            throw ApiException::validation(['id' => [__('A TPB class leaves by removing it from its group. To clear its lecturer, set the lecturer to empty.')]]);
+        }
+
         $assignment->delete();
     }
 
     private function ensureValid(Course $course, TeachingAssignmentFormData $data): void
     {
-        $errors = [];
-
         if ($data->classNumber > $course->parallel_class_count) {
-            $errors['class_number'][] = __('The course only has :count classes.', ['count' => $course->parallel_class_count]);
-        }
-
-        if (! $course->is_tpb) {
-            if ($data->tpbGroupId !== null) {
-                $errors['tpb_group_id'][] = __('Only TPB classes belong to a TPB group.');
-            }
-            if ($data->roomId !== null) {
-                $errors['room_id'][] = __('Only TPB classes get a room here. Regular classes get theirs from the scheduler.');
-            }
-        } else {
-            if ($data->tpbGroupId === null || ! TpbGroup::query()->whereKey($data->tpbGroupId)->where('course_id', $course->id)->exists()) {
-                $errors['tpb_group_id'][] = __('A TPB class needs a TPB group of the same course.');
-            }
-            if ($data->roomId !== null && Room::query()->whereKey($data->roomId)->whereNotNull('faculty_id')->exists()) {
-                $errors['room_id'][] = __('TPB classes may only use shared rooms.');
-            }
-        }
-
-        if ($errors !== []) {
-            throw ApiException::validation($errors);
-        }
-    }
-
-    private function ensureNoTpbClash(CourseLecturer $assignment): void
-    {
-        $errors = $this->clashChecker->classErrors($assignment);
-
-        if ($errors !== []) {
-            throw ApiException::validation($errors);
+            throw ApiException::validation(['class_number' => [__('The course only has :count classes.', ['count' => $course->parallel_class_count])]]);
         }
     }
 
@@ -140,8 +115,6 @@ readonly class TeachingAssignmentService
             'course_id' => $data->courseId,
             'class_number' => $data->classNumber,
             'lecturer_id' => $data->lecturerId,
-            'tpb_group_id' => $data->tpbGroupId,
-            'room_id' => $data->roomId,
         ];
     }
 }
