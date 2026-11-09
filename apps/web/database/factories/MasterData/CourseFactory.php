@@ -26,6 +26,12 @@ class CourseFactory extends Factory
 
     public function tpb(): static
     {
-        return $this->state(fn () => ['study_program_id' => null, 'is_tpb' => true, 'semester' => 1]);
+        return $this->state(fn () => [
+            'study_program_id' => null,
+            'is_tpb' => true,
+            'semester' => null,
+            'parallel_class_count' => null,
+            'class_capacity' => null,
+        ]);
     }
 }
