@@ -40,7 +40,7 @@ pub type ScOverrides = HashMap<String, HashMap<String, f64>>;
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GaPreset {
     pub id: i64,
-    pub faculty_id: i64,
+    pub faculty_id: Option<i64>,
     pub name: String,
     pub population_size: u32,
     pub min_generations: u32,
