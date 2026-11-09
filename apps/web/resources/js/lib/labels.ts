@@ -1,5 +1,5 @@
 import type { Role, User } from '@/types';
-import type { FacultySummary, StudyProgramSummary, TimeSlot } from '@/types/models';
+import type { FacultySummary, StudyProgramSummary, TimeSlot, TpbCohort } from '@/types/models';
 
 export const ROLE_LABELS: Record<Role, string> = {
     superadmin: 'Superadmin',
@@ -61,3 +61,23 @@ export function userUnit(
         subtitle: program ? program.name : null,
     };
 }
+
+export const COHORT_LABELS: Record<TpbCohort, string> = {
+    maba: 'Mahasiswa baru',
+    non_maba: 'Mahasiswa lama',
+    campuran: 'Baru dan lama',
+    mengulang: 'Kelas mengulang',
+    pilihan: 'Mata kuliah pilihan',
+};
+
+export const REGULAR_COHORTS: TpbCohort[] = ['maba', 'non_maba', 'campuran'];
+
+export function classLabel(classNumber: number): string {
+    let label = '';
+    for (let n = classNumber; n > 0; n = Math.floor((n - 1) / 26)) {
+        label = String.fromCharCode(65 + ((n - 1) % 26)) + label;
+    }
+    return label;
+}
+
+export const DAY_LABELS: Record<number, string> = { 1: 'Senin', 2: 'Selasa', 3: 'Rabu', 4: 'Kamis', 5: 'Jumat', 6: 'Sabtu', 7: 'Minggu' };

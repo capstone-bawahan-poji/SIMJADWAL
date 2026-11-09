@@ -54,7 +54,13 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware('role:admin_tpb')->prefix('tpb')->name('tpb.')->group(function () {
-        Route::get('/', fn () => inertia('Tpb/Index'))->name('index');
+        Route::get('/schedule', fn () => inertia('Tpb/Schedule/Index'))->name('schedule.index');
+        Route::get('/courses', fn () => inertia('Tpb/Course/Index'))->name('courses.index');
+        Route::get('/lecturers', fn () => inertia('Tpb/Lecturer/Index'))->name('lecturers.index');
+        Route::get('/mappings', fn () => inertia('Tpb/Mapping/Index'))->name('mappings.index');
+        Route::get('/mappings/import', fn () => inertia('Tpb/Mapping/Import'))->name('mappings.import');
+        Route::get('/ga', fn () => inertia('Tpb/Ga/Index'))->name('ga.index');
+        Route::get('/rooms', fn () => inertia('Tpb/Room/Index'))->name('rooms.index');
     });
 
     Route::middleware('role:mahasiswa')->prefix('mahasiswa')->name('mahasiswa.')->group(function () {
