@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
+import DashboardChart from '@/Components/dashboard/DashboardChart.vue';
+import DashboardSummary from '@/Components/dashboard/DashboardSummary.vue';
 import Card from '@/Components/ui/Card.vue';
 import { fetchAll } from '@/composables/useApiList';
 import { onResourcesChanged } from '@/composables/useResourceChanges';
@@ -46,11 +48,11 @@ onResourcesChanged(['courses', 'course_lecturers', 'tpb_groups', 'study_programs
     <Head title="Dashboard Admin TPB" />
 
     <AppLayout>
-        <div class="mx-auto w-full max-w-7xl space-y-6 p-6 md:p-8">
+        <div class="dashboard-page w-full space-y-6 p-6 md:p-8">
             <header class="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                    <h1 class="text-2xl font-bold tracking-tight text-gray-900">Dashboard Admin TPB</h1>
-                    <p class="mt-1 text-sm text-gray-500">Ringkasan pengelolaan mata kuliah dan jadwal TPB lintas program studi.</p>
+                    <h1 class="text-3xl font-bold tracking-tight text-[#112D4E]">Dashboard</h1>
+                    <p class="mt-1 text-sm text-[#112D4E]/70">Admin TPB · Pengelolaan mata kuliah dan grup lintas program studi</p>
                 </div>
                 <button
                     type="button"
@@ -68,58 +70,33 @@ onResourcesChanged(['courses', 'course_lecturers', 'tpb_groups', 'study_programs
                 <button type="button" class="mt-2 font-semibold underline" @click="loadDashboard">Coba lagi</button>
             </div>
 
-            <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Ringkasan TPB">
-                <Card class="border border-gray-100 shadow-sm">
-                    <p class="text-xs font-semibold text-gray-500">Mata Kuliah TPB</p>
-                    <p class="mt-2 text-3xl font-bold text-gray-900">{{ loading ? '—' : courses.length }}</p>
-                    <Link href="/tpb" class="mt-2 inline-flex text-xs font-semibold text-primary hover:underline">Kelola mata kuliah</Link>
-                </Card>
-                <Card class="border border-gray-100 shadow-sm">
-                    <p class="text-xs font-semibold text-gray-500">Kelas Paralel</p>
-                    <p class="mt-2 text-3xl font-bold text-gray-900">{{ loading ? '—' : classCount }}</p>
-                    <p class="mt-2 text-xs text-gray-500">{{ assignedClassCount }} kelas sudah memiliki pengampu</p>
-                </Card>
-                <Card class="border border-gray-100 shadow-sm">
-                    <p class="text-xs font-semibold text-gray-500">Grup TPB</p>
-                    <p class="mt-2 text-3xl font-bold text-gray-900">{{ loading ? '—' : groups.length }}</p>
-                    <Link href="/tpb" class="mt-2 inline-flex text-xs font-semibold text-primary hover:underline">Kelola grup dan peserta</Link>
-                </Card>
-                <Card class="border border-gray-100 shadow-sm">
-                    <p class="text-xs font-semibold text-gray-500">Grup dengan Slot</p>
-                    <p class="mt-2 text-3xl font-bold text-gray-900">{{ loading ? '—' : scheduledGroups.length }}</p>
-                    <p class="mt-2 text-xs text-gray-500">dari {{ groups.length }} grup TPB</p>
-                </Card>
-            </section>
+            <DashboardSummary label="Ringkasan TPB" :figures="[
+                { label: 'Mata kuliah TPB', value: loading || error ? '—' : courses.length },
+                { label: 'Kelas paralel', value: loading || error ? '—' : classCount, detail: loading || error ? undefined : `${assignedClassCount} sudah memiliki pengampu` },
+                { label: 'Grup TPB', value: loading || error ? '—' : groups.length },
+                { label: 'Grup dengan slot', value: loading || error ? '—' : scheduledGroups.length, detail: loading || error ? undefined : `dari ${groups.length} grup` },
+            ]" />
 
-            <section class="grid gap-6 lg:grid-cols-2">
-                <Card class="border border-gray-100 shadow-sm">
+            <section class="grid gap-6 lg:grid-cols-5">
+                <DashboardChart
+                    v-if="!loading && !error"
+                    class="lg:col-span-3"
+                    title="Pengampu kelas TPB"
+                    description="Jumlah kelas berdasarkan pengampu"
+                    unit="kelas"
+                    :items="[
+                        { label: 'Sudah ada pengampu', value: assignedClassCount },
+                        { label: 'Belum ada pengampu', value: unassignedClassCount },
+                    ]"
+                />
+                <div v-else class="rounded-[20px] border border-[#DBE2EF] bg-white p-6 text-sm text-[#112D4E]/70 lg:col-span-3">
+                    {{ loading ? 'Memuat grafik pengampu…' : 'Grafik pengampu tidak dapat dimuat.' }}
+                </div>
+
+                <Card class="border border-gray-100 shadow-sm lg:col-span-2">
                     <div class="flex items-start justify-between gap-4">
                         <div>
-                            <h2 class="text-sm font-bold text-gray-900">Status Pengampu Kelas TPB</h2>
-                            <p class="mt-1 text-xs text-gray-500">Kelengkapan pengampu untuk seluruh kelas paralel.</p>
-                        </div>
-                        <Link href="/tpb" class="text-xs font-semibold text-primary hover:underline">Atur pengampu</Link>
-                    </div>
-                    <dl class="mt-5 divide-y divide-gray-100">
-                        <div class="flex items-center justify-between py-3 text-sm">
-                            <dt class="text-gray-600">Total kelas</dt>
-                            <dd class="font-bold text-gray-900">{{ loading ? '—' : classCount }}</dd>
-                        </div>
-                        <div class="flex items-center justify-between py-3 text-sm">
-                            <dt class="text-gray-600">Sudah memiliki pengampu</dt>
-                            <dd class="font-bold text-emerald-700">{{ loading ? '—' : assignedClassCount }}</dd>
-                        </div>
-                        <div class="flex items-center justify-between py-3 text-sm">
-                            <dt class="text-gray-600">Belum memiliki pengampu</dt>
-                            <dd class="font-bold" :class="unassignedClassCount ? 'text-amber-700' : 'text-gray-900'">{{ loading ? '—' : unassignedClassCount }}</dd>
-                        </div>
-                    </dl>
-                </Card>
-
-                <Card class="border border-gray-100 shadow-sm">
-                    <div class="flex items-start justify-between gap-4">
-                        <div>
-                            <h2 class="text-sm font-bold text-gray-900">Kesiapan Grup TPB</h2>
+                            <h2 class="text-lg font-bold text-[#112D4E]">Kesiapan Grup TPB</h2>
                             <p class="mt-1 text-xs text-gray-500">Penempatan slot dan cakupan program studi peserta.</p>
                         </div>
                         <Link href="/tpb" class="text-xs font-semibold text-primary hover:underline">Kelola data TPB</Link>
@@ -127,15 +104,15 @@ onResourcesChanged(['courses', 'course_lecturers', 'tpb_groups', 'study_programs
                     <dl class="mt-5 divide-y divide-gray-100">
                         <div class="flex items-center justify-between py-3 text-sm">
                             <dt class="text-gray-600">Total grup</dt>
-                            <dd class="font-bold text-gray-900">{{ loading ? '—' : groups.length }}</dd>
+                            <dd class="font-bold text-gray-900">{{ loading || error ? '—' : groups.length }}</dd>
                         </div>
                         <div class="flex items-center justify-between py-3 text-sm">
                             <dt class="text-gray-600">Sudah memiliki slot</dt>
-                            <dd class="font-bold text-emerald-700">{{ loading ? '—' : scheduledGroups.length }}</dd>
+                            <dd class="font-bold text-emerald-700">{{ loading || error ? '—' : scheduledGroups.length }}</dd>
                         </div>
                         <div class="flex items-center justify-between py-3 text-sm">
                             <dt class="text-gray-600">Program studi peserta</dt>
-                            <dd class="font-bold text-gray-900">{{ loading ? '—' : participantCount }}</dd>
+                            <dd class="font-bold text-gray-900">{{ loading || error ? '—' : participantCount }}</dd>
                         </div>
                     </dl>
                 </Card>
@@ -163,10 +140,13 @@ onResourcesChanged(['courses', 'course_lecturers', 'tpb_groups', 'study_programs
                             <tr v-if="loading">
                                 <td colspan="4" class="px-6 py-8 text-center text-sm text-gray-500">Memuat grup TPB...</td>
                             </tr>
+                            <tr v-else-if="error">
+                                <td colspan="4" class="px-6 py-8 text-center text-sm text-gray-500">Daftar grup TPB tidak dapat dimuat.</td>
+                            </tr>
                             <tr v-else-if="unplacedGroups.length === 0">
                                 <td colspan="4" class="px-6 py-8 text-center text-sm text-gray-500">Semua grup TPB sudah memiliki slot.</td>
                             </tr>
-                            <tr v-for="group in unplacedGroups.slice(0, 5)" :key="group.id">
+                            <tr v-for="group in loading || error ? [] : unplacedGroups.slice(0, 5)" :key="group.id">
                                 <td class="px-6 py-4">
                                     <span class="font-semibold text-gray-900">{{ group.course.code }}</span>
                                     <span class="mt-1 block text-gray-500">{{ group.course.name }}</span>
@@ -187,3 +167,8 @@ onResourcesChanged(['courses', 'course_lecturers', 'tpb_groups', 'study_programs
         </div>
     </AppLayout>
 </template>
+
+<style scoped>
+.dashboard-page { background: #F9F7F7; min-height: calc(100vh - 4rem); }
+.dashboard-page :deep(.shadow-sm) { border-color: #DBE2EF; border-radius: 20px; box-shadow: none; }
+</style>

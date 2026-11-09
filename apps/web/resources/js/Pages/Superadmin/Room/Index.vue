@@ -153,7 +153,7 @@ async function confirmDelete(): Promise<void> {
             <div class="flex flex-col justify-between gap-4 md:flex-row md:items-center">
                 <h2 class="text-2xl font-bold tracking-tight text-gray-900">Data Ruangan</h2>
                 <Button @click="openCreate" class="bg-primary text-white hover:bg-primary-hover">
-                    + Tambah Ruangan
+                    Tambah Ruangan
                 </Button>
             </div>
 
@@ -236,7 +236,7 @@ async function confirmDelete(): Promise<void> {
                                 <td class="px-6 py-4 text-center">
                                     <div class="flex justify-center gap-2">
                                         <Button v-if="room.can_update" variant="secondary" size="sm" @click="openEdit(room)">Edit</Button>
-                                        <Button v-if="room.can_delete" variant="danger" size="sm" @click="askDelete(room)">Hapus</Button>
+                                        <Button v-if="room.can_delete" variant="primary" size="sm" @click="askDelete(room)">Hapus</Button>
                                     </div>
                                 </td>
                             </tr>

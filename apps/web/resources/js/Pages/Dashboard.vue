@@ -31,7 +31,7 @@ const figures = computed(() => {
     return [
         { label: 'Fakultas', value: format(props.stats.faculties) },
         { label: 'Program studi', value: format(props.stats.study_programs) },
-        { label: 'Pengguna', value: format(props.stats.users.total) },
+        { label: 'Pengguna', value: format(props.stats.users.total), detail: `${format(props.stats.users.active)} akun aktif` },
     ];
 });
 
@@ -49,11 +49,6 @@ const roles = computed(() => {
         percent: props.stats!.users.total > 0 ? Math.round((item.value / props.stats!.users.total) * 100) : 0,
     }));
 });
-
-const activePercent = computed(() =>
-    props.stats && props.stats.users.total > 0 ? Math.round((props.stats.users.active / props.stats.users.total) * 100) : 0,
-);
-const activeArcLength = Math.PI * 52;
 
 const tasks = computed(() => {
     if (!props.stats) return [];
@@ -155,6 +150,7 @@ const card = {
                         >
                             <dt class="text-sm" :style="{ color: C.muted }">{{ figure.label }}</dt>
                             <dd class="mt-1 text-3xl font-bold tabular-nums tracking-tight" :style="{ color: C.navy }">{{ figure.value }}</dd>
+                            <dd v-if="figure.detail" class="mt-1 text-xs" :style="{ color: C.muted }">{{ figure.detail }}</dd>
                         </div>
                     </dl>
                 </section>
@@ -265,66 +261,6 @@ const card = {
                     </section>
 
                     <div style="flex: 1 1 22rem; min-width: 0; display: flex; flex-direction: column; gap: 24px">
-                        <section
-                            :style="{
-                                backgroundColor: C.navy,
-                                borderRadius: '20px',
-                                padding: '24px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'space-between',
-                                gap: '16px',
-                                flexWrap: 'wrap',
-                            }"
-                            aria-labelledby="active-heading"
-                        >
-                            <div style="flex: 1 1 11rem; min-width: 0">
-                                <p id="active-heading" class="text-xs font-semibold uppercase tracking-wide" :style="{ color: C.mist }">Status akun</p>
-                                <p class="mt-1.5 text-xl font-bold leading-snug" :style="{ color: C.paper }">
-                                    {{ format(stats.users.active) }} akun aktif
-                                </p>
-                                <p class="mt-1 text-sm" :style="{ color: 'rgba(249, 247, 247, 0.72)' }">
-                                    dari {{ format(stats.users.total) }} pengguna terdaftar
-                                </p>
-                            </div>
-
-                            <div :style="{ position: 'relative', width: '9.5rem', flexShrink: 0, paddingBottom: '16px' }">
-                                <svg viewBox="0 0 120 66" role="img" :aria-label="`${activePercent}% akun aktif`" style="display: block; width: 100%">
-                                    <path d="M 8 60 A 52 52 0 0 1 112 60" fill="none" stroke="rgba(249, 247, 247, 0.16)" stroke-width="8" stroke-linecap="round" />
-                                    <path
-                                        v-if="activePercent > 0"
-                                        d="M 8 60 A 52 52 0 0 1 112 60"
-                                        fill="none"
-                                        :stroke="C.mist"
-                                        stroke-width="8"
-                                        stroke-linecap="round"
-                                        :stroke-dasharray="`${(activeArcLength * activePercent) / 100} ${activeArcLength}`"
-                                    />
-                                </svg>
-                                <Link
-                                    :href="route('superadmin.accounts.index')"
-                                    aria-label="Kelola akun pengguna"
-                                    :style="{
-                                        position: 'absolute',
-                                        left: '50%',
-                                        bottom: '0',
-                                        transform: 'translateX(-50%)',
-                                        width: '30px',
-                                        height: '30px',
-                                        borderRadius: '9999px',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        backgroundColor: C.blue,
-                                        color: C.white,
-                                    }"
-                                >
-                                    <ArrowRight class="h-4 w-4" aria-hidden="true" />
-                                </Link>
-                                <span class="absolute inset-x-0 top-7 text-center text-sm font-bold" :style="{ color: C.paper }">{{ activePercent }}%</span>
-                            </div>
-                        </section>
-
                         <section :style="{ ...card, flex: 1 }" aria-labelledby="tasks-heading">
                             <h2 id="tasks-heading" class="text-lg font-bold" :style="{ color: C.navy }">Akses cepat</h2>
                             <ul style="list-style: none; padding: 0; margin: 12px 0 0">

@@ -108,7 +108,6 @@ async function act(action: 'accept' | 'return'): Promise<void> {
         <div class="w-full space-y-6 p-6 md:p-8">
             <div>
                 <h1 class="text-2xl font-bold tracking-tight text-gray-900">Kelola Constraint</h1>
-                <p class="mt-1 text-sm text-gray-500">Review constraint yang di-submit tiap program studi, lalu terima atau kembalikan.</p>
             </div>
 
             <Alert v-if="flash" variant="success" :title="flash" dismissible @dismiss="flash = null" />

@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AuthLayout from '@/Layouts/AuthLayout.vue';
 import AppLogo from '@/Components/shared/AppLogo.vue';
+import campusImage from '../../../../images/kampus-itk.png';
 import FormField from '@/Components/shared/FormField.vue';
 import PasswordInput from '@/Components/shared/PasswordInput.vue';
 import Alert from '@/Components/ui/Alert.vue';
@@ -29,7 +30,7 @@ const submit = () => {
 </script>
 
 <template>
-    <AuthLayout>
+    <AuthLayout :background-image="campusImage">
         <Head title="Masuk" />
 
         <div class="w-full max-w-md">

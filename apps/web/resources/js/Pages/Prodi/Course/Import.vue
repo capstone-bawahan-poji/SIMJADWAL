@@ -7,7 +7,7 @@ import Panel from '@/Components/ui/Panel.vue';
 import { useOwnSubmission } from '@/composables/useOwnSubmission';
 import { api, toApiError, type ApiError } from '@/lib/api';
 import { Head, Link, usePage } from '@inertiajs/vue3';
-import { ArrowLeft, ArrowRight, CheckCircle2, CircleHelp, Download, FileSpreadsheet, ShieldCheck, UploadCloud } from 'lucide-vue-next';
+import { ArrowLeft, ArrowRight, CheckCircle2, CircleHelp, Download, FileSpreadsheet, UploadCloud } from 'lucide-vue-next';
 import { AxiosError } from 'axios';
 import { computed, reactive, ref } from 'vue';
 
@@ -265,29 +265,29 @@ function unresolve(match: LecturerMatch): void {
 
     <AppLayout>
         <div class="mx-auto w-full max-w-7xl space-y-6 p-6 md:p-8">
-            <header class="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
-                <div class="flex items-start gap-4">
-                    <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-primary ring-1 ring-blue-100">
-                        <FileSpreadsheet class="h-6 w-6" aria-hidden="true" />
-                    </span>
-                    <div>
-                        <p class="text-xs font-bold uppercase tracking-[0.16em] text-primary">Data Akademik · Koor Prodi</p>
-                        <h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-900">Import Mata Kuliah</h1>
-                        <p class="mt-1 max-w-2xl text-sm leading-6 text-gray-500">
-                            Perbarui data mata kuliah, kelas paralel, dan dosen pengampu melalui file Excel.
-                        </p>
+            <header class="flex flex-wrap items-start justify-between gap-4">
+                <div class="flex flex-wrap items-start gap-4">
+                    <Link
+                        :href="route('prodi.courses.index')"
+                        class="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                    >
+                        <ArrowLeft class="h-4 w-4" aria-hidden="true" />
+                        Kembali
+                    </Link>
+                    <div class="flex items-start gap-4">
+                        <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-primary ring-1 ring-blue-100">
+                            <FileSpreadsheet class="h-6 w-6" aria-hidden="true" />
+                        </span>
+                        <div>
+                            <p class="text-xs font-bold uppercase tracking-[0.16em] text-primary">Data Akademik · Koor Prodi</p>
+                            <h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-900">Import Mata Kuliah</h1>
+                        </div>
                     </div>
                 </div>
-                <Link
-                    :href="route('prodi.courses.index')"
-                    class="inline-flex h-10 items-center justify-center gap-2 self-start rounded-xl border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 shadow-sm transition hover:border-gray-300 hover:bg-gray-50 sm:self-auto"
-                >
-                    <ArrowLeft class="h-4 w-4" aria-hidden="true" />
-                    Kembali ke mata kuliah
-                </Link>
+                <ProgramLockBanner v-if="locked" :submission="submission" />
             </header>
 
-            <ProgramLockBanner :submission="submission" />
+            <ProgramLockBanner v-if="!locked" :submission="submission" />
 
             <Panel v-if="result" class="overflow-hidden border-green-200 p-0 shadow-sm">
                 <div class="flex flex-col gap-5 bg-gradient-to-br from-green-50 via-white to-white p-6 md:flex-row md:items-center md:justify-between md:p-8">
@@ -445,10 +445,6 @@ function unresolve(match: LecturerMatch): void {
                             </label>
 
                             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                <p class="flex items-center gap-2 text-xs text-gray-500">
-                                    <ShieldCheck class="h-4 w-4 shrink-0 text-green-600" aria-hidden="true" />
-                                    Data baru ditampilkan sebagai preview sebelum disimpan.
-                                </p>
                                 <Button :disabled="!file || locked" :loading="processing && !preview" @click="send(true)">
                                     <FileSpreadsheet class="h-4 w-4" aria-hidden="true" />
                                     Lihat preview

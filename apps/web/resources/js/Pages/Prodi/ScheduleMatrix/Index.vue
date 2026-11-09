@@ -3,7 +3,6 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import Alert from '@/Components/ui/Alert.vue';
 import Card from '@/Components/ui/Card.vue';
 import ScheduleOverrideModal from '@/Components/scheduling/ScheduleOverrideModal.vue';
-import LecturerPreferences from '@/Pages/Dosen/Preferences.vue';
 import { fetchAll } from '@/composables/useApiList';
 import { onResourcesChanged } from '@/composables/useResourceChanges';
 import { useSemesterOptions } from '@/composables/useSemesterOptions';
@@ -43,9 +42,6 @@ const canOverride = computed(() => ['superadmin', 'admin_fakultas'].includes(use
 const isLecturer = computed(() => user.value.role === 'dosen');
 const isStudent = computed(() => user.value.role === 'mahasiswa');
 const canReadLecturerAndRoomReferences = computed(() => !isLecturer.value && !isStudent.value);
-const isPreferencesPage = computed(
-    () => isLecturer.value && new URLSearchParams(page.url.split('?')[1] ?? '').get('view') === 'preferences',
-);
 
 function currentQuery(): URLSearchParams {
     return new URL(window.location.href).searchParams;
@@ -460,8 +456,6 @@ function replaceUpdatedRow(updated: ScheduleDetailBase): void {
 }
 
 onMounted(() => {
-    if (isPreferencesPage.value) return;
-
     void loadReferences();
     void loadSchedule();
 });
@@ -469,16 +463,15 @@ onResourcesChanged(['scheduling_runs', 'schedule_details'], () => void loadSched
 </script>
 
 <template>
-    <Head :title="isPreferencesPage ? 'Preferensi Jadwal' : isStudent ? 'Jadwal Pribadi' : isLecturer ? 'Jadwal Mengajar' : 'Jadwal Kuliah'" />
+    <Head :title="isStudent ? 'Jadwal Pribadi' : isLecturer ? 'Jadwal Mengajar' : 'Jadwal Kuliah'" />
 
     <AppLayout>
-        <LecturerPreferences v-if="isPreferencesPage" />
-        <div v-else class="mx-auto w-full max-w-[1600px] space-y-6 p-6 md:p-8">
+        <div class="mx-auto w-full max-w-[1600px] space-y-6 p-6 md:p-8">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                     <h1 class="text-2xl font-bold tracking-tight text-gray-900">{{ isStudent ? 'Jadwal Pribadi' : isLecturer ? 'Jadwal Mengajar' : 'Jadwal Kuliah' }}</h1>
-                    <p class="mt-1 text-sm text-gray-500">
-                        {{ isStudent ? 'Pilih mata kuliah dan kelas yang Anda ikuti untuk melihat jadwal pribadi.' : isLecturer ? 'Jadwal mengajar Anda sesuai periode dan filter yang dipilih.' : 'Jadwal aktif sesuai periode dan filter yang dipilih.' }}
+                    <p v-if="isStudent || isLecturer" class="mt-1 text-sm text-gray-500">
+                        {{ isStudent ? 'Pilih mata kuliah dan kelas yang Anda ikuti untuk melihat jadwal pribadi.' : 'Jadwal mengajar Anda sesuai periode dan filter yang dipilih.' }}
                     </p>
                 </div>
                 <div v-if="isStudent && schedule?.schedule_details.length" class="relative">

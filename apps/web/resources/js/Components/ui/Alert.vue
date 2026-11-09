@@ -1,10 +1,10 @@
 <script setup lang="ts">
-import { CircleAlert, CircleCheck, X } from 'lucide-vue-next';
+import { CircleAlert, CircleCheck, TriangleAlert, X } from 'lucide-vue-next';
 import { computed } from 'vue';
 
 const props = withDefaults(
     defineProps<{
-        variant?: 'error' | 'success';
+        variant?: 'error' | 'success' | 'warning';
         title: string;
         dismissible?: boolean;
     }>(),
@@ -18,13 +18,14 @@ const styles = computed(
         ({
             error: { box: 'border-red-200 bg-red-50', title: 'text-red-800', icon: CircleAlert, iconClass: 'text-red-600' },
             success: { box: 'border-green-200 bg-green-50', title: 'text-green-800', icon: CircleCheck, iconClass: 'text-green-600' },
+            warning: { box: 'border-amber-200 bg-amber-50', title: 'text-amber-900', icon: TriangleAlert, iconClass: 'text-amber-600' },
         })[props.variant],
 );
 </script>
 
 <template>
     <div
-        :role="variant === 'error' ? 'alert' : 'status'"
+        :role="variant === 'success' ? 'status' : 'alert'"
         class="flex gap-3 rounded-lg border p-3.5"
         :class="styles.box"
     >

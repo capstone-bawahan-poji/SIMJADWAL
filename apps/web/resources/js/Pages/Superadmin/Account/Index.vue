@@ -7,7 +7,6 @@ import MetricCard from '@/Components/ui/MetricCard.vue';
 import Panel from '@/Components/ui/Panel.vue';
 import Modal from '@/Components/Modal.vue';
 import Alert from '@/Components/ui/Alert.vue';
-import ConfirmDialog from '@/Components/ui/ConfirmDialog.vue';
 import Pagination from '@/Components/ui/Pagination.vue';
 import { api, toApiError } from '@/lib/api';
 import { initials, ROLE_LABELS, ROLES, userUnit } from '@/lib/labels';
@@ -134,12 +133,14 @@ watch(() => [form.data.role, form.data.study_program_id], () => void loadLecture
 
 function openCreate(): void {
     editing.value = null;
+    statusError.value = null;
     form.reset();
     isModalOpen.value = true;
 }
 
 function openEdit(user: User): void {
     editing.value = user;
+    statusError.value = null;
     const programId = user.study_program_id ?? user.lecturer?.study_program_id ?? '';
     form.reset({
         name: user.name,
@@ -186,25 +187,22 @@ async function save(): Promise<void> {
 }
 
 // Activate / deactivate. Accounts are never deleted.
-const statusTarget = ref<User | null>(null);
 const statusProcessing = ref(false);
 const statusError = ref<string | null>(null);
 
-function askStatus(user: User): void {
-    statusTarget.value = user;
-    statusError.value = null;
-}
-
 async function toggleStatus(): Promise<void> {
-    const user = statusTarget.value;
+    const user = editing.value;
 
-    if (!user) return;
+    if (!user || !user.can_update_status || statusProcessing.value) return;
 
     statusProcessing.value = true;
+    statusError.value = null;
 
     try {
         await api.patch(`users/${user.id}/status`, { is_active: !user.is_active });
-        statusTarget.value = null;
+        if (editing.value?.id === user.id) {
+            editing.value = { ...editing.value, is_active: !user.is_active };
+        }
         refresh(user.is_active ? `Akun ${user.name} dinonaktifkan.` : `Akun ${user.name} diaktifkan.`);
     } catch (e) {
         const error = toApiError(e);
@@ -227,7 +225,7 @@ async function toggleStatus(): Promise<void> {
                 </div>
                 <div class="flex items-center gap-3">
                     <Button @click="openCreate" class="bg-primary hover:bg-primary-hover text-white">
-                        + Tambah Akun
+                        Tambah Akun
                     </Button>
                 </div>
             </div>
@@ -330,25 +328,12 @@ async function toggleStatus(): Promise<void> {
                                     <p class="text-xs text-gray-500">{{ userUnit(user, programById, facultyById).subtitle }}</p>
                                 </td>
                                 <td class="py-4 px-6 text-center">
-                                    <span v-if="user.is_active" class="inline-flex items-center gap-1.5 text-xs font-medium text-green-700">
-                                        <span class="h-1.5 w-1.5 rounded-full bg-green-600"></span>
-                                        Aktif
-                                    </span>
-                                    <span v-else class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500">
-                                        <span class="h-1.5 w-1.5 rounded-full bg-gray-400"></span>
-                                        Nonaktif
-                                    </span>
+                                    <span class="text-xs font-medium text-gray-600">{{ user.is_active ? 'Aktif' : 'Nonaktif' }}</span>
                                 </td>
                                 <td class="py-4 px-6 text-center">
                                     <div class="flex justify-center gap-2">
-                                        <Button v-if="user.can_update" variant="secondary" size="sm" @click="openEdit(user)">Edit</Button>
-                                        <Button
-                                            v-if="user.can_update_status"
-                                            :variant="user.is_active ? 'danger' : 'secondary'"
-                                            size="sm"
-                                            @click="askStatus(user)"
-                                        >
-                                            {{ user.is_active ? 'Nonaktifkan' : 'Aktifkan' }}
+                                        <Button v-if="user.can_update || user.can_update_status" variant="secondary" size="sm" @click="openEdit(user)">
+                                            {{ user.can_update ? 'Edit' : 'Kelola status' }}
                                         </Button>
                                     </div>
                                 </td>
@@ -362,7 +347,7 @@ async function toggleStatus(): Promise<void> {
         </div>
 
         <!-- Create / Edit Modal -->
-        <Modal :show="isModalOpen" @close="isModalOpen = false" maxWidth="2xl" close-button>
+        <Modal :show="isModalOpen" :closeable="!statusProcessing && !form.processing.value" @close="isModalOpen = false" maxWidth="2xl" close-button>
             <div class="p-6 pr-14 border-b border-gray-100 bg-gray-50 rounded-t-lg">
                 <h2 class="text-lg font-bold text-gray-900">{{ editing ? 'Ubah Akun Pengguna' : 'Tambah Akun Pengguna Baru' }}</h2>
                 <p class="text-sm text-gray-500">Konfigurasi data akun institusi dan otorisasi role</p>
@@ -371,6 +356,7 @@ async function toggleStatus(): Promise<void> {
                 <Alert v-if="form.failure.value" :title="form.failure.value.message" />
                 <Alert v-if="lecturerOptionsError" :title="lecturerOptionsError.message" />
 
+                <fieldset :disabled="!!editing && !editing.can_update" class="space-y-6 disabled:opacity-60">
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
                     <div>
                         <label for="user-name" class="block text-sm font-semibold text-gray-900 mb-1.5">Nama Lengkap</label>
@@ -405,7 +391,7 @@ async function toggleStatus(): Promise<void> {
                             <option value="admin_fakultas">Admin Fakultas (Ruangan & Data Fakultas)</option>
                             <option value="admin_tpb">Admin TPB (Mata Kuliah Bersama Tingkat Institut)</option>
                             <option value="admin_prodi">Koor Prodi (Setup Kurikulum & Jadwal)</option>
-                            <option value="dosen">Dosen (Preferensi Waktu & Jadwal)</option>
+                            <option value="dosen">Dosen (Jadwal Mengajar)</option>
                             <option value="mahasiswa">Mahasiswa (Lihat Jadwal)</option>
                         </select>
                         <p v-if="form.errors.value.role" class="mt-1 text-xs text-red-600">{{ form.errors.value.role }}</p>
@@ -460,35 +446,42 @@ async function toggleStatus(): Promise<void> {
                     />
                     <p v-if="form.errors.value.password" class="mt-1 text-xs text-red-600">{{ form.errors.value.password }}</p>
                 </div>
+                </fieldset>
+
+                <div v-if="editing" class="border-t border-gray-100 pt-4">
+                    <div class="flex items-center justify-between gap-3">
+                        <div>
+                            <p id="account-status-label" class="text-sm font-semibold text-gray-900">Status akun</p>
+                            <p class="mt-1 text-sm text-gray-600">{{ editing.is_active ? 'Aktif' : 'Nonaktif' }}</p>
+                        </div>
+                        <button
+                            v-if="editing.can_update_status"
+                            type="button"
+                            role="switch"
+                            aria-labelledby="account-status-label"
+                            :aria-checked="editing.is_active"
+                            :disabled="statusProcessing || form.processing.value"
+                            :class="editing.is_active ? 'bg-primary' : 'bg-gray-300'"
+                            class="relative h-6 w-11 shrink-0 rounded-full transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
+                            @click="toggleStatus"
+                        >
+                            <span :class="editing.is_active ? 'translate-x-5' : 'translate-x-1'" class="absolute left-0 top-1 h-4 w-4 rounded-full bg-white transition-transform"></span>
+                        </button>
+                    </div>
+                    <Alert v-if="statusError" class="mt-3" title="Tidak dapat mengubah status">{{ statusError }}</Alert>
+                </div>
 
                 <p class="text-sm text-gray-500">
-                    Setiap perubahan akun dan role dicatat di Log Aktivitas. Akun baru langsung aktif. Tanpa password awal,
-                    akun memakai password default; minta pengguna menggantinya di halaman profil.
+                    Setiap perubahan akun dan role dicatat di Log Aktivitas.
+                    <template v-if="!editing"> Akun baru langsung aktif. Tanpa password awal, akun memakai password default; minta pengguna menggantinya di halaman profil.</template>
                 </p>
 
                 <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
-                    <Button type="button" @click="isModalOpen = false" variant="secondary">Batal</Button>
-                    <Button type="submit" :loading="form.processing.value">Simpan Akun</Button>
+                    <Button type="button" @click="isModalOpen = false" variant="secondary" :disabled="statusProcessing || form.processing.value">Batal</Button>
+                    <Button v-if="!editing || editing.can_update" type="submit" :loading="form.processing.value" :disabled="statusProcessing">Simpan Akun</Button>
                 </div>
             </form>
         </Modal>
 
-        <ConfirmDialog
-            :show="statusTarget !== null"
-            :title="statusTarget?.is_active ? 'Nonaktifkan akun?' : 'Aktifkan akun?'"
-            :confirm-label="statusTarget?.is_active ? 'Nonaktifkan' : 'Aktifkan'"
-            :danger="statusTarget?.is_active ?? true"
-            :processing="statusProcessing"
-            :error="statusError"
-            @confirm="toggleStatus"
-            @close="statusTarget = null"
-        >
-            <template v-if="statusTarget?.is_active">
-                <strong>{{ statusTarget?.name }}</strong> tidak bisa masuk lagi dan sesinya langsung berakhir. Akun bisa diaktifkan kembali kapan saja.
-            </template>
-            <template v-else>
-                <strong>{{ statusTarget?.name }}</strong> bisa masuk lagi dengan password terakhirnya.
-            </template>
-        </ConfirmDialog>
     </AppLayout>
 </template>

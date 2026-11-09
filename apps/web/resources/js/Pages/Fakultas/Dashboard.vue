@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
+import DashboardChart from '@/Components/dashboard/DashboardChart.vue';
+import DashboardSummary from '@/Components/dashboard/DashboardSummary.vue';
 import Card from '@/Components/ui/Card.vue';
 import { onResourcesChanged } from '@/composables/useResourceChanges';
 import type { ConstraintStatus, FacultyDashboard } from '@/types/models';
@@ -25,55 +27,37 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'study_programs', 'le
 <template>
     <Head title="Dashboard Fakultas" />
     <AppLayout>
-        <div class="mx-auto w-full max-w-7xl space-y-6 p-6 md:p-8">
+        <div class="dashboard-page w-full space-y-6 p-6 md:p-8">
             <header>
-                <h1 class="text-2xl font-bold tracking-tight text-gray-900">Dashboard Fakultas</h1>
-                <p class="mt-1 text-sm text-gray-500">Ringkasan periode akademik {{ dashboard.period }}.</p>
+                <h1 class="text-3xl font-bold tracking-tight text-[#112D4E]">Dashboard</h1>
+                <p class="mt-1 text-sm text-[#112D4E]/70">Admin Fakultas · {{ dashboard.period }}</p>
             </header>
 
-            <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Ringkasan fakultas">
-                <Card class="border border-gray-100 shadow-sm">
-                    <p class="text-xs font-semibold text-gray-500">Constraint Prodi</p>
-                    <p class="mt-2 text-3xl font-bold text-gray-900">{{ dashboard.constraints.total }}</p>
-                    <p class="mt-2 text-xs text-gray-500">{{ dashboard.constraints.submitted }} menunggu review · {{ dashboard.constraints.accepted }} diterima</p>
-                </Card>
-                <Card class="border border-gray-100 shadow-sm">
-                    <p class="text-xs font-semibold text-gray-500">Jadwal Aktif</p>
-                    <p class="mt-2 text-3xl font-bold text-gray-900">{{ dashboard.active_run?.schedule_details_count ?? 0 }}</p>
-                    <p class="mt-2 text-xs text-gray-500">{{ dashboard.active_run ? formatDate(dashboard.active_run.published_at) : 'Belum ada jadwal aktif' }}</p>
-                </Card>
-                <Card class="border border-gray-100 shadow-sm">
-                    <p class="text-xs font-semibold text-gray-500">Kelas Tanpa Ruang</p>
-                    <p class="mt-2 text-3xl font-bold" :class="dashboard.rooms.unassigned_count ? 'text-amber-700' : 'text-gray-900'">{{ dashboard.rooms.unassigned_count }}</p>
-                    <Link href="/fakultas/rooms" class="mt-2 inline-flex text-xs font-semibold text-primary hover:underline">Kelola alokasi ruang</Link>
-                </Card>
-                <Card class="border border-gray-100 shadow-sm">
-                    <p class="text-xs font-semibold text-gray-500">Kelas Melebihi Kapasitas</p>
-                    <p class="mt-2 text-3xl font-bold" :class="dashboard.rooms.over_capacity_count ? 'text-red-700' : 'text-gray-900'">{{ dashboard.rooms.over_capacity_count }}</p>
-                    <Link href="/fakultas/rooms" class="mt-2 inline-flex text-xs font-semibold text-primary hover:underline">Lihat masalah ruangan</Link>
-                </Card>
-            </section>
+            <DashboardSummary label="Ringkasan fakultas" :figures="[
+                { label: 'Constraint prodi', value: dashboard.constraints.total, detail: `${dashboard.constraints.submitted} menunggu review · ${dashboard.constraints.accepted} diterima` },
+                { label: 'Kelas terjadwal', value: dashboard.active_run?.schedule_details_count ?? 0, detail: dashboard.active_run ? formatDate(dashboard.active_run.published_at) : 'Belum ada jadwal aktif' },
+                { label: 'Tanpa ruangan', value: dashboard.rooms.unassigned_count },
+                { label: 'Kapasitas kurang', value: dashboard.rooms.over_capacity_count },
+            ]" />
 
-            <section class="grid gap-6 lg:grid-cols-2">
-                <Card class="border border-gray-100 shadow-sm">
-                    <div class="flex items-start justify-between gap-4">
-                        <div>
-                            <h2 class="text-sm font-bold text-gray-900">Status Constraint Program Studi</h2>
-                            <p class="mt-1 text-xs text-gray-500">Status pengumpulan dan review constraint periode ini.</p>
-                        </div>
+            <section class="grid gap-6 lg:grid-cols-5">
+                <DashboardChart
+                    class="lg:col-span-3"
+                    title="Status constraint prodi"
+                    description="Jumlah constraint berdasarkan status"
+                    unit="constraint"
+                    :items="(['submitted', 'accepted', 'draft'] as ConstraintStatus[]).map((status) => ({
+                        label: STATUS[status],
+                        value: dashboard.constraints[status],
+                    }))"
+                />
+
+                <Card class="border border-gray-100 shadow-sm lg:col-span-2">
+                    <div class="flex flex-wrap items-start justify-between gap-3">
+                        <h2 class="text-lg font-bold text-[#112D4E]">Kualitas Jadwal Aktif</h2>
                         <Link href="/fakultas/constraints" class="text-xs font-semibold text-primary hover:underline">Buka review</Link>
                     </div>
-                    <dl class="mt-5 divide-y divide-gray-100">
-                        <div v-for="status in (['submitted', 'accepted', 'draft'] as ConstraintStatus[])" :key="status" class="flex items-center justify-between py-3 text-sm">
-                            <dt class="text-gray-600">{{ STATUS[status] }}</dt>
-                            <dd class="font-bold text-gray-900">{{ dashboard.constraints[status] }}</dd>
-                        </div>
-                    </dl>
-                </Card>
-
-                <Card class="border border-gray-100 shadow-sm">
                     <div>
-                        <h2 class="text-sm font-bold text-gray-900">Kualitas Jadwal Aktif</h2>
                         <p class="mt-1 text-xs text-gray-500">Metrik run aktif untuk periode {{ dashboard.period }}.</p>
                     </div>
                     <div v-if="dashboard.active_run" class="mt-5 grid grid-cols-2 gap-4">
@@ -99,9 +83,12 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'study_programs', 'le
             </section>
 
             <Card class="!p-0 overflow-hidden border border-gray-100 shadow-sm">
-                <div class="border-b border-gray-100 p-5">
+                <div class="flex flex-wrap items-start justify-between gap-4 border-b border-gray-100 p-5">
+                  <div>
                     <h2 class="text-sm font-bold text-gray-900">Masalah Alokasi Ruangan</h2>
                     <p class="mt-1 text-xs text-gray-500">Daftar kelas yang perlu ditinjau pada jadwal aktif.</p>
+                  </div>
+                  <Link href="/fakultas/rooms" class="text-xs font-semibold text-primary hover:underline">Kelola alokasi ruang</Link>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full border-collapse text-left text-xs">
@@ -121,3 +108,8 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'study_programs', 'le
         </div>
     </AppLayout>
 </template>
+
+<style scoped>
+.dashboard-page { background: #F9F7F7; min-height: calc(100vh - 4rem); }
+.dashboard-page :deep(.shadow-sm) { border-color: #DBE2EF; border-radius: 20px; box-shadow: none; }
+</style>

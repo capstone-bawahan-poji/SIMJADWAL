@@ -136,7 +136,7 @@ async function confirmDelete(): Promise<void> {
 
                 <!-- Action Buttons -->
                 <div class="flex flex-wrap items-center gap-2.5">
-                    <Button @click="openCreate()" class="bg-primary hover:bg-primary-hover text-white">+ Tambah Slot</Button>
+                    <Button @click="openCreate()" class="bg-primary hover:bg-primary-hover text-white">Tambah Slot</Button>
                 </div>
             </div>
 
@@ -232,7 +232,7 @@ async function confirmDelete(): Promise<void> {
                                         class="w-full h-full min-h-[110px] rounded-xl border border-dashed border-gray-200 text-xs font-semibold text-gray-400 hover:border-primary/40 hover:text-primary transition-colors"
                                         @click="openCreate(day.value, session)"
                                     >
-                                        + Tambah
+                                        Tambah
                                     </button>
                                 </td>
                             </tr>

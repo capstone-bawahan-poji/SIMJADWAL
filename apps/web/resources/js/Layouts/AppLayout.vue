@@ -4,7 +4,7 @@ import AppLogo from '@/Components/shared/AppLogo.vue';
 import GlobalSearch from '@/Components/shared/GlobalSearch.vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import { initials, ROLE_LABELS } from '@/lib/labels';
-import { navFor, type NavItem, PORTAL_LABELS, PROFILE_ICON } from '@/lib/navigation';
+import { DOWNLOAD_APP_ITEM, navFor, type NavItem, PORTAL_LABELS } from '@/lib/navigation';
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
@@ -13,15 +13,24 @@ const userInitials = computed(() => initials(userName.value));
 const roleLabel = computed(() => (user.value?.role ? ROLE_LABELS[user.value.role] : ''));
 const isSuperAdmin = computed(() => user.value?.role === 'superadmin');
 const sidebarOpen = ref(false);
+const accountMenuOpen = ref(false);
 
 const navItems = computed<NavItem[]>(() => [
-    ...navFor(user.value?.role).map((item) => (item.external ? item : { ...item, href: item.href ?? route(item.routeName) })),
-    { label: 'Profil Saya', href: route('profile.edit'), routeName: 'profile.edit', icon: PROFILE_ICON },
+    ...navFor(user.value?.role)
+        .filter((item) => item !== DOWNLOAD_APP_ITEM)
+        .map((item) => (item.external ? item : { ...item, href: item.href ?? route(item.routeName) })),
 ]);
+const showDownloadApp = computed(() => navFor(user.value?.role).includes(DOWNLOAD_APP_ITEM));
 
 watch(() => page.url, () => {
     sidebarOpen.value = false;
+    accountMenuOpen.value = false;
 });
+
+function closeMenus(): void {
+    sidebarOpen.value = false;
+    accountMenuOpen.value = false;
+}
 
 function isActive(item: NavItem) {
     if (item.external) return false;
@@ -43,13 +52,20 @@ function isActive(item: NavItem) {
 </script>
 
 <template>
-    <div class="min-h-screen bg-gray-50 font-sans" @keydown.esc.window="sidebarOpen = false">
+    <div class="min-h-screen bg-gray-50 font-sans" @keydown.esc.window="closeMenus">
         <button
             v-if="sidebarOpen"
             type="button"
             class="fixed inset-0 z-40 bg-gray-900/40 lg:hidden"
             aria-label="Tutup menu"
             @click="sidebarOpen = false"
+        />
+        <button
+            v-if="accountMenuOpen"
+            type="button"
+            class="fixed inset-0 z-40 cursor-default"
+            aria-label="Tutup menu akun"
+            @click="accountMenuOpen = false"
         />
 
         <aside
@@ -97,26 +113,87 @@ function isActive(item: NavItem) {
                 </component>
             </nav>
 
-            <div class="flex shrink-0 items-center gap-3 border-t border-gray-200 p-4">
-                <div class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-semibold text-gray-700">
-                    {{ userInitials }}
-                </div>
-                <div class="min-w-0 flex-1">
-                    <p class="truncate text-sm font-medium text-gray-900">{{ userName }}</p>
-                    <p class="truncate text-xs text-gray-500">{{ roleLabel }}</p>
-                </div>
-                <Link
-                    :href="route('logout')"
-                    method="post"
-                    as="button"
-                    class="shrink-0 rounded-lg p-2 text-gray-400 transition-colors hover:bg-gray-100 hover:text-gray-900"
-                    title="Keluar"
-                    aria-label="Keluar"
+            <div v-if="showDownloadApp" class="shrink-0 px-3 pb-3">
+                <a
+                    :href="DOWNLOAD_APP_ITEM.href"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="flex w-full items-center justify-center gap-2 rounded-lg border border-primary px-3 py-2.5 text-sm font-semibold text-primary transition-colors hover:bg-blue-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                    @click="sidebarOpen = false"
                 >
-                    <svg class="h-4 w-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" aria-hidden="true">
-                        <path d="M15.75 9V5.25A2.25 2.25 0 0013.5 3h-6a2.25 2.25 0 00-2.25 2.25v13.5A2.25 2.25 0 007.5 21h6a2.25 2.25 0 002.25-2.25V15m3 0l3-3m0 0l-3-3m3 3H9" stroke-linecap="round" stroke-linejoin="round" />
+                    <svg
+                        class="h-4 w-4 shrink-0"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                        v-html="DOWNLOAD_APP_ITEM.icon"
+                    />
+                    {{ DOWNLOAD_APP_ITEM.label }}
+                </a>
+            </div>
+
+            <div class="relative shrink-0 border-t border-gray-200 p-3">
+                <button
+                    type="button"
+                    class="flex w-full items-center gap-3 rounded-lg p-2 text-left transition-colors hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    aria-haspopup="menu"
+                    aria-controls="account-menu"
+                    :aria-expanded="accountMenuOpen"
+                    @click="accountMenuOpen = !accountMenuOpen"
+                >
+                    <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-semibold text-gray-700">
+                        {{ userInitials }}
+                    </span>
+                    <span class="min-w-0 flex-1">
+                        <span class="block truncate text-sm font-medium text-gray-900">{{ userName }}</span>
+                        <span class="block truncate text-xs text-gray-500">{{ roleLabel }}</span>
+                    </span>
+                    <svg
+                        class="h-4 w-4 shrink-0 text-gray-400 transition-transform"
+                        :class="{ 'rotate-180': accountMenuOpen }"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                        viewBox="0 0 24 24"
+                        aria-hidden="true"
+                    >
+                        <path d="m6 9 6 6 6-6" stroke-linecap="round" stroke-linejoin="round" />
                     </svg>
-                </Link>
+                </button>
+
+                <div
+                    v-if="accountMenuOpen"
+                    id="account-menu"
+                    role="menu"
+                    class="absolute bottom-full left-3 right-3 z-[60] mb-2 overflow-hidden rounded-xl border border-gray-200 bg-white p-1.5 shadow-lg"
+                >
+                    <Link
+                        :href="route('profile.edit')"
+                        role="menuitem"
+                        class="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                        @click="closeMenus"
+                    >
+                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.5 20.1a7.5 7.5 0 0 1 15 0A17.9 17.9 0 0 1 12 21.75 17.9 17.9 0 0 1 4.5 20.1Z" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Profil Saya
+                    </Link>
+                    <Link
+                        :href="route('logout')"
+                        method="post"
+                        as="button"
+                        role="menuitem"
+                        class="flex w-full items-center gap-3 rounded-lg px-3 py-2.5 text-left text-sm font-medium text-gray-700 transition-colors hover:bg-red-50 hover:text-red-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                        @click="closeMenus"
+                    >
+                        <svg class="h-5 w-5 text-gray-400" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                        Keluar
+                    </Link>
+                </div>
             </div>
         </aside>
 

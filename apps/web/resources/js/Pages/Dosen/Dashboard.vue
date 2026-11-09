@@ -2,6 +2,8 @@
 import Alert from '@/Components/ui/Alert.vue';
 import Card from '@/Components/ui/Card.vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import DashboardChart from '@/Components/dashboard/DashboardChart.vue';
+import DashboardSummary from '@/Components/dashboard/DashboardSummary.vue';
 import { onResourcesChanged } from '@/composables/useResourceChanges';
 import { api, toApiError, type ApiError } from '@/lib/api';
 import { formatTime } from '@/lib/labels';
@@ -38,6 +40,10 @@ const today = computed(() => {
 const todayCount = computed(() => rows.value.filter((row) => row.time_slot.day === today.value).length);
 const courseCount = computed(() => new Set(rows.value.map((row) => row.course.id)).size);
 const classCount = computed(() => new Set(rows.value.map((row) => `${row.course.id}:${row.class_number}`)).size);
+const meetingsByDay = computed(() => Object.entries(DAYS).map(([day, label]) => ({
+    label,
+    value: rows.value.filter((row) => row.time_slot.day === Number(day)).length,
+})));
 const upcomingRows = computed(() => {
     const now = new Date();
     const nowMinutes = now.getHours() * 60 + now.getMinutes();
@@ -103,11 +109,11 @@ onResourcesChanged(['scheduling_runs', 'schedule_details'], () => void loadSched
     <Head title="Dashboard Dosen" />
 
     <AppLayout>
-        <div class="mx-auto w-full max-w-7xl space-y-6 p-6 md:p-8">
+        <div class="dashboard-page w-full space-y-6 p-6 md:p-8">
             <header>
-                <h1 class="text-2xl font-bold tracking-tight text-gray-900">Dashboard Dosen</h1>
-                <p class="mt-1 text-sm text-gray-500">
-                    Ringkasan jadwal mengajar{{ schedule ? ` periode ${schedule.period}` : '' }}.
+                <h1 class="text-3xl font-bold tracking-tight text-[#112D4E]">Dashboard</h1>
+                <p class="mt-1 text-sm text-[#112D4E]/70">
+                    Dosen · Ringkasan jadwal mengajar{{ schedule ? ` periode ${schedule.period}` : '' }}
                 </p>
             </header>
 
@@ -120,26 +126,20 @@ onResourcesChanged(['scheduling_runs', 'schedule_details'], () => void loadSched
                 Memuat jadwal mengajar…
             </div>
 
-            <template v-else-if="schedule && !missingLecturer">
-                <section class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" aria-label="Ringkasan jadwal mengajar">
-                    <Card class="border border-gray-100 shadow-sm">
-                        <p class="text-xs font-semibold text-gray-500">Pertemuan per minggu</p>
-                        <p class="mt-2 text-3xl font-bold text-gray-900">{{ rows.length }}</p>
-                    </Card>
-                    <Card class="border border-gray-100 shadow-sm">
-                        <p class="text-xs font-semibold text-gray-500">Mata kuliah diampu</p>
-                        <p class="mt-2 text-3xl font-bold text-gray-900">{{ courseCount }}</p>
-                    </Card>
-                    <Card class="border border-gray-100 shadow-sm">
-                        <p class="text-xs font-semibold text-gray-500">Kelas diampu</p>
-                        <p class="mt-2 text-3xl font-bold text-gray-900">{{ classCount }}</p>
-                    </Card>
-                    <Card class="border border-gray-100 shadow-sm">
-                        <p class="text-xs font-semibold text-gray-500">Pertemuan hari ini</p>
-                        <p class="mt-2 text-3xl font-bold" :class="todayCount ? 'text-primary' : 'text-gray-900'">{{ todayCount }}</p>
-                        <p class="mt-2 text-xs text-gray-500">{{ DAYS[today] }}</p>
-                    </Card>
-                </section>
+            <template v-else-if="schedule && !missingLecturer && !failure">
+                <DashboardSummary label="Ringkasan jadwal mengajar" :figures="[
+                    { label: 'Pertemuan per minggu', value: rows.length },
+                    { label: 'Mata kuliah diampu', value: courseCount },
+                    { label: 'Kelas diampu', value: classCount },
+                    { label: 'Pertemuan hari ini', value: todayCount, detail: DAYS[today] },
+                ]" />
+
+                <DashboardChart
+                    title="Jadwal mengajar per hari"
+                    description="Jumlah pertemuan dalam satu minggu"
+                    unit="pertemuan"
+                    :items="meetingsByDay"
+                />
 
                 <Card class="!p-0 overflow-hidden border border-gray-100 shadow-sm">
                     <div class="flex flex-wrap items-start justify-between gap-4 border-b border-gray-100 p-5">
@@ -183,6 +183,12 @@ onResourcesChanged(['scheduling_runs', 'schedule_details'], () => void loadSched
                     </div>
                 </Card>
             </template>
+
         </div>
     </AppLayout>
 </template>
+
+<style scoped>
+.dashboard-page { background: #F9F7F7; min-height: calc(100vh - 4rem); }
+.dashboard-page :deep(.shadow-sm) { border-color: #DBE2EF; border-radius: 20px; box-shadow: none; }
+</style>
