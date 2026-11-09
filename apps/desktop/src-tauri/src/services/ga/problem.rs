@@ -1,8 +1,10 @@
 //! Turns the dataset into dense, index-based tables so the fitness loop never hashes.
 //!
-//! One gene = one meeting of one class
+//! One gene = one meeting of one class. The chromosome holds one slot per *unit*: in a faculty
+//! dataset every gene is its own unit, in a TPB dataset all classes of a group share the unit of
+//! each meeting, so they always land in the same slot.
 
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 use super::model::{Dataset, PreferenceType, RunConfig};
 use crate::error::AppError;
@@ -14,6 +16,7 @@ pub const HC4: &str = "HC4";
 pub const SC_INGIN: &str = "SC_INGIN";
 pub const SC_HINDARI: &str = "SC_HINDARI";
 pub const SC_SKS: &str = "SC_SKS";
+pub const SC_ULANG: &str = "SC_ULANG";
 
 const SOFT_CODES: [&str; 3] = [SC_INGIN, SC_HINDARI, SC_SKS];
 
@@ -24,15 +27,39 @@ pub struct Gene {
     pub meeting_number: u8,
     pub lecturer_id: i64,
     pub lecturer: usize,
-    pub program: usize,
-    pub cohort: usize,
+    /// Chromosome position holding this gene's slot.
+    pub unit: usize,
+    /// HC4 program, None for TPB genes.
+    pub program: Option<usize>,
+    /// HC3 cohort (program, semester, class), None for TPB genes: their cohorts sit on the unit.
+    pub cohort: Option<usize>,
     pub target_slot_type: u8,
     pub class_capacity: u32,
-    pub fixed_slot: Option<u16>,
     pub fixed_room_id: Option<i64>,
     pub w_want: f64,
     pub w_avoid: f64,
     pub w_sks: f64,
+}
+
+/// One chromosome position.
+#[derive(Debug, Clone)]
+pub struct Unit {
+    pub fixed_slot: Option<u16>,
+    /// Slots the GA may pick. Empty = every slot. TPB blocks shrink it in faculty datasets.
+    pub allowed: Vec<u16>,
+    /// TPB: (program, target semester) cohorts of a regular group, counted once per unit for HC3.
+    pub cohorts: Vec<usize>,
+    pub first_gene: usize,
+}
+
+/// SC_ULANG: met when at least one unit of the course sits outside the retake slots of its program.
+#[derive(Debug, Clone)]
+pub struct RetakeCourse {
+    pub course_id: i64,
+    pub units: Vec<usize>,
+    pub blocked: Vec<bool>,
+    pub weight: f64,
+    pub first_gene: usize,
 }
 
 #[derive(Debug, Clone)]
@@ -53,6 +80,7 @@ pub struct LecturerPrefs {
 #[derive(Debug, Clone)]
 pub struct Problem {
     pub genes: Vec<Gene>,
+    pub units: Vec<Unit>,
     pub slots: Vec<Slot>,
     pub lecturers: Vec<LecturerPrefs>,
     pub course_labels: HashMap<i64, String>,
@@ -64,12 +92,19 @@ pub struct Problem {
     pub w_hc2: f64,
     pub w_hc3: f64,
     pub w_hc4: f64,
-    pub free_genes: Vec<usize>,
+    pub free_units: Vec<usize>,
+    pub retake: Vec<RetakeCourse>,
+    pub is_tpb: bool,
 }
 
 impl Problem {
     pub fn slot_count(&self) -> usize {
         self.slots.len()
+    }
+
+    /// Slot of a gene in a chromosome.
+    pub fn slot_of(&self, chromosome: &[u16], gene: usize) -> u16 {
+        chromosome[self.genes[gene].unit]
     }
 
     pub fn max_fitness(&self) -> f64 {
@@ -88,6 +123,7 @@ impl Problem {
                     want + avoid + g.w_sks
                 })
                 .sum::<f64>()
+            + self.retake.iter().map(|r| r.weight).sum::<f64>()
     }
 
     pub fn build(dataset: &Dataset, config: &RunConfig) -> Result<Self, AppError> {
@@ -156,16 +192,16 @@ impl Problem {
                     .unwrap_or(0.0)
             })
         };
-        let soft_weight = |program_id: i64, code: &str| -> f64 {
-            config
-                .sc_weights_by_study_program
-                .get(&program_id.to_string())
+        let soft_weight = |program_id: Option<i64>, code: &str| -> f64 {
+            program_id
+                .and_then(|id| config.sc_weights_by_study_program.get(&id.to_string()))
                 .and_then(|row| row.get(code))
                 .copied()
                 .filter(|w| *w > 0.0 && SOFT_CODES.contains(&code))
                 .unwrap_or_else(|| weight(code))
         };
 
+        let is_tpb = dataset.is_tpb();
         let program_index: HashMap<i64, usize> = dataset
             .study_programs
             .iter()
@@ -175,8 +211,39 @@ impl Problem {
             .collect();
         let courses: HashMap<i64, &super::model::Course> =
             dataset.courses.iter().map(|c| (c.id, c)).collect();
+        let groups: HashMap<i64, &super::model::TpbGroup> =
+            dataset.tpb_groups.iter().map(|g| (g.id, g)).collect();
+        let all_slots: Vec<u16> = (0..slots.len() as u16).collect();
+        let to_slots = |ids: &[i64]| -> HashSet<u16> {
+            ids.iter()
+                .filter_map(|id| slot_index.get(id).copied())
+                .collect()
+        };
+
+        // Faculty datasets: slots the active TPB schedule takes from programs and lecturers.
+        let blocks = dataset.tpb_blocks.clone().unwrap_or_default();
+        let blocked_program: HashMap<(i64, u8), HashSet<u16>> = blocks
+            .study_programs
+            .iter()
+            .map(|b| ((b.study_program_id, b.semester), to_slots(&b.time_slot_ids)))
+            .collect();
+        let blocked_lecturer: HashMap<i64, HashSet<u16>> = blocks
+            .lecturers
+            .iter()
+            .map(|b| (b.lecturer_id, to_slots(&b.time_slot_ids)))
+            .collect();
+        let retake_slots: HashMap<i64, HashSet<u16>> = blocks
+            .retake
+            .iter()
+            .map(|b| (b.study_program_id, to_slots(&b.time_slot_ids)))
+            .collect();
 
         let mut cohorts: HashMap<(usize, u8, u16), usize> = HashMap::new();
+        let mut tpb_cohorts: HashMap<(i64, u8), usize> = HashMap::new();
+        let mut group_units: HashMap<(i64, u8), usize> = HashMap::new();
+        let mut units: Vec<Unit> = Vec::new();
+        // TPB: (program, target semester) of the regular group behind each unit.
+        let mut unit_participants: Vec<Vec<(i64, u8)>> = Vec::new();
         let mut genes = Vec::new();
         let mut classes = dataset.classes.clone();
         classes.sort_by_key(|c| (c.course_id, c.class_number));
@@ -188,25 +255,9 @@ impl Problem {
                     class.course_id
                 ))
             })?;
-            let program = *program_index.get(&course.study_program_id).ok_or_else(|| {
-                AppError::Invalid(format!(
-                    "Mata kuliah {} bukan milik prodi yang ikut dijadwalkan.",
-                    course.code
-                ))
-            })?;
             let lecturer = *lecturer_index.get(&class.lecturer_id).ok_or_else(|| {
                 AppError::Invalid(format!("Dosen {} tidak ada di dataset.", class.lecturer_id))
             })?;
-            let next_cohort = cohorts.len();
-            let cohort = *cohorts
-                .entry((program, course.semester, class.class_number))
-                .or_insert(next_cohort);
-            let fixed_slot = match class.fixed_time_slot_id {
-                Some(id) => Some(*slot_index.get(&id).ok_or_else(|| {
-                    AppError::Invalid(format!("Slot terpatok {id} tidak ada di dataset."))
-                })?),
-                None => None,
-            };
             let (meetings, target_slot_type) = match course.sks {
                 2 => (1, 2),
                 3 => (1, 3),
@@ -218,19 +269,143 @@ impl Problem {
                     )))
                 }
             };
+            let fixed_slot_of = |meeting: u8| -> Result<Option<u16>, AppError> {
+                let id = class
+                    .fixed_time_slot_ids
+                    .get(usize::from(meeting) - 1)
+                    .copied()
+                    .or(class.fixed_time_slot_id);
+                match id {
+                    Some(id) => Ok(Some(*slot_index.get(&id).ok_or_else(|| {
+                        AppError::Invalid(format!("Slot terpatok {id} tidak ada di dataset."))
+                    })?)),
+                    None => Ok(None),
+                }
+            };
+            let fixed_room_of = |meeting: u8| -> Option<i64> {
+                class
+                    .fixed_room_ids
+                    .get(usize::from(meeting) - 1)
+                    .copied()
+                    .flatten()
+                    .or(class.fixed_room_id)
+            };
+
+            let (program, cohort) = if is_tpb {
+                (None, None)
+            } else {
+                let program_id = course.study_program_id.unwrap_or_default();
+                let program = *program_index.get(&program_id).ok_or_else(|| {
+                    AppError::Invalid(format!(
+                        "Mata kuliah {} bukan milik prodi yang ikut dijadwalkan.",
+                        course.code
+                    ))
+                })?;
+                let next_cohort = cohorts.len();
+                let cohort = *cohorts
+                    .entry((
+                        program,
+                        course.semester.unwrap_or_default(),
+                        class.class_number,
+                    ))
+                    .or_insert(next_cohort);
+                (Some(program), Some(cohort))
+            };
+
             for meeting_number in 1..=meetings {
+                let gene_index = genes.len();
+                let fixed_slot = fixed_slot_of(meeting_number)?;
+                let unit = if is_tpb {
+                    let group_id = class.tpb_group_id.ok_or_else(|| {
+                        AppError::Invalid(format!(
+                            "Kelas TPB {} {} belum masuk grup.",
+                            course.code, class.class_number
+                        ))
+                    })?;
+                    let group = groups.get(&group_id).ok_or_else(|| {
+                        AppError::Invalid(format!("Grup TPB {group_id} tidak ada di dataset."))
+                    })?;
+                    *group_units
+                        .entry((group_id, meeting_number))
+                        .or_insert_with(|| {
+                            let unit_cohorts = if group.is_regular() {
+                                group
+                                    .study_programs
+                                    .iter()
+                                    .map(|p| {
+                                        let key = (p.id, p.target_semester.unwrap_or_default());
+                                        let next = cohorts.len() + tpb_cohorts.len();
+                                        *tpb_cohorts.entry(key).or_insert(next)
+                                    })
+                                    .collect()
+                            } else {
+                                Vec::new()
+                            };
+                            units.push(Unit {
+                                fixed_slot,
+                                allowed: Vec::new(),
+                                cohorts: unit_cohorts,
+                                first_gene: gene_index,
+                            });
+                            unit_participants.push(if group.is_regular() {
+                                group
+                                    .study_programs
+                                    .iter()
+                                    .map(|p| (p.id, p.target_semester.unwrap_or_default()))
+                                    .collect()
+                            } else {
+                                Vec::new()
+                            });
+                            units.len() - 1
+                        })
+                } else {
+                    let program_id = course.study_program_id.unwrap_or_default();
+                    let mut taken: HashSet<u16> = HashSet::new();
+                    if let Some(s) = course
+                        .semester
+                        .and_then(|sem| blocked_program.get(&(program_id, sem)))
+                    {
+                        taken.extend(s);
+                    }
+                    if let Some(s) = blocked_lecturer.get(&class.lecturer_id) {
+                        taken.extend(s);
+                    }
+                    let allowed: Vec<u16> = if taken.is_empty() {
+                        Vec::new()
+                    } else {
+                        all_slots
+                            .iter()
+                            .copied()
+                            .filter(|s| !taken.contains(s))
+                            .collect()
+                    };
+                    if !taken.is_empty() && allowed.is_empty() {
+                        return Err(AppError::Invalid(format!(
+                            "Mata kuliah {} kelas {} tidak punya slot tersisa setelah slot TPB dikunci.",
+                            course.code, class.class_number
+                        )));
+                    }
+                    units.push(Unit {
+                        fixed_slot,
+                        allowed,
+                        cohorts: Vec::new(),
+                        first_gene: gene_index,
+                    });
+                    units.len() - 1
+                };
+
                 genes.push(Gene {
                     course_id: course.id,
                     class_number: class.class_number,
                     meeting_number,
                     lecturer_id: class.lecturer_id,
                     lecturer,
+                    unit,
                     program,
                     cohort,
                     target_slot_type,
                     class_capacity: course.class_capacity,
-                    fixed_slot,
-                    fixed_room_id: class.fixed_room_id,
+                    fixed_room_id: fixed_room_of(meeting_number),
                     w_want: soft_weight(course.study_program_id, SC_INGIN),
                     w_avoid: soft_weight(course.study_program_id, SC_HINDARI),
                     w_sks: soft_weight(course.study_program_id, SC_SKS),
@@ -244,10 +419,80 @@ impl Problem {
             ));
         }
 
-        let free_genes = genes
+        // TPB revision: a group that moves avoids slots the active faculty schedules hold.
+        if is_tpb && !(blocked_program.is_empty() && blocked_lecturer.is_empty()) {
+            for (u, participants) in unit_participants.iter().enumerate() {
+                if units[u].fixed_slot.is_some() {
+                    continue;
+                }
+                let mut taken: HashSet<u16> = HashSet::new();
+                for key in participants {
+                    if let Some(s) = blocked_program.get(key) {
+                        taken.extend(s);
+                    }
+                }
+                for gene in genes.iter().filter(|g| g.unit == u) {
+                    if let Some(s) = blocked_lecturer.get(&gene.lecturer_id) {
+                        taken.extend(s);
+                    }
+                }
+                if taken.is_empty() {
+                    continue;
+                }
+                let allowed: Vec<u16> = all_slots
+                    .iter()
+                    .copied()
+                    .filter(|s| !taken.contains(s))
+                    .collect();
+                if allowed.is_empty() {
+                    let g = &genes[units[u].first_gene];
+                    return Err(AppError::Invalid(format!(
+                        "Grup mata kuliah {} kelas {} tidak punya slot kosong untuk direvisi.",
+                        courses
+                            .get(&g.course_id)
+                            .map(|c| c.code.as_str())
+                            .unwrap_or("?"),
+                        g.class_number
+                    )));
+                }
+                units[u].allowed = allowed;
+            }
+        }
+
+        let w_ulang = weight(SC_ULANG);
+        let mut retake = Vec::new();
+        if !retake_slots.is_empty() {
+            let mut by_course: Vec<(i64, Vec<usize>, usize)> = Vec::new();
+            for (i, gene) in genes.iter().enumerate() {
+                match by_course.last_mut() {
+                    Some((course_id, units, _)) if *course_id == gene.course_id => {
+                        if !units.contains(&gene.unit) {
+                            units.push(gene.unit)
+                        }
+                    }
+                    _ => by_course.push((gene.course_id, vec![gene.unit], i)),
+                }
+            }
+            for (course_id, course_units, first_gene) in by_course {
+                let program_id = courses[&course_id].study_program_id.unwrap_or_default();
+                if let Some(blocked) = retake_slots.get(&program_id) {
+                    retake.push(RetakeCourse {
+                        course_id,
+                        units: course_units,
+                        blocked: (0..slots.len() as u16)
+                            .map(|s| blocked.contains(&s))
+                            .collect(),
+                        weight: w_ulang,
+                        first_gene,
+                    });
+                }
+            }
+        }
+
+        let free_units = units
             .iter()
             .enumerate()
-            .filter(|(_, g)| g.fixed_slot.is_none())
+            .filter(|(_, u)| u.fixed_slot.is_none())
             .map(|(i, _)| i)
             .collect();
         let course_labels = dataset
@@ -258,18 +503,21 @@ impl Problem {
 
         Ok(Self {
             genes,
+            units,
             slots,
             lecturers,
             course_labels,
-            program_count: program_index.len(),
-            cohort_count: cohorts.len(),
+            program_count: if is_tpb { 0 } else { program_index.len() },
+            cohort_count: cohorts.len() + tpb_cohorts.len(),
             parallel_class_limit: params.parallel_class_limit,
             fitness_constant: params.fitness_constant,
             w_hc1: weight(HC1),
             w_hc2: weight(HC2),
             w_hc3: weight(HC3),
             w_hc4: weight(HC4),
-            free_genes,
+            free_units,
+            retake,
+            is_tpb,
         })
     }
 }
@@ -348,7 +596,8 @@ pub(crate) mod fixtures {
         Dataset {
             fingerprint: "sha256:test".into(),
             period: "2026/2027-GANJIL".into(),
-            faculty: FacultyRef { id: 1 },
+            scope: None,
+            faculty: Some(FacultyRef { id: 1 }),
             study_programs: programs
                 .iter()
                 .map(|&id| StudyProgram { id, included: true })
@@ -370,11 +619,11 @@ pub(crate) mod fixtures {
                 .iter()
                 .map(|&(id, program, sks, semester)| Course {
                     id,
-                    study_program_id: program,
+                    study_program_id: Some(program),
                     code: format!("MK{id}"),
                     name: format!("Mata Kuliah {id}"),
                     sks,
-                    semester,
+                    semester: Some(semester),
                     class_capacity: 50,
                 })
                 .collect(),
@@ -386,6 +635,8 @@ pub(crate) mod fixtures {
                     lecturer_id: lecturer_of(id),
                     fixed_room_id: None,
                     fixed_time_slot_id: None,
+                    tpb_group_id: None,
+                    ..Default::default()
                 })
                 .collect(),
             lecturers: lecturers
@@ -398,6 +649,9 @@ pub(crate) mod fixtures {
                 .collect(),
             constraint_types: constraint_types(),
             occupied_rooms: Vec::new(),
+            tpb_groups: Vec::new(),
+            revision: None,
+            tpb_blocks: None,
         }
     }
 }
