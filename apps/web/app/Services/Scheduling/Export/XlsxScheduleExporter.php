@@ -19,7 +19,11 @@ use PhpOffice\PhpSpreadsheet\Writer\Xlsx;
  */
 class XlsxScheduleExporter implements ScheduleExporter
 {
-    private const HEADER_FILL = 'FFE2E8F0';
+    private const HEADER_FILL = 'FF1E3A8A';
+
+    private const BORDER_COLOR = 'FFCBD5E1';
+
+    private const SESSION_FILL = 'FFF1F5F9';
 
     public function extension(): string
     {
@@ -69,7 +73,10 @@ class XlsxScheduleExporter implements ScheduleExporter
         foreach ($matrix->sessions as $session => $range) {
             $sheet->setCellValue("A{$row}", __('Session').' '.$session."\n".$range);
             foreach ($matrix->days as $i => $day) {
-                $lines = array_map(fn (ScheduleDetail $d) => ScheduleLine::course($d)."\n".ScheduleLine::lecturer($d).' · '.ScheduleLine::room($d), $matrix->cell($session, $day));
+                $lines = array_map(
+                    fn (array $group) => $group['title']."\n".implode("\n", array_map(ScheduleLine::classLine(...), $group['details'])),
+                    ScheduleLine::groupByCourse($matrix->cell($session, $day)),
+                );
                 if (($time = $matrix->cellTime($session, $day)) && $lines !== []) {
                     array_unshift($lines, $time);
                 }
@@ -80,8 +87,10 @@ class XlsxScheduleExporter implements ScheduleExporter
 
         $body = "A{$headerRow}:{$lastColumn}".($row - 1);
         $sheet->getStyle($body)->getAlignment()->setWrapText(true)->setVertical(Alignment::VERTICAL_TOP);
-        $sheet->getStyle($body)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
-        $sheet->getStyle('A'.($headerRow + 1).':A'.($row - 1))->getFont()->setBold(true);
+        $this->gridBorders($sheet, $body);
+        $sessionColumn = $sheet->getStyle('A'.($headerRow + 1).':A'.($row - 1));
+        $sessionColumn->getFont()->setBold(true);
+        $sessionColumn->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB(self::SESSION_FILL);
         $sheet->getColumnDimension('A')->setWidth(14);
         foreach (range(2, count($matrix->days) + 1) as $column) {
             $sheet->getColumnDimensionByColumn($column)->setWidth(34);
@@ -94,39 +103,46 @@ class XlsxScheduleExporter implements ScheduleExporter
     {
         $sheet->setTitle('Daftar');
         $columns = [
-            __('Day') => 10, __('Time') => 13, __('Code') => 12, __('Course') => 36, 'SKS' => 6, __('Class') => 7,
-            __('Meeting') => 10, __('Lecturer') => 30, __('Room') => 12, __('Study Program') => 26, __('Semester') => 10, __('Changed manually') => 16,
+            [__('Day'), 10, fn (ScheduleDetail $d) => $d->timeSlot->day->label()],
+            [__('Time'), 13, fn (ScheduleDetail $d) => $d->timeSlot->start_time.'–'.$d->timeSlot->end_time],
+            [__('Code'), 12, fn (ScheduleDetail $d) => $d->course->code],
+            [__('Course'), 36, fn (ScheduleDetail $d) => $d->course->name],
+            ['SKS', 6, fn (ScheduleDetail $d) => $d->course->sks],
+            [__('Class'), 7, fn (ScheduleDetail $d) => CourseLecturer::labelFor($d->class_number)],
+            [__('Meeting'), 10, fn (ScheduleDetail $d) => $d->meeting_number],
+            [__('Lecturer'), 30, fn (ScheduleDetail $d) => ScheduleLine::lecturer($d)],
+            [__('Room'), 12, fn (ScheduleDetail $d) => ScheduleLine::room($d)],
+            [__('Study Program'), 26, fn (ScheduleDetail $d) => $d->course->studyProgram?->name],
+            [__('Semester'), 10, fn (ScheduleDetail $d) => $d->course->semester],
+            [__('Changed manually'), 16, fn (ScheduleDetail $d) => $d->is_overridden ? __('Yes') : null],
         ];
+
+        $rows = $export->details->map(fn (ScheduleDetail $d) => array_map(fn (array $column) => $column[2]($d), $columns))->all();
+        // Columns that are blank on every row (TPB has no study program or semester) are left out.
+        $kept = array_keys(array_filter($columns, fn (array $column, int $i) => collect($rows)->contains(fn (array $row) => $row[$i] !== null && $row[$i] !== ''), ARRAY_FILTER_USE_BOTH));
+        $columns = array_values(array_intersect_key($columns, array_flip($kept)));
+        $rows = array_map(fn (array $row) => array_values(array_intersect_key($row, array_flip($kept))), $rows);
         $lastColumn = Coordinate::stringFromColumnIndex(count($columns));
 
         $headerRow = $this->heading($sheet, $export, $lastColumn);
-        $sheet->fromArray(array_keys($columns), null, "A{$headerRow}");
+        $sheet->fromArray(array_column($columns, 0), null, "A{$headerRow}");
         $this->styleHeader($sheet, "A{$headerRow}:{$lastColumn}{$headerRow}");
-
-        $rows = $export->details->map(fn (ScheduleDetail $d) => [
-            $d->timeSlot->day->label(),
-            $d->timeSlot->start_time.'–'.$d->timeSlot->end_time,
-            $d->course->code,
-            $d->course->name,
-            $d->course->sks,
-            CourseLecturer::labelFor($d->class_number),
-            $d->meeting_number,
-            ScheduleLine::lecturer($d),
-            ScheduleLine::room($d),
-            $d->course->studyProgram?->name,
-            $d->course->semester,
-            $d->is_overridden ? __('Yes') : '',
-        ])->all();
         $sheet->fromArray($rows, null, 'A'.($headerRow + 1), true);
 
         $lastRow = $headerRow + count($rows);
-        $sheet->getStyle("A{$headerRow}:{$lastColumn}{$lastRow}")->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN);
-        foreach (array_values($columns) as $i => $width) {
+        $this->gridBorders($sheet, "A{$headerRow}:{$lastColumn}{$lastRow}");
+        foreach (array_column($columns, 1) as $i => $width) {
             $sheet->getColumnDimensionByColumn($i + 1)->setWidth($width);
         }
         $sheet->setAutoFilter("A{$headerRow}:{$lastColumn}{$lastRow}");
         $sheet->freezePane('A'.($headerRow + 1));
         $this->printSetup($sheet, $headerRow);
+    }
+
+    private function gridBorders(Worksheet $sheet, string $range): void
+    {
+        $borders = $sheet->getStyle($range)->getBorders()->getAllBorders();
+        $borders->setBorderStyle(Border::BORDER_THIN)->getColor()->setARGB(self::BORDER_COLOR);
     }
 
     /**
@@ -157,7 +173,7 @@ class XlsxScheduleExporter implements ScheduleExporter
     private function styleHeader(Worksheet $sheet, string $range): void
     {
         $style = $sheet->getStyle($range);
-        $style->getFont()->setBold(true);
+        $style->getFont()->setBold(true)->getColor()->setARGB('FFFFFFFF');
         $style->getFill()->setFillType(Fill::FILL_SOLID)->getStartColor()->setARGB(self::HEADER_FILL);
         $style->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER)->setVertical(Alignment::VERTICAL_CENTER);
     }
@@ -170,5 +186,6 @@ class XlsxScheduleExporter implements ScheduleExporter
             ->setFitToWidth(1)
             ->setFitToHeight(0)
             ->setRowsToRepeatAtTopByStartAndEnd($headerRow, $headerRow);
+        $sheet->getHeaderFooter()->setOddFooter('&L&8SIMJADWAL&R&8Halaman &P dari &N');
     }
 }
