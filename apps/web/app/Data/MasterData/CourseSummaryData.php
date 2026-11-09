@@ -18,6 +18,6 @@ class CourseSummaryData extends BaseData
         public string $code,
         public string $name,
         public int $sks,
-        public int $semester,
+        public ?int $semester,
     ) {}
 }

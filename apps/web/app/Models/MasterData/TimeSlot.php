@@ -56,12 +56,6 @@ class TimeSlot extends Model
         return $this->hasMany(LecturerPreference::class);
     }
 
-    /** @return HasMany<TpbGroup, $this> */
-    public function tpbGroups(): HasMany
-    {
-        return $this->hasMany(TpbGroup::class);
-    }
-
     /** @return HasMany<ScheduleDetail, $this> */
     public function scheduleDetails(): HasMany
     {

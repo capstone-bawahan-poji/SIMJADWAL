@@ -38,6 +38,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'published_at',
     'client_run_id',
     'dataset_fingerprint',
+    'tpb_run_id',
 ])]
 #[UsePolicy(SchedulingRunPolicy::class)]
 class SchedulingRun extends Model

@@ -21,6 +21,7 @@ enum ReferenceType: string
     case LECTURER_PREFERENCES = 'lecturer_preferences';
     case SCHEDULES = 'schedules';
     case SCHEDULING_RUNS = 'scheduling_runs';
+    case TPB_OFFERINGS = 'tpb_offerings';
     case TPB_GROUPS = 'tpb_groups';
 
     public function label(): string
@@ -36,6 +37,7 @@ enum ReferenceType: string
             self::LECTURER_PREFERENCES => __('Lecturer Preference'),
             self::SCHEDULES => __('Schedule'),
             self::SCHEDULING_RUNS => __('Scheduling Run'),
+            self::TPB_OFFERINGS => __('TPB Offering'),
             self::TPB_GROUPS => __('TPB Group'),
         };
     }
