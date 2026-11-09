@@ -3,17 +3,19 @@
 namespace Tests\Feature\MasterData;
 
 use App\Enums\MasterData\Day;
+use App\Models\MasterData\Course;
+use App\Models\MasterData\Lecturer;
 use App\Models\MasterData\TimeSlot;
-use App\Models\MasterData\TpbGroup;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
+use Tests\Concerns\CreatesTpbRun;
 use Tests\Concerns\SeedsAccessControl;
 use Tests\TestCase;
 
 class TimeSlotApiTest extends TestCase
 {
-    use RefreshDatabase, SeedsAccessControl;
+    use CreatesTpbRun, RefreshDatabase, SeedsAccessControl;
 
     protected function setUp(): void
     {
@@ -50,11 +52,14 @@ class TimeSlotApiTest extends TestCase
     public function test_used_slot_cannot_change_or_be_deleted(): void
     {
         $slot = TimeSlot::factory()->create();
-        TpbGroup::factory()->create(['time_slot_id' => $slot->id]);
+        $this->activeTpbRun('2026/2027-GANJIL', [[
+            'course_id' => Course::factory()->tpb()->create()->id, 'class_number' => 1,
+            'lecturer_id' => Lecturer::factory()->create()->id, 'time_slot_id' => $slot->id, 'room_id' => null,
+        ]]);
 
         $this->patchJson("/api/v1/time-slots/{$slot->id}", ['type' => 2])
             ->assertStatus(409)
-            ->assertJsonPath('errors.references.tpb_groups', 1);
+            ->assertJsonPath('errors.references.schedules', 1);
         $this->deleteJson("/api/v1/time-slots/{$slot->id}")->assertStatus(409);
     }
 

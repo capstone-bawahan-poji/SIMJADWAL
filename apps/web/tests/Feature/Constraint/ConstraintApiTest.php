@@ -76,7 +76,7 @@ class ConstraintApiTest extends TestCase
     public function test_weights_are_listed_and_only_soft_ones_can_change(): void
     {
         $this->actingAs($this->prodiAdmin)->getJson('/api/internal/constraint-types')
-            ->assertOk()->assertJsonCount(7, 'data');
+            ->assertOk()->assertJsonCount(8, 'data');
 
         $soft = ConstraintType::query()->where('code', 'SC_SKS')->firstOrFail();
         $hard = ConstraintType::query()->where('code', 'HC1')->firstOrFail();

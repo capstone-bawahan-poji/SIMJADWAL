@@ -18,12 +18,13 @@ use Database\Seeders\Reference\ConstraintTypeSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
+use Tests\Concerns\CreatesTpbRun;
 use Tests\Concerns\SeedsAccessControl;
 use Tests\TestCase;
 
 class SchedulingRunApiTest extends TestCase
 {
-    use RefreshDatabase, SeedsAccessControl;
+    use CreatesTpbRun, RefreshDatabase, SeedsAccessControl;
 
     private const PERIOD = '2026/2027-GANJIL';
 
@@ -50,6 +51,7 @@ class SchedulingRunApiTest extends TestCase
 
         $this->seedAccessControl();
         $this->seed(ConstraintTypeSeeder::class);
+        $this->activeTpbRun(self::PERIOD);
 
         $this->faculty = Faculty::factory()->create();
         $this->program = StudyProgram::factory()->accepted()->create(['faculty_id' => $this->faculty->id]);
@@ -160,7 +162,7 @@ class SchedulingRunApiTest extends TestCase
         $this->postJson('/api/v1/scheduling-runs', $payload)->assertCreated();
         $this->postJson('/api/v1/scheduling-runs', $payload)->assertOk();
 
-        $this->assertSame(1, SchedulingRun::query()->count());
+        $this->assertSame(1, SchedulingRun::query()->whereNotNull('faculty_id')->count());
     }
 
     public function test_run_from_stale_data_is_refused(): void
@@ -173,7 +175,7 @@ class SchedulingRunApiTest extends TestCase
         ]);
 
         $this->postJson('/api/v1/scheduling-runs', $payload)->assertStatus(409)->assertJsonPath('code', 'DATASET_CHANGED');
-        $this->assertSame(0, SchedulingRun::query()->count());
+        $this->assertSame(0, SchedulingRun::query()->whereNotNull('faculty_id')->count());
     }
 
     public function test_schedule_must_cover_exactly_the_dataset_classes(): void

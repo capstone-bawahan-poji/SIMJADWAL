@@ -115,7 +115,8 @@ class ScheduleExportTest extends TestCase
         $this->assertSame('DRAF — belum dipublikasikan', $list->getCell('A4')->getValue());
         $this->assertSame('Hari', $list->getCell('A6')->getValue());
         $this->assertSame(9, $list->getHighestDataRow());
-        $this->assertStringContainsString('IF201 Algoritma, Struktur Data (A)', $book->getSheetByName('Matriks')->getCell('B7')->getValue());
+        $this->assertStringContainsString('IF201 Algoritma, Struktur Data', $book->getSheetByName('Matriks')->getCell('B7')->getValue());
+        $this->assertStringContainsString('Kelas A', $book->getSheetByName('Matriks')->getCell('B7')->getValue());
     }
 
     public function test_lecturer_filter_narrows_and_names_the_file(): void
@@ -155,8 +156,18 @@ class ScheduleExportTest extends TestCase
 
         Http::assertSent(fn (Request $request) => str_contains($request->body(), 'Basis Data')
             && str_contains($request->body(), 'DRAF')
-            && str_contains($request->body(), __('Orange border = changed manually by the faculty admin.'))
+            && ! str_contains($request->body(), __('Yellow background = changed manually by the faculty admin.'))
             && str_contains($request->body(), 'name="paperWidth"'));
+    }
+
+    public function test_pdf_explains_the_yellow_mark_only_when_a_class_was_changed_manually(): void
+    {
+        Http::fake(['*/forms/chromium/convert/html' => Http::response('%PDF-1.7 fake', 200, ['Content-Type' => 'application/pdf'])]);
+        ScheduleDetail::query()->where('course_id', $this->basis->id)->update(['is_overridden' => true]);
+
+        $this->export('format=pdf')->assertOk();
+
+        Http::assertSent(fn (Request $request) => str_contains($request->body(), __('Yellow background = changed manually by the faculty admin.')));
     }
 
     public function test_student_pdf_hides_manual_override_indicators(): void
@@ -171,7 +182,7 @@ class ScheduleExportTest extends TestCase
             ->assertHeader('Content-Type', 'application/pdf');
 
         Http::assertSent(fn (Request $request) => str_contains($request->body(), 'Algoritma, Struktur Data')
-            && ! str_contains($request->body(), __('Orange border = changed manually by the faculty admin.'))
+            && ! str_contains($request->body(), __('Yellow background = changed manually by the faculty admin.'))
             && ! str_contains($request->body(), 'entry overridden'));
     }
 
