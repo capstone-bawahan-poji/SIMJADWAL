@@ -99,9 +99,7 @@ export interface LecturerSummary {
 /** App\Data\MasterData\LecturerData */
 export interface Lecturer extends LecturerSummary {
     user_id: number | null;
-    email?: string | null;
     study_program: StudyProgramSummary;
-    course_lecturers_count: number;
     can_update: boolean;
     can_delete: boolean;
 }
@@ -185,6 +183,7 @@ export interface CourseSummary {
 export interface Course extends CourseSummary {
     parallel_class_count: number;
     class_capacity: number;
+    is_active: boolean;
     study_program: StudyProgramSummary | null;
     course_lecturers_count: number;
     can_update: boolean;
@@ -381,7 +380,7 @@ export interface OptionRoom {
 
 /** GET /schedule-details/{id}/options. rooms is empty when the slot is not available. */
 export interface ScheduleOptions {
-    /** The run is published: lecturers and students already see it, and PATCH needs a reason. */
+    /** The run is published: lecturers already see it, and PATCH needs a reason. */
     published: boolean;
     current: { time_slot_id: number; room_id: number | null };
     time_slots: {

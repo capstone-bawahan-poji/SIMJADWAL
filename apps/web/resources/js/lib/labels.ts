@@ -7,7 +7,6 @@ export const ROLE_LABELS: Record<Role, string> = {
     admin_tpb: 'Admin TPB',
     admin_prodi: 'Koor Prodi',
     dosen: 'Dosen',
-    mahasiswa: 'Mahasiswa',
 };
 
 export const ROLES = Object.keys(ROLE_LABELS) as Role[];

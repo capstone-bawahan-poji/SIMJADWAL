@@ -5,8 +5,7 @@ export type Role =
     | 'admin_fakultas'
     | 'admin_tpb'
     | 'admin_prodi'
-    | 'dosen'
-    | 'mahasiswa';
+    | 'dosen';
 
 /** Mirrors App\Data\Account\UserData. */
 export interface User {
