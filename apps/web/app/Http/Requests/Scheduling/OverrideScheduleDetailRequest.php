@@ -11,7 +11,7 @@ use Illuminate\Validation\Rule;
 /**
  * Both fields are sent every time: an override always states the full new place.
  * room_id null leaves the class without a room, as the GA does when none fits.
- * Lecturers and students already see a published schedule, so changing it needs a reason.
+ * Lecturers already see a published schedule, so changing it needs a reason.
  */
 class OverrideScheduleDetailRequest extends FormRequest
 {

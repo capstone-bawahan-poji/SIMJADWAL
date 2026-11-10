@@ -43,6 +43,12 @@ class AppServiceProvider extends ServiceProvider
             Str::transliterate(Str::lower($request->string('email')).'|'.$request->ip()),
         ));
 
+        RateLimiter::for('public', fn (Request $request) => Limit::perMinute(60)->by($request->ip()));
+        RateLimiter::for('schedule-email', fn (Request $request) => [
+            Limit::perHour(5)->by('ip:'.$request->ip()),
+            Limit::perHour(3)->by('email:'.Str::lower($request->string('email'))),
+        ]);
+
         $this->app->terminating(fn () => $this->app->make(ChangeRecorder::class)->flush());
         Queue::after(fn () => $this->app->make(ChangeRecorder::class)->flush());
     }

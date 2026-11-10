@@ -11,7 +11,7 @@ use Illuminate\Database\DatabaseManager;
 
 /**
  * Activate and publish are two steps. Activating makes a run the official schedule of its
- * faculty and period, still hidden from lecturers and students. Publishing then shows it to them.
+ * faculty and period, still hidden from lecturers. Publishing then shows it to them.
  * A run that loses its active flag keeps published_at, which the archived scope relies on.
  */
 readonly class SchedulingRunActivationService

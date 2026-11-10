@@ -104,6 +104,17 @@ class SchedulingDatasetApiTest extends TestCase
             ->assertJsonCount(1, 'data.courses')->assertJsonPath('data.courses.0.id', $even->id);
     }
 
+    public function test_inactive_courses_are_left_out(): void
+    {
+        $active = $this->courseWithClass($this->accepted, ['semester' => 5]);
+        $this->courseWithClass($this->accepted, ['semester' => 5, 'is_active' => false]);
+
+        Sanctum::actingAs(User::factory()->facultyAdmin($this->faculty)->create());
+
+        $this->getDataset()->assertOk()
+            ->assertJsonCount(1, 'data.courses')->assertJsonPath('data.courses.0.id', $active->id);
+    }
+
     public function test_lecturer_preferences_and_shared_rooms_are_included(): void
     {
         $course = $this->courseWithClass($this->accepted);

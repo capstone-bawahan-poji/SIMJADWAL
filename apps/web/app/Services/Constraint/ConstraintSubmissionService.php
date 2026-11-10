@@ -219,14 +219,14 @@ readonly class ConstraintSubmissionService
     }
 
     /**
-     * Single definition of an incomplete course: fewer lecturers than parallel classes.
+     * Single definition of an incomplete course: an active course with fewer lecturers than parallel classes.
      *
      * @param  Builder<Course>  $query
      * @return Builder<Course>
      */
     private function incompleteScope(Builder $query): Builder
     {
-        return $query->whereRaw('(select count(*) from course_lecturers where course_lecturers.course_id = courses.id) < courses.parallel_class_count');
+        return $query->where('courses.is_active', true)->whereRaw('(select count(*) from course_lecturers where course_lecturers.course_id = courses.id) < courses.parallel_class_count');
     }
 
     /**

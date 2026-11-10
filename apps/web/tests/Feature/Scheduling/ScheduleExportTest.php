@@ -13,6 +13,7 @@ use App\Models\MasterData\TimeSlot;
 use App\Models\Scheduling\ScheduleDetail;
 use App\Models\Scheduling\SchedulingRun;
 use App\Models\User;
+use App\Services\Scheduling\Export\ScheduleExportService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -159,16 +160,16 @@ class ScheduleExportTest extends TestCase
             && str_contains($request->body(), 'name="paperWidth"'));
     }
 
-    public function test_student_pdf_hides_manual_override_indicators(): void
+    public function test_published_export_hides_manual_override_indicators(): void
     {
         Http::fake(['*/forms/chromium/convert/html' => Http::response('%PDF-1.7 fake', 200, ['Content-Type' => 'application/pdf'])]);
         $this->run->update(['published_at' => now()]);
         $detail = ScheduleDetail::query()->where('course_id', $this->algo->id)->firstOrFail();
         $detail->update(['is_overridden' => true, 'overridden_at' => now(), 'overridden_by' => $this->admin->id]);
-        Sanctum::actingAs(User::factory()->student($this->program)->create());
 
-        $this->export("format=pdf&classes[]={$this->algo->id}:1")->assertOk()
-            ->assertHeader('Content-Type', 'application/pdf');
+        $file = app(ScheduleExportService::class)->exportPublished(self::PERIOD, ['classes' => [['course_id' => $this->algo->id, 'class_number' => 1]]], 'pdf');
+
+        $this->assertSame('application/pdf', $file['content_type']);
 
         Http::assertSent(fn (Request $request) => str_contains($request->body(), 'Algoritma, Struktur Data')
             && ! str_contains($request->body(), __('Orange border = changed manually by the faculty admin.'))
@@ -193,9 +194,9 @@ class ScheduleExportTest extends TestCase
         $this->export('format=ics&classes[]=abc')->assertUnprocessable()->assertJsonValidationErrors('classes.0');
     }
 
-    public function test_student_cannot_export_an_unpublished_schedule(): void
+    public function test_lecturer_cannot_export_an_unpublished_schedule(): void
     {
-        Sanctum::actingAs(User::factory()->student($this->program)->create());
+        Sanctum::actingAs(User::factory()->lecturer($this->lecturer)->create());
         $this->export('format=xlsx')->assertStatus(409);
 
         $this->run->update(['published_at' => now()]);

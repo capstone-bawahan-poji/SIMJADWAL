@@ -144,7 +144,7 @@ class ConstraintApiTest extends TestCase
 
         $this->actingAs($this->prodiAdmin)->putJson("/api/internal/lecturers/{$foreign->id}/preferences", $body)->assertForbidden();
         $this->actingAs($this->facultyAdmin)->putJson("/api/internal/lecturers/{$own->id}/preferences", $body)->assertForbidden();
-        $this->actingAs(User::factory()->student()->create())->getJson("/api/internal/lecturers/{$own->id}/preferences")->assertForbidden();
+        $this->actingAs(User::factory()->tpbAdmin()->create())->getJson("/api/internal/lecturers/{$own->id}/preferences")->assertForbidden();
 
         $this->program->update(['constraint_status' => ConstraintStatus::SUBMITTED]);
         $this->actingAs($this->prodiAdmin)->putJson("/api/internal/lecturers/{$own->id}/preferences", $body)
@@ -293,6 +293,16 @@ class ConstraintApiTest extends TestCase
             ->assertJsonPath('data.0.can_review', false);
     }
 
+    public function test_inactive_courses_are_not_counted_as_incomplete(): void
+    {
+        $this->completeCourse($this->program);
+        Course::factory()->create(['study_program_id' => $this->program->id, 'parallel_class_count' => 2, 'is_active' => false]);
+
+        $this->actingAs($this->prodiAdmin)->getJson('/api/internal/constraint-submissions')
+            ->assertOk()
+            ->assertJsonPath('data.0.incomplete_courses_count', 0);
+    }
+
     public function test_detail_lists_incomplete_courses_and_lecturer_preferences(): void
     {
         $lecturer = Lecturer::factory()->create(['study_program_id' => $this->program->id]);
@@ -317,7 +327,7 @@ class ConstraintApiTest extends TestCase
 
     public function test_other_roles_are_refused_everywhere(): void
     {
-        $this->actingAs(User::factory()->student($this->program)->create());
+        $this->actingAs(User::factory()->lecturer()->create());
 
         $this->getJson('/api/internal/constraint-submissions')->assertForbidden();
         $this->getJson('/api/internal/constraint-types')->assertForbidden();
