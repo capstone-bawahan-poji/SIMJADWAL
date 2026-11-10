@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import RoomMatrix from '@/Components/scheduling/RoomMatrix.vue';
+import RoomGridExportButton from '@/Components/scheduling/RoomGridExportButton.vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Alert from '@/Components/ui/Alert.vue';
 import Panel from '@/Components/ui/Panel.vue';
@@ -12,8 +14,6 @@ import type { AcademicPeriod, Pagination as PaginationMeta, Room, Schedule, Sche
 import { Head } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 
-// Read only: the rooms of the TPB schedule come from the GA. This page shows every room, how many the
-// active TPB schedule uses, and the classes the GA could not seat properly.
 type RoomIssue = Schedule['schedule_details'][number];
 
 const PER_PAGE = 15;
@@ -106,19 +106,49 @@ onResourcesChanged(['scheduling_runs', 'schedule_details'], () => {
 });
 void loadRooms();
 void loadIssues();
+const VIEWS = [
+    { id: 'summary', label: 'Ringkasan ruangan' },
+    { id: 'matrix', label: 'Seluruh jadwal' },
+] as const;
+const view = ref<(typeof VIEWS)[number]['id']>(queryParam('view') === 'matrix' ? 'matrix' : 'summary');
+watch(view, (value) => {
+    const url = new URL(window.location.href);
+    if (value === 'matrix') url.searchParams.set('view', 'matrix');
+    else url.searchParams.delete('view');
+    window.history.replaceState(window.history.state, '', url);
+});
 </script>
 
 <template>
     <Head title="Alokasi Ruangan" />
     <AppLayout>
         <div class="mx-auto w-full max-w-7xl space-y-6 p-6 md:p-8">
-            <header>
-                <h1 class="text-2xl font-bold tracking-tight text-gray-900">Alokasi Ruangan</h1>
-                <p class="mt-1 max-w-2xl text-sm text-gray-500">
-                    Ruang untuk jadwal TPB {{ periodLabel || 'periode berjalan' }} ditentukan oleh GA. Jalankan GA lagi kalau ruangnya perlu diubah.
-                </p>
+            <header class="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight text-gray-900">Alokasi Ruangan</h1>
+                    <p class="mt-1 max-w-2xl text-sm text-gray-500">
+                        Ruang untuk jadwal TPB {{ periodLabel || 'periode berjalan' }} ditentukan oleh GA. Jalankan GA lagi kalau ruangnya perlu diubah.
+                    </p>
+                </div>
+                <RoomGridExportButton :period="currentPeriod || undefined" />
             </header>
 
+
+            <div class="inline-flex rounded-lg bg-gray-100 p-1" role="tablist" aria-label="Tampilan halaman">
+                <button
+                    v-for="item in VIEWS"
+                    :key="item.id"
+                    type="button"
+                    role="tab"
+                    :aria-selected="view === item.id"
+                    class="rounded-md px-4 py-1.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    :class="view === item.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+                    @click="view = item.id"
+                >{{ item.label }}</button>
+            </div>
+
+            <RoomMatrix v-if="view === 'matrix'" :period="currentPeriod || undefined" />
+            <template v-else>
             <Alert v-if="roomError" :title="roomError.message" />
             <Alert v-if="issuesError" :title="issuesError.message" />
 
@@ -268,6 +298,7 @@ void loadIssues();
                 </div>
                 <Pagination v-model:page="page" :pagination="pagination" label="ruangan" />
             </Panel>
+            </template>
         </div>
     </AppLayout>
 </template>

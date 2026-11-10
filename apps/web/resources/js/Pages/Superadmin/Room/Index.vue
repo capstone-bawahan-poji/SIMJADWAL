@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import RoomGridExportButton from '@/Components/scheduling/RoomGridExportButton.vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { Head } from '@inertiajs/vue3';
 import { computed, onMounted, ref, watch } from 'vue';
@@ -15,7 +16,6 @@ import { countOf, useCollection, usePaginatedList } from '@/composables/useApiLi
 import { useApiForm } from '@/composables/useApiForm';
 import type { FacultySummary, Room } from '@/types/models';
 
-/** Owner filter: a faculty id, or "shared" for rooms without a faculty. */
 type Owner = number | 'shared' | '';
 
 const fieldClass = 'w-full rounded-lg border-gray-200 bg-gray-50 text-gray-900 text-sm focus:border-primary focus:ring-primary';
@@ -62,7 +62,6 @@ function refresh(message: string): void {
     void loadMetrics();
 }
 
-// Create / edit modal.
 const isModalOpen = ref(false);
 const editing = ref<Room | null>(null);
 const form = useApiForm(() => ({
@@ -152,9 +151,12 @@ async function confirmDelete(): Promise<void> {
         <div class="space-y-8 p-6 md:p-8">
             <div class="flex flex-col justify-between gap-4 md:flex-row md:items-center">
                 <h2 class="text-2xl font-bold tracking-tight text-gray-900">Data Ruangan</h2>
-                <Button @click="openCreate" class="bg-primary text-white hover:bg-primary-hover">
-                    Tambah Ruangan
-                </Button>
+                <div class="flex flex-wrap items-center gap-3">
+                    <RoomGridExportButton />
+                    <Button @click="openCreate" class="bg-primary text-white hover:bg-primary-hover">
+                        Tambah Ruangan
+                    </Button>
+                </div>
             </div>
 
             <Alert v-if="flash" variant="success" :title="flash" dismissible @dismiss="flash = null" />

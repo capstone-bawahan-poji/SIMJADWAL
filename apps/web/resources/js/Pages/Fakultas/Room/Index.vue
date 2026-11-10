@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import RoomMatrix from '@/Components/scheduling/RoomMatrix.vue';
+import RoomGridExportButton from '@/Components/scheduling/RoomGridExportButton.vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Alert from '@/Components/ui/Alert.vue';
 import Button from '@/Components/ui/Button.vue';
@@ -11,12 +13,10 @@ import { api, toApiError, type ApiError } from '@/lib/api';
 import { queryParam } from '@/lib/query';
 import type { Schedule, ScheduleDetailBase, ScheduleFilters, Room } from '@/types/models';
 import { Head } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 type RoomIssue = Schedule['schedule_details'][number];
 
-// TPB admins see every room and the TPB schedule's room issues, without changing anything:
-// rooms of the TPB schedule come from the GA only.
 const props = withDefaults(defineProps<{ scope?: 'faculty' | 'tpb' }>(), { scope: 'faculty' });
 const readonly = computed(() => props.scope === 'tpb');
 
@@ -89,20 +89,50 @@ function overrideSaved(updated: ScheduleDetailBase): void {
 
 onResourcesChanged(['scheduling_runs', 'schedule_details'], () => void loadIssues());
 void loadIssues();
+const VIEWS = [
+    { id: 'summary', label: 'Ringkasan ruangan' },
+    { id: 'matrix', label: 'Seluruh jadwal' },
+] as const;
+const view = ref<(typeof VIEWS)[number]['id']>(queryParam('view') === 'matrix' ? 'matrix' : 'summary');
+watch(view, (value) => {
+    const url = new URL(window.location.href);
+    if (value === 'matrix') url.searchParams.set('view', 'matrix');
+    else url.searchParams.delete('view');
+    window.history.replaceState(window.history.state, '', url);
+});
 </script>
 
 <template>
     <Head title="Alokasi Ruangan" />
     <AppLayout>
         <div class="w-full space-y-6 p-6 md:p-8">
-            <div>
-                <h1 class="text-2xl font-bold tracking-tight text-gray-900">Alokasi Ruangan</h1>
-                <p class="mt-1 text-sm text-gray-500">
-                    {{ readonly ? 'Jadwal TPB aktif' : 'Jadwal aktif' }} periode {{ currentPeriod || 'berjalan' }}.
-                    <template v-if="readonly">Ruang kelas TPB ditentukan GA; jalankan ulang GA untuk mengubahnya.</template>
-                </p>
+            <div class="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight text-gray-900">Alokasi Ruangan</h1>
+                    <p class="mt-1 text-sm text-gray-500">
+                        {{ readonly ? 'Jadwal TPB aktif' : 'Jadwal aktif' }} periode {{ currentPeriod || 'berjalan' }}.
+                        <template v-if="readonly">Ruang kelas TPB ditentukan GA; jalankan ulang GA untuk mengubahnya.</template>
+                    </p>
+                </div>
+                <RoomGridExportButton :period="currentPeriod || undefined" />
             </div>
 
+
+            <div class="inline-flex rounded-lg bg-gray-100 p-1" role="tablist" aria-label="Tampilan halaman">
+                <button
+                    v-for="item in VIEWS"
+                    :key="item.id"
+                    type="button"
+                    role="tab"
+                    :aria-selected="view === item.id"
+                    class="rounded-md px-4 py-1.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    :class="view === item.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+                    @click="view = item.id"
+                >{{ item.label }}</button>
+            </div>
+
+            <RoomMatrix v-if="view === 'matrix'" :period="currentPeriod || undefined" />
+            <template v-else>
             <Alert v-if="flash" variant="success" :title="flash" dismissible @dismiss="flash = null" />
             <Alert v-if="roomError" :title="roomError.message" />
             <Alert v-if="issuesError" :title="issuesError.message" />
@@ -256,6 +286,7 @@ void loadIssues();
                 </div>
                 <Pagination v-model:page="page" :pagination="pagination" label="ruangan" />
             </Panel>
+            </template>
         </div>
 
         <ScheduleOverrideModal

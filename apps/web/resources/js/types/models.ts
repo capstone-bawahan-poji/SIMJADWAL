@@ -100,6 +100,7 @@ export interface LecturerSummary {
 export interface Lecturer extends LecturerSummary {
     user_id: number | null;
     study_program: StudyProgramSummary;
+    course_lecturers_count: number;
     can_update: boolean;
     can_delete: boolean;
 }
@@ -182,8 +183,8 @@ export interface CourseSummary {
 
 /** App\Data\MasterData\CourseData. course_lecturers_count = classes that already have a lecturer. TPB courses have no class count or capacity. */
 export interface Course extends CourseSummary {
-    parallel_class_count: number;
-    class_capacity: number;
+    parallel_class_count: number | null;
+    class_capacity: number | null;
     is_active: boolean;
     study_program: StudyProgramSummary | null;
     course_lecturers_count: number;
@@ -524,4 +525,24 @@ export interface TpbDashboard {
     rooms: { shared: number; peak: { day: number; session: number; used: number } | null };
     retake_programs: number;
     cohorts: Record<TpbCohort, number>;
+}
+
+/** GET /schedules/room-grid: the published schedule as a room grid, same data as the "Seluruh jadwal" export. */
+export interface RoomGridData {
+    title: string;
+    subtitle: string;
+    mode: 'superadmin' | 'tpb' | 'fakultas';
+    clash_count: number;
+    without_room: number;
+    legend: { label: string; color: string; left_border: string | null }[];
+    buildings: { name: string; label: string; rooms: { id: number; code: string }[] }[];
+    time_slots: { id: number; day: number; day_label: string; session: number; time: string }[];
+    cells: {
+        time_slot_id: number;
+        room_id: number;
+        color: string;
+        left_border: string | null;
+        clash: boolean;
+        classes: { course: string; course_code: string; class_label: string; lecturer: string; group: string | null }[];
+    }[];
 }
