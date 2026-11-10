@@ -1,22 +1,43 @@
 <script setup lang="ts">
 import { Head, Link } from '@inertiajs/vue3';
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import AppLogo from '@/Components/shared/AppLogo.vue';
 import campusImage from '../../../images/kampus-itk.png';
-import { courses as mockCourses, faculties, type CourseItem } from '@/mocks/publicCatalog';
-import {
-    Search,
-    RotateCcw,
-    Check,
-    CheckCircle2,
-    BookOpen,
-    ArrowRight,
-    ArrowDown,
-    X,
-    Trash2,
-    Users,
-    LayoutDashboard,
-} from 'lucide-vue-next';
+import { toApiError, type ApiError } from '@/lib/api';
+import { publicApi } from '@/lib/publicApi';
+import type { Collection, Paginated } from '@/types/models';
+import { Search, RotateCcw, Check, CheckCircle2, ArrowDown, X, Trash2, LayoutDashboard, Mail } from 'lucide-vue-next';
+
+interface CatalogProgram {
+    id: number;
+    code: string;
+    name: string;
+}
+
+interface CatalogFaculty {
+    id: number;
+    code: string;
+    name: string;
+    study_programs: CatalogProgram[];
+}
+
+interface CatalogClass {
+    class_number: number;
+    class_label: string;
+    lecturer: { id: number; name: string; title: string | null } | null;
+}
+
+interface CatalogCourse {
+    id: number;
+    code: string;
+    name: string;
+    sks: number;
+    semester: number;
+    is_tpb: boolean;
+    study_program: CatalogProgram | null;
+    faculty: { id: number; code: string; name: string } | null;
+    classes: CatalogClass[];
+}
 
 interface SelectedCourse {
     course_id: number;
@@ -24,10 +45,19 @@ interface SelectedCourse {
     name: string;
     sks: number;
     semester: number;
-    class_id: number;
+    class_number: number;
     class_name: string;
     study_program: string;
 }
+
+type ScheduleFormat = 'pdf' | 'xlsx' | 'ics';
+
+const FORMAT_OPTIONS: { value: ScheduleFormat; label: string }[] = [
+    { value: 'pdf', label: 'PDF' },
+    { value: 'xlsx', label: 'Excel (.xlsx)' },
+    { value: 'ics', label: 'Kalender (.ics)' },
+];
+const SELECTION_STORAGE_KEY = 'simjadwal:landing:selection:v1';
 
 const props = defineProps<{
     auth?: {
@@ -40,29 +70,71 @@ const props = defineProps<{
     };
 }>();
 
-// Filter States
+// Filter states
 const selectedFacultyId = ref<number | ''>('');
 const selectedStudyProgramId = ref<number | ''>('');
 const selectedSemester = ref<number | ''>('');
 const searchQuery = ref('');
 const appliedFilters = ref({ facultyId: '', programId: '', semester: '', search: '' });
-const pageSize = 9;
-const visibleCount = ref(pageSize);
-const courses = computed(() => mockCourses.filter((course) => {
+const pageSize = 12;
+
+// Catalog data (GET /api/public/*)
+const faculties = ref<CatalogFaculty[]>([]);
+const courses = ref<CatalogCourse[]>([]);
+const totalCourses = ref(0);
+const currentPage = ref(1);
+const lastPage = ref(1);
+const loading = ref(false);
+const catalogError = ref<ApiError | null>(null);
+let courseRequest = 0;
+
+const hasMore = computed(() => currentPage.value < lastPage.value);
+
+async function loadFaculties(): Promise<void> {
+    try {
+        const response = await publicApi.get<Collection<CatalogFaculty>>('faculties');
+        faculties.value = response.data.data;
+    } catch (error) {
+        catalogError.value = toApiError(error);
+    }
+}
+
+async function loadCourses(page = 1): Promise<void> {
+    const request = ++courseRequest;
+    loading.value = true;
+    catalogError.value = null;
     const filter = appliedFilters.value;
-    return (!filter.facultyId || course.faculty_id === Number(filter.facultyId))
-        && (!filter.programId || course.study_program_id === Number(filter.programId))
-        && (!filter.semester || course.semester === Number(filter.semester))
-        && (!filter.search || `${course.code} ${course.name}`.toLowerCase().includes(filter.search));
-}));
-const visibleCourses = computed(() => courses.value.slice(0, visibleCount.value));
+
+    try {
+        const response = await publicApi.get<Paginated<CatalogCourse>>('courses', {
+            params: {
+                faculty_id: filter.facultyId,
+                study_program_id: filter.programId,
+                semester: filter.semester,
+                q: filter.search,
+                page,
+                per_page: pageSize,
+            },
+        });
+        if (request !== courseRequest) return;
+
+        courses.value = page === 1 ? response.data.data : [...courses.value, ...response.data.data];
+        totalCourses.value = response.data.meta.pagination.total;
+        currentPage.value = response.data.meta.pagination.page;
+        lastPage.value = response.data.meta.pagination.last_page;
+    } catch (error) {
+        if (request === courseRequest) catalogError.value = toApiError(error);
+    } finally {
+        if (request === courseRequest) loading.value = false;
+    }
+}
 
 // Available study programs based on chosen faculty
 const availableStudyPrograms = computed(() => {
     if (!selectedFacultyId.value) {
-        return faculties.flatMap((f) => f.study_programs);
+        return faculties.value.flatMap((f) => f.study_programs);
     }
-    const found = faculties.find((f) => f.id === Number(selectedFacultyId.value));
+    const found = faculties.value.find((f) => f.id === Number(selectedFacultyId.value));
     return found ? found.study_programs : [];
 });
 
@@ -81,17 +153,30 @@ function applyFilter() {
         facultyId: String(selectedFacultyId.value),
         programId: String(selectedStudyProgramId.value),
         semester: String(selectedSemester.value),
-        search: searchQuery.value.trim().toLowerCase(),
+        search: searchQuery.value.trim(),
     };
-    visibleCount.value = pageSize;
+    void loadCourses(1);
 }
+
+// Filters apply as they change. Typing waits a moment so each key does not hit the API.
+let searchTimer: ReturnType<typeof setTimeout> | undefined;
+watch([selectedFacultyId, selectedStudyProgramId, selectedSemester], applyFilter);
+watch(searchQuery, () => {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(applyFilter, 300);
+});
 
 function resetFilter() {
     selectedFacultyId.value = '';
     selectedStudyProgramId.value = '';
     selectedSemester.value = '';
     searchQuery.value = '';
-    applyFilter();
+}
+
+const hasActiveFilter = computed(() => Boolean(selectedFacultyId.value || selectedStudyProgramId.value || selectedSemester.value || searchQuery.value));
+
+function loadMore() {
+    if (hasMore.value && !loading.value) void loadCourses(currentPage.value + 1);
 }
 
 function scrollToSection(id: string) {
@@ -101,56 +186,77 @@ function scrollToSection(id: string) {
     }
 }
 
-// Selection (Cart) State
+// Selection (cart) state. The picks only live in this browser: no account, nothing stored on the server.
 const selectedCourses = ref<SelectedCourse[]>([]);
-const courseClassSelection = ref<Record<number, number>>({}); // course_id -> class_id
 
-// Init default class for all courses
-mockCourses.forEach((c) => {
-    if (c.classes && c.classes.length > 0) {
-        courseClassSelection.value[c.id] = c.classes[0].id;
+function restoreSelection(): void {
+    try {
+        const stored = window.localStorage.getItem(SELECTION_STORAGE_KEY);
+        const parsed: unknown = stored ? JSON.parse(stored) : [];
+
+        if (Array.isArray(parsed)) {
+            selectedCourses.value = parsed.filter((item): item is SelectedCourse => typeof item?.course_id === 'number' && typeof item?.class_number === 'number');
+        }
+    } catch {
+        selectedCourses.value = [];
     }
-});
+}
+
+watch(
+    selectedCourses,
+    (items) => {
+        try {
+            window.localStorage.setItem(SELECTION_STORAGE_KEY, JSON.stringify(items));
+        } catch {
+            // Private mode or blocked storage: the picks still work until the page closes.
+        }
+    },
+    { deep: true },
+);
 
 function isCourseSelected(courseId: number): boolean {
     return selectedCourses.value.some((sc) => sc.course_id === courseId);
 }
 
-function getSelectedClassForCourse(courseId: number): string | null {
-    const item = selectedCourses.value.find((sc) => sc.course_id === courseId);
-    return item ? item.class_name : null;
+function selectedClassNumber(courseId: number): number | null {
+    return selectedCourses.value.find((sc) => sc.course_id === courseId)?.class_number ?? null;
 }
 
-function toggleCourseSelection(course: CourseItem) {
-    const existingIndex = selectedCourses.value.findIndex((sc) => sc.course_id === course.id);
-    if (existingIndex > -1) {
-        selectedCourses.value.splice(existingIndex, 1);
-    } else {
-        const chosenClassId = courseClassSelection.value[course.id] || (course.classes[0]?.id ?? 1);
-        const chosenClass = course.classes.find((cl) => cl.id === chosenClassId) || course.classes[0];
-        selectedCourses.value.push({
-            course_id: course.id,
-            code: course.code,
-            name: course.name,
-            sks: course.sks,
-            semester: course.semester,
-            class_id: chosenClass ? chosenClass.id : 1,
-            class_name: chosenClass ? chosenClass.name : 'Kelas A',
-            study_program: course.study_program_name || 'Program Studi',
-        });
-    }
+function lecturerLabel(cl: CatalogClass): string {
+    if (!cl.lecturer) return 'Dosen belum ditentukan';
+
+    return cl.lecturer.title ? `${cl.lecturer.name}, ${cl.lecturer.title}` : cl.lecturer.name;
 }
 
-function selectClassForCourse(course: CourseItem, classId: number) {
-    courseClassSelection.value[course.id] = classId;
-    const existing = selectedCourses.value.find((sc) => sc.course_id === course.id);
-    if (existing) {
-        const chosenClass = course.classes.find((cl) => cl.id === classId);
-        if (chosenClass) {
-            existing.class_id = chosenClass.id;
-            existing.class_name = chosenClass.name;
-        }
-    }
+// Class picker: a course is only added once the student picks one of its classes.
+const classPickerCourse = ref<CatalogCourse | null>(null);
+
+function openClassPicker(course: CatalogCourse) {
+    classPickerCourse.value = course;
+}
+
+function chooseClass(course: CatalogCourse, cl: CatalogClass) {
+    const entry: SelectedCourse = {
+        course_id: course.id,
+        code: course.code,
+        name: course.name,
+        sks: course.sks,
+        semester: course.semester,
+        class_number: cl.class_number,
+        class_name: `Kelas ${cl.class_label}`,
+        study_program: course.study_program?.name ?? 'Mata Kuliah Bersama',
+    };
+    const index = selectedCourses.value.findIndex((sc) => sc.course_id === course.id);
+
+    if (index > -1) selectedCourses.value.splice(index, 1, entry);
+    else selectedCourses.value.push(entry);
+
+    classPickerCourse.value = null;
+}
+
+function unpickCourse(course: CatalogCourse) {
+    removeSelectedCourse(course.id);
+    classPickerCourse.value = null;
 }
 
 function removeSelectedCourse(courseId: number) {
@@ -168,494 +274,370 @@ const totalSks = computed(() => {
     return selectedCourses.value.reduce((acc, curr) => acc + curr.sks, 0);
 });
 
-// Drawer & Modal States
+// Drawer & modal states
 const isDrawerOpen = ref(false);
 const isVerifyModalOpen = ref(false);
 const emailAddress = ref('');
+const emailFormats = ref<ScheduleFormat[]>(['pdf']);
 const emailConfirmed = ref(false);
+const emailSending = ref(false);
+const emailError = ref<string | null>(null);
 
 function openVerificationModal() {
     if (selectedCourses.value.length === 0) return;
     emailAddress.value = '';
     emailConfirmed.value = false;
+    emailError.value = null;
     isVerifyModalOpen.value = true;
 }
 
-function confirmEmail() {
+async function confirmEmail() {
     emailAddress.value = emailAddress.value.trim();
-    emailConfirmed.value = true;
+
+    if (emailFormats.value.length === 0) {
+        emailError.value = 'Pilih minimal satu format file.';
+        return;
+    }
+
+    emailSending.value = true;
+    emailError.value = null;
+
+    try {
+        await publicApi.post('schedule-email', {
+            email: emailAddress.value,
+            classes: selectedCourses.value.map((item) => `${item.course_id}:${item.class_number}`),
+            formats: emailFormats.value,
+        });
+        emailConfirmed.value = true;
+    } catch (error) {
+        const failure = toApiError(error);
+        const fieldMessage = Object.values(failure.errors).flat().map(String)[0];
+        emailError.value = failure.status === 429
+            ? 'Terlalu banyak permintaan. Coba lagi dalam beberapa saat.'
+            : fieldMessage ?? failure.message;
+    } finally {
+        emailSending.value = false;
+    }
 }
+
+onMounted(() => {
+    restoreSelection();
+    void loadFaculties();
+    void loadCourses(1);
+});
 </script>
 
 <template>
     <Head title="SIMJADWAL - Sistem Informasi Penjadwalan Kuliah ITK" />
 
-    <div class="min-h-screen bg-slate-50 font-sans text-slate-800 flex flex-col selection:bg-blue-600 selection:text-white">
-        <!-- Navigation Bar -->
-        <header class="sticky top-0 z-40 w-full border-b border-slate-200/80 bg-white/95 backdrop-blur-md shadow-xs transition-all">
-            <div class="mx-auto flex min-h-20 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
-                <!-- Brand Logo & Name -->
-                <div class="flex items-center gap-3">
-                    <Link href="/" class="flex items-center gap-3 group">
-                        <AppLogo variant="mark" class="h-10 w-auto transition-transform group-hover:scale-105" />
-                        <div class="flex flex-col">
-                            <span class="font-display text-xl font-bold tracking-tight text-primary">
-                                SIMJADWAL
-                            </span>
-                            <span class="text-[11px] font-medium text-slate-500">Institut Teknologi Kalimantan</span>
-                        </div>
-                    </Link>
-                </div>
+    <div class="flex min-h-screen flex-col bg-white font-sans text-slate-800 selection:bg-primary selection:text-white">
+        <header class="sticky top-0 z-40 border-b border-slate-200 bg-white/95 backdrop-blur">
+            <div class="mx-auto flex h-16 max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+                <Link href="/" class="flex items-center gap-3" aria-label="SIMJADWAL, beranda">
+                    <AppLogo variant="mark" class="h-9" />
+                    <span class="flex flex-col leading-tight">
+                        <span class="font-display text-lg font-bold tracking-tight text-primary">SIMJADWAL</span>
+                        <span class="hidden text-xs text-slate-500 sm:block">Institut Teknologi Kalimantan</span>
+                    </span>
+                </Link>
 
-                <!-- Auth Action: Dedicated Login for Staff/Admin -->
-                <div class="flex items-center gap-3">
+                <div class="flex items-center gap-4">
                     <template v-if="props.auth?.user">
-                        <div class="hidden sm:flex flex-col text-right">
-                            <span class="text-xs font-semibold text-slate-900 leading-tight">{{ props.auth.user.name }}</span>
-                            <span class="text-[11px] text-slate-500 capitalize">{{ props.auth.user.role || 'Civitas ITK' }}</span>
-                        </div>
-                        <Link
-                            href="/dashboard"
-                            class="inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs font-semibold text-white shadow-sm hover:bg-primary-hover focus:outline-hidden transition-all"
-                        >
-                            <LayoutDashboard class="size-4" />
-                            <span>Dashboard</span>
+                        <span class="hidden text-sm text-slate-600 sm:block">{{ props.auth.user.name }}</span>
+                        <Link href="/dashboard" class="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+                            <LayoutDashboard class="size-4" aria-hidden="true" />
+                            Dashboard
                         </Link>
                     </template>
-                    <template v-else>
-                        <!-- Specific button for Lecturers to Superadmins -->
-                        <Link
-                            href="/login"
-                            class="group relative inline-flex items-center gap-2 rounded-xl bg-primary px-4 py-2.5 text-xs sm:text-sm font-semibold text-white shadow-sm hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary transition-all active:scale-95"
-                            title="Portal Login Khusus Dosen, Tim Kurikulum, Admin Fakultas/Prodi, dan Superadmin"
-                        >
-                            <span>Masuk</span>
-                        </Link>
-                    </template>
+                    <Link v-else href="/login" class="inline-flex items-center rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-primary hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+                        Masuk
+                    </Link>
                 </div>
             </div>
         </header>
 
-        <main class="flex-1">
-            <!-- Hero Section -->
-            <section
-                id="beranda"
-                class="relative overflow-hidden py-16 text-white sm:py-20"
-                style="background-color: #122b68"
-            >
-                <img :src="campusImage" alt="" aria-hidden="true" class="absolute inset-0 h-full w-full scale-105 object-cover object-center blur-sm" />
-                <div class="absolute inset-0" style="background: linear-gradient(120deg, rgba(12, 26, 59, 0.94), rgba(18, 43, 104, 0.87), rgba(30, 58, 138, 0.8))"></div>
-                <div class="relative mx-auto max-w-5xl px-4 text-center sm:px-6 lg:px-8">
-                    <p class="text-sm font-semibold tracking-wide text-blue-200">SIMJADWAL · Institut Teknologi Kalimantan</p>
-                    <h1 class="mx-auto mt-5 max-w-4xl font-display text-4xl font-bold leading-tight tracking-tight sm:text-5xl">
-                        Susun rencana kuliahmu
-                        <span class="block text-blue-300">lebih mudah</span>
-                    </h1>
-                    <button
-                        type="button"
-                        @click="scrollToSection('pilih-matkul')"
-                        class="mt-8 inline-flex items-center gap-2 rounded-xl bg-white px-6 py-3 text-sm font-semibold text-primary shadow-lg transition hover:bg-blue-50"
-                    >
-                        <BookOpen class="size-4" />
-                        <span>Lihat mata kuliah</span>
-                        <ArrowDown class="size-4" />
-                    </button>
-                </div>
-            </section>
+        <main class="flex-1" :class="selectedCourses.length > 0 ? 'pb-28' : ''">
+            <section id="beranda" class="relative isolate flex min-h-[min(640px,calc(100dvh-4rem))] items-center overflow-hidden bg-[#0c1a3b]">
+                <img :src="campusImage" alt="Kampus Institut Teknologi Kalimantan" class="absolute inset-0 -z-20 h-full w-full object-cover object-center" />
+                <div class="absolute inset-0 -z-10 bg-gradient-to-r from-[#0c1a3b] via-[#0c1a3b]/85 to-[#0c1a3b]/35 max-md:from-[#0c1a3b]/90 max-md:via-[#0c1a3b]/85 max-md:to-[#0c1a3b]/80"></div>
 
-            <!-- Main Course Catalog & Class Picker Section -->
-            <section id="pilih-matkul" class="scroll-mt-24 py-14 sm:py-20">
-                <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-                    <!-- Section Title -->
-                    <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-8">
-                        <div>
-                            <span class="text-xs font-bold uppercase tracking-wider text-primary">Katalog & Pemilihan</span>
-                            <h2 class="mt-1 font-display text-2xl sm:text-3xl font-bold text-slate-900">
-                                Pilih Mata Kuliah & Kelas
-                            </h2>
-                        </div>
-
-                        <!-- Selection Summary Pill if items chosen -->
-                        <div v-if="selectedCourses.length > 0" class="flex items-center gap-3">
-                            <button
-                                type="button"
-                                @click="isDrawerOpen = true"
-                                class="inline-flex items-center gap-2 rounded-xl bg-blue-50 px-3.5 py-2 text-xs font-bold text-primary border border-blue-200 hover:bg-blue-100 transition-all cursor-pointer"
-                            >
-                                <span>{{ selectedCourses.length }} Matkul Terpilih ({{ totalSks }} SKS)</span>
-                                <ArrowRight class="size-3.5" />
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="mb-8 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm sm:p-6">
-                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-end">
-                            <!-- Filter Fakultas -->
-                            <div>
-                                <label for="filter-faculty" class="mb-1.5 block text-sm font-medium text-slate-700">
-                                    Fakultas
-                                </label>
-                                <select
-                                    id="filter-faculty"
-                                    v-model="selectedFacultyId"
-                                    class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2.5 text-sm text-slate-800 focus:border-primary focus:bg-white focus:ring-1 focus:ring-primary focus:outline-hidden transition-all"
-                                >
-                                    <option value="">Semua Fakultas</option>
-                                    <option v-for="fac in faculties" :key="fac.id" :value="fac.id">
-                                        {{ fac.code }} - {{ fac.name }}
-                                    </option>
-                                </select>
-                            </div>
-
-                            <!-- Filter Program Studi -->
-                            <div>
-                                <label for="filter-prodi" class="mb-1.5 block text-sm font-medium text-slate-700">
-                                    Program Studi
-                                </label>
-                                <select
-                                    id="filter-prodi"
-                                    v-model="selectedStudyProgramId"
-                                    class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2.5 text-sm text-slate-800 focus:border-primary focus:bg-white focus:ring-1 focus:ring-primary focus:outline-hidden transition-all"
-                                >
-                                    <option value="">Semua Program Studi</option>
-                                    <option v-for="prog in availableStudyPrograms" :key="prog.id" :value="prog.id">
-                                        {{ prog.code ? prog.code + ' - ' : '' }}{{ prog.name }}
-                                    </option>
-                                </select>
-                            </div>
-
-                            <!-- Filter Semester -->
-                            <div>
-                                <label for="filter-semester" class="mb-1.5 block text-sm font-medium text-slate-700">
-                                    Semester
-                                </label>
-                                <select
-                                    id="filter-semester"
-                                    v-model="selectedSemester"
-                                    class="w-full rounded-xl border border-slate-200 bg-slate-50/50 px-3 py-2.5 text-sm text-slate-800 focus:border-primary focus:bg-white focus:ring-1 focus:ring-primary focus:outline-hidden transition-all"
-                                >
-                                    <option value="">Semua Semester</option>
-                                    <option v-for="sem in [1, 2, 3, 4, 5, 6, 7, 8]" :key="sem" :value="sem">
-                                        Semester {{ sem }}
-                                    </option>
-                                </select>
-                            </div>
-
-                            <!-- Search Keyword & Buttons -->
-                            <div>
-                                <label for="filter-search" class="mb-1.5 block text-sm font-medium text-slate-700">
-                                    Cari Mata Kuliah
-                                </label>
-                                <div class="relative">
-                                    <input
-                                        id="filter-search"
-                                        v-model="searchQuery"
-                                        type="text"
-                                        placeholder="Kode / nama matkul..."
-                                        @keyup.enter="applyFilter"
-                                        class="w-full rounded-xl border border-slate-200 bg-slate-50/50 pl-9 pr-3 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:border-primary focus:bg-white focus:ring-1 focus:ring-primary focus:outline-hidden transition-all"
-                                    />
-                                    <Search class="absolute left-3 top-3 size-4 text-slate-400" />
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Action Buttons row -->
-                        <div class="mt-4 pt-4 border-t border-slate-100 flex items-center justify-between flex-wrap gap-3">
-                            <span class="text-sm text-slate-600">
-                                Menampilkan <b class="text-slate-800">{{ visibleCourses.length }}</b> dari <b class="text-slate-800">{{ courses.length }}</b> mata kuliah
-                            </span>
-                            <div class="flex items-center gap-2">
-                                <button
-                                    type="button"
-                                    @click="applyFilter"
-                                    class="inline-flex items-center gap-1.5 rounded-xl bg-primary px-4 py-2.5 text-sm font-semibold text-white shadow-xs transition-all hover:bg-primary-hover active:scale-95 cursor-pointer"
-                                >
-                                    <Search class="size-3.5" />
-                                    <span>Terapkan Filter</span>
-                                </button>
-                                <button
-                                    type="button"
-                                    @click="resetFilter"
-                                    class="inline-flex items-center gap-1.5 rounded-xl bg-slate-100 px-3.5 py-2.5 text-sm font-medium text-slate-700 transition-all hover:bg-slate-200 cursor-pointer"
-                                >
-                                    <RotateCcw class="size-3.5 text-slate-500" />
-                                    <span>Reset</span>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Course Cards Grid -->
-                    <div v-if="courses.length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                        <div
-                            v-for="course in visibleCourses"
-                            :key="course.id"
-                            :class="[
-                                'relative flex flex-col rounded-2xl bg-white border transition-all duration-200 shadow-xs hover:shadow-md',
-                                isCourseSelected(course.id)
-                                    ? 'border-primary ring-2 ring-primary/20 bg-blue-50/20'
-                                    : 'border-slate-200/90 hover:border-slate-300'
-                            ]"
-                        >
-                            <!-- Card Header (SIMJADWAL Navy Badge Style) -->
-                            <div class="p-5 pb-3 border-b border-slate-100 flex items-start justify-between gap-3">
-                                <div class="flex items-center gap-2 flex-wrap">
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-bold bg-primary text-white">
-                                        {{ course.faculty_code || 'FSTI' }}
-                                    </span>
-                                    <span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-semibold bg-slate-100 text-slate-700 border border-slate-200">
-                                        {{ course.study_program_name || 'Prodi ITK' }}
-                                    </span>
-                                </div>
-                                <span class="rounded-full bg-blue-50 px-2 py-0.5 text-[11px] font-bold text-primary">
-                                    Sem. {{ course.semester }}
-                                </span>
-                            </div>
-
-                            <!-- Card Body -->
-                            <div class="p-5 flex-1 flex flex-col justify-between space-y-4">
-                                <div>
-                                    <div class="text-xs font-mono font-semibold tracking-wide text-slate-500">
-                                        {{ course.code }}
-                                    </div>
-                                    <h3 class="mt-1 font-display text-lg font-semibold leading-snug text-slate-900 line-clamp-2">
-                                        {{ course.name }}
-                                    </h3>
-
-                                    <div class="mt-3 flex items-center gap-3 text-sm text-slate-600">
-                                        <span class="inline-flex items-center gap-1 font-semibold text-slate-800">
-                                            <BookOpen class="size-3.5 text-primary" />
-                                            {{ course.sks }} SKS
-                                        </span>
-                                        <span class="text-slate-300">•</span>
-                                        <span class="inline-flex items-center gap-1 text-slate-500">
-                                            <Users class="size-3.5 text-slate-400" />
-                                            Kapasitas {{ course.classes[0]?.capacity || 45 }} Mhs
-                                        </span>
-                                    </div>
-                                </div>
-
-                                <!-- Class Selection Pills (Kelas A, Kelas B, etc.) -->
-                                <div class="pt-3 border-t border-slate-100">
-                                    <div class="flex items-center justify-between mb-2">
-                                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-600">
-                                            Pilihan Kelas
-                                        </span>
-                                        <span v-if="isCourseSelected(course.id)" class="flex items-center gap-1 text-xs font-bold text-primary">
-                                            <Check class="size-3" />
-                                            {{ getSelectedClassForCourse(course.id) }} Terpilih
-                                        </span>
-                                    </div>
-
-                                    <div class="grid grid-cols-3 gap-2">
-                                        <button
-                                            v-for="cl in course.classes"
-                                            :key="cl.id"
-                                            type="button"
-                                            @click="selectClassForCourse(course, cl.id)"
-                                            :class="[
-                                                'rounded-lg border px-2.5 py-2 text-sm font-medium text-center transition-all cursor-pointer',
-                                                courseClassSelection[course.id] === cl.id
-                                                    ? 'bg-primary text-white border-primary shadow-xs'
-                                                    : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
-                                            ]"
-                                        >
-                                            {{ cl.name }}
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- Card Footer Action -->
-                            <div class="p-4 pt-0">
-                                <button
-                                    type="button"
-                                    @click="toggleCourseSelection(course)"
-                                    :class="[
-                                        'flex w-full items-center justify-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-all cursor-pointer',
-                                        isCourseSelected(course.id)
-                                            ? 'bg-rose-50 text-rose-700 border border-rose-200 hover:bg-rose-100'
-                                            : 'bg-primary text-white hover:bg-primary-hover shadow-xs active:scale-98'
-                                    ]"
-                                >
-                                    <template v-if="isCourseSelected(course.id)">
-                                        <span>Batalkan Pilihan</span>
-                                    </template>
-                                    <template v-else>
-                                        <span>Pilih Mata Kuliah Ini</span>
-                                    </template>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Empty State -->
-                    <div v-else class="rounded-2xl bg-white p-12 text-center border border-slate-200/80 shadow-xs">
-                        <BookOpen class="mx-auto size-12 text-slate-300" />
-                        <h3 class="mt-4 font-display text-base font-bold text-slate-900">Tidak ada mata kuliah ditemukan</h3>
-                        <p class="mt-1 text-xs text-slate-500 max-w-sm mx-auto">
-                            Coba ubah kombinasi filter fakultas, program studi, semester, atau kata kunci pencarian Anda.
+                <div class="mx-auto w-full max-w-7xl px-4 py-16 sm:px-6 lg:px-8">
+                    <div class="max-w-3xl">
+                        <p class="text-sm font-semibold text-blue-200">Institut Teknologi Kalimantan</p>
+                        <h1 class="mt-4 font-display text-4xl font-bold leading-[1.08] tracking-tight text-white sm:text-5xl lg:text-6xl">
+                            Pilih kelas kuliah, jadwalnya dikirim ke email.
+                        </h1>
+                        <p class="mt-6 max-w-[52ch] text-lg leading-relaxed text-blue-100">
+                            Pilih mata kuliah dan kelas yang Anda ambil. Jadwal dari fakultas dikirim ke email dalam PDF, Excel, atau kalender.
                         </p>
                         <button
                             type="button"
-                            @click="resetFilter"
-                            class="mt-4 inline-flex items-center gap-2 rounded-xl bg-slate-100 px-4 py-2 text-xs font-semibold text-slate-700 hover:bg-slate-200 transition-all cursor-pointer"
+                            @click="scrollToSection('pilih-matkul')"
+                            class="mt-10 inline-flex items-center gap-2 rounded-lg bg-white px-7 py-3.5 text-base font-semibold text-primary transition hover:bg-blue-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white active:translate-y-px"
                         >
-                            <RotateCcw class="size-3.5" />
-                            <span>Reset Semua Filter</span>
+                            Pilih mata kuliah
+                            <ArrowDown class="size-5" aria-hidden="true" />
                         </button>
                     </div>
-                    <div v-if="visibleCourses.length < courses.length" class="mt-8 flex justify-center">
-                        <button
-                            type="button"
-                            @click="visibleCount += pageSize"
-                            class="inline-flex items-center gap-2 rounded-xl border border-blue-200 bg-white px-6 py-3 text-sm font-semibold text-primary shadow-sm transition hover:border-primary hover:bg-blue-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
-                        >
-                            Lihat lebih banyak
-                            <ArrowDown class="size-4" />
-                        </button>
+                </div>
+            </section>
+
+            <ol class="mx-auto grid max-w-7xl divide-y divide-slate-200 border-b border-slate-200 px-4 sm:grid-cols-3 sm:divide-x sm:divide-y-0 sm:px-6 lg:px-8">
+                <li class="py-6 sm:pr-8">
+                    <p class="text-sm font-semibold text-slate-900">Cari mata kuliah</p>
+                    <p class="mt-1 text-sm text-slate-600">Saring menurut fakultas, program studi, atau semester.</p>
+                </li>
+                <li class="py-6 sm:px-8">
+                    <p class="text-sm font-semibold text-slate-900">Pilih kelas</p>
+                    <p class="mt-1 text-sm text-slate-600">Tanpa akun. Pilihan tersimpan di browser ini.</p>
+                </li>
+                <li class="py-6 sm:pl-8">
+                    <p class="text-sm font-semibold text-slate-900">Terima jadwal</p>
+                    <p class="mt-1 text-sm text-slate-600">Jadwal yang sudah dipublikasikan fakultas dikirim ke email Anda.</p>
+                </li>
+            </ol>
+
+            <section id="pilih-matkul" class="scroll-mt-20 py-12 sm:py-16">
+                <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+                    <div class="mb-8 flex flex-wrap items-end justify-between gap-3">
+                        <h2 class="font-display text-2xl font-bold tracking-tight text-slate-900 sm:text-3xl">Mata kuliah</h2>
+                        <p class="text-sm text-slate-600" aria-live="polite">
+                            <span class="font-semibold tabular-nums text-slate-900">{{ totalCourses }}</span> mata kuliah ditemukan
+                        </p>
+                    </div>
+
+                    <div class="grid gap-8 lg:grid-cols-[17rem_1fr] lg:gap-10">
+                        <form class="space-y-5 lg:sticky lg:top-24 lg:self-start" @submit.prevent="applyFilter" role="search" aria-label="Saring mata kuliah">
+                            <div>
+                                <label for="filter-search" class="mb-2 block text-sm font-medium text-slate-900">Cari</label>
+                                <div class="relative">
+                                    <Search class="pointer-events-none absolute left-3 top-1/2 size-4 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+                                    <input id="filter-search" v-model="searchQuery" type="search" placeholder="Kode atau nama" class="w-full rounded-lg border border-slate-300 bg-white py-2.5 pl-9 pr-3 text-sm text-slate-900 placeholder-slate-500 focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary" />
+                                </div>
+                            </div>
+                            <div>
+                                <label for="filter-faculty" class="mb-2 block text-sm font-medium text-slate-900">Fakultas</label>
+                                <select id="filter-faculty" v-model="selectedFacultyId" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary">
+                                    <option value="">Semua fakultas</option>
+                                    <option v-for="fac in faculties" :key="fac.id" :value="fac.id">{{ fac.code }} - {{ fac.name }}</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="filter-prodi" class="mb-2 block text-sm font-medium text-slate-900">Program studi</label>
+                                <select id="filter-prodi" v-model="selectedStudyProgramId" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary">
+                                    <option value="">Semua program studi</option>
+                                    <option v-for="prog in availableStudyPrograms" :key="prog.id" :value="prog.id">{{ prog.code ? prog.code + ' - ' : '' }}{{ prog.name }}</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label for="filter-semester" class="mb-2 block text-sm font-medium text-slate-900">Semester</label>
+                                <select id="filter-semester" v-model="selectedSemester" class="w-full rounded-lg border border-slate-300 bg-white px-3 py-2.5 text-sm text-slate-900 focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary">
+                                    <option value="">Semua semester</option>
+                                    <option v-for="sem in [1, 2, 3, 4, 5, 6, 7, 8]" :key="sem" :value="sem">Semester {{ sem }}</option>
+                                </select>
+                            </div>
+                            <button v-if="hasActiveFilter" type="button" @click="resetFilter" class="inline-flex items-center gap-2 text-sm font-medium text-primary hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+                                <RotateCcw class="size-4" aria-hidden="true" />
+                                Atur ulang
+                            </button>
+                        </form>
+
+                        <div class="min-w-0">
+                            <div v-if="catalogError" role="alert" class="mb-6 rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
+                                {{ catalogError.message }}
+                            </div>
+
+                            <ul v-if="loading && courses.length === 0" class="divide-y divide-slate-200 rounded-lg border border-slate-200" role="status" aria-label="Memuat mata kuliah">
+                                <li v-for="n in 6" :key="n" class="flex animate-pulse items-center justify-between gap-6 px-5 py-5 motion-reduce:animate-none">
+                                    <div class="w-full max-w-md space-y-2.5">
+                                        <div class="h-3 w-24 rounded bg-slate-200"></div>
+                                        <div class="h-4 w-3/4 rounded bg-slate-200"></div>
+                                        <div class="h-3 w-1/2 rounded bg-slate-100"></div>
+                                    </div>
+                                    <div class="h-9 w-40 rounded-lg bg-slate-100"></div>
+                                </li>
+                            </ul>
+
+                            <ul v-else-if="courses.length > 0" class="divide-y divide-slate-200 rounded-lg border border-slate-200 transition-opacity" :class="loading ? 'opacity-60' : ''">
+                                <li
+                                    v-for="course in courses"
+                                    :key="course.id"
+                                    class="flex flex-col gap-4 px-5 py-5 transition-colors sm:flex-row sm:items-center sm:justify-between sm:gap-6"
+                                    :class="isCourseSelected(course.id) ? 'bg-primary/5' : 'bg-white hover:bg-slate-50'"
+                                >
+                                    <div class="min-w-0">
+                                        <p class="font-mono text-xs text-slate-500">{{ course.code }}</p>
+                                        <h3 class="mt-0.5 text-base font-semibold leading-snug text-slate-900">{{ course.name }}</h3>
+                                        <p class="mt-1.5 flex flex-wrap gap-x-4 gap-y-1 text-sm text-slate-600">
+                                            <span>{{ course.study_program?.name ?? 'Mata kuliah bersama' }}</span>
+                                            <span>Semester {{ course.semester }}</span>
+                                            <span class="tabular-nums">{{ course.sks }} SKS</span>
+                                        </p>
+                                    </div>
+
+                                    <button
+                                        type="button"
+                                        @click="openClassPicker(course)"
+                                        class="inline-flex h-9 w-28 shrink-0 items-center justify-center gap-1.5 whitespace-nowrap rounded-lg text-sm font-semibold transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:translate-y-px"
+                                        :class="isCourseSelected(course.id) ? 'border border-slate-300 bg-white text-slate-700 hover:border-primary hover:text-primary' : 'bg-primary text-white hover:bg-primary-hover'"
+                                    >
+                                        <Check v-if="isCourseSelected(course.id)" class="size-4" aria-hidden="true" />
+                                        {{ isCourseSelected(course.id) ? 'Dipilih' : 'Pilih' }}
+                                    </button>
+                                </li>
+                            </ul>
+
+                            <div v-else-if="!catalogError" class="rounded-lg border border-dashed border-slate-300 px-6 py-14 text-center">
+                                <h3 class="text-base font-semibold text-slate-900">Tidak ada mata kuliah yang cocok</h3>
+                                <p class="mx-auto mt-1.5 max-w-sm text-sm text-slate-600">Ubah fakultas, program studi, semester, atau kata kunci, lalu coba lagi.</p>
+                                <button type="button" @click="resetFilter" class="mt-5 inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-primary hover:text-primary">
+                                    <RotateCcw class="size-4" aria-hidden="true" />
+                                    Atur ulang filter
+                                </button>
+                            </div>
+
+                            <div v-if="hasMore" class="mt-6 flex justify-center">
+                                <button type="button" @click="loadMore" :disabled="loading" class="inline-flex items-center gap-2 rounded-lg border border-slate-300 bg-white px-6 py-2.5 text-sm font-semibold text-slate-800 transition hover:border-primary hover:text-primary disabled:opacity-60 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+                                    Tampilkan lebih banyak
+                                    <ArrowDown class="size-4" aria-hidden="true" />
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </section>
         </main>
 
-        <!-- Floating Selection Bar (Cart) -->
-        <div
-            v-if="selectedCourses.length > 0"
-            class="fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200/90 shadow-2xl p-4 transition-transform duration-300"
-        >
-            <div class="mx-auto max-w-7xl flex flex-col sm:flex-row items-center justify-between gap-4">
-                <div class="flex items-center gap-4 w-full sm:w-auto justify-between sm:justify-start">
-                    <div class="flex items-center gap-3">
-                        <span class="flex size-10 items-center justify-center rounded-xl bg-blue-100 font-bold text-primary text-sm">
-                            {{ selectedCourses.length }}
-                        </span>
-                        <div>
-                            <div class="text-xs font-semibold text-slate-800">
-                                {{ selectedCourses.length }} Mata Kuliah Terpilih
-                            </div>
-                            <div class="text-[11px] text-slate-500">
-                                Total Beban: <b class="text-primary font-bold">{{ totalSks }} SKS</b>
-                            </div>
+        <footer class="border-t border-slate-200 bg-slate-50">
+            <div class="mx-auto max-w-7xl px-4 py-8 text-sm text-slate-600 sm:px-6 lg:px-8">
+                <p class="font-semibold text-slate-900">SIMJADWAL</p>
+                <p class="mt-1">Capstone Project - Group 11</p>
+            </div>
+        </footer>
+
+        <div v-if="selectedCourses.length > 0" class="fixed inset-x-0 bottom-0 z-30 border-t border-slate-200 bg-white shadow-[0_-8px_24px_-12px_rgba(15,23,42,0.18)]">
+            <div v-if="isDrawerOpen" class="max-h-64 overflow-y-auto border-b border-slate-200">
+                <ul class="mx-auto grid max-w-7xl gap-x-8 divide-y divide-slate-100 px-4 sm:px-6 md:grid-cols-2 md:divide-y-0 lg:px-8">
+                    <li v-for="item in selectedCourses" :key="item.course_id" class="flex items-center justify-between gap-3 py-3 md:border-b md:border-slate-100">
+                        <div class="min-w-0">
+                            <p class="truncate text-sm font-semibold text-slate-900">{{ item.name }}</p>
+                            <p class="mt-0.5 flex gap-x-3 text-xs text-slate-500">
+                                <span class="font-mono">{{ item.code }}</span>
+                                <span>{{ item.class_name }}</span>
+                                <span class="tabular-nums">{{ item.sks }} SKS</span>
+                            </p>
                         </div>
-                    </div>
-
-                    <button
-                        type="button"
-                        @click="isDrawerOpen = !isDrawerOpen"
-                        class="text-xs font-semibold text-primary hover:underline cursor-pointer sm:hidden"
-                    >
-                        {{ isDrawerOpen ? 'Tutup Daftar' : 'Lihat Daftar' }}
-                    </button>
-                </div>
-
-                <div class="flex items-center gap-2.5 w-full sm:w-auto">
-                    <button
-                        type="button"
-                        @click="isDrawerOpen = !isDrawerOpen"
-                        class="hidden sm:inline-flex items-center gap-1.5 rounded-xl bg-slate-100 px-4 py-2.5 text-xs font-semibold text-slate-700 hover:bg-slate-200 transition-all cursor-pointer"
-                    >
-                        <span>{{ isDrawerOpen ? 'Sembunyikan Daftar' : 'Tinjau Rencana' }}</span>
-                    </button>
-                    <button
-                        type="button"
-                        @click="clearAllSelections"
-                        class="inline-flex items-center gap-1.5 rounded-xl bg-slate-100 px-3.5 py-2.5 text-xs font-semibold text-rose-600 hover:bg-rose-50 transition-all cursor-pointer"
-                        title="Kosongkan Pilihan"
-                    >
-                        <Trash2 class="size-4" />
-                    </button>
-                    <button
-                        type="button"
-                        @click="openVerificationModal"
-                        class="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-6 py-2.5 text-xs sm:text-sm font-bold text-white shadow-md hover:bg-primary-hover active:scale-95 transition-all cursor-pointer"
-                    >
-                        <span>Konfirmasi Email</span>
-                    </button>
-                </div>
+                        <button type="button" @click="removeSelectedCourse(item.course_id)" :aria-label="`Hapus ${item.name}`" class="rounded-lg p-2 text-slate-500 transition hover:bg-slate-100 hover:text-red-700">
+                            <X class="size-4" aria-hidden="true" />
+                        </button>
+                    </li>
+                </ul>
             </div>
 
-            <!-- Drawer View of Chosen Courses -->
-            <div v-if="isDrawerOpen" class="mt-4 pt-4 border-t border-slate-200 max-h-60 overflow-y-auto space-y-2">
-                <div class="mx-auto max-w-7xl">
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
-                        <div
-                            v-for="item in selectedCourses"
-                            :key="item.course_id"
-                            class="flex items-center justify-between p-2.5 rounded-xl bg-slate-50 border border-slate-200 text-xs"
-                        >
-                            <div class="flex-1 pr-2">
-                                <div class="font-bold text-slate-900 truncate">{{ item.name }}</div>
-                                <div class="text-[11px] text-slate-500 flex items-center gap-2">
-                                    <span>{{ item.code }}</span>
-                                    <span>•</span>
-                                    <span class="font-semibold text-primary">{{ item.class_name }}</span>
-                                    <span>•</span>
-                                    <span>{{ item.sks }} SKS</span>
-                                </div>
-                            </div>
-                            <button
-                                type="button"
-                                @click="removeSelectedCourse(item.course_id)"
-                                class="text-slate-400 hover:text-rose-600 p-1 transition-colors cursor-pointer"
-                            >
-                                <X class="size-4" />
-                            </button>
-                        </div>
-                    </div>
+            <div class="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
+                <p class="text-sm text-slate-700">
+                    <span class="font-semibold tabular-nums text-slate-900">{{ selectedCourses.length }}</span> mata kuliah,
+                    <span class="font-semibold tabular-nums text-slate-900">{{ totalSks }}</span> SKS
+                </p>
+                <div class="flex items-center gap-2">
+                    <button type="button" @click="isDrawerOpen = !isDrawerOpen" :aria-expanded="isDrawerOpen" class="rounded-lg px-3 py-2 text-sm font-semibold text-primary transition hover:bg-slate-100">
+                        {{ isDrawerOpen ? 'Sembunyikan' : 'Lihat pilihan' }}
+                    </button>
+                    <button type="button" @click="clearAllSelections" aria-label="Kosongkan pilihan" class="rounded-lg p-2.5 text-slate-500 transition hover:bg-slate-100 hover:text-red-700">
+                        <Trash2 class="size-4" aria-hidden="true" />
+                    </button>
+                    <button type="button" @click="openVerificationModal" class="inline-flex items-center gap-2 whitespace-nowrap rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary active:translate-y-px">
+                        <Mail class="size-4" aria-hidden="true" />
+                        Kirim ke email
+                    </button>
                 </div>
             </div>
         </div>
 
-        <div
-            v-if="isVerifyModalOpen"
-            class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4"
-            role="dialog"
-            aria-modal="true"
-            aria-labelledby="email-modal-title"
-        >
-            <div class="w-full max-w-lg rounded-2xl border border-slate-200 bg-white p-6 shadow-2xl">
+        <div v-if="classPickerCourse" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4" role="dialog" aria-modal="true" aria-labelledby="class-modal-title" @click.self="classPickerCourse = null" @keydown.esc="classPickerCourse = null">
+            <div class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
+                <div class="flex items-start justify-between gap-4">
+                    <div class="min-w-0">
+                        <p class="font-mono text-xs text-slate-500">{{ classPickerCourse.code }}</p>
+                        <h3 id="class-modal-title" class="mt-0.5 font-display text-lg font-bold leading-snug text-slate-900">{{ classPickerCourse.name }}</h3>
+                        <p class="mt-1 text-sm text-slate-600">Pilih kelas yang Anda ambil.</p>
+                    </div>
+                    <button type="button" aria-label="Tutup" @click="classPickerCourse = null" class="rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-100">
+                        <X class="size-5" aria-hidden="true" />
+                    </button>
+                </div>
+
+                <ul class="mt-5 space-y-2" role="radiogroup" aria-label="Kelas">
+                    <li v-for="cl in classPickerCourse.classes" :key="cl.class_number">
+                        <button
+                            type="button"
+                            role="radio"
+                            :aria-checked="selectedClassNumber(classPickerCourse.id) === cl.class_number"
+                            @click="chooseClass(classPickerCourse, cl)"
+                            class="flex w-full items-center justify-between gap-4 rounded-lg border px-4 py-3 text-left transition focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                            :class="selectedClassNumber(classPickerCourse.id) === cl.class_number ? 'border-primary bg-primary/5' : 'border-slate-300 hover:border-primary'"
+                        >
+                            <span class="min-w-0">
+                                <span class="block text-sm font-semibold text-slate-900">Kelas {{ cl.class_label }}</span>
+                                <span class="mt-0.5 block truncate text-sm text-slate-600">{{ lecturerLabel(cl) }}</span>
+                            </span>
+                            <Check v-if="selectedClassNumber(classPickerCourse.id) === cl.class_number" class="size-5 shrink-0 text-primary" aria-hidden="true" />
+                        </button>
+                    </li>
+                </ul>
+
+                <div v-if="isCourseSelected(classPickerCourse.id)" class="mt-5 border-t border-slate-200 pt-4">
+                    <button type="button" @click="unpickCourse(classPickerCourse)" class="text-sm font-semibold text-red-700 hover:underline">Batalkan pilihan mata kuliah ini</button>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="isVerifyModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/60 p-4" role="dialog" aria-modal="true" aria-labelledby="email-modal-title">
+            <div class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
                 <div v-if="!emailConfirmed">
                     <div class="flex items-start justify-between gap-4">
                         <div>
-                            <h3 id="email-modal-title" class="font-display text-lg font-bold text-slate-900">Konfirmasi Email</h3>
-                            <p class="mt-1 text-sm text-slate-600">Masukkan email untuk menerima jadwal kuliah.</p>
+                            <h3 id="email-modal-title" class="font-display text-lg font-bold text-slate-900">Kirim jadwal ke email</h3>
+                            <p class="mt-1 text-sm text-slate-600">{{ selectedCourses.length }} mata kuliah, {{ totalSks }} SKS.</p>
                         </div>
-                        <button type="button" aria-label="Tutup" @click="isVerifyModalOpen = false" class="rounded-lg p-1 text-slate-500 hover:bg-slate-100">
-                            <X class="size-5" />
+                        <button type="button" aria-label="Tutup" @click="isVerifyModalOpen = false" class="rounded-lg p-1.5 text-slate-500 transition hover:bg-slate-100">
+                            <X class="size-5" aria-hidden="true" />
                         </button>
                     </div>
-                    <form class="mt-5 space-y-4" @submit.prevent="confirmEmail">
+                    <form class="mt-6 space-y-5" @submit.prevent="confirmEmail">
                         <div>
-                            <label for="schedule-email" class="mb-1.5 block text-sm font-medium text-slate-700">Alamat email</label>
-                            <input
-                                id="schedule-email"
-                                v-model.trim="emailAddress"
-                                type="email"
-                                autocomplete="email"
-                                placeholder="nama@gmail.com"
-                                required
-                                class="w-full rounded-xl border border-slate-200 px-4 py-3 text-sm text-slate-900 focus:border-primary focus:ring-primary"
-                            />
+                            <label for="schedule-email" class="mb-2 block text-sm font-medium text-slate-900">Alamat email</label>
+                            <input id="schedule-email" v-model.trim="emailAddress" type="email" autocomplete="email" placeholder="nama@student.itk.ac.id" required class="w-full rounded-lg border border-slate-300 px-3 py-2.5 text-sm text-slate-900 placeholder-slate-500 focus:border-primary focus:outline-hidden focus:ring-1 focus:ring-primary" />
                         </div>
-                        <div class="flex justify-end gap-2 border-t border-slate-100 pt-4">
-                            <button type="button" @click="isVerifyModalOpen = false" class="rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-600 hover:bg-slate-100">Batal</button>
-                            <button type="submit" class="rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-hover">Konfirmasi</button>
+                        <fieldset>
+                            <legend class="mb-2 block text-sm font-medium text-slate-900">Format file</legend>
+                            <div class="flex flex-wrap gap-x-5 gap-y-2">
+                                <label v-for="option in FORMAT_OPTIONS" :key="option.value" class="inline-flex items-center gap-2 text-sm text-slate-700">
+                                    <input v-model="emailFormats" type="checkbox" :value="option.value" class="rounded border-slate-300 text-primary focus:ring-primary" />
+                                    {{ option.label }}
+                                </label>
+                            </div>
+                        </fieldset>
+                        <p v-if="emailError" role="alert" class="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-800">{{ emailError }}</p>
+                        <div class="flex justify-end gap-2 border-t border-slate-200 pt-5">
+                            <button type="button" @click="isVerifyModalOpen = false" class="rounded-lg px-4 py-2.5 text-sm font-semibold text-slate-700 transition hover:bg-slate-100">Batal</button>
+                            <button type="submit" :disabled="emailSending" class="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover disabled:opacity-60">
+                                {{ emailSending ? 'Mengirim…' : 'Kirim jadwal' }}
+                            </button>
                         </div>
                     </form>
                 </div>
-                <div v-else class="text-center" role="status">
-                    <CheckCircle2 class="mx-auto size-12 text-emerald-600" />
-                    <h3 id="email-modal-title" class="mt-4 font-display text-lg font-bold text-slate-900">Konfirmasi berhasil</h3>
-                    <p class="mt-2 text-sm text-slate-600">
-                        Dalam alur sebenarnya, jadwal akan dikirim ke <strong>{{ emailAddress }}</strong>. Silakan cek email Anda.
+                <div v-else role="status">
+                    <CheckCircle2 class="size-10 text-emerald-600" aria-hidden="true" />
+                    <h3 id="email-modal-title" class="mt-4 font-display text-lg font-bold text-slate-900">Jadwal sedang dikirim</h3>
+                    <p class="mt-2 text-sm leading-relaxed text-slate-600">
+                        Jadwal dikirim ke <strong class="text-slate-900">{{ emailAddress }}</strong>. Cek kotak masuk atau folder spam dalam beberapa menit.
                     </p>
-                    <p class="mt-3 rounded-lg bg-amber-50 p-3 text-xs text-amber-800">Ini hanya simulasi. Belum ada email yang dikirim.</p>
-                    <button type="button" @click="isVerifyModalOpen = false" class="mt-5 rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-white hover:bg-primary-hover">Tutup</button>
+                    <div class="mt-6 flex justify-end">
+                        <button type="button" @click="isVerifyModalOpen = false" class="rounded-lg bg-primary px-5 py-2.5 text-sm font-semibold text-white transition hover:bg-primary-hover">Tutup</button>
+                    </div>
                 </div>
             </div>
         </div>
-
     </div>
 </template>

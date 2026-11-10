@@ -524,10 +524,10 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
             @close="pendingAction = null; actionTarget = null"
         >
             <template v-if="pendingAction === 'activate'">
-                Jadwal aktif yang lama akan digantikan. Run baru belum langsung terlihat mahasiswa dan dosen sampai dipublikasikan.
+                Jadwal aktif yang lama akan digantikan. Run baru belum langsung terlihat dosen sampai dipublikasikan.
                 <p v-if="actionTarget && actionTarget.hc_violations > 0" class="mt-2 font-semibold text-amber-700">Peringatan: run ini memiliki {{ actionTarget.hc_violations }} pelanggaran hard constraint. Server tetap mengizinkan aktivasi.</p>
             </template>
-            <template v-else>Setelah dipublikasikan, dosen dan mahasiswa dapat melihat jadwal ini.</template>
+            <template v-else>Setelah dipublikasikan, dosen dapat melihat jadwal ini.</template>
         </ConfirmDialog>
 
         <ScheduleOverrideModal
