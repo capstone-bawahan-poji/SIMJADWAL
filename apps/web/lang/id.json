@@ -75,7 +75,6 @@
     "Scheduling Run": "Proses Penjadwalan",
     "Server Error": "Kesalahan Server",
     "Service Unavailable": "Layanan Tidak Tersedia",
-    "Student": "Mahasiswa",
     "Study Program": "Program Studi",
     "Study Program Admin": "Admin Program Studi",
     "Study program :program already attends TPB group :group (:course) in this slot.": "Program studi :program sudah mengikuti grup TPB :group (:course) pada slot ini.",
@@ -241,5 +240,16 @@
     "There is no schedule to export.": "Tidak ada jadwal untuk diekspor.",
     "Teaching schedule": "Jadwal Mengajar",
     "Personal class schedule": "Jadwal Kuliah Pribadi",
-    "Class schedule": "Jadwal Kuliah"
+    "The classes you picked have no published schedule yet.": "Kelas yang kamu pilih belum punya jadwal yang dipublikasikan.",
+    "Class schedule :period": "Jadwal kuliah :period",
+    "Class schedule": "Jadwal Kuliah",
+    "Class Schedule :period": "Jadwal Kuliah :period",
+    ":courses courses": ":courses mata kuliah",
+    "Below is the schedule of the classes you picked.": "Berikut jadwal kelas yang Anda pilih.",
+    "Attachments": "Lampiran",
+    "for printing": "untuk dicetak",
+    "for editing": "untuk diolah",
+    "for calendar import": "untuk impor ke kalender",
+    "Sent automatically because a schedule was requested for this address. Ignore it if you did not request it. Replies are not read.": "Dikirim otomatis karena ada permintaan jadwal untuk alamat ini. Abaikan jika bukan Anda yang meminta. Balasan tidak dibaca.",
+    "This schedule is the version published by the faculty when the email was sent. If it changes, send a new request from the class selection page.": "Jadwal ini adalah versi yang dipublikasikan fakultas saat email dikirim. Jika jadwal berubah, kirim permintaan baru dari halaman pemilihan kelas."
 }

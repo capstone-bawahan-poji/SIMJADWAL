@@ -2,18 +2,20 @@
 
 namespace App\Services\Scheduling\Export;
 
-use App\Enums\Account\Role;
 use App\Exceptions\Shared\ApiException;
 use App\Models\MasterData\CourseLecturer;
 use App\Models\MasterData\Faculty;
 use App\Models\MasterData\Lecturer;
 use App\Models\MasterData\StudyProgram;
 use App\Models\MasterData\TimeSlot;
+use App\Models\Scheduling\ScheduleDetail;
+use App\Models\Scheduling\SchedulingRun;
 use App\Models\User;
 use App\Services\Scheduling\Period;
 use App\Services\Scheduling\ScheduleQueryService;
 use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Response;
 use Illuminate\Support\Str;
 
@@ -44,6 +46,48 @@ readonly class ScheduleExportService
             ->when($filters['faculty_id'] ?? null, fn (Builder $q, int $id) => $q->where('faculty_id', $id))
             ->get(['id', 'published_at']);
 
+        $file = $this->render($runs, $period, $filters, $format, true);
+
+        return new Response($file['content'], 200, [
+            'Content-Type' => $file['content_type'],
+            'Content-Disposition' => 'attachment; filename="'.$file['filename'].'"',
+            'Cache-Control' => 'no-store',
+        ]);
+    }
+
+    /**
+     * Same file for a caller without an account: published runs only, no override markers.
+     *
+     * @param  array<string, mixed>  $filters
+     * @return array{content: string, content_type: string, filename: string}
+     */
+    public function exportPublished(string $period, array $filters, string $format): array
+    {
+        $runs = $this->queryService->publishedRuns($period)->get(['id', 'published_at']);
+
+        return $this->render($runs, $period, $filters, $format, false);
+    }
+
+    /**
+     * The published schedule lines of the picked classes, for the body of the email.
+     *
+     * @param  array<string, mixed>  $filters
+     * @return Collection<int, ScheduleDetail>
+     */
+    public function publishedDetails(string $period, array $filters): Collection
+    {
+        $runIds = $this->queryService->publishedRuns($period)->pluck('id')->all();
+
+        return $this->queryService->details($runIds, $filters)->get();
+    }
+
+    /**
+     * @param  Collection<int, SchedulingRun>  $runs
+     * @param  array<string, mixed>  $filters
+     * @return array{content: string, content_type: string, filename: string}
+     */
+    private function render(Collection $runs, string $period, array $filters, string $format, bool $showOverrideIndicators): array
+    {
         $details = $this->queryService->details($runs->modelKeys(), $filters)->get();
         if ($details->isEmpty()) {
             throw ApiException::invalidState(__('There is no schedule to export.'));
@@ -58,7 +102,7 @@ readonly class ScheduleExportService
             subtitle: $subtitle,
             filename: $slug,
             isDraft: $runs->whereIn('id', $usedRunIds)->contains(fn ($run) => $run->published_at === null),
-            showOverrideIndicators: $actor->role !== Role::STUDENT,
+            showOverrideIndicators: $showOverrideIndicators,
             details: $details,
             timeSlots: TimeSlot::query()->orderBy('day')->orderBy('session')->get(),
             generatedAt: now(IcsScheduleExporter::TIMEZONE),
@@ -67,11 +111,11 @@ readonly class ScheduleExportService
         /** @var ScheduleExporter $exporter */
         $exporter = $this->container->make(self::FORMATS[$format]);
 
-        return new Response($exporter->render($export), 200, [
-            'Content-Type' => $exporter->contentType(),
-            'Content-Disposition' => 'attachment; filename="'.$export->filename.'.'.$exporter->extension().'"',
-            'Cache-Control' => 'no-store',
-        ]);
+        return [
+            'content' => $exporter->render($export),
+            'content_type' => $exporter->contentType(),
+            'filename' => $export->filename.'.'.$exporter->extension(),
+        ];
     }
 
     /**

@@ -66,12 +66,6 @@ class UserFactory extends Factory
             ->withRole(Role::STUDY_PROGRAM_ADMIN);
     }
 
-    public function student(?StudyProgram $studyProgram = null): static
-    {
-        return $this->state(fn () => ['study_program_id' => $studyProgram ?? StudyProgram::factory()])
-            ->withRole(Role::STUDENT);
-    }
-
     public function lecturer(?Lecturer $lecturer = null): static
     {
         return $this->withRole(Role::LECTURER)->afterCreating(function (User $user) use ($lecturer) {

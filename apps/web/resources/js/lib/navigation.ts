@@ -82,11 +82,6 @@ export const NAV_BY_ROLE: Partial<Record<Role, NavItem[]>> = {
         { label: 'Dashboard Dosen', routeName: 'dashboard', icon: icons.dashboard },
         { label: 'Jadwal Mengajar', routeName: 'schedule.index', icon: icons.matrix },
     ],
-    mahasiswa: [
-        dashboard,
-        { label: 'Jadwal Fakultas', routeName: 'mahasiswa.faculty-schedule.index', icon: icons.matrix },
-        { label: 'Jadwal Pribadi', routeName: 'mahasiswa.schedule.index', icon: icons.matrix },
-    ],
 };
 
 export const PORTAL_LABELS: Partial<Record<Role, string>> = {

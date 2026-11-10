@@ -18,7 +18,7 @@ use Illuminate\Database\Eloquent\Builder;
  *     several); everyone else reads their own faculty only,
  *   - unpublished: an active run that is not published yet is seen only by those who may publish it.
  *
- * Default filters (own program for students, own classes for lecturers) are a client concern.
+ * Default filters (own classes for lecturers) are a client concern.
  */
 readonly class ScheduleQueryService
 {
@@ -28,7 +28,7 @@ readonly class ScheduleQueryService
     public const FLAGS = ['unassigned', 'over_capacity'];
 
     /*
-     * Plus "classes": list of {course_id, class_number|null} a student picked (no KRS in the
+     * Plus "classes": list of {course_id, class_number|null} a visitor picked (no KRS in the
      * system). It narrows on top of the other filters; class_number null = every class.
      */
 
@@ -60,6 +60,16 @@ readonly class ScheduleQueryService
                     ...ScheduleDetailTransformer::toArray($d),
                 ])->values()->all(),
         ];
+    }
+
+    /**
+     * Active runs already published to everyone, for callers without an account (the public email).
+     *
+     * @return Builder<SchedulingRun>
+     */
+    public function publishedRuns(string $period): Builder
+    {
+        return SchedulingRun::query()->active()->where('period', $period)->whereNotNull('published_at');
     }
 
     /**

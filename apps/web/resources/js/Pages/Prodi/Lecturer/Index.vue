@@ -24,7 +24,6 @@ const { filters, items: lecturers, pagination, page, loading, error, reload } = 
     'lecturers',
     { q: queryParam('q'), study_program_id: studyProgramId.value },
     20,
-    ['course_lecturers'],
 );
 
 const controlClass = 'rounded-lg border-gray-200 bg-white text-sm text-gray-700 focus:border-primary focus:ring-primary';
@@ -135,22 +134,16 @@ async function confirmDelete(): Promise<void> {
                             <tr class="border-b border-gray-200 bg-gray-50 text-xs font-semibold uppercase tracking-wide text-gray-500">
                                 <th class="px-6 py-3">Nama Dosen</th>
                                 <th class="whitespace-nowrap px-6 py-3">NIP</th>
-                                <th class="whitespace-nowrap px-6 py-3">Email</th>
-                                <th class="whitespace-nowrap px-6 py-3 text-right">Kelas diampu</th>
                                 <th class="whitespace-nowrap px-6 py-3 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100" :class="{ 'opacity-60': loading }">
                             <tr v-if="!loading && lecturers.length === 0">
-                                <td colspan="5" class="px-6 py-10 text-center text-gray-500">Tidak ada dosen yang cocok dengan pencarian.</td>
+                                <td colspan="3" class="px-6 py-10 text-center text-gray-500">Tidak ada dosen yang cocok dengan pencarian.</td>
                             </tr>
                             <tr v-for="lecturer in lecturers" :key="lecturer.id" class="hover:bg-gray-50">
                                 <td class="px-6 py-3.5 font-medium text-gray-900">{{ fullName(lecturer) }}</td>
                                 <td class="whitespace-nowrap px-6 py-3.5 tabular-nums text-gray-600">{{ lecturer.nip }}</td>
-                                <td class="whitespace-nowrap px-6 py-3.5 text-gray-600">{{ lecturer.email || '—' }}</td>
-                                <td class="whitespace-nowrap px-6 py-3.5 text-right tabular-nums" :class="lecturer.course_lecturers_count === 0 ? 'text-gray-400' : 'text-gray-900'">
-                                    {{ lecturer.course_lecturers_count }}
-                                </td>
                                 <td class="whitespace-nowrap px-6 py-3.5 text-center">
                                     <div class="flex justify-center gap-2">
                                         <Button variant="secondary" size="sm" @click="openEdit(lecturer)">Edit</Button>

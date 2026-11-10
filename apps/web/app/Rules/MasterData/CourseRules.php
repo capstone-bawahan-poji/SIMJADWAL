@@ -16,6 +16,7 @@ final class CourseRules
             'semester' => [...$presence, 'integer', 'between:1,8'],
             'parallel_class_count' => [...$presence, 'integer', 'between:1,99'],
             'class_capacity' => [...$presence, 'integer', 'between:1,1000'],
+            'is_active' => ['sometimes', 'boolean'],
         ];
     }
 }

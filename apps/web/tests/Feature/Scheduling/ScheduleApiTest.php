@@ -152,14 +152,14 @@ class ScheduleApiTest extends TestCase
         $this->assertNotNull($active->fresh()->published_at);
     }
 
-    public function test_unpublished_active_run_is_hidden_from_students(): void
+    public function test_unpublished_active_run_is_hidden_from_lecturers(): void
     {
         $run = $this->makeRun($this->faculty, ['is_active' => true]);
         $this->gene($run, $this->course, 0, $this->sharedRoom->id);
 
         $this->getJson('/api/v1/schedules')->assertOk()->assertJsonCount(1, 'data.schedule_details');
 
-        Sanctum::actingAs(User::factory()->student($this->program)->create());
+        Sanctum::actingAs(User::factory()->lecturer($this->lecturer)->create());
         $this->getJson('/api/v1/schedules')->assertOk()->assertJsonCount(0, 'data.schedule_details');
 
         $run->update(['published_at' => now()]);
@@ -170,15 +170,12 @@ class ScheduleApiTest extends TestCase
             ->assertJsonPath('data.runs.0.faculty.id', $this->faculty->id);
     }
 
-    public function test_students_see_their_faculty_and_lecturers_see_every_faculty(): void
+    public function test_lecturers_see_every_faculty(): void
     {
         $mine = $this->makeRun($this->faculty, ['is_active' => true, 'published_at' => now()]);
         $this->gene($mine, $this->course, 0, null);
         $other = $this->makeRun($this->otherFaculty, ['is_active' => true, 'published_at' => now()]);
         $this->gene($other, $this->course($this->otherProgram, 3), 1, null);
-
-        Sanctum::actingAs(User::factory()->student($this->program)->create());
-        $this->getJson('/api/v1/schedules')->assertOk()->assertJsonCount(1, 'data.schedule_details');
 
         Sanctum::actingAs(User::factory()->lecturer($this->lecturer)->create());
         $this->getJson('/api/v1/schedules')->assertOk()->assertJsonCount(2, 'data.schedule_details');

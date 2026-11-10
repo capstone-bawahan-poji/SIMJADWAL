@@ -7,7 +7,7 @@ import Panel from '@/Components/ui/Panel.vue';
 import { useOwnSubmission } from '@/composables/useOwnSubmission';
 import { api, toApiError, type ApiError } from '@/lib/api';
 import { Head, Link, usePage } from '@inertiajs/vue3';
-import { ArrowLeft, ArrowRight, CheckCircle2, CircleHelp, Download, FileSpreadsheet, UploadCloud } from 'lucide-vue-next';
+import { ArrowLeft, ArrowRight, CheckCircle2, CircleHelp, Download, FileSpreadsheet, Trash2, UploadCloud } from 'lucide-vue-next';
 import { AxiosError } from 'axios';
 import { computed, reactive, ref } from 'vue';
 
@@ -163,6 +163,15 @@ function chooseFile(nextFile: File | null): void {
     }
 }
 
+function formatSize(bytes: number): string {
+    return bytes < 1024 * 1024 ? `${Math.max(1, Math.round(bytes / 1024))} KB` : `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
+
+function removeFile(): void {
+    chooseFile(null);
+    if (fileInput.value) fileInput.value.value = '';
+}
+
 function pickFile(event: Event): void {
     chooseFile((event.target as HTMLInputElement).files?.[0] ?? null);
 }
@@ -266,23 +275,13 @@ function unresolve(match: LecturerMatch): void {
     <AppLayout>
         <div class="mx-auto w-full max-w-7xl space-y-6 p-6 md:p-8">
             <header class="flex flex-wrap items-start justify-between gap-4">
-                <div class="flex flex-wrap items-start gap-4">
-                    <Link
-                        :href="route('prodi.courses.index')"
-                        class="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-                    >
+                <div>
+                    <Link :href="route('prodi.mappings.index')" class="-ml-1 inline-flex items-center gap-1.5 rounded px-1 text-sm font-medium text-gray-600 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
                         <ArrowLeft class="h-4 w-4" aria-hidden="true" />
-                        Kembali
+                        Data Mata Kuliah
                     </Link>
-                    <div class="flex items-start gap-4">
-                        <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-blue-50 text-primary ring-1 ring-blue-100">
-                            <FileSpreadsheet class="h-6 w-6" aria-hidden="true" />
-                        </span>
-                        <div>
-                            <p class="text-xs font-bold uppercase tracking-[0.16em] text-primary">Data Akademik · Koor Prodi</p>
-                            <h1 class="mt-1 text-2xl font-bold tracking-tight text-gray-900">Import Mata Kuliah</h1>
-                        </div>
-                    </div>
+                    <h1 class="mt-2 text-2xl font-bold tracking-tight text-gray-900">Import Mata Kuliah</h1>
+                    <p class="mt-1 text-sm text-gray-600">Tambah atau perbarui mata kuliah dan dosen pengampu dari file Excel.</p>
                 </div>
                 <ProgramLockBanner v-if="locked" :submission="submission" />
             </header>
@@ -290,7 +289,7 @@ function unresolve(match: LecturerMatch): void {
             <ProgramLockBanner v-if="!locked" :submission="submission" />
 
             <Panel v-if="result" class="overflow-hidden border-green-200 p-0 shadow-sm">
-                <div class="flex flex-col gap-5 bg-gradient-to-br from-green-50 via-white to-white p-6 md:flex-row md:items-center md:justify-between md:p-8">
+                <div class="flex flex-col gap-5 bg-green-50/40 p-6 md:flex-row md:items-center md:justify-between md:p-8">
                     <div class="flex items-start gap-4">
                         <span class="flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl bg-green-100 text-green-700">
                             <CheckCircle2 class="h-6 w-6" aria-hidden="true" />
@@ -318,16 +317,8 @@ function unresolve(match: LecturerMatch): void {
             <template v-else>
                 <section class="grid gap-5 xl:grid-cols-[0.9fr_1.1fr]" aria-label="Langkah import">
                     <Panel class="overflow-hidden p-0 shadow-sm">
-                        <div class="border-b border-gray-100 bg-gradient-to-r from-blue-50 to-white px-5 py-4 md:px-6">
-                            <div class="flex items-center gap-3">
-                                <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-primary shadow-sm ring-1 ring-blue-100">
-                                    <Download class="h-4 w-4" aria-hidden="true" />
-                                </span>
-                                <div>
-                                    <p class="text-[11px] font-bold uppercase tracking-wider text-primary">Langkah 1</p>
-                                    <h2 class="text-sm font-bold text-gray-900">Siapkan template</h2>
-                                </div>
-                            </div>
+                        <div class="border-b border-gray-100 px-5 py-4 md:px-6">
+                            <h2 class="text-sm font-semibold text-gray-900"><span class="mr-2 text-gray-400">1</span>Siapkan template</h2>
                         </div>
                         <div class="space-y-4 p-5 md:p-6">
                             <p class="text-sm leading-6 text-gray-600">
@@ -398,24 +389,48 @@ function unresolve(match: LecturerMatch): void {
                     </Panel>
 
                     <Panel class="overflow-hidden p-0 shadow-sm">
-                        <div class="border-b border-gray-100 bg-gradient-to-r from-indigo-50 to-white px-5 py-4 md:px-6">
-                            <div class="flex items-center gap-3">
-                                <span class="flex h-9 w-9 items-center justify-center rounded-xl bg-white text-primary shadow-sm ring-1 ring-indigo-100">
-                                    <UploadCloud class="h-4 w-4" aria-hidden="true" />
-                                </span>
-                                <div>
-                                    <p class="text-[11px] font-bold uppercase tracking-wider text-primary">Langkah 2</p>
-                                    <h2 class="text-sm font-bold text-gray-900">Unggah file Excel</h2>
-                                </div>
-                            </div>
+                        <div class="border-b border-gray-100 px-5 py-4 md:px-6">
+                            <h2 class="text-sm font-semibold text-gray-900"><span class="mr-2 text-gray-400">2</span>Unggah file Excel</h2>
                         </div>
                         <div class="space-y-5 p-5 md:p-6">
                             <p class="text-sm leading-6 text-gray-600">Pilih file .xlsx, lalu periksa hasilnya terlebih dahulu sebelum menyimpan perubahan.</p>
+                            <input
+                                id="import-file"
+                                ref="fileInput"
+                                type="file"
+                                accept=".xlsx"
+                                :disabled="locked || processing"
+                                class="sr-only"
+                                @change="pickFile"
+                            />
+
+                            <div v-if="file" class="flex items-center gap-3 rounded-xl border border-gray-200 bg-white p-4">
+                                <span class="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-green-50 text-green-700">
+                                    <FileSpreadsheet class="h-5 w-5" aria-hidden="true" />
+                                </span>
+                                <div class="min-w-0 flex-1">
+                                    <p class="truncate text-sm font-semibold text-gray-900">{{ file.name }}</p>
+                                    <p class="mt-0.5 text-xs text-gray-500">{{ formatSize(file.size) }} · siap dipreview</p>
+                                </div>
+                                <label
+                                    for="import-file"
+                                    class="inline-flex h-8 cursor-pointer items-center rounded-lg border border-gray-200 bg-white px-3 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-within:ring-2 focus-within:ring-primary"
+                                    :class="{ 'pointer-events-none opacity-60': locked || processing }"
+                                >
+                                    Ganti
+                                </label>
+                                <Button variant="ghost" size="sm" :disabled="locked || processing" :aria-label="`Hapus file ${file.name}`" class="text-red-700 hover:bg-red-50" @click="removeFile">
+                                    <Trash2 class="h-4 w-4" aria-hidden="true" />
+                                    Hapus
+                                </Button>
+                            </div>
+
                             <label
+                                v-else
                                 for="import-file"
-                                class="group flex min-h-52 cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed px-5 py-8 text-center transition"
+                                class="group flex min-h-52 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed px-5 py-8 text-center transition"
                                 :class="[
-                                    isDragging ? 'border-primary bg-blue-50' : file ? 'border-green-300 bg-green-50/50' : 'border-gray-300 bg-gray-50/70 hover:border-primary/50 hover:bg-blue-50/50',
+                                    isDragging ? 'border-primary bg-blue-50' : 'border-gray-300 bg-gray-50/70 hover:border-primary/50 hover:bg-blue-50/50',
                                     locked || processing ? 'cursor-not-allowed opacity-60' : '',
                                 ]"
                                 @dragenter.prevent="isDragging = true"
@@ -423,25 +438,9 @@ function unresolve(match: LecturerMatch): void {
                                 @dragleave.prevent="isDragging = false"
                                 @drop.prevent="dropFile"
                             >
-                                <input
-                                    id="import-file"
-                                    ref="fileInput"
-                                    type="file"
-                                    accept=".xlsx"
-                                    :disabled="locked || processing"
-                                    class="sr-only"
-                                    @change="pickFile"
-                                />
-                                <span
-                                    class="flex h-14 w-14 items-center justify-center rounded-2xl transition"
-                                    :class="file ? 'bg-green-100 text-green-700' : 'bg-white text-primary shadow-sm ring-1 ring-gray-200 group-hover:ring-primary/30'"
-                                >
-                                    <CheckCircle2 v-if="file" class="h-7 w-7" aria-hidden="true" />
-                                    <UploadCloud v-else class="h-7 w-7" aria-hidden="true" />
-                                </span>
-                                <span class="mt-4 max-w-full truncate text-sm font-bold text-gray-900">{{ file?.name ?? 'Seret file ke sini' }}</span>
-                                <span class="mt-1 text-xs text-gray-500">{{ file ? 'File siap dipreview' : 'atau klik untuk memilih dari perangkat' }}</span>
-                                <span class="mt-4 rounded-lg border border-gray-200 bg-white px-3 py-1.5 text-[11px] font-semibold text-gray-600">Format Excel .xlsx</span>
+                                <UploadCloud class="h-8 w-8 text-gray-400 transition group-hover:text-primary" aria-hidden="true" />
+                                <span class="mt-3 text-sm font-semibold text-gray-900">Seret file ke sini</span>
+                                <span class="mt-1 text-xs text-gray-500">atau klik untuk memilih dari perangkat. Format .xlsx</span>
                             </label>
 
                             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
@@ -458,15 +457,14 @@ function unresolve(match: LecturerMatch): void {
                 <!-- Preview -->
                 <template v-if="preview">
                     <section class="overflow-hidden rounded-2xl border border-gray-200 bg-white shadow-sm" aria-label="Ringkasan preview import">
-                        <div class="flex flex-col gap-4 border-b border-gray-100 bg-gradient-to-r from-slate-50 to-white p-5 md:flex-row md:items-center md:justify-between md:px-6">
+                        <div class="flex flex-col gap-4 border-b border-gray-100 p-5 md:flex-row md:items-center md:justify-between md:px-6">
                             <div>
-                                <p class="text-[11px] font-bold uppercase tracking-[0.16em] text-primary">Pemeriksaan data</p>
-                                <h2 class="mt-1 text-lg font-bold text-gray-900">Preview hasil import</h2>
+                                <h2 class="text-lg font-bold text-gray-900">Preview hasil import</h2>
                                 <p class="mt-1 text-xs text-gray-500">Tinjau perubahan dan perbaiki temuan sebelum menyimpan.</p>
                             </div>
                             <span
-                                class="inline-flex w-fit items-center gap-2 rounded-full px-3 py-1.5 text-xs font-bold"
-                                :class="preview.can_commit ? 'bg-green-50 text-green-700 ring-1 ring-green-200' : 'bg-red-50 text-red-700 ring-1 ring-red-200'"
+                                class="inline-flex w-fit items-center gap-2 rounded-md px-2.5 py-1 text-xs font-semibold"
+                                :class="preview.can_commit ? 'bg-green-50 text-green-800' : 'bg-red-50 text-red-800'"
                             >
                                 <span class="h-2 w-2 rounded-full" :class="preview.can_commit ? 'bg-green-500' : 'bg-red-500'"></span>
                                 {{ preview.can_commit ? 'Siap diimport' : 'Perlu diperbaiki' }}
@@ -513,43 +511,48 @@ function unresolve(match: LecturerMatch): void {
                     </Alert>
 
                     <!-- Lecturer matching -->
-                    <Panel v-if="openMatches.length || resolvedMatches.length" class="space-y-3 p-6">
+                    <Panel v-if="openMatches.length || resolvedMatches.length" class="p-6">
                         <h2 class="text-sm font-bold text-gray-900">Pencocokan Dosen</h2>
-                        <div v-for="match in openMatches" :key="match.key" class="flex flex-col gap-2 rounded-lg border border-red-200 bg-red-50 p-3 md:flex-row md:items-center md:justify-between">
-                            <div class="text-sm">
-                                <p class="font-semibold text-red-800">"{{ match.input }}"</p>
-                                <p class="text-xs text-red-700">
-                                    {{ match.status === 'ambiguous' ? `Cocok dengan ${match.candidates.length} dosen` : 'Tidak ditemukan' }} · baris {{ match.rows.join(', ') }}
+                        <p v-if="openMatches.length" class="mt-1 text-xs text-gray-500">Nama di file belum cocok dengan satu dosen. Pilih dosen yang dimaksud agar import bisa dilanjutkan.</p>
+                        <ul class="mt-3 divide-y divide-gray-100 border-t border-gray-100">
+                            <li v-for="match in openMatches" :key="match.key" class="flex flex-col gap-3 py-4 md:flex-row md:items-center md:justify-between">
+                                <div class="text-sm">
+                                    <p class="font-semibold text-gray-900">{{ match.input }}</p>
+                                    <p class="mt-0.5 text-xs text-gray-500">
+                                        <span class="font-medium text-red-700">{{ match.status === 'ambiguous' ? `Cocok dengan ${match.candidates.length} dosen` : 'Tidak ditemukan' }}</span>
+                                        · baris {{ match.rows.join(', ') }}
+                                    </p>
+                                </div>
+                                <div class="grid w-full gap-2 sm:grid-cols-2 md:w-[28rem]">
+                                    <input
+                                        v-model="lecturerSearch[match.key]"
+                                        type="search"
+                                        placeholder="Cari nama, gelar, atau prodi"
+                                        :aria-label="`Cari dosen untuk ${match.input}`"
+                                        class="w-full rounded-lg border-gray-200 bg-white text-sm focus:border-primary focus:ring-primary"
+                                        :disabled="processing"
+                                    />
+                                    <select
+                                        class="w-full rounded-lg border-gray-200 bg-white text-sm focus:border-primary focus:ring-primary"
+                                        :aria-label="`Pilih dosen untuk ${match.input}`"
+                                        :disabled="processing"
+                                        @change="resolve(match, ($event.target as HTMLSelectElement).value)"
+                                    >
+                                        <option value="">Pilih dosen…</option>
+                                        <option v-for="lecturer in lecturerOptionsFor(match)" :key="lecturer.id" :value="lecturer.id">
+                                            {{ lecturerName(lecturer) }}{{ lecturer.study_program_code ? ` (${lecturer.study_program_code})` : '' }}
+                                        </option>
+                                    </select>
+                                </div>
+                            </li>
+                            <li v-for="match in resolvedMatches" :key="match.key" class="flex items-center justify-between gap-3 py-3 text-sm">
+                                <p>
+                                    <span class="font-semibold text-gray-900">{{ match.input }}</span>
+                                    <span class="text-gray-500"> → {{ lecturerName(match.lecturer) }} (dipilih manual)</span>
                                 </p>
-                            </div>
-                            <div class="w-full space-y-2 md:w-96">
-                                <input
-                                    v-model="lecturerSearch[match.key]"
-                                    type="search"
-                                    placeholder="Cari nama, gelar, atau prodi"
-                                    class="w-full rounded-xl border-gray-200 bg-white text-sm focus:border-primary focus:ring-primary"
-                                    :disabled="processing"
-                                />
-                                <select
-                                    class="w-full rounded-xl border-gray-200 bg-white text-sm focus:border-primary focus:ring-primary"
-                                    :aria-label="`Pilih dosen untuk ${match.input}`"
-                                    :disabled="processing"
-                                    @change="resolve(match, ($event.target as HTMLSelectElement).value)"
-                                >
-                                    <option value="">Pilih dosen…</option>
-                                    <option v-for="lecturer in lecturerOptionsFor(match)" :key="lecturer.id" :value="lecturer.id">
-                                        {{ lecturerName(lecturer) }}{{ lecturer.study_program_code ? ` (${lecturer.study_program_code})` : '' }}
-                                    </option>
-                                </select>
-                            </div>
-                        </div>
-                        <div v-for="match in resolvedMatches" :key="match.key" class="flex items-center justify-between rounded-lg border border-gray-200 p-3 text-sm">
-                            <p>
-                                <span class="font-semibold text-gray-900">"{{ match.input }}"</span>
-                                <span class="text-gray-500"> → {{ lecturerName(match.lecturer) }} (dipilih manual)</span>
-                            </p>
-                            <button type="button" class="text-xs font-semibold text-gray-500 hover:text-gray-900" :disabled="processing" @click="unresolve(match)">Batalkan</button>
-                        </div>
+                                <button type="button" class="text-xs font-semibold text-gray-600 hover:text-gray-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" :disabled="processing" @click="unresolve(match)">Batalkan</button>
+                            </li>
+                        </ul>
                     </Panel>
 
                     <div class="flex flex-wrap gap-2" role="group" aria-label="Filter status mata kuliah">
@@ -568,22 +571,23 @@ function unresolve(match: LecturerMatch): void {
                     </div>
 
                     <!-- Errors and warnings -->
-                    <Panel v-if="preview.errors.length || preview.warnings.length" class="space-y-3 p-6">
+                    <Panel v-if="preview.errors.length || preview.warnings.length" class="space-y-5 p-6">
                         <div v-if="preview.errors.length">
-                            <h2 class="text-sm font-bold text-red-700">Error ({{ preview.errors.length }})</h2>
-                            <ul class="mt-2 space-y-1 text-sm">
-                                <li v-for="(issue, i) in preview.errors" :key="`e-${i}`" class="text-red-700">
-                                    <span class="font-semibold">Baris {{ issue.row }} · {{ issue.column }}</span>
-                                    <span v-if="issue.value !== null && issue.value !== undefined" class="text-red-500"> ("{{ issue.value }}")</span>
-                                    · {{ issue.message }}
+                            <h2 class="text-sm font-bold text-gray-900">Error ({{ preview.errors.length }})</h2>
+                            <ul class="mt-2 divide-y divide-gray-100 text-sm">
+                                <li v-for="(issue, i) in preview.errors" :key="`e-${i}`" class="py-2">
+                                    <span class="font-semibold text-gray-900">Baris {{ issue.row }} · {{ issue.column }}</span>
+                                    <span v-if="issue.value !== null && issue.value !== undefined" class="text-gray-500"> ("{{ issue.value }}")</span>
+                                    <span class="text-red-700"> · {{ issue.message }}</span>
                                 </li>
                             </ul>
                         </div>
                         <div v-if="preview.warnings.length">
-                            <h2 class="text-sm font-bold text-amber-700">Peringatan ({{ preview.warnings.length }})</h2>
-                            <ul class="mt-2 space-y-1 text-sm text-amber-700">
-                                <li v-for="(issue, i) in preview.warnings" :key="`w-${i}`">
-                                    <span class="font-semibold">Baris {{ issue.row }} · {{ issue.column }}</span> · {{ issue.message }}
+                            <h2 class="text-sm font-bold text-gray-900">Peringatan ({{ preview.warnings.length }})</h2>
+                            <ul class="mt-2 divide-y divide-gray-100 text-sm">
+                                <li v-for="(issue, i) in preview.warnings" :key="`w-${i}`" class="py-2">
+                                    <span class="font-semibold text-gray-900">Baris {{ issue.row }} · {{ issue.column }}</span>
+                                    <span class="text-amber-800"> · {{ issue.message }}</span>
                                 </li>
                             </ul>
                         </div>
@@ -604,29 +608,37 @@ function unresolve(match: LecturerMatch): void {
                                     </tr>
                                 </thead>
                                 <tbody class="divide-y divide-gray-100 text-xs text-gray-700" :class="{ 'opacity-60': processing }">
-                                    <tr v-for="course in sortedCourses" :key="course.code" class="align-top" :class="{ 'bg-red-50/60': course.status === 'invalid' }">
+                                    <tr v-for="course in sortedCourses" :key="course.code" class="align-top">
                                         <td class="px-4 py-3">
                                             <span class="inline-flex items-center gap-1.5 text-xs font-medium" :class="statusLabel[course.status].class">
                                                 <span class="h-1.5 w-1.5 rounded-full" :class="statusLabel[course.status].dot"></span>{{ statusLabel[course.status].text }}
                                             </span>
                                             <span class="mt-1 block text-[10px] text-gray-400">Baris {{ course.rows.join(', ') }}</span>
                                         </td>
-                                        <td class="px-4 py-3" :class="{ 'border-l-2 border-red-500 bg-red-50': issuesFor(course, ['Kode MK', 'Mata Kuliah']).length }" :title="issuesFor(course, ['Kode MK', 'Mata Kuliah']).join('\n')">
+                                        <td class="px-4 py-3" :class="{ 'bg-red-50 text-red-800': issuesFor(course, ['Kode MK', 'Mata Kuliah']).length }" :title="issuesFor(course, ['Kode MK', 'Mata Kuliah']).join('\n')">
                                             <span class="font-mono text-[10px] font-bold text-blue-700">{{ course.code }}</span>
                                             <span class="block font-bold text-gray-900">{{ course.fields.name }}</span>
                                             <ul v-if="course.changes.length" class="mt-1 text-[11px] text-amber-700">
                                                 <li v-for="c in course.changes" :key="c.field">{{ fieldLabel[c.field] ?? c.field }}: {{ c.from }} → {{ c.to }}</li>
                                             </ul>
                                         </td>
-                                        <td class="px-4 py-3 text-center" :class="{ 'border-l-2 border-red-500 bg-red-50': issuesFor(course, ['SKS']).length }" :title="issuesFor(course, ['SKS']).join('\n')">{{ course.fields.sks }}</td>
-                                        <td class="px-4 py-3 text-center" :class="{ 'border-l-2 border-red-500 bg-red-50': issuesFor(course, ['Semester']).length }" :title="issuesFor(course, ['Semester']).join('\n')">{{ course.fields.semester }}</td>
-                                        <td class="px-4 py-3 text-center" :class="{ 'border-l-2 border-red-500 bg-red-50': issuesFor(course, ['Kapasitas']).length }" :title="issuesFor(course, ['Kapasitas']).join('\n')">{{ course.fields.class_capacity }}</td>
-                                        <td class="px-4 py-3" :class="{ 'border-l-2 border-red-500 bg-red-50': issuesFor(course, ['Kelas', 'Dosen Pengampu']).length }" :title="issuesFor(course, ['Kelas', 'Dosen Pengampu']).join('\n')">
+                                        <td class="px-4 py-3 text-center" :class="{ 'bg-red-50 text-red-800': issuesFor(course, ['SKS']).length }" :title="issuesFor(course, ['SKS']).join('\n')">{{ course.fields.sks }}</td>
+                                        <td class="px-4 py-3 text-center" :class="{ 'bg-red-50 text-red-800': issuesFor(course, ['Semester']).length }" :title="issuesFor(course, ['Semester']).join('\n')">{{ course.fields.semester }}</td>
+                                        <td class="px-4 py-3 text-center" :class="{ 'bg-red-50 text-red-800': issuesFor(course, ['Kapasitas']).length }" :title="issuesFor(course, ['Kapasitas']).join('\n')">{{ course.fields.class_capacity }}</td>
+                                        <td class="px-4 py-3" :class="{ 'bg-red-50 text-red-800': issuesFor(course, ['Kelas', 'Dosen Pengampu']).length }" :title="issuesFor(course, ['Kelas', 'Dosen Pengampu']).join('\n')">
                                             <ul class="space-y-0.5">
-                                                <li v-for="cls in course.classes" :key="cls.number" :class="{ 'text-gray-400 line-through': cls.change === 'removed' }">
-                                                    <span class="font-semibold">{{ cls.label }}</span> · {{ lecturerName(cls.lecturer) }}
-                                                    <span v-if="cls.change === 'lecturer_changed'" class="text-amber-700">(sebelumnya {{ lecturerName(cls.previous_lecturer) }})</span>
+                                                <li
+                                                    v-for="cls in course.classes"
+                                                    :key="cls.number"
+                                                    class="-mx-2 rounded-md px-2 py-1"
+                                                    :class="{ 'text-gray-400 line-through': cls.change === 'removed', 'bg-amber-50': cls.change === 'lecturer_changed' }"
+                                                >
+                                                    <span class="font-semibold">{{ cls.label }}</span> · <span :class="{ 'font-semibold text-gray-900': cls.change === 'lecturer_changed' }">{{ lecturerName(cls.lecturer) }}</span>
+                                                    <span v-if="cls.change === 'lecturer_changed'" class="ml-1.5 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-semibold text-amber-900">Dosen diganti</span>
                                                     <span v-else-if="classChange[cls.change] && course.status !== 'created'" class="text-amber-700">({{ classChange[cls.change] }})</span>
+                                                    <span v-if="cls.change === 'lecturer_changed'" class="mt-0.5 block text-[11px] text-gray-500">
+                                                        sebelumnya <span class="line-through">{{ lecturerName(cls.previous_lecturer) }}</span>
+                                                    </span>
                                                 </li>
                                             </ul>
                                         </td>

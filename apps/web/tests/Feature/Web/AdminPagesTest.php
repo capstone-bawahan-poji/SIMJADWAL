@@ -54,7 +54,7 @@ class AdminPagesTest extends TestCase
 
     public function test_other_roles_are_refused(): void
     {
-        $this->actingAs(User::factory()->student()->create());
+        $this->actingAs(User::factory()->lecturer()->create());
 
         foreach ([...self::PRODI_PAGES, ...self::FACULTY_PAGES] as $page) {
             $this->get($page)->assertForbidden();
@@ -68,7 +68,7 @@ class AdminPagesTest extends TestCase
             $this->get('/schedule')->assertOk();
         }
 
-        foreach (['facultyAdmin', 'studyProgramAdmin', 'student'] as $state) {
+        foreach (['facultyAdmin', 'studyProgramAdmin'] as $state) {
             $this->actingAs(User::factory()->{$state}()->create());
             $this->get('/schedule')->assertForbidden();
         }

@@ -14,46 +14,11 @@ import { destroy } from '@/lib/api';
 import { queryParam } from '@/lib/query';
 import type { Course } from '@/types/models';
 import { Head, usePage } from '@inertiajs/vue3';
-import { computed, onMounted, ref } from 'vue';
-
-type CourseStatus = 'active' | 'inactive';
-type StoredCourseStatuses = Record<number, CourseStatus>;
+import { computed, ref } from 'vue';
 
 const fieldClass = 'w-full rounded-xl border-gray-200 bg-gray-50 text-gray-900 text-sm focus:border-primary focus:ring-primary';
 const studyProgramId = computed(() => usePage().props.auth.user.study_program_id);
 const { submission, locked } = useOwnSubmission();
-const courseStatusStorageKey = computed(() => `simjadwal:prodi:${studyProgramId.value}:course-statuses:v1`);
-const courseStatuses = ref<StoredCourseStatuses>({});
-const statusStorageError = ref<string | null>(null);
-
-onMounted(() => {
-    try {
-        const stored = window.localStorage.getItem(courseStatusStorageKey.value);
-
-        if (stored) {
-            const parsed: unknown = JSON.parse(stored);
-
-            if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-                throw new Error('Invalid course status data');
-            }
-
-            const statuses: StoredCourseStatuses = {};
-
-            for (const [id, status] of Object.entries(parsed)) {
-                const courseId = Number(id);
-
-                if (Number.isInteger(courseId) && courseId > 0 && (status === 'active' || status === 'inactive')) {
-                    statuses[courseId] = status;
-                }
-            }
-
-            courseStatuses.value = statuses;
-        }
-    } catch {
-        statusStorageError.value = 'Status mata kuliah lokal tidak dapat dibaca dari browser.';
-    }
-});
-
 const { filters, items: courses, pagination, page, loading, error, reload } = usePaginatedList<
     Course,
     { q: string; semester: number | ''; study_program_id: number | null; is_tpb: boolean }
@@ -68,15 +33,9 @@ function refresh(message: string): void {
     void reload();
 }
 
-function statusOf(courseId: number): CourseStatus {
-    return courseStatuses.value[courseId] ?? 'active';
-}
-
 // Create / edit modal.
 const isModalOpen = ref(false);
 const editing = ref<Course | null>(null);
-const editStatus = ref<CourseStatus>('active');
-const statusSaveError = ref<string | null>(null);
 const form = useApiForm(() => ({
     code: '',
     name: '',
@@ -84,20 +43,17 @@ const form = useApiForm(() => ({
     semester: 1 as number,
     parallel_class_count: 1 as number,
     class_capacity: 50 as number,
+    is_active: true as boolean,
 }));
 
 function openCreate(): void {
     editing.value = null;
-    editStatus.value = 'active';
-    statusSaveError.value = null;
     form.reset();
     isModalOpen.value = true;
 }
 
 function openEdit(course: Course): void {
     editing.value = course;
-    editStatus.value = statusOf(course.id);
-    statusSaveError.value = null;
     form.reset({
         code: course.code,
         name: course.name,
@@ -105,6 +61,7 @@ function openEdit(course: Course): void {
         semester: course.semester,
         parallel_class_count: course.parallel_class_count,
         class_capacity: course.class_capacity,
+        is_active: course.is_active,
     });
     isModalOpen.value = true;
 }
@@ -117,28 +74,11 @@ async function save(): Promise<void> {
               name: form.data.name,
               sks: form.data.sks,
               semester: form.data.semester,
+              is_active: form.data.is_active,
           })
         : await form.submit<Course>('post', 'courses', { ...form.data, study_program_id: studyProgramId.value });
 
     if (saved) {
-        if (courseBeingEdited && editStatus.value !== statusOf(courseBeingEdited.id)) {
-            const updatedStatuses: StoredCourseStatuses = {
-                ...courseStatuses.value,
-                [courseBeingEdited.id]: editStatus.value,
-            };
-
-            try {
-                window.localStorage.setItem(courseStatusStorageKey.value, JSON.stringify(updatedStatuses));
-                courseStatuses.value = updatedStatuses;
-                statusStorageError.value = null;
-                statusSaveError.value = null;
-            } catch {
-                statusSaveError.value = 'Data mata kuliah tersimpan, tetapi status gagal disimpan di browser.';
-
-                return;
-            }
-        }
-
         isModalOpen.value = false;
         refresh(`Mata kuliah ${saved.code} ${courseBeingEdited ? 'diperbarui' : 'ditambahkan'}.`);
     }
@@ -210,8 +150,7 @@ async function confirmDelete(): Promise<void> {
                 </div>
 
                 <Alert v-if="error" :title="error.message" class="m-4" />
-                <Alert v-if="statusStorageError" :title="statusStorageError" class="m-4" />
-
+                
                 <div class="w-full overflow-x-auto">
                     <table class="w-full border-collapse text-left text-sm">
                         <thead>
@@ -234,7 +173,7 @@ async function confirmDelete(): Promise<void> {
                                 <td class="px-6 py-3.5 text-right tabular-nums text-gray-700">{{ course.sks }}</td>
                                 <td class="px-6 py-3.5 text-right tabular-nums text-gray-700">{{ course.semester }}</td>
                                 <td class="whitespace-nowrap px-6 py-3.5 text-center">
-                                    <span v-if="statusOf(course.id) === 'active'" class="inline-flex items-center gap-1.5 text-xs font-medium text-green-700">
+                                    <span v-if="course.is_active" class="inline-flex items-center gap-1.5 text-xs font-medium text-green-700">
                                         <span class="h-1.5 w-1.5 rounded-full bg-green-600"></span>
                                         Aktif
                                     </span>
@@ -264,7 +203,6 @@ async function confirmDelete(): Promise<void> {
             </div>
             <form class="space-y-6 p-6" @submit.prevent="save">
                 <Alert v-if="form.failure.value" :title="form.failure.value.message" />
-                <Alert v-if="statusSaveError" :title="statusSaveError" />
 
                 <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
                     <div>
@@ -297,9 +235,9 @@ async function confirmDelete(): Promise<void> {
                     </div>
                     <div v-if="editing">
                         <label for="course-status" class="mb-1.5 block text-sm font-semibold text-gray-900">Status</label>
-                        <select id="course-status" v-model="editStatus" :class="fieldClass">
-                            <option value="active">Aktif</option>
-                            <option value="inactive">Nonaktif</option>
+                        <select id="course-status" v-model="form.data.is_active" :class="fieldClass">
+                            <option :value="true">Aktif</option>
+                            <option :value="false">Nonaktif</option>
                         </select>
                     </div>
                 </div>

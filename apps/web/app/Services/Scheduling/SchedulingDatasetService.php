@@ -38,6 +38,7 @@ readonly class SchedulingDatasetService
             $courses = Course::query()
                 ->whereIn('study_program_id', $includedIds)
                 ->where('is_tpb', false)
+                ->where('is_active', true)
                 ->whereIn('semester', Period::semesters($period))
                 ->orderBy('id')
                 ->get();

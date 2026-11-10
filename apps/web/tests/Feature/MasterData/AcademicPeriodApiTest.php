@@ -74,7 +74,7 @@ class AcademicPeriodApiTest extends TestCase
     {
         AcademicPeriod::factory()->create();
         AcademicPeriod::factory()->create(['code' => '2027/2028-GANJIL', 'start_date' => '2027-08-30', 'end_date' => '2027-12-17']);
-        Sanctum::actingAs(User::factory()->student()->create());
+        Sanctum::actingAs(User::factory()->lecturer()->create());
 
         $this->getJson('/api/v1/academic-periods')->assertOk()->assertJsonCount(2, 'data')->assertJsonPath('data.0.code', '2027/2028-GANJIL');
         $this->postJson('/api/v1/academic-periods', [])->assertForbidden();

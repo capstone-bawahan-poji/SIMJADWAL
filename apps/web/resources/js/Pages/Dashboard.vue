@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
-import StudentDashboard from '@/Pages/Mahasiswa/Dashboard.vue';
 import TpbDashboard from '@/Pages/Tpb/Dashboard.vue';
 import type { DashboardStats } from '@/types/models';
 import { Head, Link, usePage } from '@inertiajs/vue3';
@@ -19,7 +18,6 @@ const C = {
     track: 'rgba(219, 226, 239, 0.6)',
 };
 const role = computed(() => usePage().props.auth.user.role);
-const isStudent = computed(() => role.value === 'mahasiswa');
 const isTpbAdmin = computed(() => role.value === 'admin_tpb');
 const format = (value: number) => value.toLocaleString('id-ID');
 const hoveredBar = ref<number | null>(null);
@@ -43,7 +41,6 @@ const roles = computed(() => {
         { label: 'Admin Fakultas', value: props.stats.users.by_role.admin_fakultas },
         { label: 'Admin Prodi', value: props.stats.users.by_role.admin_prodi },
         { label: 'Dosen', value: props.stats.users.by_role.dosen },
-        { label: 'Mahasiswa', value: props.stats.users.by_role.mahasiswa },
     ].map((item) => ({
         ...item,
         percent: props.stats!.users.total > 0 ? Math.round((item.value / props.stats!.users.total) * 100) : 0,
@@ -116,8 +113,7 @@ const card = {
 </script>
 
 <template>
-    <StudentDashboard v-if="isStudent" />
-    <TpbDashboard v-else-if="isTpbAdmin" />
+    <TpbDashboard v-if="isTpbAdmin" />
     <template v-else>
         <Head title="Dashboard Superadmin" />
 

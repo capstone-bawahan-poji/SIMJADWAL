@@ -7,19 +7,20 @@ import Button from '@/Components/ui/Button.vue';
 import Card from '@/Components/ui/Card.vue';
 import Pagination from '@/Components/ui/Pagination.vue';
 import StatCard from '@/Components/ui/StatCard.vue';
+import { useApiForm } from '@/composables/useApiForm';
 import { fetchAll, usePaginatedList } from '@/composables/useApiList';
 import { useOwnSubmission } from '@/composables/useOwnSubmission';
 import { api, toApiError } from '@/lib/api';
 import { queryParam } from '@/lib/query';
 import type { Course, Lecturer, TeachingAssignment } from '@/types/models';
 import { Head, Link, usePage } from '@inertiajs/vue3';
-import { computed, onMounted, reactive, ref, watch } from 'vue';
+import { computed, onMounted, ref } from 'vue';
 
 const inertiaPage = usePage();
 const studyProgramId = computed(() => inertiaPage.props.auth.user.study_program_id);
 const { submission, locked, reload: reloadSubmission } = useOwnSubmission();
 
-const { filters, items: courses, pagination, page, loading, error } = usePaginatedList<Course, { q: string; study_program_id: number | null; is_tpb: boolean }>(
+const { filters, items: courses, pagination, page, loading, error, reload: reloadCourses } = usePaginatedList<Course, { q: string; study_program_id: number | null; is_tpb: boolean }>(
     'courses',
     { q: queryParam('q'), study_program_id: studyProgramId.value, is_tpb: false },
     20,
@@ -33,10 +34,8 @@ const loadError = ref<string | null>(null);
 const flash = ref<string | null>(null);
 const failure = ref<string | null>(null);
 const saving = ref<string | null>(null);
-type ClassSettings = { sks: number; class_capacity: number };
-const classSettings = reactive<Record<string, ClassSettings>>({});
-const editingClass = ref<{ course: Course; classNumber: number } | null>(null);
-const classSettingsDraft = reactive<ClassSettings>({ sks: 3, class_capacity: 40 });
+const editing = ref<Course | null>(null);
+const courseForm = useApiForm(() => ({ sks: 3 as number, class_capacity: 40 as number, parallel_class_count: 1 as number }));
 
 const fetchAssignments = () => fetchAll<TeachingAssignment>('teaching-assignments', { study_program_id: studyProgramId.value });
 const classKey = (courseId: number, classNumber: number) => `${courseId}-${classNumber}`;
@@ -51,45 +50,28 @@ function classLabel(classNumber: number): string {
     return label;
 }
 
-function classSettingsFor(course: Course, classNumber: number): ClassSettings {
-    const key = classKey(course.id, classNumber);
-
-    return (classSettings[key] ??= {
+function openEdit(course: Course): void {
+    editing.value = course;
+    courseForm.reset({
         sks: course.sks,
         class_capacity: course.class_capacity,
+        parallel_class_count: course.parallel_class_count,
     });
 }
 
-watch(
-    courses,
-    (items) => {
-        items.forEach((course) => {
-            for (let classNumber = 1; classNumber <= course.parallel_class_count; classNumber++) {
-                classSettingsFor(course, classNumber);
-            }
-        });
-    },
-    { immediate: true },
-);
+async function saveCourse(): Promise<void> {
+    const course = editing.value;
 
-function openClassSettings(course: Course, classNumber: number): void {
-    const settings = classSettingsFor(course, classNumber);
-    classSettingsDraft.sks = settings.sks;
-    classSettingsDraft.class_capacity = settings.class_capacity;
-    editingClass.value = { course, classNumber };
-}
+    if (!course) return;
 
-function saveClassSettings(): void {
-    const target = editingClass.value;
+    const saved = await courseForm.submit<Course>('patch', `courses/${course.id}`);
 
-    if (!target) return;
+    if (!saved) return;
 
-    classSettings[classKey(target.course.id, target.classNumber)] = {
-        sks: classSettingsDraft.sks,
-        class_capacity: classSettingsDraft.class_capacity,
-    };
-    flash.value = `Pengaturan Paralel ${classLabel(target.classNumber)} ${target.course.code} disimpan sementara di tampilan ini.`;
-    editingClass.value = null;
+    editing.value = null;
+    flash.value = `Mata kuliah ${saved.code} diperbarui.`;
+    await Promise.all([reloadCourses(), reloadAssignments()]);
+    void reloadSubmission();
 }
 
 async function loadMapping(): Promise<void> {
@@ -172,7 +154,7 @@ const fieldClass = 'w-full rounded-xl border-gray-200 bg-gray-50 text-gray-900 t
             <header class="flex flex-wrap items-start justify-between gap-4">
                 <div>
                     <h1 class="text-2xl font-bold tracking-tight text-gray-900">Mapping Dosen ke Mata Kuliah</h1>
-                    <p class="mt-1 text-sm text-gray-600">Atur dosen pengampu, SKS, dan kapasitas untuk setiap paralel mata kuliah.</p>
+                    <p class="mt-1 text-sm text-gray-600">Atur dosen pengampu tiap paralel. SKS, kapasitas, dan jumlah paralel diubah lewat tombol Edit di setiap mata kuliah.</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-4">
                     <ProgramLockBanner v-if="locked" :submission="submission" />
@@ -201,25 +183,20 @@ const fieldClass = 'w-full rounded-xl border-gray-200 bg-gray-50 text-gray-900 t
                     <p v-if="!loading && courses.length === 0" class="rounded-2xl border border-gray-100 bg-white p-8 text-center text-sm text-gray-500">Tidak ada mata kuliah.</p>
 
                     <Card v-for="course in courses" :key="course.id" class="!p-0 border border-gray-100 shadow-sm" :class="{ 'opacity-60': loading }">
-                        <div class="flex flex-col gap-3 border-b border-gray-100 bg-gray-50/70 p-5">
+                        <div class="flex items-start justify-between gap-3 border-b border-gray-100 bg-gray-50/70 p-5">
                             <div>
                                 <h3 class="text-base font-bold text-gray-900">
                                     <span class="mr-2 rounded border border-blue-100 bg-blue-50 px-2 py-0.5 font-mono text-xs text-blue-700">{{ course.code }}</span>{{ course.name }}
                                 </h3>
-                                <p class="mt-1 text-sm text-gray-500">Semester {{ course.semester }} · {{ course.parallel_class_count }} paralel</p>
+                                <p class="mt-1 text-sm text-gray-500">
+                                    Semester {{ course.semester }} · {{ course.sks }} SKS · {{ course.class_capacity }} mahasiswa · {{ course.parallel_class_count }} paralel
+                                </p>
                             </div>
+                            <Button variant="secondary" size="md" :disabled="locked" @click="openEdit(course)">Edit</Button>
                         </div>
                         <ul class="divide-y divide-gray-100">
-                            <li v-for="n in course.parallel_class_count" :key="n" class="grid gap-3 px-5 py-4 sm:grid-cols-[minmax(100px,.7fr)_minmax(90px,.55fr)_minmax(130px,.8fr)_minmax(180px,1.4fr)_auto] sm:items-center">
+                            <li v-for="n in course.parallel_class_count" :key="n" class="grid gap-3 px-5 py-4 sm:grid-cols-[minmax(100px,.7fr)_minmax(220px,2fr)] sm:items-center">
                                 <span class="text-base font-semibold text-gray-800">Paralel {{ classLabel(n) }}</span>
-                                <span class="text-sm text-gray-700">
-                                    <span class="block text-xs font-medium uppercase tracking-wide text-gray-400">SKS</span>
-                                    {{ classSettingsFor(course, n).sks }}
-                                </span>
-                                <span class="text-sm text-gray-700">
-                                    <span class="block text-xs font-medium uppercase tracking-wide text-gray-400">Kapasitas</span>
-                                    {{ classSettingsFor(course, n).class_capacity }} mahasiswa
-                                </span>
                                 <label class="text-sm font-medium text-gray-600">
                                     Dosen pengampu
                                     <select
@@ -233,7 +210,6 @@ const fieldClass = 'w-full rounded-xl border-gray-200 bg-gray-50 text-gray-900 t
                                         <option v-for="lecturer in lecturers" :key="lecturer.id" :value="lecturer.id">{{ lecturer.name }}</option>
                                     </select>
                                 </label>
-                                <Button variant="secondary" size="md" :disabled="locked" @click="openClassSettings(course, n)">Edit</Button>
                             </li>
                         </ul>
                     </Card>
@@ -260,30 +236,35 @@ const fieldClass = 'w-full rounded-xl border-gray-200 bg-gray-50 text-gray-900 t
             </div>
         </div>
 
-        <Modal :show="editingClass !== null" max-width="md" close-button @close="editingClass = null">
+        <Modal :show="editing !== null" max-width="md" close-button @close="editing = null">
             <div class="border-b border-gray-100 bg-gray-50 px-6 py-5">
-                <h2 class="text-lg font-bold text-gray-900">
-                    Ubah Paralel {{ editingClass ? classLabel(editingClass.classNumber) : '' }}
-                </h2>
-                <p class="mt-1 text-sm text-gray-500">{{ editingClass?.course.code }} · {{ editingClass?.course.name }}</p>
+                <h2 class="text-lg font-bold text-gray-900">Ubah {{ editing?.code }}</h2>
+                <p class="mt-1 text-sm text-gray-500">{{ editing?.name }}</p>
             </div>
-            <form class="space-y-5 p-6" @submit.prevent="saveClassSettings">
+            <form class="space-y-5 p-6" @submit.prevent="saveCourse">
+                <Alert v-if="courseForm.failure.value" :title="courseForm.failure.value.message" />
                 <label class="block text-sm font-semibold text-gray-900">
                     SKS
-                    <select v-model.number="classSettingsDraft.sks" :class="[fieldClass, 'mt-1.5']">
+                    <select v-model.number="courseForm.data.sks" :class="[fieldClass, 'mt-1.5']">
                         <option :value="2">2 SKS</option>
                         <option :value="3">3 SKS</option>
                         <option :value="4">4 SKS</option>
                     </select>
+                    <span v-if="courseForm.errors.value.sks" class="mt-1 block text-xs font-normal text-red-600">{{ courseForm.errors.value.sks }}</span>
                 </label>
                 <label class="block text-sm font-semibold text-gray-900">
-                    Kapasitas
-                    <input v-model.number="classSettingsDraft.class_capacity" type="number" min="1" max="1000" :class="[fieldClass, 'mt-1.5']" required />
+                    Kapasitas (mahasiswa)
+                    <input v-model.number="courseForm.data.class_capacity" type="number" min="1" max="1000" :class="[fieldClass, 'mt-1.5']" required />
+                    <span v-if="courseForm.errors.value.class_capacity" class="mt-1 block text-xs font-normal text-red-600">{{ courseForm.errors.value.class_capacity }}</span>
                 </label>
-                <p class="text-sm text-gray-500" role="note">Belum tersimpan permanen.</p>
+                <label class="block text-sm font-semibold text-gray-900">
+                    Jumlah kelas paralel
+                    <input v-model.number="courseForm.data.parallel_class_count" type="number" min="1" max="99" :class="[fieldClass, 'mt-1.5']" required />
+                    <span v-if="courseForm.errors.value.parallel_class_count" class="mt-1 block text-xs font-normal text-red-600">{{ courseForm.errors.value.parallel_class_count }}</span>
+                </label>
                 <div class="flex justify-end gap-3 border-t border-gray-100 pt-4">
-                    <Button type="button" variant="secondary" @click="editingClass = null">Batal</Button>
-                    <Button type="submit">Simpan</Button>
+                    <Button type="button" variant="secondary" @click="editing = null">Batal</Button>
+                    <Button type="submit" :loading="courseForm.processing.value">Simpan</Button>
                 </div>
             </form>
         </Modal>

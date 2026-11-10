@@ -25,6 +25,7 @@ class CourseData extends BaseData
         public int $semester,
         public int $parallelClassCount,
         public int $classCapacity,
+        public bool $isActive,
         public ?StudyProgramSummaryData $studyProgram,
         public int $courseLecturersCount,
         #[FromPolicy('update')]

@@ -118,7 +118,7 @@ onMounted(() => {
             <template v-else-if="options">
                 <div v-if="options.published" class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm" role="status">
                     <p class="font-semibold text-amber-800">Jadwal ini sudah dipublikasikan</p>
-                    <p class="mt-0.5 text-amber-700">Dosen dan mahasiswa sudah melihat jadwal ini. Perubahan langsung terlihat oleh mereka, jadi tulis alasannya untuk catatan.</p>
+                    <p class="mt-0.5 text-amber-700">Dosen sudah melihat jadwal ini. Perubahan langsung terlihat oleh mereka, jadi tulis alasannya untuk catatan.</p>
                 </div>
 
                 <section class="space-y-2">

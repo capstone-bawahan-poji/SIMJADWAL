@@ -14,7 +14,7 @@ readonly class RoleOrgScope implements ResolvesOrgScope
     {
         return match ($user->role) {
             Role::FACULTY_ADMIN => $user->faculty_id,
-            Role::STUDY_PROGRAM_ADMIN, Role::STUDENT => $user->studyProgram?->faculty_id,
+            Role::STUDY_PROGRAM_ADMIN => $user->studyProgram?->faculty_id,
             Role::LECTURER => $user->lecturer?->studyProgram?->faculty_id,
             default => null,
         };
@@ -23,7 +23,7 @@ readonly class RoleOrgScope implements ResolvesOrgScope
     public function studyProgramId(User $user): ?int
     {
         return match ($user->role) {
-            Role::STUDY_PROGRAM_ADMIN, Role::STUDENT => $user->study_program_id,
+            Role::STUDY_PROGRAM_ADMIN => $user->study_program_id,
             Role::LECTURER => $user->lecturer?->study_program_id,
             default => null,
         };

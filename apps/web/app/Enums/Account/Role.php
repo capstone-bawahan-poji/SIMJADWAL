@@ -9,11 +9,9 @@ enum Role: string
 {
     case SUPER_ADMIN = 'superadmin';
     case FACULTY_ADMIN = 'admin_fakultas';
-    // Institute-wide owner of TPB/MKWU courses. Holds no faculty or study program scope.
     case TPB_ADMIN = 'admin_tpb';
     case STUDY_PROGRAM_ADMIN = 'admin_prodi';
     case LECTURER = 'dosen';
-    case STUDENT = 'mahasiswa';
 
     public function label(): string
     {
@@ -23,7 +21,6 @@ enum Role: string
             self::TPB_ADMIN => __('TPB Admin'),
             self::STUDY_PROGRAM_ADMIN => __('Study Program Admin'),
             self::LECTURER => __('Lecturer'),
-            self::STUDENT => __('Student'),
         };
     }
 
@@ -34,7 +31,7 @@ enum Role: string
 
     public function requiresStudyProgram(): bool
     {
-        return in_array($this, [self::STUDY_PROGRAM_ADMIN, self::STUDENT], true);
+        return $this === self::STUDY_PROGRAM_ADMIN;
     }
 
     public function requiresLecturer(): bool

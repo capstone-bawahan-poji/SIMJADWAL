@@ -35,7 +35,7 @@ class SuperadminPagesTest extends TestCase
 
     public function test_other_roles_are_refused(): void
     {
-        foreach ([User::factory()->student()->create(), User::factory()->facultyAdmin()->create()] as $user) {
+        foreach ([User::factory()->lecturer()->create(), User::factory()->facultyAdmin()->create()] as $user) {
             $this->actingAs($user);
 
             foreach (self::PAGES as $page) {
@@ -46,8 +46,8 @@ class SuperadminPagesTest extends TestCase
 
     public function test_dashboard_gives_counts_to_superadmin_only(): void
     {
-        [$program] = StudyProgram::factory()->count(2)->create();
-        User::factory()->student($program)->create();
+        StudyProgram::factory()->count(2)->create();
+        User::factory()->tpbAdmin()->create();
         $this->actingAs(User::factory()->superAdmin()->create());
 
         $this->get('/dashboard')->assertInertia(fn (Assert $page) => $page
@@ -55,10 +55,10 @@ class SuperadminPagesTest extends TestCase
             ->where('stats.faculties', 2)
             ->where('stats.study_programs', 2)
             ->where('stats.users.total', 2)
-            ->where('stats.users.by_role.mahasiswa', 1)
+            ->where('stats.users.by_role.admin_tpb', 1)
             ->where('stats.users.by_role.superadmin', 1));
 
-        $this->actingAs(User::factory()->student()->create());
+        $this->actingAs(User::factory()->tpbAdmin()->create());
         $this->get('/dashboard')->assertInertia(fn (Assert $page) => $page->where('stats', null));
     }
 

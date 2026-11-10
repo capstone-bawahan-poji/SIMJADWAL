@@ -70,9 +70,9 @@ const lecturers = computed(() => {
             <div class="rounded-lg border border-gray-200 bg-white p-5">
                 <p class="text-sm text-gray-500">Preferensi waktu</p>
                 <p class="mt-1 text-lg font-semibold text-gray-900">
-                    <span class="tabular-nums">{{ filledCount }}</span> dari <span class="tabular-nums">{{ detail.lecturers.length }}</span> dosen sudah mengisi
+                    <span class="tabular-nums">{{ filledCount }}</span> dari <span class="tabular-nums">{{ detail.lecturers.length }}</span> dosen punya preferensi waktu
                 </p>
-                <p class="mt-1 text-sm text-gray-500">Dosen yang belum mengisi dianggap netral di semua slot.</p>
+                <p class="mt-1 text-sm text-gray-500">Dosen tanpa preferensi dianggap netral di semua slot.</p>
             </div>
         </div>
 
@@ -113,7 +113,7 @@ const lecturers = computed(() => {
                 <div class="flex w-full flex-wrap items-center gap-x-4 gap-y-3 sm:w-auto">
                     <label class="flex shrink-0 items-center gap-2 whitespace-nowrap text-sm text-gray-600">
                         <input v-model="hideEmpty" type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary" />
-                        Sembunyikan yang belum mengisi
+                        Sembunyikan yang netral
                     </label>
                     <input
                         v-model="search"
@@ -155,7 +155,7 @@ const lecturers = computed(() => {
                                     <span class="text-gray-400"> / </span>
                                     <span class="font-semibold tabular-nums text-red-600">{{ lecturer.avoid }}</span>
                                 </template>
-                                <span v-else class="text-gray-400">Belum mengisi</span>
+                                <span v-else class="text-gray-400">Netral</span>
                             </td>
                         </tr>
                     </tbody>
