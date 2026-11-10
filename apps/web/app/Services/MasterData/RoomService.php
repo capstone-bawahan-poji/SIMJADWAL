@@ -58,7 +58,7 @@ readonly class RoomService
 
     public function updateRoom(Room $room, RoomFormData $data): RoomData
     {
-        if ($data->facultyId !== null && $room->courseLecturers()->exists()) {
+        if ($data->facultyId !== null && $room->scheduleDetails()->whereHas('schedulingRun', fn ($query) => $query->active()->whereNull('faculty_id'))->exists()) {
             throw ApiException::validation(['faculty_id' => [__('The room hosts TPB classes, so it must stay shared.')]]);
         }
 
@@ -73,7 +73,6 @@ readonly class RoomService
     public function deleteRoom(Room $room): void
     {
         $this->referenceGuard->ensureUnused([
-            ReferenceType::TEACHING_ASSIGNMENTS->value => $room->courseLecturers()->count(),
             ReferenceType::SCHEDULES->value => $this->referenceGuard->activeScheduleCount($room->scheduleDetails()),
         ]);
 

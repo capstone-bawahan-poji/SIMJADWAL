@@ -35,6 +35,7 @@ const showRunDialog = ref(false);
 const canStart = computed(() =>
   !running.value
   && !!dataset.value?.courses.length
+  && !(dataset.value?.revision?.required && !dataset.value.revision.revise_group_ids.length)
   && Object.keys(errors.value).length === 0
   && (runMode.value === 'single' || multiOperators.value.length > 0),
 );

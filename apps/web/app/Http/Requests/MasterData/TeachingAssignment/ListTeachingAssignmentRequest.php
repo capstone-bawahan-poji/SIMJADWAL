@@ -3,6 +3,7 @@
 namespace App\Http\Requests\MasterData\TeachingAssignment;
 
 use App\Http\Queries\Query;
+use App\Rules\Scheduling\PeriodRule;
 use Illuminate\Foundation\Http\FormRequest;
 
 class ListTeachingAssignmentRequest extends FormRequest
@@ -13,6 +14,8 @@ class ListTeachingAssignmentRequest extends FormRequest
             'course_id' => ['nullable', 'integer'],
             'lecturer_id' => ['nullable', 'integer'],
             'study_program_id' => ['nullable', 'integer'],
+            'tpb_offering_id' => ['nullable', 'integer'],
+            'tpb_period' => ['nullable', new PeriodRule],
             'tpb_group_id' => ['nullable', 'integer'],
             'page' => ['nullable', 'integer', 'min:1'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:'.Query::MAX_PER_PAGE],

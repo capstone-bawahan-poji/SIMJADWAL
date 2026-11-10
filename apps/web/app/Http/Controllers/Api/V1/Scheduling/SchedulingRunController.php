@@ -17,7 +17,7 @@ class SchedulingRunController extends InternalSchedulingRunController
     {
         $result = $uploadService->store(
             $this->request->user(),
-            Faculty::query()->findOrFail($request->facultyId()),
+            $request->facultyId() === null ? null : Faculty::query()->findOrFail($request->facultyId()),
             [...$request->validated(), 'parameter_snapshot' => $request->input('parameter_snapshot')],
         );
 

@@ -32,14 +32,17 @@ readonly class PdfScheduleExporter implements ScheduleExporter
     {
         $html = $this->views->make('pdf.schedule', ['export' => $export, 'matrix' => $export->matrix()])->render();
 
+        $footer = $this->views->make('pdf.schedule-footer')->render();
+
         try {
             $response = $this->http->timeout(30)
                 ->attach('files', $html, 'index.html')
+                ->attach('files', $footer, 'footer.html')
                 ->post(rtrim(config('services.gotenberg.url'), '/').'/forms/chromium/convert/html', [
                     'paperWidth' => '11.7',
                     'paperHeight' => '8.27',
                     'marginTop' => '0.4',
-                    'marginBottom' => '0.4',
+                    'marginBottom' => '0.6',
                     'marginLeft' => '0.4',
                     'marginRight' => '0.4',
                     'printBackground' => 'true',

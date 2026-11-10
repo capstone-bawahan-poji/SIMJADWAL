@@ -11,24 +11,28 @@ impl ApiClient {
         faculty_id: Option<i64>,
         page: u32,
     ) -> Result<Value, ApiError> {
-        let mut query = vec![("page", page.max(1).to_string()), ("per_page", "20".to_string())];
+        let mut query = vec![
+            ("page", page.max(1).to_string()),
+            ("per_page", "20".to_string()),
+        ];
         if let Some(faculty_id) = faculty_id {
             query.push(("faculty_id", faculty_id.to_string()));
         }
 
-        self.data(
-            self.request(Method::GET, "/scheduling-runs")?
-                .query(&query),
-        )
-        .await
+        self.data(self.request(Method::GET, "/scheduling-runs")?.query(&query))
+            .await
     }
 
     pub async fn dataset(
         &self,
         period: Option<&str>,
         faculty_id: Option<i64>,
+        revise_group_ids: &[i64],
     ) -> Result<Value, ApiError> {
         let mut query: Vec<(&str, String)> = Vec::new();
+        for id in revise_group_ids {
+            query.push(("revise_group_ids[]", id.to_string()));
+        }
         if let Some(period) = period {
             query.push(("period", period.to_string()));
         }
@@ -50,12 +54,13 @@ impl ApiClient {
         .await
     }
 
-    pub async fn ga_presets(&self, faculty_id: i64) -> Result<Vec<GaPreset>, ApiError> {
-        self.data(
-            self.request(Method::GET, "/ga-presets")?
-                .query(&[("faculty_id", faculty_id)]),
-        )
-        .await
+    pub async fn ga_presets(&self, faculty_id: Option<i64>) -> Result<Vec<GaPreset>, ApiError> {
+        let query = match faculty_id {
+            Some(id) => vec![("faculty_id", id.to_string())],
+            None => vec![("scope", "tpb".to_string())],
+        };
+        self.data(self.request(Method::GET, "/ga-presets")?.query(&query))
+            .await
     }
 
     pub async fn create_ga_preset(&self, input: &GaPresetInput) -> Result<GaPreset, ApiError> {
@@ -94,6 +99,8 @@ fn run_body(result: &RunResult) -> Value {
         "client_run_id": result.run_id,
         "batch_id": result.batch_id,
         "faculty_id": result.faculty_id,
+        "revise_group_ids": result.revise_group_ids,
+        "scope": if result.faculty_id.is_some() { "faculty" } else { "tpb" },
         "period": result.period,
         "dataset_fingerprint": result.dataset_fingerprint,
         "preset_id": result.preset_id,

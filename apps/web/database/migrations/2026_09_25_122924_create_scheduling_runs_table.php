@@ -12,7 +12,7 @@ return new class extends Migration
         Schema::create('scheduling_runs', function (Blueprint $table) {
             $table->id();
             $table->uuid('batch_id')->index();
-            $table->foreignId('faculty_id')->index()->constrained()->restrictOnDelete();
+            $table->foreignId('faculty_id')->nullable()->index()->constrained()->restrictOnDelete();
             $table->string('period', 20);
             $table->foreignId('preset_id')->nullable()->index()->constrained('ga_parameter_presets')->restrictOnDelete();
             $table->jsonb('parameter_snapshot');
@@ -32,12 +32,13 @@ return new class extends Migration
             $table->timestamp('published_at')->nullable();
             $table->uuid('client_run_id')->nullable()->unique();
             $table->string('dataset_fingerprint', 80)->nullable();
+            $table->foreignId('tpb_run_id')->nullable()->index()->constrained('scheduling_runs')->restrictOnDelete();
             $table->timestamps();
 
             $table->index(['faculty_id', 'period']);
         });
 
-        DB::statement('CREATE UNIQUE INDEX scheduling_runs_active_unique ON scheduling_runs (faculty_id, period) WHERE is_active');
+        DB::statement('CREATE UNIQUE INDEX scheduling_runs_active_unique ON scheduling_runs (COALESCE(faculty_id, 0), period) WHERE is_active');
     }
 
     public function down(): void

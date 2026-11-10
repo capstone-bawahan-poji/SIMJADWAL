@@ -17,6 +17,7 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Response;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 
 /**
@@ -44,6 +45,8 @@ readonly class ScheduleExportService
     {
         $runs = $this->queryService->visibleRuns($actor, $period)
             ->when($filters['faculty_id'] ?? null, fn (Builder $q, int $id) => $q->where('faculty_id', $id))
+            ->when(($filters['scope'] ?? null) === 'tpb', fn (Builder $q) => $q->whereNull('faculty_id'))
+            ->when(($filters['scope'] ?? null) === 'faculty', fn (Builder $q) => $q->whereNotNull('faculty_id'))
             ->get(['id', 'published_at']);
 
         $file = $this->render($runs, $period, $filters, $format, true);
@@ -106,6 +109,7 @@ readonly class ScheduleExportService
             details: $details,
             timeSlots: TimeSlot::query()->orderBy('day')->orderBy('session')->get(),
             generatedAt: now(IcsScheduleExporter::TIMEZONE),
+            cohorts: $this->cohorts($details, $period),
         );
 
         /** @var ScheduleExporter $exporter */
@@ -116,6 +120,29 @@ readonly class ScheduleExportService
             'content_type' => $exporter->contentType(),
             'filename' => $export->filename.'.'.$exporter->extension(),
         ];
+    }
+
+    /**
+     * Cohort of every TPB class in the export, for the colours of the PDF matrix.
+     *
+     * @param  Collection<int, ScheduleDetail>  $details
+     * @return array<string, string>
+     */
+    private function cohorts(Collection $details, string $period): array
+    {
+        $courseIds = $details->filter(fn (ScheduleDetail $d) => $d->course->is_tpb)->pluck('course_id')->unique();
+        if ($courseIds->isEmpty()) {
+            return [];
+        }
+
+        return CourseLecturer::query()
+            ->with('tpbGroup:id,cohort')
+            ->whereIn('course_id', $courseIds)
+            ->whereRelation('tpbOffering', 'period', $period)
+            ->get()
+            ->filter(fn (CourseLecturer $class) => $class->tpbGroup !== null)
+            ->mapWithKeys(fn (CourseLecturer $class) => ["{$class->course_id}:{$class->class_number}" => $class->tpbGroup->cohort->value])
+            ->all();
     }
 
     /**
@@ -139,6 +166,8 @@ readonly class ScheduleExportService
         } elseif ($faculty = $this->find(Faculty::class, $filters['faculty_id'] ?? null)) {
             $title = __('Class schedule').' · '.$faculty->name;
             $slug[] = $faculty->code;
+        } elseif (($filters['scope'] ?? null) === 'tpb') {
+            $title = __('TPB schedule');
         } else {
             $title = __('Class schedule');
         }

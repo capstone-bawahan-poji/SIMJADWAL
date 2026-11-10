@@ -14,9 +14,9 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
  * One parallel class of a course, taught by exactly one lecturer.
- * tpb_group_id and room_id are set for TPB classes only.
+ * tpb_offering_id and tpb_group_id are set for TPB classes only: class numbers restart in every offering.
  */
-#[Fillable(['course_id', 'class_number', 'lecturer_id', 'tpb_group_id', 'room_id'])]
+#[Fillable(['course_id', 'class_number', 'lecturer_id', 'tpb_offering_id', 'tpb_group_id'])]
 #[UsePolicy(CourseLecturerPolicy::class)]
 class CourseLecturer extends Model
 {
@@ -62,15 +62,15 @@ class CourseLecturer extends Model
         return $this->belongsTo(Lecturer::class);
     }
 
+    /** @return BelongsTo<TpbOffering, $this> */
+    public function tpbOffering(): BelongsTo
+    {
+        return $this->belongsTo(TpbOffering::class);
+    }
+
     /** @return BelongsTo<TpbGroup, $this> */
     public function tpbGroup(): BelongsTo
     {
         return $this->belongsTo(TpbGroup::class);
-    }
-
-    /** @return BelongsTo<Room, $this> */
-    public function room(): BelongsTo
-    {
-        return $this->belongsTo(Room::class);
     }
 }

@@ -10,6 +10,7 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
  * course_lecturers_count = classes that already have a lecturer, out of parallel_class_count.
+ * TPB courses have no semester, parallel_class_count or class_capacity (see TpbOfferingData).
  */
 #[TypeScript]
 #[MapName(SnakeCaseMapper::class)]

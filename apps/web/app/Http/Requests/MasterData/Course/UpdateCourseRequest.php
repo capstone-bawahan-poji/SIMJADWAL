@@ -22,7 +22,7 @@ class UpdateCourseRequest extends FormRequest
             'is_tpb' => ['sometimes', 'boolean', new Unchanged($course->is_tpb)],
             'study_program_id' => ['sometimes', 'nullable', 'integer', new Unchanged($course->study_program_id)],
             'code' => ['sometimes', 'required', 'string', 'max:20', Rule::unique(Course::class, 'code')->withoutTrashed()->ignore($course)],
-            ...CourseRules::attributes(presence: ['sometimes', 'required']),
+            ...CourseRules::attributes(presence: ['sometimes', 'required'], isTpb: $course->is_tpb),
         ];
     }
 }

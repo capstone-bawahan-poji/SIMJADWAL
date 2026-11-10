@@ -5,11 +5,15 @@ namespace App\Rules\MasterData;
 final class CourseRules
 {
     /**
+     * TPB courses carry no semester, class count or capacity: those belong to each TPB offering.
+     *
      * @param  list<string>  $presence
      * @return array<string, list<string>>
      */
-    public static function attributes(array $presence): array
+    public static function attributes(array $presence, bool $isTpb = false): array
     {
+        $regular = fn (array $rules) => $isTpb ? ['prohibited'] : [...$presence, ...$rules];
+
         return [
             'name' => [...$presence, 'string', 'max:150'],
             'sks' => [...$presence, 'integer', 'in:2,3,4'],

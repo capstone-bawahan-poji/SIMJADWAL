@@ -28,12 +28,18 @@ pub fn allocate(
         .collect();
 
     let mut order: Vec<usize> = (0..problem.genes.len()).collect();
-    order.sort_by_key(|&i| std::cmp::Reverse(problem.genes[i].class_capacity));
+    // Rooms of classes that do not move are kept first, then the largest classes.
+    order.sort_by_key(|&i| {
+        (
+            problem.genes[i].fixed_room_id.is_none(),
+            std::cmp::Reverse(problem.genes[i].class_capacity),
+        )
+    });
 
     let mut assigned = vec![None; problem.genes.len()];
     for i in order {
         let gene = &problem.genes[i];
-        let slot = chromosome[i];
+        let slot = chromosome[gene.unit];
 
         let fixed = gene
             .fixed_room_id

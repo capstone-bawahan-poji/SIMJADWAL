@@ -6,7 +6,7 @@ use App\Models\MasterData\Course;
 use Spatie\LaravelData\Data;
 
 /**
- * study_program_id is null exactly when is_tpb is true.
+ * study_program_id, semester, parallel_class_count and class_capacity are null exactly when is_tpb is true.
  */
 class CourseFormData extends Data
 {

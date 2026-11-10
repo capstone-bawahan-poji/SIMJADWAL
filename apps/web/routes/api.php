@@ -17,6 +17,8 @@ use App\Http\Controllers\Api\Internal\MasterData\StudyProgramController as Inter
 use App\Http\Controllers\Api\Internal\MasterData\TeachingAssignmentController as InternalTeachingAssignmentController;
 use App\Http\Controllers\Api\Internal\MasterData\TimeSlotController as InternalTimeSlotController;
 use App\Http\Controllers\Api\Internal\MasterData\TpbGroupController as InternalTpbGroupController;
+use App\Http\Controllers\Api\Internal\MasterData\TpbImportController as InternalTpbImportController;
+use App\Http\Controllers\Api\Internal\MasterData\TpbOfferingController as InternalTpbOfferingController;
 use App\Http\Controllers\Api\Internal\Scheduling\GaPresetController as InternalGaPresetController;
 use App\Http\Controllers\Api\Internal\Scheduling\ScheduleController as InternalScheduleController;
 use App\Http\Controllers\Api\Internal\Scheduling\SchedulingRunController as InternalSchedulingRunController;
@@ -36,6 +38,8 @@ use App\Http\Controllers\Api\V1\MasterData\StudyProgramController as V1StudyProg
 use App\Http\Controllers\Api\V1\MasterData\TeachingAssignmentController as V1TeachingAssignmentController;
 use App\Http\Controllers\Api\V1\MasterData\TimeSlotController as V1TimeSlotController;
 use App\Http\Controllers\Api\V1\MasterData\TpbGroupController as V1TpbGroupController;
+use App\Http\Controllers\Api\V1\MasterData\TpbImportController as V1TpbImportController;
+use App\Http\Controllers\Api\V1\MasterData\TpbOfferingController as V1TpbOfferingController;
 use App\Http\Controllers\Api\V1\Scheduling\GaPresetController as V1GaPresetController;
 use App\Http\Controllers\Api\V1\Scheduling\ScheduleController as V1ScheduleController;
 use App\Http\Controllers\Api\V1\Scheduling\SchedulingDatasetController as V1SchedulingDatasetController;
@@ -75,6 +79,9 @@ Route::middleware(['web', 'auth'])->prefix('internal')->name('api.internal.')->g
     Route::post('courses/import', [InternalCourseImportController::class, 'store'])->name('courses.import');
     Route::apiResource('courses', InternalCourseController::class);
     Route::apiResource('teaching-assignments', InternalTeachingAssignmentController::class)->parameters(['teaching-assignments' => 'courseLecturer']);
+    Route::get('tpb-offerings/import/template', [InternalTpbImportController::class, 'template'])->name('tpb-offerings.import.template');
+    Route::post('tpb-offerings/import', [InternalTpbImportController::class, 'store'])->name('tpb-offerings.import');
+    Route::apiResource('tpb-offerings', InternalTpbOfferingController::class)->parameters(['tpb-offerings' => 'tpbOffering']);
     Route::apiResource('tpb-groups', InternalTpbGroupController::class)->parameters(['tpb-groups' => 'tpbGroup']);
 
     // constraints
@@ -135,6 +142,9 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::post('courses/import', [V1CourseImportController::class, 'store'])->name('courses.import');
         Route::apiResource('courses', V1CourseController::class);
         Route::apiResource('teaching-assignments', V1TeachingAssignmentController::class)->parameters(['teaching-assignments' => 'courseLecturer']);
+        Route::get('tpb-offerings/import/template', [V1TpbImportController::class, 'template'])->name('tpb-offerings.import.template');
+        Route::post('tpb-offerings/import', [V1TpbImportController::class, 'store'])->name('tpb-offerings.import');
+        Route::apiResource('tpb-offerings', V1TpbOfferingController::class)->parameters(['tpb-offerings' => 'tpbOffering']);
         Route::apiResource('tpb-groups', V1TpbGroupController::class)->parameters(['tpb-groups' => 'tpbGroup']);
 
         // constraints (read-only for the desktop app)

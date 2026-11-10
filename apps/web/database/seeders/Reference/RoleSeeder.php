@@ -63,7 +63,8 @@ class RoleSeeder extends Seeder
                 CoursePermissions::VIEW,
                 CourseLecturerPermissions::VIEW,
                 ...TpbPermissions::cases(),
-                SchedulingPermissions::VIEW_SCHEDULE,
+                ...SchedulingPermissions::cases(),
+                ...GaPresetPermissions::cases(),
             ],
             RoleEnum::STUDY_PROGRAM_ADMIN->value => [
                 ...$readReference,

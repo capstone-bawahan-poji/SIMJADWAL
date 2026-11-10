@@ -1,4 +1,4 @@
-<script setup lang="ts">
+w<script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
 import ProgramLockBanner from '@/Components/constraint/ProgramLockBanner.vue';
 import Modal from '@/Components/Modal.vue';
@@ -180,6 +180,13 @@ async function confirmDelete(): Promise<void> {
                                     <span v-else class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500">
                                         <span class="h-1.5 w-1.5 rounded-full bg-gray-400"></span>
                                         Nonaktif
+                                <td class="px-6 py-3.5 text-right tabular-nums text-gray-700">{{ course.class_capacity }}</td>
+                                <td class="whitespace-nowrap px-6 py-3.5 text-right tabular-nums">
+                                    <span :class="course.course_lecturers_count < (course.parallel_class_count ?? 0) ? 'font-semibold text-red-600' : 'text-gray-700'">
+                                        {{ course.course_lecturers_count }} / {{ course.parallel_class_count }}
+                                    </span>
+                                    <span v-if="course.course_lecturers_count < (course.parallel_class_count ?? 0)" class="ml-1.5 text-xs text-red-600">
+                                        kurang {{ (course.parallel_class_count ?? 0) - course.course_lecturers_count }}
                                     </span>
                                 </td>
                                 <td class="whitespace-nowrap px-6 py-3.5 text-center">

@@ -58,7 +58,7 @@ const activeView = computed(() => String(route.name ?? ''));
     <div class="flex min-w-0 flex-1 flex-col overflow-hidden">
       <ContextBar
         :super-admin="isSuperAdmin"
-        :faculty-name="user?.faculty ? `${user.faculty.code} ${user.faculty.name}` : null"
+        :faculty-name="user?.faculty ? `${user.faculty.code} ${user.faculty.name}` : user?.role === 'admin_tpb' ? 'TPB (tingkat institut)' : null"
         :workflow="!route.meta.superadmin"
       />
 

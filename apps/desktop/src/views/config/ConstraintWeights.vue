@@ -10,6 +10,7 @@ import type { DatasetConstraintType, DatasetStudyProgram } from '@/types/schedul
 const props = defineProps<{
   constraintTypes: DatasetConstraintType[];
   programs: DatasetStudyProgram[];
+  tpb?: boolean;
 }>();
 
 const { scOverrides, setOverride, clearOverrides } = useGaConfig();
@@ -41,9 +42,10 @@ function overrideOf(programId: number, code: string) {
     <div class="flex flex-wrap items-center justify-between gap-4 px-6 pt-6">
       <div>
         <h2 class="text-base font-semibold text-ink">Bobot constraint</h2>
-        <p class="mt-1 text-xs text-ink-muted">Bobot default ditetapkan melalui menu Kelola Constraint pada aplikasi web.</p>
+        <p class="mt-1 text-xs text-ink-muted">{{ tpb ? 'Constraint khusus TPB. Bobot default ditetapkan melalui aplikasi web.' : 'Bobot default ditetapkan melalui menu Kelola Constraint pada aplikasi web.' }}</p>
       </div>
       <SegmentedControl
+        v-if="!tpb"
         v-model="tab"
         label="Sumber bobot"
         :options="[
@@ -53,7 +55,7 @@ function overrideOf(programId: number, code: string) {
       />
     </div>
 
-    <ul v-if="tab === 'default'" class="mt-4 divide-y divide-line-soft border-t border-line-soft">
+    <ul v-if="tpb || tab === 'default'" class="mt-4 divide-y divide-line-soft border-t border-line-soft">
       <li v-for="c in [...hard, ...soft]" :key="c.code" class="flex items-center gap-4 px-6 py-3">
         <span
           class="w-28 shrink-0 whitespace-nowrap font-mono text-xs font-semibold"

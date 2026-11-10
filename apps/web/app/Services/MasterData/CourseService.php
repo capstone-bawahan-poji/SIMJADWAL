@@ -72,7 +72,9 @@ readonly class CourseService
      */
     public function updateCourse(Course $course, CourseFormData $data): CourseData
     {
-        $this->ensureMappedClassesKept($course, $data->parallelClassCount);
+        if (! $course->is_tpb) {
+            $this->ensureMappedClassesKept($course, $data->parallelClassCount);
+        }
 
         $course->update($this->attributes($data));
 
@@ -86,7 +88,7 @@ readonly class CourseService
     {
         $this->referenceGuard->ensureUnused([
             ReferenceType::TEACHING_ASSIGNMENTS->value => $course->courseLecturers()->count(),
-            ReferenceType::TPB_GROUPS->value => $course->tpbGroups()->count(),
+            ReferenceType::TPB_OFFERINGS->value => $course->tpbOfferings()->count(),
             ReferenceType::SCHEDULES->value => $this->referenceGuard->activeScheduleCount($course->scheduleDetails()),
         ]);
 

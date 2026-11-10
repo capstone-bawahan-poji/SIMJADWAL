@@ -55,6 +55,13 @@ readonly class RoleOrgScope implements ResolvesOrgScope
         return $ownFacultyId !== null && $ownFacultyId === $facultyId;
     }
 
+    public function canAccessScheduleScope(User $user, ?int $facultyId): bool
+    {
+        return $facultyId === null
+            ? in_array($user->role, [Role::SUPER_ADMIN, Role::TPB_ADMIN], true)
+            : $this->canAccessFaculty($user, $facultyId);
+    }
+
     public function canAccessStudyProgram(User $user, StudyProgram $studyProgram): bool
     {
         return match ($user->role) {

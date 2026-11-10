@@ -16,8 +16,9 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 /**
- * Regular courses belong to one study program. TPB/MKWU courses (is_tpb) have no program:
- * the TPB admin splits their classes into groups (TpbGroup) shared by several programs.
+ * Regular courses belong to one study program. TPB/MKWU courses (is_tpb) have no program and no
+ * semester, class count or capacity: those live in a TpbOffering per period, whose classes the
+ * TPB admin splits into groups (TpbGroup) shared by several programs.
  */
 #[Fillable(['study_program_id', 'is_tpb', 'code', 'name', 'sks', 'semester', 'parallel_class_count', 'class_capacity', 'is_active'])]
 #[UsePolicy(CoursePolicy::class)]
@@ -70,10 +71,10 @@ class Course extends Model
         return $this->hasMany(CourseLecturer::class);
     }
 
-    /** @return HasMany<TpbGroup, $this> */
-    public function tpbGroups(): HasMany
+    /** @return HasMany<TpbOffering, $this> */
+    public function tpbOfferings(): HasMany
     {
-        return $this->hasMany(TpbGroup::class);
+        return $this->hasMany(TpbOffering::class);
     }
 
     /** @return HasMany<ScheduleDetail, $this> */

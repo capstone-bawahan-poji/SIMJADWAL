@@ -19,9 +19,11 @@ readonly class GaPresetService
     ) {}
 
     /**
+     * $facultyId null = TPB presets.
+     *
      * @return Collection<int, GaPresetData>
      */
-    public function getPresets(int $facultyId): Collection
+    public function getPresets(?int $facultyId): Collection
     {
         return $this->preset->newQuery()
             ->where('faculty_id', $facultyId)

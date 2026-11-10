@@ -3,12 +3,14 @@ import { computed, ref } from 'vue';
 import { classLetter } from '@/lib/format';
 import { colorOf, programColorMap } from '@/lib/programColors';
 import type { RunResult } from '@/types/run';
+import { groupOfClass } from '@/lib/tpb';
 import type { SchedulingDataset } from '@/types/scheduling';
 
 const props = defineProps<{ result: RunResult; dataset: SchedulingDataset | null }>();
 
 const DAYS = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat'];
 const programFilter = ref<number | null>(null);
+const isTpb = computed(() => props.dataset?.scope === 'tpb');
 
 const colors = computed(() => programColorMap(props.dataset?.study_programs ?? []));
 const programs = computed(() => props.dataset?.study_programs.filter((p) => p.included) ?? []);
@@ -46,10 +48,10 @@ const cells = computed(() => {
     const room = d.room_id ? lookup.value.room.get(d.room_id) ?? `Ruang ${d.room_id}` : 'Tanpa ruangan';
     list.push({
       key: i,
-      code: `${course?.code ?? d.course_id} ${classLetter(d.class_number)}${d.meeting_number > 1 ? ` (${d.meeting_number})` : ''}`,
+      code: `${course?.code ?? d.course_id} ${classLetter(d.class_number)}${d.meeting_number > 1 ? ` (${d.meeting_number})` : ''}${isTpb.value && props.dataset ? ` ${groupOfClass(props.dataset, d.course_id, d.class_number)?.code ?? ''}` : ''}`,
       name: course?.name ?? '',
       meta: `${room}, ${lookup.value.lecturer.get(d.lecturer_id) ?? d.lecturer_id}`,
-      programId: course?.study_program_id,
+      programId: course?.study_program_id ?? undefined,
       hard: hardIndexes.value.has(i),
     });
     map.set(key, list);
@@ -74,7 +76,11 @@ function toggleProgram(id: number) {
 
 <template>
   <div class="flex flex-col gap-4">
-    <div class="flex flex-wrap items-center gap-2" role="group" aria-label="Sorot program studi">
+    <div v-if="isTpb" class="flex items-center gap-2 text-xs text-ink-muted">
+      <span class="size-3 rounded-badge border-2 border-danger bg-white" aria-hidden="true" />
+      Melanggar hard constraint. Setiap kotak berisi kelas satu grup yang berbagi slot.
+    </div>
+    <div v-else class="flex flex-wrap items-center gap-2" role="group" aria-label="Sorot program studi">
       <button
         type="button"
         class="inline-flex h-8 items-center rounded-control border px-3 text-xs font-semibold transition-colors"

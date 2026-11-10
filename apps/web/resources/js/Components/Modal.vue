@@ -8,12 +8,14 @@ const props = withDefaults(
         maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl';
         closeable?: boolean;
         closeButton?: boolean;
+        centered?: boolean;
     }>(),
     {
         show: false,
         maxWidth: '2xl',
         closeable: true,
         closeButton: false,
+        centered: false,
     },
 );
 
@@ -93,7 +95,8 @@ const maxWidthClass = computed(() => {
         ref="dialog"
     >
         <div
-            class="fixed inset-0 z-50 flex min-h-full items-center justify-center overflow-y-auto px-4 py-6 sm:px-0"
+            class="fixed inset-0 z-50 overflow-y-auto px-4 py-6 sm:px-0"
+            :class="centered ? 'flex items-center justify-center' : ''"
             scroll-region
         >
             <Transition
@@ -125,8 +128,8 @@ const maxWidthClass = computed(() => {
             >
                 <div
                     v-show="show"
-                    class="relative my-auto transform overflow-hidden rounded-lg bg-white shadow-xl transition-all sm:mx-auto sm:w-full"
-                    :class="maxWidthClass"
+                    class="relative mb-6 transform overflow-hidden rounded-lg bg-white shadow-xl transition-all sm:mx-auto sm:w-full"
+                    :class="[maxWidthClass, centered ? 'w-full' : '']"
                 >
                     <button
                         v-if="closeButton && closeable"

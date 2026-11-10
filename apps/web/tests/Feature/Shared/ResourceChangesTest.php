@@ -3,7 +3,7 @@
 namespace Tests\Feature\Shared;
 
 use App\Events\Shared\ResourcesChanged;
-use App\Models\MasterData\Course;
+use App\Models\MasterData\CourseLecturer;
 use App\Models\MasterData\Faculty;
 use App\Models\MasterData\Lecturer;
 use App\Models\MasterData\StudyProgram;
@@ -151,18 +151,18 @@ class ResourceChangesTest extends TestCase
 
     public function test_changing_only_the_programs_of_a_tpb_group_is_recorded(): void
     {
-        $course = Course::factory()->tpb()->create(['parallel_class_count' => 5]);
-        $slot = TimeSlot::factory()->create();
         [$first, $second] = StudyProgram::factory()->count(2)->create()->all();
-        $group = TpbGroup::query()->create(['course_id' => $course->id, 'code' => 'G1', 'time_slot_id' => $slot->id]);
-        $group->studyPrograms()->sync([$first->id]);
+        $group = TpbGroup::factory()->create(['code' => 'G1', 'cohort' => 'maba']);
+        $group->studyPrograms()->sync([$first->id => ['target_semester' => 1]]);
+        CourseLecturer::factory()->forTpbGroup($group)->create(['lecturer_id' => null]);
         Sanctum::actingAs(User::factory()->tpbAdmin()->create());
         $this->startListening();
 
         $this->putJson("/api/v1/tpb-groups/{$group->id}", [
             'code' => 'G1',
-            'time_slot_id' => $slot->id,
-            'study_program_ids' => [$first->id, $second->id],
+            'cohort' => 'maba',
+            'study_programs' => [['id' => $first->id, 'target_semester' => 1], ['id' => $second->id, 'target_semester' => 1]],
+            'class_numbers' => [1],
         ])->assertOk();
 
         $this->assertSame(['tpb_groups' => [$group->id]], $this->onlyBroadcast());

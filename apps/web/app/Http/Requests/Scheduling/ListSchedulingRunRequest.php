@@ -5,6 +5,7 @@ namespace App\Http\Requests\Scheduling;
 use App\Http\Queries\Query;
 use App\Rules\Scheduling\PeriodRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ListSchedulingRunRequest extends FormRequest
 {
@@ -12,6 +13,7 @@ class ListSchedulingRunRequest extends FormRequest
     {
         return [
             'faculty_id' => ['nullable', 'integer'],
+            'scope' => ['nullable', Rule::in(['faculty', 'tpb'])],
             'period' => ['nullable', new PeriodRule],
             'batch_id' => ['nullable', 'uuid'],
             'is_active' => ['nullable', 'boolean'],

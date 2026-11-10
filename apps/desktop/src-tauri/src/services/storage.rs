@@ -176,7 +176,8 @@ mod tests {
             result: RunResult {
                 run_id: run.into(),
                 batch_id: batch.into(),
-                faculty_id: 1,
+                faculty_id: Some(1),
+                revise_group_ids: Vec::new(),
                 period: "2026/2027-GANJIL".into(),
                 dataset_fingerprint: "sha256:x".into(),
                 preset_id: None,

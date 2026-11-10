@@ -50,8 +50,14 @@ pub async fn api_dataset(
     api: State<'_, ApiClient>,
     period: Option<String>,
     faculty_id: Option<i64>,
+    revise_group_ids: Option<Vec<i64>>,
 ) -> Result<Value, ApiError> {
-    api.dataset(period.as_deref(), faculty_id).await
+    api.dataset(
+        period.as_deref(),
+        faculty_id,
+        &revise_group_ids.unwrap_or_default(),
+    )
+    .await
 }
 
 #[tauri::command]
@@ -71,7 +77,7 @@ pub async fn api_faculties(api: State<'_, ApiClient>) -> Result<Vec<FacultySumma
 #[tauri::command]
 pub async fn api_ga_presets(
     api: State<'_, ApiClient>,
-    faculty_id: i64,
+    faculty_id: Option<i64>,
 ) -> Result<Vec<GaPreset>, ApiError> {
     api.ga_presets(faculty_id).await
 }

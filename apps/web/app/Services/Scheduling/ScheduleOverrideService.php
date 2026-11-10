@@ -113,5 +113,8 @@ readonly class ScheduleOverrideService
         if (! $detail->schedulingRun->is_active) {
             throw ApiException::invalidState(__('Only the active schedule can be overridden.'));
         }
+        if ($detail->schedulingRun->faculty_id === null) {
+            throw ApiException::invalidState(__('The TPB schedule cannot be overridden. Run the GA again instead.'));
+        }
     }
 }

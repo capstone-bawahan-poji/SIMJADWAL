@@ -14,6 +14,7 @@ enum ConstraintCode: string
     case SC_INGIN = 'SC_INGIN';
     case SC_HINDARI = 'SC_HINDARI';
     case SC_SKS = 'SC_SKS';
+    case SC_ULANG = 'SC_ULANG';
 
     public function category(): ConstraintCategory
     {

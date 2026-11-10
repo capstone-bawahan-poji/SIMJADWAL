@@ -7,12 +7,20 @@ use super::fitness::Chromosome;
 use super::problem::Problem;
 
 pub fn random_chromosome<R: Rng>(problem: &Problem, rng: &mut R) -> Chromosome {
-    let slots = problem.slot_count() as u16;
     problem
-        .genes
+        .units
         .iter()
-        .map(|g| g.fixed_slot.unwrap_or_else(|| rng.random_range(0..slots)))
+        .map(|u| u.fixed_slot.unwrap_or_else(|| random_slot(problem, u, rng)))
         .collect()
+}
+
+/// A slot the unit may take: any slot, or one of its allowed slots when TPB blocks some.
+fn random_slot<R: Rng>(problem: &Problem, unit: &super::problem::Unit, rng: &mut R) -> u16 {
+    if unit.allowed.is_empty() {
+        rng.random_range(0..problem.slot_count() as u16)
+    } else {
+        unit.allowed[rng.random_range(0..unit.allowed.len())]
+    }
 }
 
 pub fn crossover<R: Rng>(population: &mut [Chromosome], rate: f64, rng: &mut R) {
@@ -29,17 +37,16 @@ pub fn crossover<R: Rng>(population: &mut [Chromosome], rate: f64, rng: &mut R) 
 }
 
 pub fn mutate<R: Rng>(population: &mut [Chromosome], problem: &Problem, rate: f64, rng: &mut R) {
-    if problem.free_genes.is_empty() {
+    if problem.free_units.is_empty() {
         return;
     }
-    let slots = problem.slot_count() as u16;
     for chromosome in population.iter_mut() {
         let r: f64 = rng.random();
         if r >= rate {
             continue;
         }
-        let gene = problem.free_genes[rng.random_range(0..problem.free_genes.len())];
-        chromosome[gene] = rng.random_range(0..slots);
+        let unit = problem.free_units[rng.random_range(0..problem.free_units.len())];
+        chromosome[unit] = random_slot(problem, &problem.units[unit], rng);
     }
 }
 

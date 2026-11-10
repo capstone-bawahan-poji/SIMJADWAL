@@ -39,6 +39,11 @@ interface ResolvesOrgScope
 
     public function canAccessFaculty(User $user, ?int $facultyId): bool;
 
+    /**
+     * Manages the schedule of one faculty, or the TPB schedule when $facultyId is null.
+     */
+    public function canAccessScheduleScope(User $user, ?int $facultyId): bool;
+
     public function canAccessStudyProgram(User $user, StudyProgram $studyProgram): bool;
 
     /**

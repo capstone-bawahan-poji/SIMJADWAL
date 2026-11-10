@@ -19,6 +19,7 @@ use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 final class CourseImportTemplate
 {
     public const HEADERS = ['No', 'Kode MK', 'Mata Kuliah', 'SKS', 'Semester', 'Kapasitas', 'Kelas', 'Dosen Pengampu'];
+
     private const LAST_ROW = CourseSheetReader::MAX_ROWS + 1;
 
     public function build(StudyProgram $studyProgram, bool $prefill): Spreadsheet

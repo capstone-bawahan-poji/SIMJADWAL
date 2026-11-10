@@ -4,11 +4,11 @@ import { onChanges } from '@/lib/echo';
 import type { GaPreset, GaPresetPayload } from '@/types/ga';
 
 const presets = ref<GaPreset[]>([]);
-const loadedFor = ref<number | null>(null);
+const loadedFor = ref<number | null | undefined>(undefined);
 const loading = ref(false);
 const error = ref('');
 
-async function fetchPresets(facultyId: number) {
+async function fetchPresets(facultyId: number | null) {
   loading.value = true;
   error.value = '';
   try {
@@ -22,11 +22,11 @@ async function fetchPresets(facultyId: number) {
 }
 
 onChanges(['ga_parameter_presets'], () => {
-  if (loadedFor.value !== null) void fetchPresets(loadedFor.value);
+  if (loadedFor.value !== undefined) void fetchPresets(loadedFor.value);
 });
 
 export function useGaPresets() {
-  async function load(facultyId: number, force = false) {
+  async function load(facultyId: number | null, force = false) {
     if (!force && loadedFor.value === facultyId) return;
     await fetchPresets(facultyId);
   }

@@ -8,7 +8,7 @@ use App\Models\Scheduling\GaParameterPreset;
 use Illuminate\Database\Seeder;
 
 /**
- * Two presets per faculty with the best combinations from Laporan TA kak amrina
+ * Two presets per faculty, and two for TPB (faculty null), with the best combinations from Laporan TA kak amrina
  */
 class GaPresetSeeder extends Seeder
 {
@@ -31,13 +31,13 @@ class GaPresetSeeder extends Seeder
             'Preset 2 (TSR)' => ['crossover_rate' => 0.4, 'mutation_rate' => 0.3, 'selection_operator' => SelectionOperator::TSR],
         ];
 
-        Faculty::query()->each(function (Faculty $faculty) use ($base, $presets) {
+        foreach ([...Faculty::query()->pluck('id')->all(), null] as $facultyId) {
             foreach ($presets as $name => $values) {
                 GaParameterPreset::query()->firstOrCreate(
-                    ['faculty_id' => $faculty->id, 'name' => $name],
+                    ['faculty_id' => $facultyId, 'name' => $name],
                     [...$base, ...$values],
                 );
             }
-        });
+        }
     }
 }

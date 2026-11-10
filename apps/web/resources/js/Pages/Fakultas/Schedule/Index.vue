@@ -212,7 +212,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details'], () => {
             <Card v-else-if="schedule" class="!p-0 overflow-hidden border border-gray-100 shadow-sm">
                 <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 px-5 py-4">
                     <p class="text-sm font-semibold text-gray-900">
-                        {{ schedule.runs[0]?.faculty.name ?? 'Fakultas' }}
+                        {{ schedule.runs.find((run) => run.faculty)?.faculty?.name ?? 'Fakultas' }}
                         <span class="font-normal text-gray-500">· {{ schedule.period }}</span>
                     </p>
                     <p class="text-xs text-gray-500">{{ schedule.schedule_details.length }} jadwal</p>
@@ -244,7 +244,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details'], () => {
                                             <div class="border-l-2 border-transparent pl-3">
                                                 <p class="font-medium leading-snug text-gray-900">{{ row.course.name }}</p>
                                                 <p class="mt-1 text-xs text-gray-500">
-                                                    {{ row.course.code }} · Kelas {{ classLabel(row.class_number) }} · Semester {{ row.course.semester }}
+                                                    {{ row.course.code }} · Kelas {{ classLabel(row.class_number) }} · {{ row.course.semester ? `Semester ${row.course.semester}` : `TPB${row.tpb_group ? ` grup ${row.tpb_group.code}` : ''}` }}
                                                 </p>
                                                 <p class="mt-2 text-xs leading-relaxed text-gray-600">
                                                     {{ row.lecturer.name }}<span v-if="row.lecturer.title">, {{ row.lecturer.title }}</span>

@@ -20,12 +20,13 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Illuminate\Testing\TestResponse;
 use Laravel\Sanctum\Sanctum;
+use Tests\Concerns\CreatesTpbRun;
 use Tests\Concerns\SeedsAccessControl;
 use Tests\TestCase;
 
 class SchedulingDatasetApiTest extends TestCase
 {
-    use RefreshDatabase, SeedsAccessControl;
+    use CreatesTpbRun, RefreshDatabase, SeedsAccessControl;
 
     private const PERIOD = '2026/2027-GANJIL';
 
@@ -39,6 +40,7 @@ class SchedulingDatasetApiTest extends TestCase
 
         $this->seedAccessControl();
         $this->seed(ConstraintTypeSeeder::class);
+        $this->activeTpbRun(self::PERIOD);
 
         $this->faculty = Faculty::factory()->create();
         $this->accepted = StudyProgram::factory()->accepted()->create(['faculty_id' => $this->faculty->id]);
@@ -81,7 +83,7 @@ class SchedulingDatasetApiTest extends TestCase
             ->assertJsonPath('data.courses.0.id', $course->id)
             ->assertJsonCount(1, 'data.classes')
             ->assertJsonCount(1, 'data.lecturers')
-            ->assertJsonCount(7, 'data.constraint_types');
+            ->assertJsonCount(8, 'data.constraint_types');
 
         $included = collect($response->json('data.study_programs'))->pluck('included', 'id');
         $this->assertTrue($included[$this->accepted->id]);
@@ -100,6 +102,7 @@ class SchedulingDatasetApiTest extends TestCase
 
         $this->getDataset()->assertOk()
             ->assertJsonCount(1, 'data.courses')->assertJsonPath('data.courses.0.id', $odd->id);
+        $this->activeTpbRun('2026/2027-GENAP');
         $this->getDataset(['period' => '2026/2027-GENAP'])->assertOk()
             ->assertJsonCount(1, 'data.courses')->assertJsonPath('data.courses.0.id', $even->id);
     }
@@ -200,6 +203,7 @@ class SchedulingDatasetApiTest extends TestCase
     public function test_period_defaults_to_config_and_rejects_bad_format(): void
     {
         config(['scheduling.current_period' => '2027/2028-GENAP']);
+        $this->activeTpbRun('2027/2028-GENAP');
         Sanctum::actingAs(User::factory()->facultyAdmin($this->faculty)->create());
 
         $this->getJson('/api/v1/scheduling/dataset')->assertOk()->assertJsonPath('data.period', '2027/2028-GENAP');
@@ -220,15 +224,24 @@ class SchedulingDatasetApiTest extends TestCase
         Sanctum::actingAs(User::factory()->studyProgramAdmin($this->accepted)->create());
         $this->getDataset()->assertForbidden();
 
+        // admin_tpb always gets the TPB dataset, never a faculty one.
         Sanctum::actingAs(User::factory()->tpbAdmin()->create());
-        $this->getDataset()->assertForbidden();
+        $this->getDataset(['faculty_id' => $this->faculty->id])->assertOk()->assertJsonPath('data.scope', 'tpb')->assertJsonPath('data.faculty', null);
+    }
+
+    public function test_faculty_dataset_needs_the_active_tpb_schedule_of_the_period(): void
+    {
+        Sanctum::actingAs(User::factory()->facultyAdmin($this->faculty)->create());
+
+        $this->getDataset(['period' => '2030/2031-GANJIL'])->assertStatus(409);
+        $this->getDataset()->assertOk()->assertJsonPath('data.tpb_run_id', SchedulingRun::query()->whereNull('faculty_id')->value('id'));
     }
 
     public function test_desktop_reads_constraint_submissions_and_types_through_v1(): void
     {
         Sanctum::actingAs(User::factory()->facultyAdmin($this->faculty)->create());
 
-        $this->getJson('/api/v1/constraint-types')->assertOk()->assertJsonCount(7, 'data');
+        $this->getJson('/api/v1/constraint-types')->assertOk()->assertJsonCount(8, 'data');
         $this->getJson('/api/v1/constraint-submissions')->assertOk()->assertJsonPath('data.0.id', $this->accepted->id);
         $this->getJson("/api/v1/constraint-submissions/{$this->accepted->id}")->assertOk()->assertJsonPath('data.summary.id', $this->accepted->id);
         $this->postJson("/api/v1/constraint-submissions/{$this->accepted->id}/accept")->assertNotFound();

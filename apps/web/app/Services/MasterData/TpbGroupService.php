@@ -4,23 +4,26 @@ namespace App\Services\MasterData;
 
 use App\Data\MasterData\TpbGroupData;
 use App\Data\MasterData\TpbGroupFormData;
-use App\Enums\MasterData\ReferenceType;
+use App\Enums\MasterData\TpbCohort;
 use App\Exceptions\Shared\ApiException;
 use App\Models\MasterData\CourseLecturer;
 use App\Models\MasterData\StudyProgram;
 use App\Models\MasterData\TpbGroup;
+use App\Models\MasterData\TpbOffering;
+use App\Services\Scheduling\Period;
 use App\Services\Shared\ChangeRecorder;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Support\Collection;
 
+/**
+ * Groups split the classes of one offering. A group owns its classes: adding a class number
+ * creates the class (without a lecturer yet), removing it deletes the class and its lecturer.
+ */
 readonly class TpbGroupService
 {
     public function __construct(
         private TpbGroup $tpbGroup,
-        private TpbClashChecker $clashChecker,
-        private ReferenceGuard $referenceGuard,
         private DatabaseManager $db,
         private ChangeRecorder $changes,
     ) {}
@@ -28,49 +31,36 @@ readonly class TpbGroupService
     /**
      * @return LengthAwarePaginator<int, TpbGroupData>
      */
-    public function getGroups(?int $courseId, ?int $studyProgramId, ?int $timeSlotId, int $perPage): LengthAwarePaginator
+    public function getGroups(?int $offeringId, ?string $period, ?int $studyProgramId, ?TpbCohort $cohort, int $perPage): LengthAwarePaginator
     {
         return TpbGroupData::prepareQuery($this->tpbGroup->newQuery())
-            ->when($courseId, fn (Builder $query) => $query->where('course_id', $courseId))
+            ->when($offeringId, fn (Builder $query) => $query->where('tpb_offering_id', $offeringId))
+            ->when($period, fn (Builder $query) => $query->whereRelation('offering', 'period', $period))
             ->when($studyProgramId, fn (Builder $query) => $query->whereRelation('studyPrograms', 'study_programs.id', $studyProgramId))
-            ->when($timeSlotId, fn (Builder $query) => $query->where('time_slot_id', $timeSlotId))
-            ->orderBy('course_id')
+            ->when($cohort, fn (Builder $query) => $query->where('cohort', $cohort))
+            ->orderBy('tpb_offering_id')
             ->orderBy('code')
             ->paginate($perPage)
             ->through(fn (TpbGroup $group) => TpbGroupData::from($group));
     }
 
-    /**
-     * Placed groups a program attends: the slots it cannot use for its own courses of that semester.
-     *
-     * @return Collection<int, TpbGroupData>
-     */
-    public function getPlacedGroupsFor(StudyProgram $studyProgram): Collection
-    {
-        return TpbGroupData::prepareQuery($this->tpbGroup->newQuery())
-            ->whereRelation('studyPrograms', 'study_programs.id', $studyProgram->id)
-            ->whereNotNull('time_slot_id')
-            ->get()
-            ->sortBy(fn (TpbGroup $group) => [$group->course->semester, $group->timeSlot->day->value, $group->timeSlot->session])
-            ->values()
-            ->map(fn (TpbGroup $group) => TpbGroupData::from($group));
-    }
-
     public function getGroup(TpbGroup $group): TpbGroupData
     {
-        return TpbGroupData::from(TpbGroupData::loadRelations($group));
+        return TpbGroupData::from(TpbGroupData::loadRelations($group->unsetRelations()));
     }
 
     public function createGroup(TpbGroupFormData $data): TpbGroupData
     {
-        $group = $this->db->transaction(function () use ($data) {
+        $offering = TpbOffering::query()->findOrFail($data->tpbOfferingId);
+        $this->ensureValid($offering, $data, null);
+
+        $group = $this->db->transaction(function () use ($offering, $data) {
             $group = $this->tpbGroup->newQuery()->create([
-                'course_id' => $data->courseId,
+                'tpb_offering_id' => $offering->id,
                 'code' => $data->code,
-                'time_slot_id' => $data->timeSlotId,
+                'cohort' => $data->cohort,
             ]);
-            $group->studyPrograms()->sync($data->studyProgramIds);
-            $this->ensureNoClash($group);
+            $this->syncMembers($group, $offering, $data);
 
             return $group;
         });
@@ -79,48 +69,114 @@ readonly class TpbGroupService
     }
 
     /**
-     * The course never changes: UpdateTpbGroupRequest prohibits course_id.
+     * The offering never changes: UpdateTpbGroupRequest prohibits tpb_offering_id.
      */
     public function updateGroup(TpbGroup $group, TpbGroupFormData $data): TpbGroupData
     {
+        $this->ensureValid($group->offering, $data, $group);
+
         $this->db->transaction(function () use ($group, $data) {
-            $group->update(['code' => $data->code, 'time_slot_id' => $data->timeSlotId]);
-            $group->studyPrograms()->sync($data->studyProgramIds);
+            $group->update(['code' => $data->code, 'cohort' => $data->cohort]);
+            $this->syncMembers($group, $group->offering, $data);
             // sync() writes the pivot only, so a change of programs alone fires no model event.
             $this->changes->record($group->getTable(), $group->id);
-            $this->ensureNoClash($group->fresh());
         });
 
         return $this->getGroup($group->fresh());
     }
 
+    /**
+     * Deletes the group together with its classes and their lecturers.
+     */
     public function deleteGroup(TpbGroup $group): void
     {
-        $this->referenceGuard->ensureUnused([
-            ReferenceType::TEACHING_ASSIGNMENTS->value => $group->courseLecturers()->count(),
-        ]);
-
-        $group->delete();
+        $this->db->transaction(function () use ($group) {
+            $group->courseLecturers()->get()->each(fn (CourseLecturer $class) => $class->delete());
+            $group->delete();
+        });
     }
 
-    /**
-     * Checks the programs of the group and, after a slot change, every class in it.
-     */
-    private function ensureNoClash(TpbGroup $group): void
+    private function syncMembers(TpbGroup $group, TpbOffering $offering, TpbGroupFormData $data): void
+    {
+        $group->studyPrograms()->sync(collect($data->participants)
+            ->mapWithKeys(fn (?int $semester, int $programId) => [$programId => ['target_semester' => $semester]])
+            ->all());
+
+        $group->courseLecturers()->whereNotIn('class_number', $data->classNumbers)->get()
+            ->each(fn (CourseLecturer $class) => $class->delete());
+        $existing = $group->courseLecturers()->pluck('class_number')->all();
+        foreach (array_diff($data->classNumbers, $existing) as $classNumber) {
+            $group->courseLecturers()->create([
+                'course_id' => $offering->course_id,
+                'class_number' => $classNumber,
+                'tpb_offering_id' => $offering->id,
+                'lecturer_id' => null,
+            ]);
+        }
+    }
+
+    private function ensureValid(TpbOffering $offering, TpbGroupFormData $data, ?TpbGroup $current): void
     {
         $errors = [];
 
-        foreach ($this->clashChecker->participantErrors($group) as $message) {
-            $errors['study_program_ids'][] = $message;
+        $tooHigh = array_filter($data->classNumbers, fn (int $n) => $n > $offering->parallel_class_count);
+        if ($tooHigh !== []) {
+            $errors['class_numbers'][] = __('The offering only has :count classes.', ['count' => $offering->parallel_class_count]);
         }
 
-        $group->courseLecturers()->with(['course', 'tpbGroup'])->get()->each(function (CourseLecturer $class) use (&$errors) {
-            foreach ($this->clashChecker->classErrors($class) as $messages) {
-                foreach ($messages as $message) {
-                    $errors['time_slot_id'][] = __('Class :class: :message', ['class' => $class->class_label, 'message' => $message]);
-                }
+        $taken = CourseLecturer::query()
+            ->with('tpbGroup:id,code')
+            ->where('tpb_offering_id', $offering->id)
+            ->whereIn('class_number', $data->classNumbers)
+            ->when($current, fn (Builder $query) => $query->where('tpb_group_id', '!=', $current->id))
+            ->orderBy('class_number')
+            ->get();
+        foreach ($taken as $class) {
+            $errors['class_numbers'][] = __('Class :class already belongs to group :group.', ['class' => $class->class_label, 'group' => $class->tpbGroup->code]);
+        }
+
+        if ($data->cohort->hasPrograms() && $data->participants === []) {
+            $errors['study_programs'][] = __('A group needs at least one study program.');
+        }
+        if (! $data->cohort->hasPrograms() && $data->participants !== []) {
+            $errors['study_programs'][] = __('An elective group is open to every study program and lists none.');
+        }
+
+        $odd = Period::isOdd($offering->period);
+        foreach ($data->participants as $semester) {
+            if ($data->cohort->isRegular() && $semester === null) {
+                $errors['study_programs'][] = __('Every study program needs a target semester.');
+                break;
             }
-        });
+            if (! $data->cohort->isRegular() && $semester !== null) {
+                $errors['study_programs'][] = __('Only regular groups have a target semester.');
+                break;
+            }
+            if ($semester !== null && ($semester % 2 === 1) !== $odd) {
+                $errors['study_programs'][] = __('The target semester must match the period (:period).', ['period' => Period::label($offering->period)]);
+                break;
+            }
+        }
+
+        // Per offering, a program attends one regular group per target semester and one retake group.
+        $twice = StudyProgram::query()
+            ->whereKey(array_keys($data->participants))
+            ->whereHas('tpbGroups', fn (Builder $query) => $query
+                ->where('tpb_offering_id', $offering->id)
+                ->when($current, fn (Builder $query) => $query->whereKeyNot($current->id))
+                ->when(
+                    $data->cohort->isRegular(),
+                    fn (Builder $query) => $query->whereIn('cohort', TpbCohort::regular())->where(fn (Builder $query) => collect($data->participants)
+                        ->each(fn (?int $semester, int $programId) => $query->orWhere(fn (Builder $one) => $one
+                            ->where('tpb_group_study_programs.study_program_id', $programId)
+                            ->where('tpb_group_study_programs.target_semester', $semester)))),
+                    fn (Builder $query) => $query->where('cohort', $data->cohort),
+                ))
+            ->orderBy('code')
+            ->pluck('code');
+        if ($twice->isNotEmpty()) {
+            $errors['study_programs'][] = __('Study programs :programs already attend another group of this course for the same students.', ['programs' => $twice->implode(', ')]);
+        }
 
         if ($errors !== []) {
             throw ApiException::validation($errors);

@@ -5,7 +5,6 @@ namespace App\Services\Scheduling;
 use App\Models\MasterData\Room;
 use App\Models\Scheduling\ScheduleDetail;
 use App\Models\Scheduling\SchedulingRun;
-use App\Services\MasterData\TpbBlockService;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -20,7 +19,7 @@ readonly class ScheduleSlotCheckerFactory
     {
         $run = $detail->schedulingRun;
         $course = $detail->course;
-        $odd = Period::isOdd($run->period);
+        $blocks = $this->tpbBlocks->blocks($run->period);
 
         $genes = $this->activeGenes($run->period)->whereKeyNot($detail->id)->get();
         $sameProgram = $genes->filter(fn (ScheduleDetail $g) => $g->scheduling_run_id === $run->id
@@ -33,9 +32,9 @@ readonly class ScheduleSlotCheckerFactory
             cohortAt: $sameProgram
                 ->filter(fn (ScheduleDetail $g) => $g->course->semester === $course->semester && $g->class_number === $detail->class_number)
                 ->keyBy('time_slot_id')->all(),
-            blockedForProgram: $this->tpbBlocks->blockedSlotsByStudyProgram($odd)[$course->study_program_id][$course->semester] ?? [],
-            blockedForLecturer: $this->tpbBlocks->blockedSlotsByLecturer($odd)[$detail->lecturer_id] ?? [],
-            blockedRooms: $this->tpbBlocks->blockedSlotsByRoom($odd),
+            blockedForProgram: $blocks['programs'][$course->study_program_id][$course->semester] ?? [],
+            blockedForLecturer: $blocks['lecturers'][$detail->lecturer_id] ?? [],
+            blockedRooms: $blocks['rooms'],
             candidateRooms: Room::query()
                 ->where(fn ($q) => $q->where('faculty_id', $run->faculty_id)->orWhereNull('faculty_id'))
                 ->where('capacity', '>=', $course->class_capacity)
@@ -46,13 +45,13 @@ readonly class ScheduleSlotCheckerFactory
     }
 
     /**
-     * Lecturers and rooms held by the active schedules of the other faculties in the run's period.
+     * Lecturers and rooms held by the active schedules of the other faculties and of TPB in the run's period.
      */
     public function otherFacultiesOccupancy(SchedulingRun $run): ActiveScheduleOccupancy
     {
         return new ActiveScheduleOccupancy(
             $this->activeGenes($run->period)
-                ->whereHas('schedulingRun', fn (Builder $q) => $q->where('faculty_id', '!=', $run->faculty_id))
+                ->whereHas('schedulingRun', fn (Builder $q) => $q->where(fn (Builder $q) => $q->where('faculty_id', '!=', $run->faculty_id)->orWhereNull('faculty_id')))
                 ->get(),
         );
     }
