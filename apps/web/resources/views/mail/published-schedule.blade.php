@@ -22,7 +22,7 @@
     <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:600px;background-color:#ffffff;">
         <tr>
             <td style="padding:24px 16px 0 16px;">
-                <img src="{{ $embed('logo-itk.png') }}" alt="Institut Teknologi Kalimantan" height="40" style="display:block;border:0;height:40px;width:auto;">
+                <img src="{{ $embed('Logo_1-transparent.png') }}" alt="SIMJADWAL" height="40" style="display:block;border:0;height:40px;width:auto;">
             </td>
         </tr>
         <tr>

@@ -70,7 +70,6 @@ const props = defineProps<{
     };
 }>();
 
-// Filter states
 const selectedFacultyId = ref<number | ''>('');
 const selectedStudyProgramId = ref<number | ''>('');
 const selectedSemester = ref<number | ''>('');
@@ -78,7 +77,6 @@ const searchQuery = ref('');
 const appliedFilters = ref({ facultyId: '', programId: '', semester: '', search: '' });
 const pageSize = 12;
 
-// Catalog data (GET /api/public/*)
 const faculties = ref<CatalogFaculty[]>([]);
 const courses = ref<CatalogCourse[]>([]);
 const totalCourses = ref(0);
@@ -129,7 +127,6 @@ async function loadCourses(page = 1): Promise<void> {
     }
 }
 
-// Available study programs based on chosen faculty
 const availableStudyPrograms = computed(() => {
     if (!selectedFacultyId.value) {
         return faculties.value.flatMap((f) => f.study_programs);
@@ -138,7 +135,6 @@ const availableStudyPrograms = computed(() => {
     return found ? found.study_programs : [];
 });
 
-// Reset study program selection if faculty changes
 watch(selectedFacultyId, () => {
     if (selectedFacultyId.value && selectedStudyProgramId.value) {
         const match = availableStudyPrograms.value.some((p) => p.id === Number(selectedStudyProgramId.value));
@@ -158,7 +154,6 @@ function applyFilter() {
     void loadCourses(1);
 }
 
-// Filters apply as they change. Typing waits a moment so each key does not hit the API.
 let searchTimer: ReturnType<typeof setTimeout> | undefined;
 watch([selectedFacultyId, selectedStudyProgramId, selectedSemester], applyFilter);
 watch(searchQuery, () => {
@@ -186,7 +181,6 @@ function scrollToSection(id: string) {
     }
 }
 
-// Selection (cart) state. The picks only live in this browser: no account, nothing stored on the server.
 const selectedCourses = ref<SelectedCourse[]>([]);
 
 function restoreSelection(): void {
@@ -208,7 +202,6 @@ watch(
         try {
             window.localStorage.setItem(SELECTION_STORAGE_KEY, JSON.stringify(items));
         } catch {
-            // Private mode or blocked storage: the picks still work until the page closes.
         }
     },
     { deep: true },
@@ -228,7 +221,6 @@ function lecturerLabel(cl: CatalogClass): string {
     return cl.lecturer.title ? `${cl.lecturer.name}, ${cl.lecturer.title}` : cl.lecturer.name;
 }
 
-// Class picker: a course is only added once the student picks one of its classes.
 const classPickerCourse = ref<CatalogCourse | null>(null);
 
 function openClassPicker(course: CatalogCourse) {
@@ -274,7 +266,6 @@ const totalSks = computed(() => {
     return selectedCourses.value.reduce((acc, curr) => acc + curr.sks, 0);
 });
 
-// Drawer & modal states
 const isDrawerOpen = ref(false);
 const isVerifyModalOpen = ref(false);
 const emailAddress = ref('');
@@ -382,20 +373,37 @@ onMounted(() => {
                 </div>
             </section>
 
-            <ol class="mx-auto grid max-w-7xl divide-y divide-slate-200 border-b border-slate-200 px-4 sm:grid-cols-3 sm:divide-x sm:divide-y-0 sm:px-6 lg:px-8">
-                <li class="py-6 sm:pr-8">
-                    <p class="text-sm font-semibold text-slate-900">Cari mata kuliah</p>
-                    <p class="mt-1 text-sm text-slate-600">Saring menurut fakultas, program studi, atau semester.</p>
-                </li>
-                <li class="py-6 sm:px-8">
-                    <p class="text-sm font-semibold text-slate-900">Pilih kelas</p>
-                    <p class="mt-1 text-sm text-slate-600">Tanpa akun. Pilihan tersimpan di browser ini.</p>
-                </li>
-                <li class="py-6 sm:pl-8">
-                    <p class="text-sm font-semibold text-slate-900">Terima jadwal</p>
-                    <p class="mt-1 text-sm text-slate-600">Jadwal yang sudah dipublikasikan fakultas dikirim ke email Anda.</p>
-                </li>
-            </ol>
+            <div class="relative z-10 mx-auto -mt-10 max-w-7xl px-4 sm:-mt-12 sm:px-6 lg:px-8">
+                <ol class="grid divide-y divide-slate-100 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-xl shadow-slate-900/10 sm:grid-cols-3 sm:divide-x sm:divide-y-0">
+                    <li class="group relative flex flex-col items-center p-6 text-center transition hover:bg-blue-50/60 sm:p-8">
+                        <span class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-md shadow-primary/30 transition group-hover:scale-105">
+                            <Search class="size-5" aria-hidden="true" />
+                        </span>
+                        <div class="mt-4 min-w-0">
+                            <p class="font-display text-base font-bold text-slate-900">Cari mata kuliah</p>
+                            <p class="mt-1 text-sm leading-relaxed text-slate-600">Cari berdasarkan kode atau nama.</p>
+                        </div>
+                    </li>
+                    <li class="group relative flex flex-col items-center p-6 text-center transition hover:bg-blue-50/60 sm:p-8">
+                        <span class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-md shadow-primary/30 transition group-hover:scale-105">
+                            <Check class="size-5" aria-hidden="true" />
+                        </span>
+                        <div class="mt-4 min-w-0">
+                            <p class="font-display text-base font-bold text-slate-900">Pilih kelas</p>
+                            <p class="mt-1 text-sm leading-relaxed text-slate-600">Tandai kelas yang Anda ambil.</p>
+                        </div>
+                    </li>
+                    <li class="group relative flex flex-col items-center p-6 text-center transition hover:bg-blue-50/60 sm:p-8">
+                        <span class="flex size-12 shrink-0 items-center justify-center rounded-xl bg-primary text-white shadow-md shadow-primary/30 transition group-hover:scale-105">
+                            <Mail class="size-5" aria-hidden="true" />
+                        </span>
+                        <div class="mt-4 min-w-0">
+                            <p class="font-display text-base font-bold text-slate-900">Terima jadwal</p>
+                            <p class="mt-1 text-sm leading-relaxed text-slate-600">Jadwal masuk email dalam PDF, Excel, atau kalender.</p>
+                        </div>
+                    </li>
+                </ol>
+            </div>
 
             <section id="pilih-matkul" class="scroll-mt-20 py-12 sm:py-16">
                 <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
