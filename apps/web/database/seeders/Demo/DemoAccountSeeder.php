@@ -39,7 +39,6 @@ class DemoAccountSeeder extends Seeder
         $this->lecturerAccounts($lecturer?->id);
 
         $this->account('admin.tpb@example.test', 'Admin TPB', Role::TPB_ADMIN);
-        $this->account('mahasiswa.if@example.test', 'Mahasiswa Informatika', Role::STUDENT, ['study_program_id' => $informatics->id]);
 
         if ($lecturer === null) {
             $this->command?->warn('No Informatika lecturer found, skipping dosen.if01@example.test. Add data/master/informatika.json.');

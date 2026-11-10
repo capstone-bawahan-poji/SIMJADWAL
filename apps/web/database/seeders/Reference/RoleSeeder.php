@@ -78,7 +78,6 @@ class RoleSeeder extends Seeder
                 SchedulingPermissions::VIEW_SCHEDULE,
             ],
             RoleEnum::LECTURER->value => [...$readReference, SchedulingPermissions::VIEW_SCHEDULE],
-            RoleEnum::STUDENT->value => [...$readReference, SchedulingPermissions::VIEW_SCHEDULE],
         ];
 
         foreach ($matrix as $roleName => $permissions) {
