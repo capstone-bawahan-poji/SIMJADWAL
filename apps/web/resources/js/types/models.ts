@@ -305,6 +305,7 @@ export interface ConstraintSubmissionDetail {
 /* Scheduling */
 
 export type RunStatus = 'queued' | 'running' | 'done' | 'failed';
+export type ScheduleScope = 'faculty' | 'prodi' | 'tpb';
 
 /** SchedulingRunQueryService summary. Draft = !is_active && !published_at, archived = !is_active && published_at. */
 export interface SchedulingRunSummary {
@@ -312,7 +313,7 @@ export interface SchedulingRunSummary {
     batch_id: string;
     /** null for a TPB run. */
     faculty: { id: number; code: string; name: string } | null;
-    scope: 'faculty' | 'tpb';
+    scope: ScheduleScope;
     /** Faculty runs: the TPB run their dataset was built against. */
     tpb_run_id: number | null;
     /** A faculty run built against an older TPB run. It cannot be activated. */
@@ -396,7 +397,7 @@ export interface Violation {
 export interface Schedule {
     period: string;
     /** faculty null + scope tpb = the institute-wide TPB schedule. */
-    runs: { id: number; faculty: { id: number; code: string; name: string } | null; scope: 'faculty' | 'tpb'; published_at: string | null }[];
+    runs: { id: number; faculty: { id: number; code: string; name: string } | null; scope: ScheduleScope; published_at: string | null }[];
     schedule_details: (ScheduleDetailBase & { scheduling_run_id: number })[];
 }
 
@@ -413,8 +414,8 @@ export interface ScheduleFilters {
     day?: number;
     unassigned?: 0 | 1;
     over_capacity?: 0 | 1;
-    /** tpb = the TPB schedule only, faculty = faculty schedules only. */
-    scope?: 'faculty' | 'tpb';
+    /** Scope for faculty, study-program, or TPB schedules. */
+    scope?: ScheduleScope;
     /** Picked classes: "12" = every class of course 12, "12:1" = class A of course 12. axios sends classes[]=… */
     classes?: string[];
 }
@@ -531,7 +532,7 @@ export interface TpbDashboard {
 export interface RoomGridData {
     title: string;
     subtitle: string;
-    mode: 'superadmin' | 'tpb' | 'fakultas';
+    mode: 'superadmin' | 'tpb' | 'fakultas' | 'prodi';
     clash_count: number;
     without_room: number;
     legend: { label: string; color: string; left_border: string | null }[];

@@ -10,6 +10,7 @@ import { api, toApiError, type ApiError } from '@/lib/api';
 import { formatTime } from '@/lib/labels';
 import type { AcademicPeriod, Collection, FacultySummary, Lecturer, Room, Schedule, ScheduleDetailBase, ScheduleExportFormat, StudyProgramSummary, TimeSlot } from '@/types/models';
 import { Head, usePage } from '@inertiajs/vue3';
+import { ChevronDown } from 'lucide-vue-next';
 import { computed, onMounted, reactive, ref, toRef, watch } from 'vue';
 
 type ScheduleRow = Schedule['schedule_details'][number];
@@ -71,6 +72,7 @@ const referencesLoading = ref(true);
 const failure = ref<ApiError | null>(null);
 const referencesFailure = ref<ApiError | null>(null);
 const overrideTarget = ref<ScheduleDetailBase | null>(null);
+const exportOpen = ref(false);
 let scheduleRequest = 0;
 
 const semesterOptions = useSemesterOptions(
@@ -105,6 +107,12 @@ const rowsByCell = computed(() => {
     return result;
 });
 const hasUnpublishedRun = computed(() => schedule.value?.runs.some((run) => run.published_at === null) ?? false);
+const EXPORT_FORMATS: { format: ScheduleExportFormat; label: string; hint: string }[] = [
+    { format: 'xlsx', label: 'Excel (.xlsx)', hint: 'Matriks dan daftar jadwal' },
+    { format: 'pdf', label: 'PDF', hint: 'Siap cetak, kertas A4 landscape' },
+    { format: 'ics', label: 'Kalender (.ics)', hint: 'Tambah jadwal ke kalender' },
+];
+
 function sessionTime(session: number): string {
     const slot = timeSlots.value.find((item) => item.session === session);
 
@@ -141,6 +149,10 @@ function exportUrl(format: ScheduleExportFormat): string {
     params.set('format', format);
 
     return `/api/internal/schedules/export?${params.toString()}`;
+}
+
+function onExportFocusOut(event: FocusEvent): void {
+    if (!(event.currentTarget as HTMLElement).contains(event.relatedTarget as Node | null)) exportOpen.value = false;
 }
 
 async function loadSchedule(): Promise<void> {
@@ -250,19 +262,47 @@ onResourcesChanged(['scheduling_runs', 'schedule_details'], () => void loadSched
                     <h1 class="text-2xl font-bold tracking-tight text-gray-900">{{ isLecturer ? 'Jadwal Mengajar' : 'Jadwal Kuliah' }}</h1>
                     <p v-if="isLecturer" class="mt-1 text-sm text-gray-500">Jadwal mengajar Anda sesuai periode dan filter yang dipilih.</p>
                 </div>
-                <div
-                    v-if="isLecturer && user.lecturer_id && schedule?.schedule_details.length"
-                    class="flex flex-wrap gap-2"
-                    aria-label="Unduh jadwal mengajar"
-                >
-                    <a
-                        v-for="format in (['xlsx', 'pdf', 'ics'] as ScheduleExportFormat[])"
-                        :key="format"
-                        :href="exportUrl(format)"
-                        class="inline-flex items-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 hover:border-primary hover:text-primary"
+                <div class="flex flex-wrap gap-2">
+                    <div v-if="isLecturer && user.lecturer_id && schedule?.schedule_details.length" class="flex flex-wrap gap-2" aria-label="Unduh jadwal mengajar">
+                        <a
+                            v-for="format in (['xlsx', 'pdf', 'ics'] as ScheduleExportFormat[])"
+                            :key="format"
+                            :href="exportUrl(format)"
+                            class="inline-flex items-center rounded-lg border border-gray-200 bg-white px-3 py-2 text-xs font-semibold text-gray-700 hover:border-primary hover:text-primary"
+                        >
+                            {{ format === 'xlsx' ? 'Unduh Excel' : format === 'pdf' ? 'Unduh PDF' : 'Tambah ke Kalender' }}
+                        </a>
+                    </div>
+                    <div
+                        v-if="user.role === 'admin_prodi' && schedule?.schedule_details.length"
+                        class="relative"
+                        @focusout="onExportFocusOut"
+                        @keydown.esc="exportOpen = false"
                     >
-                        {{ format === 'xlsx' ? 'Unduh Excel' : format === 'pdf' ? 'Unduh PDF' : 'Tambah ke Kalender' }}
-                    </a>
+                        <button
+                            type="button"
+                            class="inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+                            aria-haspopup="menu"
+                            :aria-expanded="exportOpen"
+                            @click="exportOpen = !exportOpen"
+                        >
+                            Unduh Jadwal
+                            <ChevronDown class="size-4 transition-transform" :class="exportOpen ? 'rotate-180' : ''" aria-hidden="true" />
+                        </button>
+                        <div v-if="exportOpen" role="menu" class="absolute right-0 z-30 mt-1 w-64 rounded-lg border border-gray-200 bg-white p-1 shadow-lg">
+                            <a
+                                v-for="item in EXPORT_FORMATS"
+                                :key="item.format"
+                                :href="exportUrl(item.format)"
+                                role="menuitem"
+                                class="block rounded-md px-3 py-2 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                                @click="exportOpen = false"
+                            >
+                                <span class="block text-sm font-semibold text-gray-900">{{ item.label }}</span>
+                                <span class="block text-xs text-gray-500">{{ item.hint }}</span>
+                            </a>
+                        </div>
+                    </div>
                 </div>
             </div>
 

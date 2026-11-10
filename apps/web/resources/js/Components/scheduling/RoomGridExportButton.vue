@@ -4,12 +4,12 @@ import Button from '@/Components/ui/Button.vue';
 import Modal from '@/Components/Modal.vue';
 import { useCollection } from '@/composables/useApiList';
 import { api, type ApiError } from '@/lib/api';
-import type { FacultySummary } from '@/types/models';
+import type { FacultySummary, ScheduleScope } from '@/types/models';
 import { usePage } from '@inertiajs/vue3';
 import { Download } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
-const props = defineProps<{ period?: string }>();
+const props = defineProps<{ period?: string; scope?: ScheduleScope }>();
 
 type Format = 'xlsx' | 'pdf';
 const FORMATS: { id: Format; label: string; hint: string }[] = [
@@ -37,7 +37,12 @@ const targets = computed(() => [
 function query(): Record<string, string> {
     const params: Record<string, string> = { format: format.value };
     if (props.period) params.period = props.period;
-    if (!isSuperadmin.value || target.value === 'all') return params;
+    if (!isSuperadmin.value) {
+        const scope = props.scope ?? (role.value === 'admin_tpb' ? 'tpb' : role.value === 'admin_prodi' ? 'prodi' : 'faculty');
+        params.scope = scope;
+        return params;
+    }
+    if (target.value === 'all') return params;
     if (target.value === 'tpb' || target.value === 'faculty') params.scope = target.value;
     else params.faculty_id = target.value.split(':')[1];
 
@@ -97,7 +102,7 @@ async function download(): Promise<void> {
                 </select>
             </label>
             <p v-else class="rounded-lg bg-gray-50 px-4 py-3 text-sm text-gray-600">
-                Yang diekspor: jadwal {{ role === 'admin_tpb' ? 'TPB' : 'fakultas Anda' }}.
+                Yang diekspor: jadwal {{ props.scope === 'prodi' || role === 'admin_prodi' ? 'prodi Anda' : role === 'admin_tpb' ? 'TPB' : 'fakultas Anda' }}.
             </p>
 
             <fieldset>

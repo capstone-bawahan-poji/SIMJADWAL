@@ -44,17 +44,20 @@ Route::middleware('auth')->group(function () {
         Route::get('/constraints', fn () => inertia('Prodi/Constraint/Index'))->name('constraints.index');
         Route::get('/constraints/review', fn () => inertia('Prodi/Constraint/Review'))->name('constraints.review');
         Route::get('/schedule-matrix', fn () => inertia('Prodi/ScheduleMatrix/Index'))->name('schedule-matrix.index');
+        Route::get('/ga', fn () => inertia('Fakultas/Ga/Index', ['scope' => 'prodi']))->name('ga.index');
+        Route::get('/rooms', fn () => inertia('Fakultas/Room/Index', ['scope' => 'prodi']))->name('rooms.index');
     });
 
     Route::middleware('role:admin_fakultas')->prefix('fakultas')->name('fakultas.')->group(function () {
         Route::get('/schedule', fn () => inertia('Fakultas/Schedule/Index'))->name('schedule.index');
-        Route::get('/constraints', fn () => inertia('Fakultas/Constraint/Index'))->name('constraints.index');
-        Route::get('/ga', fn () => inertia('Fakultas/Ga/Index'))->name('ga.index');
+        Route::get('/tpb-import', fn () => inertia('Fakultas/TpbImport/Index'))->name('tpb-import.index');
+        Route::get('/program-slot-allocation', fn () => inertia('Fakultas/ProgramSlotAllocation/Index'))->name('program-slot-allocation.index');
         Route::get('/rooms', fn () => inertia('Fakultas/Room/Index'))->name('rooms.index');
     });
 
     Route::middleware('role:admin_tpb')->prefix('tpb')->name('tpb.')->group(function () {
         Route::get('/schedule', fn () => inertia('Tpb/Schedule/Index'))->name('schedule.index');
+        Route::get('/schedule-import', fn () => inertia('Tpb/ScheduleImport/Index'))->name('schedule-import.index');
         Route::get('/courses', fn () => inertia('Tpb/Course/Index'))->name('courses.index');
         Route::get('/lecturers', fn () => inertia('Tpb/Lecturer/Index'))->name('lecturers.index');
         Route::get('/mappings', fn () => inertia('Tpb/Mapping/Index'))->name('mappings.index');
