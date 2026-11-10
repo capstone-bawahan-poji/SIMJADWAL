@@ -15,7 +15,6 @@ import { computed, ref, watch } from 'vue';
 
 type ConfirmAction = 'activate' | 'publish';
 
-// The TPB run review. The faculty version lives in Fakultas/Ga/Index.vue.
 const controlClass = 'h-10 w-full rounded-lg border-gray-200 bg-white text-sm text-gray-700 focus:border-primary focus:ring-primary';
 const DAYS: Record<number, string> = { 1: 'Senin', 2: 'Selasa', 3: 'Rabu', 4: 'Kamis', 5: 'Jumat', 6: 'Sabtu', 7: 'Minggu' };
 const { items: periods, error: periodError } = useCollection<AcademicPeriod>('academic-periods');
@@ -77,6 +76,9 @@ const detailsByCell = computed(() => {
 });
 const bestRun = computed(() => [...runs.value].filter((run) => run.best_fitness !== null).sort((a, b) => (b.best_fitness ?? 0) - (a.best_fitness ?? 0))[0] ?? null);
 const activeRun = computed(() => runs.value.find((run) => run.is_active) ?? null);
+/** The run lecturers and faculties work against now. Activating another run takes it away until the new one is published. */
+const publishedRun = computed(() => runs.value.find((run) => run.is_active && run.published_at) ?? null);
+const replacesPublished = computed(() => pendingAction.value === 'activate' && publishedRun.value !== null && actionTarget.value?.id !== publishedRun.value.id);
 
 function timeForSession(session: number): string {
     const slot = timeSlots.value.find((item) => item.session === session);
@@ -96,7 +98,6 @@ function stateClass(run: SchedulingRunSummary): string {
     return run.status === 'done' || run.published_at ? 'bg-gray-100 text-gray-600' : 'bg-amber-50 text-amber-700';
 }
 
-// Fitness history chart: 640x240 viewBox with room for the axis labels.
 const CHART = { width: 640, height: 240, left: 60, right: 20, top: 24, bottom: 36 };
 const chart = computed(() => {
     const history = selectedRun.value?.fitness_history ?? [];
@@ -217,7 +218,6 @@ async function loadSelectedRun(): Promise<void> {
         const [runResponse, detailResponse, violationResponse] = await Promise.all([
             api.get<{ data: SchedulingRunDetail }>(`scheduling-runs/${id}`),
             api.get<Collection<RunScheduleDetail>>(`scheduling-runs/${id}/schedule-details`, {
-                // TPB courses have no program: their participants are filtered here, not on the server.
                 params: { day: dayFilter.value },
             }),
             api.get<Collection<Violation>>(`scheduling-runs/${id}/violations`, {
@@ -333,7 +333,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
                 <div class="rounded-lg border border-gray-200 bg-white p-5">
                     <dt class="text-xs font-semibold text-gray-500">Jadwal aktif</dt>
                     <dd class="mt-2 text-2xl font-bold text-gray-900">{{ activeRun ? `Run #${activeRun.id}` : 'Belum ada' }}</dd>
-                    <p class="mt-1 text-xs text-gray-500">{{ activeRun ? (activeRun.published_at ? 'Sudah dipublikasikan' : 'Belum dipublikasikan') : 'Tetapkan salah satu run di bawah.' }}</p>
+                    <p class="mt-1 text-xs text-gray-500">{{ activeRun ? (activeRun.published_at ? 'Terbit: dilihat dosen dan jadi acuan fakultas' : 'Aktif, belum terbit. Dosen belum melihatnya.') : 'Tetapkan salah satu run di bawah.' }}</p>
                 </div>
                 <div class="rounded-lg border border-gray-200 bg-white p-5">
                     <dt class="text-xs font-semibold text-gray-500">Fitness terbaik</dt>
@@ -385,7 +385,8 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
 
                         <div class="flex items-center gap-4 lg:justify-end">
                             <button v-if="compareBatchId !== run.batch_id" type="button" class="text-sm font-semibold text-primary hover:underline" @click="loadCompare(run.batch_id)">Bandingkan batch</button>
-                            <Button v-if="run.status === 'done' && !run.is_active" @click="confirm('activate', run)">Tetapkan aktif</Button>
+                            <Button v-if="run.status === 'done' && !run.is_active && publishedRun" variant="secondary" @click="confirm('activate', run)">Ganti jadwal terbit</Button>
+                            <Button v-else-if="run.status === 'done' && !run.is_active" @click="confirm('activate', run)">Tetapkan aktif</Button>
                             <Button v-else-if="run.is_active && !run.published_at" @click="confirm('publish', run)">Publikasikan</Button>
                         </div>
                     </div>
@@ -624,20 +625,29 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
 
         <ConfirmDialog
             :show="pendingAction !== null"
-            :title="pendingAction === 'activate' ? 'Tetapkan run ini sebagai jadwal aktif?' : 'Publikasikan jadwal ini?'"
-            :confirm-label="pendingAction === 'activate' ? 'Tetapkan aktif' : 'Publikasikan'"
-            :danger="false"
+            :title="replacesPublished ? 'Ganti jadwal TPB yang sedang terbit?' : pendingAction === 'activate' ? 'Tetapkan run ini sebagai jadwal aktif?' : 'Publikasikan jadwal ini?'"
+            :confirm-label="replacesPublished ? 'Ganti jadwal terbit' : pendingAction === 'activate' ? 'Tetapkan aktif' : 'Publikasikan'"
+            :danger="replacesPublished"
             :processing="processing"
             :error="actionError"
             @confirm="performAction"
             @close="pendingAction = null; actionTarget = null"
         >
-            <template v-if="pendingAction === 'activate'">
-                Jadwal aktif yang lama akan digantikan. Dosen dan mahasiswa baru melihat run ini setelah dipublikasikan.
+            <template v-if="replacesPublished && publishedRun">
+                <p>Jadwal Run #{{ publishedRun.id }} akan dicabut. Run ini baru berlaku setelah dipublikasikan.</p>
+                <ul class="mt-2 list-disc space-y-1 pl-5">
+                    <li>Selama belum dipublikasikan, jadwal TPB tidak tampil ke dosen.</li>
+                    <li>Fakultas tidak bisa menjalankan GA sampai jadwal TPB terbit lagi.</li>
+                    <li>Jadwal fakultas yang dibuat dari Run #{{ publishedRun.id }} ditandai usang dan bisa bentrok dengan run ini.</li>
+                </ul>
+                <p v-if="actionTarget && actionTarget.hc_violations > 0" class="mt-2 font-semibold text-amber-700">Run ini punya {{ actionTarget.hc_violations }} pelanggaran hard constraint. Sistem tetap mengizinkan aktivasi.</p>
+            </template>
+            <template v-else-if="pendingAction === 'activate'">
+                Jadwal aktif yang lama akan digantikan. Dosen baru melihat run ini setelah dipublikasikan.
                 <p class="mt-2">Slot TPB baru terkunci untuk fakultas setelah jadwal ini dipublikasikan. Jadwal fakultas yang sudah ada tetap berjalan dan hanya diberi peringatan.</p>
                 <p v-if="actionTarget && actionTarget.hc_violations > 0" class="mt-2 font-semibold text-amber-700">Run ini punya {{ actionTarget.hc_violations }} pelanggaran hard constraint. Sistem tetap mengizinkan aktivasi.</p>
             </template>
-            <template v-else>Setelah dipublikasikan, dosen dan mahasiswa bisa melihat jadwal ini.</template>
+            <template v-else>Setelah dipublikasikan, dosen bisa melihat jadwal ini dan fakultas bisa mulai menjalankan GA.</template>
         </ConfirmDialog>
 
     </AppLayout>

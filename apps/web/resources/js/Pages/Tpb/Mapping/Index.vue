@@ -13,14 +13,11 @@ import { onResourcesChanged } from '@/composables/useResourceChanges';
 import { api, destroy, toApiError, type ApiError } from '@/lib/api';
 import { classLabel, COHORT_LABELS, REGULAR_COHORTS } from '@/lib/labels';
 import { queryParam } from '@/lib/query';
-import type { Lecturer, StudyProgramSummary, TeachingAssignment, TpbCohort, TpbGroup, TpbOffering } from '@/types/models';
+import type { Course, Lecturer, StudyProgramSummary, TeachingAssignment, TpbCohort, TpbGroup, TpbOffering } from '@/types/models';
 import { Head, Link } from '@inertiajs/vue3';
-import { Check } from 'lucide-vue-next';
+import { Check, Copy } from 'lucide-vue-next';
 import { computed, onMounted, reactive, ref, watch } from 'vue';
 
-// One page, master-detail: offerings of the period on the left, a three-step wizard for the chosen
-// one on the right (vertical steps): classes and capacity, then groups, then lecturers.
-// A class only exists inside a group, so groups come before lecturers.
 type Tab = 'offering' | 'groups' | 'classes';
 
 const TABS: { id: Tab; label: string; hint: string }[] = [
@@ -41,12 +38,20 @@ const COHORT_TONE: Record<TpbCohort, string> = {
 const { periods, period, error: periodsError } = usePeriodPicker();
 const initialTab = queryParam('tab');
 const tab = ref<Tab>(TABS.some((t) => t.id === initialTab) ? (initialTab as Tab) : 'offering');
-const selectedId = ref<number | null>(Number(queryParam('offering')) || null);
+const selectedCourseId = ref<number | null>(Number(queryParam('course')) || null);
+type StatusFilter = 'all' | 'open' | 'closed';
+const STATUS_FILTERS: { id: StatusFilter; label: string }[] = [
+    { id: 'all', label: 'Semua' },
+    { id: 'open', label: 'Dibuka' },
+    { id: 'closed', label: 'Belum dibuka' },
+];
+const statusFilter = ref<StatusFilter>('all');
 const search = ref('');
 const flash = ref<string | null>(null);
 const failure = ref<ApiError | null>(null);
 
 const offerings = ref<TpbOffering[]>([]);
+const tpbCourses = ref<Course[]>([]);
 const { items: programs } = useCollection<StudyProgramSummary>('study-programs');
 const lecturers = ref<Lecturer[]>([]);
 const groups = ref<TpbGroup[]>([]);
@@ -59,10 +64,30 @@ const totals = computed(() => offerings.value.reduce(
     (sum, o) => ({ classes: sum.classes + o.parallel_class_count, grouped: sum.grouped + o.course_lecturers_count, assigned: sum.assigned + o.assigned_classes_count }),
     { classes: 0, grouped: 0, assigned: 0 },
 ));
-const selected = computed(() => offerings.value.find((o) => o.id === selectedId.value) ?? null);
-const visibleOfferings = computed(() => {
+const selected = computed(() => offerings.value.find((o) => o.course_id === selectedCourseId.value) ?? null);
+const selectedId = computed(() => selected.value?.id ?? null);
+const selectedCourse = computed(() => tpbCourses.value.find((c) => c.id === selectedCourseId.value) ?? null);
+
+/** Every active TPB course, or one that already has an offering in this period, with its offering if any. */
+type Entry = { course: Pick<Course, 'id' | 'code' | 'name' | 'sks'>; offering: TpbOffering | null };
+const entries = computed<Entry[]>(() => {
+    const byCourse = new Map(offerings.value.map((o) => [o.course_id, o]));
+    const rows: Entry[] = tpbCourses.value
+        .filter((c) => c.is_active || byCourse.has(c.id))
+        .map((c) => ({ course: c, offering: byCourse.get(c.id) ?? null }));
+    const known = new Set(rows.map((r) => r.course.id));
+    for (const o of offerings.value) if (!known.has(o.course_id)) rows.push({ course: o.course, offering: o });
+    return rows.sort((a, b) => a.course.name.localeCompare(b.course.name) || a.course.code.localeCompare(b.course.code));
+});
+const openCount = computed(() => entries.value.filter((e) => e.offering).length);
+const closedCount = computed(() => entries.value.length - openCount.value);
+const visibleEntries = computed(() => {
     const q = search.value.trim().toLowerCase();
-    return offerings.value.filter((o) => !q || `${o.course.code} ${o.course.name}`.toLowerCase().includes(q));
+    return entries.value.filter((e) => {
+        if (statusFilter.value === 'open' && !e.offering) return false;
+        if (statusFilter.value === 'closed' && e.offering) return false;
+        return !q || `${e.course.code} ${e.course.name}`.toLowerCase().includes(q);
+    });
 });
 const groupOfClass = computed(() => {
     const map = new Map<number, TpbGroup>();
@@ -122,14 +147,18 @@ function syncUrl(): void {
     const url = new URL(window.location.href);
     url.searchParams.set('period', period.value);
     url.searchParams.set('tab', tab.value);
-    if (selectedId.value) url.searchParams.set('offering', String(selectedId.value));
-    else url.searchParams.delete('offering');
+    url.searchParams.delete('offering');
+    if (selectedCourseId.value) url.searchParams.set('course', String(selectedCourseId.value));
+    else url.searchParams.delete('course');
     window.history.replaceState(window.history.state, '', url);
 }
 
 async function loadReferences(): Promise<void> {
     try {
-        lecturers.value = await fetchAll<Lecturer>('lecturers');
+        [lecturers.value, tpbCourses.value] = await Promise.all([
+            fetchAll<Lecturer>('lecturers'),
+            fetchAll<Course>('courses', { is_tpb: true }),
+        ]);
     } catch (e) {
         failure.value = toApiError(e);
     }
@@ -144,7 +173,7 @@ async function loadOfferings(): Promise<void> {
             fetchAll<TpbOffering>('tpb-offerings', { period: period.value }),
             fetchAll<TeachingAssignment>('teaching-assignments', { tpb_period: period.value }),
         ]);
-        if (!offerings.value.some((o) => o.id === selectedId.value)) selectedId.value = offerings.value[0]?.id ?? null;
+        if (!entries.value.some((e) => e.course.id === selectedCourseId.value)) selectedCourseId.value = (entries.value.find((e) => e.offering) ?? entries.value[0])?.course.id ?? null;
     } catch (e) {
         failure.value = toApiError(e);
     } finally {
@@ -179,31 +208,93 @@ watch(period, () => {
     void loadOfferings();
     syncUrl();
 }, { immediate: true });
+watch(selectedCourseId, syncUrl);
 watch(selectedId, () => {
     void loadDetail();
     offeringForm.reset({ parallel_class_count: selected.value?.parallel_class_count ?? 1, class_capacity: selected.value?.class_capacity ?? 40 });
-    syncUrl();
 });
 watch(selected, (o) => {
     if (o) offeringForm.reset({ parallel_class_count: o.parallel_class_count, class_capacity: o.class_capacity });
 });
 watch(tab, syncUrl);
-onResourcesChanged(['tpb_offerings', 'tpb_groups', 'course_lecturers'], () => {
+onResourcesChanged(['tpb_offerings', 'tpb_groups', 'course_lecturers', 'courses'], () => {
+    void loadReferences();
     void loadOfferings();
     void loadDetail();
 });
 
-// --- Tab 1: offering -------------------------------------------------------------------------
 const offeringForm = useApiForm(() => ({ parallel_class_count: 1 as number, class_capacity: 40 as number }));
 async function saveOffering(): Promise<void> {
     if (!selected.value) return;
     const saved = await offeringForm.submit<TpbOffering>('patch', `tpb-offerings/${selected.value.id}`, { ...offeringForm.data });
     if (!saved) return;
-    flash.value = `Penawaran ${saved.course.code} disimpan.`;
+    flash.value = `Jumlah kelas ${saved.course.code} disimpan.`;
     await loadOfferings();
 }
 
-// --- Tab 2: groups ---------------------------------------------------------------------------
+async function openOffering(): Promise<void> {
+    const course = selectedCourse.value;
+    if (!course) return;
+    const saved = await offeringForm.submit<TpbOffering>('post', 'tpb-offerings', { ...offeringForm.data, course_id: course.id, period: period.value });
+    if (!saved) return;
+    flash.value = `${course.code} dibuka di periode ini.`;
+    tab.value = 'offering';
+    await loadOfferings();
+}
+
+const copyOpen = ref(false);
+const copySource = ref('');
+const copyRows = ref<TpbOffering[]>([]);
+const copyLoading = ref(false);
+const copying = ref(false);
+const copyError = ref<string | null>(null);
+const copySourceOptions = computed(() => periods.value.filter((p) => p.code !== period.value));
+const copyCandidates = computed(() => {
+    const open = new Set(offerings.value.map((o) => o.course_id));
+    const active = new Set(tpbCourses.value.filter((c) => c.is_active).map((c) => c.id));
+    return copyRows.value.filter((o) => !open.has(o.course_id) && active.has(o.course_id));
+});
+
+async function openCopy(): Promise<void> {
+    copyError.value = null;
+    copySource.value = copySourceOptions.value[0]?.code ?? '';
+    copyOpen.value = true;
+}
+
+watch([copySource, copyOpen], async () => {
+    if (!copyOpen.value || !copySource.value) {
+        copyRows.value = [];
+        return;
+    }
+    copyLoading.value = true;
+    try {
+        copyRows.value = await fetchAll<TpbOffering>('tpb-offerings', { period: copySource.value });
+    } catch (e) {
+        copyError.value = toApiError(e).message;
+    } finally {
+        copyLoading.value = false;
+    }
+});
+
+async function confirmCopy(): Promise<void> {
+    copying.value = true;
+    copyError.value = null;
+    let done = 0;
+    try {
+        for (const o of copyCandidates.value) {
+            await api.post('tpb-offerings', { course_id: o.course_id, period: period.value, parallel_class_count: o.parallel_class_count, class_capacity: o.class_capacity });
+            done++;
+        }
+        copyOpen.value = false;
+        flash.value = `${done} mata kuliah disalin ke periode ini. Atur grup dan dosennya per mata kuliah.`;
+    } catch (e) {
+        copyError.value = `${done} berhasil disalin, lalu gagal: ${toApiError(e).message}`;
+    } finally {
+        copying.value = false;
+        await loadOfferings();
+    }
+}
+
 type ParticipantRow = { id: number; target_semester: number | null };
 const groupModalOpen = ref(false);
 const editingGroup = ref<TpbGroup | null>(null);
@@ -248,7 +339,6 @@ function openEditGroup(group: TpbGroup): void {
         participants: group.participants.map((p) => ({ id: p.study_program_id, target_semester: p.target_semester })),
         class_numbers: [...group.class_numbers],
     });
-    // Mode is not stored: one semester for every program means the shared mode.
     sameSemester.value = semesters.size <= 1;
     sharedSemester.value = group.participants[0]?.target_semester ?? defaultSemester(group.cohort);
     groupModalOpen.value = true;
@@ -302,7 +392,6 @@ async function saveGroup(): Promise<void> {
     await Promise.all([loadDetail(), loadOfferings()]);
 }
 
-// --- Tab 3: lecturers per class --------------------------------------------------------------
 const drafts = reactive<Record<number, string>>({});
 const savingClass = ref<number | null>(null);
 
@@ -330,7 +419,6 @@ async function saveLecturer(row: TeachingAssignment): Promise<void> {
     }
 }
 
-// --- Delete ----------------------------------------------------------------------------------
 const deleteTarget = ref<{ kind: 'offering' | 'group'; id: number; label: string } | null>(null);
 const deleting = ref(false);
 const deleteError = ref<string | null>(null);
@@ -366,6 +454,7 @@ async function confirmDelete(): Promise<void> {
                             <option v-for="item in periods" :key="item.id" :value="item.code">{{ item.label }}</option>
                         </select>
                     </label>
+                    <Button variant="secondary" class="h-10" :disabled="copySourceOptions.length === 0" @click="openCopy"><Copy class="mr-1.5 size-4" aria-hidden="true" />Salin dari periode lain</Button>
                     <Link :href="`/tpb/mappings/import?period=${encodeURIComponent(period)}`" class="inline-flex h-10 items-center rounded-lg bg-primary px-4 text-sm font-semibold text-white shadow-md shadow-primary/20 hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">Import data</Link>
                 </div>
             </header>
@@ -374,10 +463,10 @@ async function confirmDelete(): Promise<void> {
             <Alert v-if="failure" :title="failure.message" dismissible @dismiss="failure = null" />
             <Alert v-if="periodsError" :title="periodsError.message" />
 
-            <dl v-if="offerings.length" class="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="Ringkasan mapping">
+            <dl v-if="entries.length" class="grid grid-cols-2 gap-3 lg:grid-cols-4" aria-label="Ringkasan mapping">
                 <div class="rounded-lg border border-gray-200 bg-white p-4">
-                    <dt class="text-xs font-medium text-gray-500">Mata kuliah</dt>
-                    <dd class="mt-1 text-2xl font-bold tabular-nums text-gray-900">{{ offerings.length }}</dd>
+                    <dt class="text-xs font-medium text-gray-500">Mata kuliah dibuka</dt>
+                    <dd class="mt-1 text-2xl font-bold tabular-nums text-gray-900">{{ openCount }}<span v-if="closedCount" class="text-sm font-medium text-gray-500"> · {{ closedCount }} belum dibuka</span></dd>
                 </div>
                 <div class="rounded-lg border border-gray-200 bg-white p-4">
                     <dt class="text-xs font-medium text-gray-500">Total kelas</dt>
@@ -394,29 +483,43 @@ async function confirmDelete(): Promise<void> {
             </dl>
 
             <div class="grid gap-6 lg:grid-cols-[320px_1fr]">
-                <!-- Master: offerings of the period -->
+                <!-- Master: every TPB course with its status in the chosen period -->
                 <Panel class="self-start">
-                    <div class="space-y-2 border-b border-gray-200 p-4">
+                    <div class="space-y-3 border-b border-gray-200 p-4">
                         <input v-model="search" type="search" placeholder="Cari mata kuliah" aria-label="Cari mata kuliah" :class="[controlClass, 'w-full']" />
-                        <p class="text-xs text-gray-500"><span class="font-semibold tabular-nums text-gray-900">{{ visibleOfferings.length }}</span> mata kuliah {{ search ? 'ditemukan' : 'terdaftar' }}</p>
+                        <div class="flex gap-1.5" role="group" aria-label="Filter status">
+                            <button
+                                v-for="f in STATUS_FILTERS"
+                                :key="f.id"
+                                type="button"
+                                class="rounded-full px-3 py-1 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                                :class="statusFilter === f.id ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'"
+                                :aria-pressed="statusFilter === f.id"
+                                @click="statusFilter = f.id"
+                            >{{ f.label }}</button>
+                        </div>
+                        <p class="text-xs text-gray-500"><span class="font-semibold tabular-nums text-gray-900">{{ visibleEntries.length }}</span> mata kuliah {{ search || statusFilter !== 'all' ? 'ditemukan' : 'terdaftar' }}</p>
                     </div>
                     <p v-if="loadingList" class="p-4 text-sm text-gray-500">Memuat…</p>
-                    <p v-else-if="offerings.length === 0" class="p-4 text-sm text-gray-500">Belum ada data TPB di periode ini. Pilih Import data untuk memulai.</p>
-                    <p v-else-if="visibleOfferings.length === 0" class="p-4 text-sm text-gray-500">Tidak ada mata kuliah yang cocok dengan pencarian.</p>
+                    <p v-else-if="entries.length === 0" class="p-4 text-sm text-gray-500">Belum ada mata kuliah TPB. Tambahkan di menu Kelola Mata Kuliah, atau pilih Import data.</p>
+                    <p v-else-if="visibleEntries.length === 0" class="p-4 text-sm text-gray-500">Tidak ada mata kuliah yang cocok.</p>
                     <ul v-else class="max-h-[70vh] divide-y divide-gray-100 overflow-y-auto">
-                        <li v-for="o in visibleOfferings" :key="o.id">
+                        <li v-for="e in visibleEntries" :key="e.course.id">
                             <button
                                 type="button"
                                 class="block w-full px-4 py-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary"
-                                :class="o.id === selectedId ? 'bg-primary/5' : 'hover:bg-gray-50'"
-                                :aria-current="o.id === selectedId ? 'true' : undefined"
-                                @click="selectedId = o.id"
+                                :class="e.course.id === selectedCourseId ? 'bg-primary/5' : 'hover:bg-gray-50'"
+                                :aria-current="e.course.id === selectedCourseId ? 'true' : undefined"
+                                @click="selectedCourseId = e.course.id"
                             >
-                                <span class="block text-sm font-semibold" :class="o.id === selectedId ? 'text-primary' : 'text-gray-900'">{{ o.course.name }}</span>
-                                <span class="mt-0.5 block text-xs tabular-nums text-gray-500">{{ o.course.code }} · {{ o.course.sks }} SKS</span>
+                                <span class="block text-sm font-semibold" :class="e.course.id === selectedCourseId ? 'text-primary' : e.offering ? 'text-gray-900' : 'text-gray-500'">{{ e.course.name }}</span>
+                                <span class="mt-0.5 block text-xs tabular-nums text-gray-500">{{ e.course.code }} · {{ e.course.sks }} SKS</span>
                                 <span class="mt-2 flex flex-wrap gap-1.5">
-                                    <span class="rounded-full px-2.5 py-0.5 text-xs font-semibold" :class="offeringStatus(o).grouped ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-800'">Grup {{ o.course_lecturers_count }}/{{ o.parallel_class_count }}</span>
-                                    <span class="rounded-full px-2.5 py-0.5 text-xs font-semibold" :class="offeringStatus(o).assigned ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-800'">Dosen {{ o.assigned_classes_count }}/{{ o.parallel_class_count }}</span>
+                                    <template v-if="e.offering">
+                                        <span class="rounded-full px-2.5 py-0.5 text-xs font-semibold" :class="offeringStatus(e.offering).grouped ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-800'">Grup {{ e.offering.course_lecturers_count }}/{{ e.offering.parallel_class_count }}</span>
+                                        <span class="rounded-full px-2.5 py-0.5 text-xs font-semibold" :class="offeringStatus(e.offering).assigned ? 'bg-green-50 text-green-700' : 'bg-amber-50 text-amber-800'">Dosen {{ e.offering.assigned_classes_count }}/{{ e.offering.parallel_class_count }}</span>
+                                    </template>
+                                    <span v-else class="rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-semibold text-gray-600">Belum dibuka</span>
                                 </span>
                             </button>
                         </li>
@@ -482,6 +585,7 @@ async function confirmDelete(): Promise<void> {
                                 </p>
                                 <div class="flex flex-wrap gap-3 border-t border-gray-100 pt-4">
                                     <Button type="submit" :loading="offeringForm.processing.value" :disabled="!selected.can_update">Simpan</Button>
+                                    <Button v-if="selected.can_delete" type="button" variant="danger" @click="deleteTarget = { kind: 'offering', id: selected.id, label: `${selected.course.name} dari periode ini` }; deleteError = null">Hapus dari periode ini</Button>
                                     <Button type="button" variant="secondary" class="ml-auto" @click="goStep(1)">Lanjut ke grup peserta</Button>
                                 </div>
                             </form>
@@ -571,6 +675,33 @@ async function confirmDelete(): Promise<void> {
                             </div>
                         </div>
                     </div>
+                </Panel>
+
+                <!-- Detail: a course that is not opened in this period yet -->
+                <Panel v-else-if="selectedCourse">
+                    <div class="border-b border-gray-200 px-6 py-4">
+                        <p class="text-xs tabular-nums text-gray-500">{{ selectedCourse.code }} · {{ selectedCourse.sks }} SKS</p>
+                        <h2 class="text-base font-bold text-gray-900">{{ selectedCourse.name }}</h2>
+                    </div>
+                    <form class="space-y-5 p-6" @submit.prevent="openOffering">
+                        <div>
+                            <h3 class="text-sm font-bold text-gray-900">Belum dibuka di {{ periods.find((p) => p.code === period)?.label ?? period }}</h3>
+                            <p class="mt-1 text-xs text-gray-500">Isi jumlah kelas dan kapasitas untuk membuka mata kuliah ini di periode ini. Grup dan dosen diatur setelahnya.</p>
+                        </div>
+                        <Alert v-if="offeringForm.failure.value" :title="offeringForm.failure.value.message" />
+                        <div class="grid max-w-lg gap-5 sm:grid-cols-2">
+                            <label class="space-y-1 text-sm font-semibold text-gray-700">Jumlah kelas
+                                <input v-model.number="offeringForm.data.parallel_class_count" type="number" min="1" max="99" :class="fieldClass" required />
+                                <span v-if="offeringForm.errors.value.parallel_class_count" class="block text-xs font-normal text-red-600">{{ offeringForm.errors.value.parallel_class_count }}</span>
+                            </label>
+                            <label class="space-y-1 text-sm font-semibold text-gray-700">Kapasitas per kelas
+                                <input v-model.number="offeringForm.data.class_capacity" type="number" min="1" max="1000" :class="fieldClass" required />
+                            </label>
+                        </div>
+                        <div class="border-t border-gray-100 pt-4">
+                            <Button type="submit" :loading="offeringForm.processing.value">Buka di periode ini</Button>
+                        </div>
+                    </form>
                 </Panel>
                 <Panel v-else class="p-10 text-center text-sm text-gray-500">Pilih mata kuliah di daftar sebelah kiri, atau gunakan Import Data.</Panel>
             </div>
@@ -663,9 +794,40 @@ async function confirmDelete(): Promise<void> {
             </form>
         </Modal>
 
+        <Modal :show="copyOpen" max-width="lg" close-button centered @close="copyOpen = false">
+            <div class="rounded-t-lg border-b border-gray-100 bg-gray-50 py-5 pl-6 pr-14">
+                <h2 class="text-lg font-bold text-gray-900">Salin dari periode lain</h2>
+                <p class="mt-0.5 text-sm text-gray-500">Jumlah kelas dan kapasitas disalin ke {{ periods.find((p) => p.code === period)?.label ?? period }}.</p>
+            </div>
+            <div class="space-y-4 p-6">
+                <Alert v-if="copyError" :title="copyError" />
+                <label class="block space-y-1 text-sm font-semibold text-gray-700">Salin dari
+                    <select v-model="copySource" :class="[fieldClass]">
+                        <option v-for="p in copySourceOptions" :key="p.id" :value="p.code">{{ p.label }}</option>
+                    </select>
+                </label>
+                <p v-if="copyLoading" class="text-sm text-gray-500">Memuat…</p>
+                <p v-else-if="copyCandidates.length === 0" class="rounded-lg bg-gray-50 px-4 py-3 text-sm text-gray-600">Tidak ada mata kuliah yang bisa disalin. Semua yang dibuka di periode itu sudah dibuka di periode ini, atau periode itu kosong.</p>
+                <template v-else>
+                    <p class="text-sm text-gray-700"><span class="font-semibold tabular-nums">{{ copyCandidates.length }}</span> mata kuliah akan dibuka di periode ini:</p>
+                    <ul class="max-h-56 divide-y divide-gray-100 overflow-y-auto rounded-lg border border-gray-200 text-sm">
+                        <li v-for="o in copyCandidates" :key="o.id" class="flex items-center justify-between gap-3 px-3 py-2">
+                            <span class="min-w-0 truncate text-gray-900">{{ o.course.name }} <span class="text-xs tabular-nums text-gray-500">{{ o.course.code }}</span></span>
+                            <span class="shrink-0 text-xs tabular-nums text-gray-500">{{ o.parallel_class_count }} kelas · {{ o.class_capacity }} kursi</span>
+                        </li>
+                    </ul>
+                    <p class="text-xs text-gray-500">Grup dan dosen tidak ikut disalin. Setelah ini, hapus atau ubah mata kuliah yang berbeda di periode ini.</p>
+                </template>
+                <div class="flex justify-end gap-3 border-t border-gray-100 pt-4">
+                    <Button type="button" variant="secondary" @click="copyOpen = false">Batal</Button>
+                    <Button type="button" :loading="copying" :disabled="copyCandidates.length === 0 || copyLoading" @click="confirmCopy">Salin {{ copyCandidates.length || '' }} mata kuliah</Button>
+                </div>
+            </div>
+        </Modal>
+
         <ConfirmDialog :show="deleteTarget !== null" :title="`Hapus ${deleteTarget?.label ?? ''}?`" :processing="deleting" :error="deleteError" @confirm="confirmDelete" @close="deleteTarget = null">
             <template v-if="deleteTarget?.kind === 'group'">Semua kelas di grup ini ikut terhapus, termasuk dosen pengampunya.</template>
-            <template v-else>Penawaran hanya bisa dibatalkan setelah semua grupnya dihapus.</template>
+            <template v-else>Mata kuliah kembali berstatus belum dibuka di periode ini. Ini hanya bisa dilakukan setelah semua grupnya dihapus.</template>
         </ConfirmDialog>
     </AppLayout>
 </template>
