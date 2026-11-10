@@ -5,9 +5,6 @@ namespace App\Data\MasterData;
 use App\Models\MasterData\Course;
 use Spatie\LaravelData\Data;
 
-/**
- * study_program_id, semester, parallel_class_count and class_capacity are null exactly when is_tpb is true.
- */
 class CourseFormData extends Data
 {
     public function __construct(
@@ -16,9 +13,9 @@ class CourseFormData extends Data
         public string $code,
         public string $name,
         public int $sks,
-        public int $semester,
-        public int $parallelClassCount,
-        public int $classCapacity,
+        public ?int $semester,
+        public ?int $parallelClassCount,
+        public ?int $classCapacity,
         public bool $isActive = true,
     ) {}
 
@@ -35,9 +32,9 @@ class CourseFormData extends Data
             code: $input['code'] ?? $current?->code,
             name: $input['name'] ?? $current?->name,
             sks: (int) ($input['sks'] ?? $current?->sks),
-            semester: (int) ($input['semester'] ?? $current?->semester),
-            parallelClassCount: (int) ($input['parallel_class_count'] ?? $current?->parallel_class_count ?? 1),
-            classCapacity: (int) ($input['class_capacity'] ?? $current?->class_capacity),
+            semester: $isTpb ? null : (int) ($input['semester'] ?? $current?->semester),
+            parallelClassCount: $isTpb ? null : (int) ($input['parallel_class_count'] ?? $current?->parallel_class_count ?? 1),
+            classCapacity: $isTpb ? null : (int) ($input['class_capacity'] ?? $current?->class_capacity),
             isActive: (bool) ($input['is_active'] ?? $current?->is_active ?? true),
         );
     }

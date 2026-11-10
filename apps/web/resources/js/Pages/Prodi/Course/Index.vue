@@ -1,4 +1,4 @@
-w<script setup lang="ts">
+<script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
 import ProgramLockBanner from '@/Components/constraint/ProgramLockBanner.vue';
 import Modal from '@/Components/Modal.vue';
@@ -33,7 +33,6 @@ function refresh(message: string): void {
     void reload();
 }
 
-// Create / edit modal.
 const isModalOpen = ref(false);
 const editing = ref<Course | null>(null);
 const form = useApiForm(() => ({
@@ -58,9 +57,9 @@ function openEdit(course: Course): void {
         code: course.code,
         name: course.name,
         sks: course.sks,
-        semester: course.semester,
-        parallel_class_count: course.parallel_class_count,
-        class_capacity: course.class_capacity,
+        semester: course.semester ?? 1,
+        parallel_class_count: course.parallel_class_count ?? 1,
+        class_capacity: course.class_capacity ?? 50,
         is_active: course.is_active,
     });
     isModalOpen.value = true;
@@ -84,7 +83,6 @@ async function save(): Promise<void> {
     }
 }
 
-// Delete; refused with 409 while classes are mapped or scheduled.
 const deleteTarget = ref<Course | null>(null);
 const deleteProcessing = ref(false);
 const deleteError = ref<string | null>(null);
@@ -180,13 +178,6 @@ async function confirmDelete(): Promise<void> {
                                     <span v-else class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500">
                                         <span class="h-1.5 w-1.5 rounded-full bg-gray-400"></span>
                                         Nonaktif
-                                <td class="px-6 py-3.5 text-right tabular-nums text-gray-700">{{ course.class_capacity }}</td>
-                                <td class="whitespace-nowrap px-6 py-3.5 text-right tabular-nums">
-                                    <span :class="course.course_lecturers_count < (course.parallel_class_count ?? 0) ? 'font-semibold text-red-600' : 'text-gray-700'">
-                                        {{ course.course_lecturers_count }} / {{ course.parallel_class_count }}
-                                    </span>
-                                    <span v-if="course.course_lecturers_count < (course.parallel_class_count ?? 0)" class="ml-1.5 text-xs text-red-600">
-                                        kurang {{ (course.parallel_class_count ?? 0) - course.course_lecturers_count }}
                                     </span>
                                 </td>
                                 <td class="whitespace-nowrap px-6 py-3.5 text-center">

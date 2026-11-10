@@ -8,10 +8,6 @@ use Spatie\LaravelData\Attributes\MapName;
 use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
-/**
- * course_lecturers_count = classes that already have a lecturer, out of parallel_class_count.
- * TPB courses have no semester, parallel_class_count or class_capacity (see TpbOfferingData).
- */
 #[TypeScript]
 #[MapName(SnakeCaseMapper::class)]
 class CourseData extends BaseData
@@ -23,9 +19,9 @@ class CourseData extends BaseData
         public string $code,
         public string $name,
         public int $sks,
-        public int $semester,
-        public int $parallelClassCount,
-        public int $classCapacity,
+        public ?int $semester,
+        public ?int $parallelClassCount,
+        public ?int $classCapacity,
         public bool $isActive,
         public ?StudyProgramSummaryData $studyProgram,
         public int $courseLecturersCount,

@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
-import TpbDashboard from '@/Pages/Tpb/Dashboard.vue';
-import StudentDashboard from '@/Pages/Mahasiswa/Dashboard.vue';
 import type { DashboardStats } from '@/types/models';
-import { Head, Link, usePage } from '@inertiajs/vue3';
+import { Head, Link } from '@inertiajs/vue3';
 import { ArrowRight, Building2, Clock, GraduationCap, Users } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
 
@@ -18,9 +16,6 @@ const C = {
     muted: 'rgba(17, 45, 78, 0.65)',
     track: 'rgba(219, 226, 239, 0.6)',
 };
-const role = computed(() => usePage().props.auth.user.role);
-const isTpbAdmin = computed(() => role.value === 'admin_tpb');
-const isStudent = computed(() => role.value === 'mahasiswa');
 const format = (value: number) => value.toLocaleString('id-ID');
 const hoveredBar = ref<number | null>(null);
 const PLOT_HEIGHT = 176;
@@ -115,9 +110,7 @@ const card = {
 </script>
 
 <template>
-    <TpbDashboard v-if="isTpbAdmin" />
-    <StudentDashboard v-if="isStudent" />
-    <template v-else>
+    <template>
         <Head title="Dashboard Superadmin" />
 
         <AppLayout>

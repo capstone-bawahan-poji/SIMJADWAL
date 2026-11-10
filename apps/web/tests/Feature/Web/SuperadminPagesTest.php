@@ -59,7 +59,9 @@ class SuperadminPagesTest extends TestCase
             ->where('stats.users.by_role.superadmin', 1));
 
         $this->actingAs(User::factory()->tpbAdmin()->create());
-        $this->get('/dashboard')->assertInertia(fn (Assert $page) => $page->where('stats', null));
+        $this->get('/dashboard')->assertInertia(fn (Assert $page) => $page
+            ->component('Tpb/Dashboard')
+            ->missing('stats'));
     }
 
     public function test_expired_csrf_token_on_internal_api_returns_session_expired(): void

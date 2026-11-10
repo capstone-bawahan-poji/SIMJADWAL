@@ -15,7 +15,6 @@ import { computed } from 'vue';
 
 const props = defineProps<{ dashboard: TpbDashboard }>();
 
-// Same colours as the schedule matrix on /tpb/schedule.
 const COHORT_BAR: Record<TpbCohort, string> = {
     maba: 'bg-blue-500',
     non_maba: 'bg-indigo-500',
@@ -48,7 +47,6 @@ const STATE_LABEL: Record<TpbDashboard['schedule']['status'], string> = {
 };
 const qualityOk = computed(() => !!run.value && run.value.hc_violations === 0 && run.value.sc_unmet === 0 && run.value.unassigned_rooms === 0);
 
-// The one thing the admin should do now. Data problems come first, then the state of the schedule.
 const next = computed<{ tone: 'ok' | 'todo' | 'blocked'; title: string; text: string; label: string; href: string; external?: boolean }>(() => {
     const d = props.dashboard;
     if (d.offerings.count === 0) return { tone: 'blocked', title: 'Belum ada mata kuliah TPB di periode ini', text: 'Isi data lewat import Excel, lalu atur grup dan dosennya.', label: 'Import data', href: '/tpb/mappings/import' };

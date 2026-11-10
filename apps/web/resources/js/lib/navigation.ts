@@ -81,7 +81,7 @@ export const NAV_BY_ROLE: Partial<Record<Role, NavItem[]>> = {
         { label: 'Mapping Dosen Pengampu', routeName: 'tpb.mappings.index', icon: icons.mapping },
         { label: 'Penjadwalan GA', routeName: 'tpb.ga.index', icon: icons.bolt },
         { label: 'Alokasi Ruangan', routeName: 'tpb.rooms.index', icon: icons.room },
-        downloadApp,
+        DOWNLOAD_APP_ITEM,
     ],
     dosen: [
         { label: 'Dashboard Dosen', routeName: 'dashboard', icon: icons.dashboard },

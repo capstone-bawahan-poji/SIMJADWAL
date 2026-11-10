@@ -66,21 +66,13 @@ const lecturers = ref<Lecturer[]>([]);
 const rooms = ref<Room[]>([]);
 const timeSlots = ref<TimeSlot[]>([]);
 const schedule = ref<Schedule | null>(null);
-const studentBaseSchedule = ref<Schedule | null>(null);
-const studentClasses = ref<string[]>([]);
-const studentClassOptions = ref<{ key: string; courseId: number; courseCode: string; courseName: string; semester: number | null; classNumber: number }[]>([]);
-const studentStorageKey = ref('');
-const studentSelectionSyncing = ref(false);
-const studentDownloadError = ref<string | null>(null);
-const downloadingFormat = ref<ScheduleExportFormat | null>(null);
-const downloadMenuOpen = ref(false);
 const loading = ref(true);
 const referencesLoading = ref(true);
 const failure = ref<ApiError | null>(null);
 const referencesFailure = ref<ApiError | null>(null);
 const overrideTarget = ref<ScheduleDetailBase | null>(null);
 let scheduleRequest = 0;
-// "Periode berjalan" ('') resolves to the current period so its parity still applies.
+
 const semesterOptions = useSemesterOptions(
     () => filters.period || periods.value.find((period) => period.is_current)?.code || '',
     toRef(filters, 'semester'),
@@ -113,24 +105,6 @@ const rowsByCell = computed(() => {
     return result;
 });
 const hasUnpublishedRun = computed(() => schedule.value?.runs.some((run) => run.published_at === null) ?? false);
-const studentCourseOptions = computed(() => {
-    const coursesById = new Map<number, { id: number; code: string; name: string; semester: number | null; classes: typeof studentClassOptions.value }>();
-
-    for (const option of studentClassOptions.value) {
-        const course = coursesById.get(option.courseId) ?? {
-            id: option.courseId,
-            code: option.courseCode,
-            name: option.courseName,
-            semester: option.semester,
-            classes: [],
-        };
-        course.classes.push(option);
-        coursesById.set(option.courseId, course);
-    }
-
-    return [...coursesById.values()].sort((a, b) => a.code.localeCompare(b.code));
-});
-
 function sessionTime(session: number): string {
     const slot = timeSlots.value.find((item) => item.session === session);
 
@@ -167,119 +141,6 @@ function exportUrl(format: ScheduleExportFormat): string {
     params.set('format', format);
 
     return `/api/internal/schedules/export?${params.toString()}`;
-}
-
-function studentClassesStorageKey(): string {
-    return `simjadwal:student-classes:${user.value.id}:${user.value.study_program_id ?? 'none'}:${filters.period || 'current'}:${filters.semester || 'all'}`;
-}
-
-function classSelectionKey(courseId: number, classNumber: number): string {
-    return `${courseId}:${classNumber}`;
-}
-
-function syncStudentClassOptions(base: Schedule): void {
-    const options = new Map<string, (typeof studentClassOptions.value)[number]>();
-
-    for (const row of base.schedule_details) {
-        const course = row.course;
-        if (filters.semester && course.semester !== null && String(course.semester) !== filters.semester) continue;
-
-        const key = classSelectionKey(course.id, row.class_number);
-        options.set(key, {
-            key,
-            courseId: course.id,
-            courseCode: course.code,
-            courseName: course.name,
-            semester: course.semester,
-            classNumber: row.class_number,
-        });
-    }
-
-    studentClassOptions.value = [...options.values()].sort((a, b) =>
-        a.courseCode.localeCompare(b.courseCode) || a.classNumber - b.classNumber,
-    );
-}
-
-function selectedStudentClassesFromStorage(): string[] {
-    const stored = localStorage.getItem(studentStorageKey.value);
-    const available = new Set(studentClassOptions.value.map((option) => option.key));
-
-    if (stored === null) {
-        return [];
-    }
-
-    try {
-        const selected: unknown = JSON.parse(stored);
-        if (!Array.isArray(selected) || selected.some((item) => typeof item !== 'string')) {
-            throw new Error('Format pilihan kelas tersimpan tidak valid.');
-        }
-
-        const selectedByCourse = new Map<number, string>();
-        for (const key of selected) {
-            if (!available.has(key)) continue;
-            const courseId = Number(key.split(':')[0]);
-            if (!selectedByCourse.has(courseId)) selectedByCourse.set(courseId, key);
-        }
-
-        return [...selectedByCourse.values()];
-    } catch (cause) {
-        throw new Error(cause instanceof Error ? cause.message : 'Pilihan kelas tersimpan tidak dapat dibaca.');
-    }
-}
-
-async function applyStudentClassSelection(request: number, base: Schedule, classes: string[]): Promise<void> {
-    if (request !== scheduleRequest) return;
-
-    if (classes.length === 0) {
-        schedule.value = { ...base, schedule_details: [] };
-        loading.value = false;
-        return;
-    }
-
-    try {
-        const params = {
-            ...Object.fromEntries(Object.entries(filters).filter(([key, value]) => value !== '' && key !== 'class_number')),
-            classes,
-        };
-        const response = await api.get<{ data: Schedule }>('schedules', { params });
-        if (request === scheduleRequest) schedule.value = response.data.data;
-    } catch (cause) {
-        if (request === scheduleRequest) failure.value = toApiError(cause);
-    } finally {
-        if (request === scheduleRequest) loading.value = false;
-    }
-}
-
-async function loadStudentSchedule(): Promise<void> {
-    const request = ++scheduleRequest;
-    loading.value = true;
-    failure.value = null;
-    const params = Object.fromEntries(Object.entries(filters).filter(([, value]) => value !== '' && value !== 'class_number'));
-
-    try {
-        const response = await api.get<{ data: Schedule }>('schedules', { params });
-        if (request !== scheduleRequest) return;
-
-        const base = response.data.data;
-        studentBaseSchedule.value = base;
-        syncStudentClassOptions(base);
-        studentStorageKey.value = studentClassesStorageKey();
-        studentSelectionSyncing.value = true;
-        studentClasses.value = selectedStudentClassesFromStorage();
-
-        localStorage.setItem(studentStorageKey.value, JSON.stringify(studentClasses.value));
-
-        studentSelectionSyncing.value = false;
-        await applyStudentClassSelection(request, base, studentClasses.value);
-    } catch (cause) {
-        studentSelectionSyncing.value = false;
-        if (request === scheduleRequest) {
-            failure.value = cause instanceof Error && !(cause instanceof AxiosError)
-                ? { status: 0, message: cause.message, code: 'LOCAL_STORAGE_ERROR', errors: {} }
-                : toApiError(cause);
-            loading.value = false;
-        }
-    }
 }
 
 async function loadSchedule(): Promise<void> {
@@ -473,46 +334,6 @@ onResourcesChanged(['scheduling_runs', 'schedule_details'], () => void loadSched
                         </select>
                     </label>
                 </div>
-            </Card>
-
-            <Card v-if="isStudent" class="border border-gray-100 shadow-sm">
-                <div>
-                    <div>
-                        <h2 class="text-sm font-bold text-gray-900">Mata kuliah dan kelas yang diambil</h2>
-                        <p class="mt-1 text-xs text-gray-500">Pilih satu kelas untuk setiap mata kuliah yang Anda ambil. Pilihan tersimpan di perangkat ini.</p>
-                    </div>
-                </div>
-
-                <p v-if="!loading && studentClassOptions.length === 0" class="mt-4 rounded-lg bg-gray-50 p-4 text-sm text-gray-500">
-                    Belum ada kelas terpublikasi untuk periode dan semester ini.
-                </p>
-                <div v-else class="mt-4 grid gap-3 md:grid-cols-2">
-                    <fieldset v-for="course in studentCourseOptions" :key="course.id" class="rounded-xl border border-gray-100 p-4">
-                        <legend class="px-1 text-xs font-bold text-gray-900">{{ course.code }} · {{ course.name }}</legend>
-                        <p class="mb-3 text-[11px] text-gray-500">{{ course.semester ? `Semester ${course.semester}` : 'TPB' }}</p>
-                        <label v-for="option in course.classes" :key="option.key" class="mr-4 inline-flex items-center gap-2 py-1.5 text-sm text-gray-700">
-                            <input
-                                type="radio"
-                                :name="`student-course-${course.id}`"
-                                class="border-gray-300 text-primary focus:ring-primary"
-                                :checked="studentClasses.includes(option.key)"
-                                @change="selectStudentClass(course.id, option.key)"
-                            />
-                            Kelas {{ classLabel(option.classNumber) }}
-                        </label>
-                        <label class="inline-flex items-center gap-2 py-1.5 text-sm text-gray-500">
-                            <input
-                                type="radio"
-                                :name="`student-course-${course.id}`"
-                                class="border-gray-300 text-primary focus:ring-primary"
-                                :checked="!course.classes.some((option) => studentClasses.includes(option.key))"
-                                @change="selectStudentClass(course.id, null)"
-                            />
-                            Tidak diambil
-                        </label>
-                    </fieldset>
-                </div>
-                <p class="mt-3 text-xs text-gray-500">{{ studentClasses.length }} mata kuliah dipilih</p>
             </Card>
 
             <div v-if="loading || referencesLoading" class="rounded-xl border border-gray-100 bg-white p-8 text-center text-sm text-gray-500">
