@@ -4,17 +4,17 @@
         {
             "nip": "199001012020000145",
             "name": "Amanda Dwi Wantira, S.Tr.Log., M.T., CPLM",
-            "email": "dosen_Amanda@dosen.itk.ac.id"
+            "email": "dosen_Amanda@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000146",
             "name": "Hendrik Vicarlo Saragih Manihuruk, S.T., M.T.",
-            "email": "dosen_Hendrik@dosen.itk.ac.id"
+            "email": "dosen_Hendrik@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000147",
             "name": "Himawan Wicaksono, S.ST.,M.T.",
-            "email": "dosen_Himawan@dosen.itk.ac.id"
+            "email": "dosen_Himawan@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000148",
@@ -24,12 +24,7 @@
         {
             "nip": "199001012020000149",
             "name": "Putri Gesan Prabawa Anwar, S.Kom., MIST.",
-            "email": "dosen_Putri@dosen.itk.ac.id"
-        },
-        {
-            "nip": "199001012020000150",
-            "name": "Tito Bisma May Willis, S.T., M.T.",
-            "email": "dosen_Tito@dosen.itk.ac.id"
+            "email": "dosen_Putri@lecturer.itk.ac.id"
         }
     ],
     "courses": [
@@ -41,7 +36,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000150"
+                    "lecturer_nip": "199001012020000148"
                 }
             ]
         },
@@ -173,7 +168,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000150"
+                    "lecturer_nip": "199001012020000148"
                 }
             ]
         },
@@ -233,7 +228,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000150"
+                    "lecturer_nip": "199001012020000148"
                 }
             ]
         },
@@ -329,7 +324,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000150"
+                    "lecturer_nip": "199001012020000148"
                 }
             ]
         },
@@ -527,7 +522,7 @@
         },
         {
             "code": "LO2516032",
-            "name": "Kerja Praktek",
+            "name": "Kerja Praktik",
             "sks": 2,
             "semester": 7,
             "classes": [

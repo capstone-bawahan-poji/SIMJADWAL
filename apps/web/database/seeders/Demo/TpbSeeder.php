@@ -87,13 +87,16 @@ class TpbSeeder extends Seeder
                 }
                 $group->studyPrograms()->sync(collect($picked)->mapWithKeys(fn (int $id) => [$id => ['target_semester' => $semester]])->all());
 
+                // A group's classes meet in one slot, so each needs its own lecturer.
+                $groupLecturers = [];
                 foreach ($groupRow['classes'] as $label) {
+                    $groupLecturers[] = $this->nextLecturer($row['name'], $groupLecturers);
                     CourseLecturer::query()->create([
                         'course_id' => $course->id,
                         'class_number' => $this->classNumber($label),
                         'tpb_offering_id' => $offering->id,
                         'tpb_group_id' => $group->id,
-                        'lecturer_id' => $this->nextLecturer($row['name']),
+                        'lecturer_id' => end($groupLecturers),
                     ]);
                 }
             }
@@ -105,15 +108,38 @@ class TpbSeeder extends Seeder
         return collect(str_split($label))->reduce(fn (int $n, string $char) => $n * 26 + ord($char) - 64, 0);
     }
 
-    private function nextLecturer(string $courseName): int
+    /**
+     * Next lecturer of the subject's program, skipping $taken. Falls back to every lecturer once the program runs out.
+     *
+     * @param  list<int>  $taken
+     */
+    private function nextLecturer(string $courseName, array $taken): int
     {
         $program = collect(self::SUBJECT_PROGRAMS)->first(fn (string $p, string $keyword) => Str::contains($courseName, $keyword));
+
+        return $this->nextFrom($program, $taken) ?? $this->nextFrom(null, $taken)
+            ?? throw new RuntimeException("Not enough lecturers for a TPB group of {$courseName}.");
+    }
+
+    /**
+     * @param  list<int>  $taken
+     */
+    private function nextFrom(?string $program, array $taken): ?int
+    {
         $pool = $this->pool($program);
         $key = $program ?? '*';
-        $index = $this->cursor[$key] ?? 0;
-        $this->cursor[$key] = $index + 1;
 
-        return $pool[$index % count($pool)];
+        foreach ($pool as $_) {
+            $index = $this->cursor[$key] ?? 0;
+            $this->cursor[$key] = $index + 1;
+            $id = $pool[$index % count($pool)];
+
+            if (! in_array($id, $taken, true)) {
+                return $id;
+            }
+        }
+
+        return null;
     }
 
     /** @var array<string, list<int>> */

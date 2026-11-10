@@ -2,14 +2,9 @@
     "prefix": "KL",
     "lecturers": [
         {
-            "nip": "199001012020000093",
-            "name": "Destyariani Liana Putri, S.T., M.T.",
-            "email": "dosen_Destyariani@dosen.itk.ac.id"
-        },
-        {
             "nip": "199001012020000094",
             "name": "Indah Melati Suci, S.T., M.T.",
-            "email": "dosen_Indah@dosen.itk.ac.id"
+            "email": "dosen_Indah@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000095",
@@ -29,32 +24,22 @@
         {
             "nip": "199001012020000098",
             "name": "Luh Putri Adnyani, S.T., M.T., MRINA",
-            "email": "dosen_Luh@dosen.itk.ac.id"
+            "email": "dosen_Luh@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000099",
             "name": "Muhammad Abdul Ghofur Al Hakim, S.Kel., M.Si",
-            "email": "dosen_Muhammad_Hakim@dosen.itk.ac.id"
+            "email": "dosen_Muhammad_Hakim@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000100",
             "name": "Muhammad Iqra Prasetya, S.Si., M.Si",
-            "email": "dosen_Muhammad_Prasetya@dosen.itk.ac.id"
+            "email": "dosen_Muhammad_Prasetya@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000101",
             "name": "Muhammad Khaisar Wirawan, S.Kel., M.Si.",
             "email": "khaisar.wirawan@lecturer.itk.ac.id"
-        },
-        {
-            "nip": "199001012020000102",
-            "name": "Muhammad Khaisar Wirawan. S.Kel., M.Si.",
-            "email": "dosen_Muhammad_Khaisar@dosen.itk.ac.id"
-        },
-        {
-            "nip": "199001012020000103",
-            "name": "Nurmawati S.Kel., M.Si.",
-            "email": "dosen_Nurmawati@dosen.itk.ac.id"
         },
         {
             "nip": "199001012020000104",
@@ -71,7 +56,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000102"
+                    "lecturer_nip": "199001012020000101"
                 }
             ]
         },
@@ -107,7 +92,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000102"
+                    "lecturer_nip": "199001012020000101"
                 }
             ]
         },
@@ -119,7 +104,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000103"
+                    "lecturer_nip": "199001012020000104"
                 }
             ]
         },
@@ -131,7 +116,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000103"
+                    "lecturer_nip": "199001012020000104"
                 }
             ]
         },
@@ -143,7 +128,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000093"
+                    "lecturer_nip": "199001012020000096"
                 }
             ]
         },
@@ -167,7 +152,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000093"
+                    "lecturer_nip": "199001012020000096"
                 }
             ]
         },
@@ -191,7 +176,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000102"
+                    "lecturer_nip": "199001012020000101"
                 }
             ]
         },
@@ -215,7 +200,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000103"
+                    "lecturer_nip": "199001012020000104"
                 }
             ]
         },
@@ -251,7 +236,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000102"
+                    "lecturer_nip": "199001012020000101"
                 }
             ]
         },
@@ -263,7 +248,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000103"
+                    "lecturer_nip": "199001012020000104"
                 }
             ]
         },
@@ -275,7 +260,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000093"
+                    "lecturer_nip": "199001012020000096"
                 }
             ]
         },
@@ -323,7 +308,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000102"
+                    "lecturer_nip": "199001012020000101"
                 }
             ]
         },
@@ -347,7 +332,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000093"
+                    "lecturer_nip": "199001012020000096"
                 }
             ]
         },
@@ -359,7 +344,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000103"
+                    "lecturer_nip": "199001012020000104"
                 }
             ]
         },
@@ -383,7 +368,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000102"
+                    "lecturer_nip": "199001012020000101"
                 }
             ]
         },
@@ -395,7 +380,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000102"
+                    "lecturer_nip": "199001012020000101"
                 }
             ]
         },
@@ -419,7 +404,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000102"
+                    "lecturer_nip": "199001012020000101"
                 }
             ]
         },
@@ -431,7 +416,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000093"
+                    "lecturer_nip": "199001012020000096"
                 }
             ]
         },
@@ -443,7 +428,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000093"
+                    "lecturer_nip": "199001012020000096"
                 }
             ]
         },
@@ -455,7 +440,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000103"
+                    "lecturer_nip": "199001012020000104"
                 }
             ]
         },
@@ -467,7 +452,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000103"
+                    "lecturer_nip": "199001012020000104"
                 }
             ]
         },
@@ -479,7 +464,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000093"
+                    "lecturer_nip": "199001012020000096"
                 }
             ]
         },
@@ -491,7 +476,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000102"
+                    "lecturer_nip": "199001012020000101"
                 }
             ]
         },
@@ -515,7 +500,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000102"
+                    "lecturer_nip": "199001012020000101"
                 }
             ]
         },
@@ -563,7 +548,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000103"
+                    "lecturer_nip": "199001012020000097"
                 }
             ]
         },
@@ -575,7 +560,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000098"
+                    "lecturer_nip": "199001012020000095"
                 }
             ]
         },
@@ -587,7 +572,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000093"
+                    "lecturer_nip": "199001012020000096"
                 }
             ]
         },
@@ -599,7 +584,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000093"
+                    "lecturer_nip": "199001012020000096"
                 }
             ]
         }

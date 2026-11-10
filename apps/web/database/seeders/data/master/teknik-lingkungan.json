@@ -4,7 +4,7 @@
         {
             "nip": "199001012020000127",
             "name": "Basransyah, M.T.",
-            "email": "dosen_Basransyah@dosen.itk.ac.id"
+            "email": "dosen_Basransyah@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000128",
@@ -14,12 +14,7 @@
         {
             "nip": "199001012020000129",
             "name": "Cut Keumala Banaget, S.T., M.T.",
-            "email": "dosen_Cut@dosen.itk.ac.id"
-        },
-        {
-            "nip": "199001012020000130",
-            "name": "Dr. Eng. Muhammad Maarij Harfadli, S.T., M.T",
-            "email": "dosen_Muhammad_Harfadli@dosen.itk.ac.id"
+            "email": "dosen_Cut@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000131",
@@ -29,7 +24,7 @@
         {
             "nip": "199001012020000132",
             "name": "Iitra Achbar Sahdian, M.T.",
-            "email": "dosen_Iitra@dosen.itk.ac.id"
+            "email": "dosen_Iitra@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000133",
@@ -39,32 +34,27 @@
         {
             "nip": "199001012020000134",
             "name": "Ismi Khairunnissa Ariani, B.Sc., M.Sc.",
-            "email": "dosen_Ismi@dosen.itk.ac.id"
+            "email": "dosen_Ismi@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000135",
             "name": "Marita Wulandari, S.T., M.T., Ph.D.",
-            "email": "dosen_Marita@dosen.itk.ac.id"
+            "email": "dosen_Marita@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000136",
             "name": "Melisa Triandini Maulani, M.T.",
-            "email": "dosen_Melisa@dosen.itk.ac.id"
+            "email": "dosen_Melisa@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000137",
             "name": "Muhamad Nur Ibnu Luthfi Saud, S.T., M.T.",
-            "email": "dosen_MuhamadNur@dosen.itk.ac.id"
+            "email": "dosen_MuhamadNur@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000138",
             "name": "Muhammad Ma'arij Harfadli, S.T., M.T., Ph.D.",
             "email": "maarijharfadli@lecturer.itk.ac.id"
-        },
-        {
-            "nip": "199001012020000139",
-            "name": "Nia Febrianti S.T., M.T.",
-            "email": "dosen_NiaFebrianti@dosen.itk.ac.id"
         },
         {
             "nip": "199001012020000140",
@@ -74,7 +64,7 @@
         {
             "nip": "199001012020000141",
             "name": "RINA NOOR HAYATI, S.SI., M.Si",
-            "email": "dosen_Rina@dosen.itk.ac.id"
+            "email": "dosen_Rina@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000142",
@@ -84,7 +74,7 @@
         {
             "nip": "199001012020000143",
             "name": "Riza Hudayarizka, B.Sc., M.Sc",
-            "email": "dosen_RizaHudayarizka@dosen.itk.ac.id"
+            "email": "dosen_RizaHudayarizka@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000144",
@@ -101,7 +91,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000139"
+                    "lecturer_nip": "199001012020000144"
                 }
             ]
         },
@@ -113,7 +103,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000130"
+                    "lecturer_nip": "199001012020000138"
                 }
             ]
         },
@@ -221,7 +211,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000139"
+                    "lecturer_nip": "199001012020000140"
                 }
             ]
         },
@@ -281,7 +271,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000139"
+                    "lecturer_nip": "199001012020000142"
                 }
             ]
         },
@@ -293,7 +283,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000139"
+                    "lecturer_nip": "199001012020000140"
                 }
             ]
         },
@@ -305,7 +295,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000130"
+                    "lecturer_nip": "199001012020000138"
                 }
             ]
         },
@@ -329,7 +319,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000130"
+                    "lecturer_nip": "199001012020000138"
                 }
             ]
         },
@@ -353,7 +343,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000130"
+                    "lecturer_nip": "199001012020000138"
                 }
             ]
         },
@@ -401,7 +391,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000139"
+                    "lecturer_nip": "199001012020000140"
                 }
             ]
         },
@@ -437,7 +427,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000141"
+                    "lecturer_nip": "199001012020000133"
                 }
             ]
         },
@@ -485,7 +475,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000143"
+                    "lecturer_nip": "199001012020000128"
                 }
             ]
         },
@@ -521,7 +511,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000139"
+                    "lecturer_nip": "199001012020000140"
                 }
             ]
         },
@@ -557,7 +547,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000139"
+                    "lecturer_nip": "199001012020000140"
                 }
             ]
         },
@@ -569,7 +559,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000130"
+                    "lecturer_nip": "199001012020000131"
                 }
             ]
         },

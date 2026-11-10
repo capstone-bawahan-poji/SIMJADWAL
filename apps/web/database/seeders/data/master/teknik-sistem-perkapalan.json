@@ -4,7 +4,7 @@
         {
             "nip": "199001012020000215",
             "name": "Ahmad Azwar Mas`ud M, M.T.",
-            "email": "dosen_AhmadAzwar@dosen.itk.ac.id"
+            "email": "dosen_AhmadAzwar@lecturer.itk.ac.id"
         }
     ],
     "courses": [
@@ -16,11 +16,11 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000193"
+                    "lecturer_nip": "199001012020000203"
                 },
                 {
                     "class_number": 2,
-                    "lecturer_nip": "199001012020000194"
+                    "lecturer_nip": "199001012020000205"
                 }
             ]
         },
@@ -52,7 +52,7 @@
                 },
                 {
                     "class_number": 3,
-                    "lecturer_nip": "199001012020000198"
+                    "lecturer_nip": "199001012020000197"
                 }
             ]
         },
@@ -152,7 +152,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000209"
+                    "lecturer_nip": "199001012020000206"
                 },
                 {
                     "class_number": 2,
@@ -204,7 +204,7 @@
                 },
                 {
                     "class_number": 2,
-                    "lecturer_nip": "199001012020000193"
+                    "lecturer_nip": "199001012020000203"
                 }
             ]
         },
@@ -216,7 +216,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000194"
+                    "lecturer_nip": "199001012020000205"
                 },
                 {
                     "class_number": 2,
@@ -256,7 +256,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000198"
+                    "lecturer_nip": "199001012020000197"
                 },
                 {
                     "class_number": 2,
@@ -340,7 +340,7 @@
                 },
                 {
                     "class_number": 3,
-                    "lecturer_nip": "199001012020000209"
+                    "lecturer_nip": "199001012020000206"
                 }
             ]
         }

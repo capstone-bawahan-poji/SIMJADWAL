@@ -528,36 +528,6 @@
       ]
     },
     {
-      "code": "KU2512016",
-      "name": "Fisika 1",
-      "sks": 4,
-      "groups": [
-        {
-          "cohort": "campuran",
-          "programs": [
-            "04",
-            "06"
-          ],
-          "classes": [
-            "A",
-            "B",
-            "C"
-          ]
-        },
-        {
-          "cohort": "campuran",
-          "programs": [
-            "13",
-            "25"
-          ],
-          "classes": [
-            "D",
-            "E"
-          ]
-        }
-      ]
-    },
-    {
       "code": "KU2512026",
       "name": "Fisika 1",
       "sks": 3,
@@ -615,14 +585,7 @@
             "N",
             "O"
           ]
-        }
-      ]
-    },
-    {
-      "code": "KU2512036",
-      "name": "Fisika 1",
-      "sks": 3,
-      "groups": [
+        },
         {
           "cohort": "campuran",
           "programs": [
@@ -630,8 +593,8 @@
             "17"
           ],
           "classes": [
-            "A",
-            "B"
+            "P",
+            "Q"
           ]
         },
         {
@@ -641,9 +604,9 @@
             "21"
           ],
           "classes": [
-            "C",
-            "D",
-            "E"
+            "R",
+            "S",
+            "T"
           ]
         },
         {
@@ -654,10 +617,33 @@
             "24"
           ],
           "classes": [
-            "F",
-            "G",
-            "H",
-            "I"
+            "U",
+            "V",
+            "W",
+            "X"
+          ]
+        },
+        {
+          "cohort": "campuran",
+          "programs": [
+            "04",
+            "06"
+          ],
+          "classes": [
+            "Y",
+            "Z",
+            "AA"
+          ]
+        },
+        {
+          "cohort": "campuran",
+          "programs": [
+            "13",
+            "25"
+          ],
+          "classes": [
+            "AB",
+            "AC"
           ]
         }
       ]
@@ -779,52 +765,6 @@
       ]
     },
     {
-      "code": "KU2512019",
-      "name": "Kimia",
-      "sks": 4,
-      "groups": [
-        {
-          "cohort": "campuran",
-          "programs": [
-            "04",
-            "06"
-          ],
-          "classes": [
-            "A",
-            "B",
-            "C",
-            "D"
-          ]
-        },
-        {
-          "cohort": "campuran",
-          "programs": [
-            "03",
-            "12"
-          ],
-          "classes": [
-            "E",
-            "F",
-            "G",
-            "H"
-          ]
-        },
-        {
-          "cohort": "campuran",
-          "programs": [
-            "13",
-            "18"
-          ],
-          "classes": [
-            "I",
-            "J",
-            "K",
-            "L"
-          ]
-        }
-      ]
-    },
-    {
       "code": "KU2512029",
       "name": "Kimia",
       "sks": 3,
@@ -852,6 +792,45 @@
             "E",
             "F",
             "G"
+          ]
+        },
+        {
+          "cohort": "campuran",
+          "programs": [
+            "04",
+            "06"
+          ],
+          "classes": [
+            "H",
+            "I",
+            "J",
+            "K"
+          ]
+        },
+        {
+          "cohort": "campuran",
+          "programs": [
+            "03",
+            "12"
+          ],
+          "classes": [
+            "L",
+            "M",
+            "N",
+            "O"
+          ]
+        },
+        {
+          "cohort": "campuran",
+          "programs": [
+            "13",
+            "18"
+          ],
+          "classes": [
+            "P",
+            "Q",
+            "R",
+            "S"
           ]
         }
       ]
@@ -999,52 +978,29 @@
             "R",
             "S"
           ]
-        }
-      ]
-    },
-    {
-      "code": "KU2512025",
-      "name": "Matematika 1",
-      "sks": 3,
-      "groups": [
+        },
         {
           "cohort": "campuran",
           "programs": [
             "06",
             "07",
+            "08",
             "12",
+            "15",
             "18",
             "21"
           ],
           "classes": [
-            "A",
-            "B",
-            "C",
-            "D",
-            "E",
-            "F",
-            "G",
-            "H"
-          ]
-        }
-      ]
-    },
-    {
-      "code": "KU2512035",
-      "name": "Matematika 1",
-      "sks": 2,
-      "groups": [
-        {
-          "cohort": "campuran",
-          "programs": [
-            "08",
-            "15"
-          ],
-          "classes": [
-            "A",
-            "B",
-            "C",
-            "D"
+            "T",
+            "U",
+            "V",
+            "W",
+            "X",
+            "Y",
+            "Z",
+            "AA",
+            "AB",
+            "AC"
           ]
         }
       ]

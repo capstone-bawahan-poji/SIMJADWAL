@@ -4,32 +4,27 @@
         {
             "nip": "199001012020000060",
             "name": "Adiek Astika Clara Sudarni, S.ST., M.T",
-            "email": "dosen_Adiek@dosen.itk.ac.id"
+            "email": "dosen_Adiek@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000061",
             "name": "Anis Rohmana Malik, S.K.M., M.K.K.K",
-            "email": "dosen_Anis@dosen.itk.ac.id"
+            "email": "dosen_Anis@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000062",
             "name": "Anisa Novi Andriani, S.T., M.Eng.",
-            "email": "dosen_Anisa@dosen.itk.ac.id"
+            "email": "dosen_Anisa@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000063",
             "name": "Arlita Dwi Agustine, S.Si., M.T.",
-            "email": "dosen_Arlita@dosen.itk.ac.id"
+            "email": "dosen_Arlita@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000064",
             "name": "Aulia Rahma, S.T., M.T.",
-            "email": "dosen_Aulia@dosen.itk.ac.id"
-        },
-        {
-            "nip": "199001012020000065",
-            "name": "Mayati Isabella M.T.",
-            "email": "dosen_Mayati@dosen.itk.ac.id"
+            "email": "dosen_Aulia@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000066",
@@ -37,29 +32,24 @@
             "email": "mayati.isabella@lecturer.itk.ac.id"
         },
         {
-            "nip": "199001012020000067",
-            "name": "Muchammad Chandra Cahyo Utomo, S. Kom., M. Kom.",
-            "email": "dosen_Muchammad@dosen.itk.ac.id"
-        },
-        {
             "nip": "199001012020000068",
-            "name": "Muthi’ah Nur Fadlilah, S.T.,M.T",
-            "email": "dosen_Muthiah@dosen.itk.ac.id"
+            "name": "Muthi'ah Nur Fadlilah, S.T.,M.T",
+            "email": "dosen_Muthiah@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000069",
             "name": "Novita Lizza Anggraini, S.K.M., M.P.H",
-            "email": "dosen_Novita@dosen.itk.ac.id"
+            "email": "dosen_Novita@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000070",
             "name": "Riski Arif Mardika, S.ST., M.T.",
-            "email": "dosen_Riski@dosen.itk.ac.id"
+            "email": "dosen_Riski@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000071",
             "name": "Tri Hardiyanti Asmaningrum, S.Pd., M.T.",
-            "email": "dosen_Tri@dosen.itk.ac.id"
+            "email": "dosen_Tri@lecturer.itk.ac.id"
         }
     ],
     "courses": [
@@ -71,7 +61,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000065"
+                    "lecturer_nip": "199001012020000066"
                 }
             ]
         },
@@ -192,18 +182,6 @@
                 {
                     "class_number": 1,
                     "lecturer_nip": "199001012020000069"
-                }
-            ]
-        },
-        {
-            "code": "RK2514012",
-            "name": "Dasar Simulasi dan Komputasi Keselamatan",
-            "sks": 3,
-            "semester": 3,
-            "classes": [
-                {
-                    "class_number": 1,
-                    "lecturer_nip": "199001012020000067"
                 }
             ]
         },
@@ -407,7 +385,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000075"
+                    "lecturer_nip": "199001012020000082"
                 }
             ]
         },
@@ -443,7 +421,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000065"
+                    "lecturer_nip": "199001012020000066"
                 }
             ]
         },
@@ -551,7 +529,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000065"
+                    "lecturer_nip": "199001012020000066"
                 }
             ]
         },
