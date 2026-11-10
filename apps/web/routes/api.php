@@ -105,6 +105,8 @@ Route::middleware(['web', 'auth'])->prefix('internal')->name('api.internal.')->g
     Route::post('scheduling-runs/{schedulingRun}/publish', [InternalSchedulingRunController::class, 'publish'])->name('scheduling-runs.publish');
     Route::get('schedules', [InternalScheduleController::class, 'index'])->name('schedules.index');
     Route::get('schedules/export', [InternalScheduleController::class, 'export'])->name('schedules.export');
+    Route::get('schedules/room-grid', [InternalScheduleController::class, 'roomGrid'])->name('schedules.room-grid');
+    Route::get('schedules/export-room-grid', [InternalScheduleController::class, 'exportRoomGrid'])->name('schedules.export-room-grid');
     Route::get('schedule-details/{scheduleDetail}/options', [InternalScheduleController::class, 'options'])->name('schedule-details.options');
     Route::patch('schedule-details/{scheduleDetail}', [InternalScheduleController::class, 'override'])->name('schedule-details.override');
 });

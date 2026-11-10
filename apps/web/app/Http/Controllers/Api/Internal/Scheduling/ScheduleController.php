@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Api\Internal\Scheduling;
 
 use App\Http\Controllers\Api\ApiController;
+use App\Http\Requests\Scheduling\ExportRoomGridRequest;
 use App\Http\Requests\Scheduling\ExportScheduleRequest;
 use App\Http\Requests\Scheduling\ListScheduleRequest;
 use App\Http\Requests\Scheduling\OverrideScheduleDetailRequest;
+use App\Http\Requests\Scheduling\RoomGridRequest;
 use App\Models\Scheduling\ScheduleDetail;
+use App\Services\Scheduling\Export\RoomGridTransformer;
 use App\Services\Scheduling\Export\ScheduleExportService;
 use App\Services\Scheduling\ScheduleDetailTransformer;
 use App\Services\Scheduling\ScheduleOverrideService;
@@ -42,6 +45,32 @@ class ScheduleController extends ApiController implements HasMiddleware
     public function export(ExportScheduleRequest $request): Response
     {
         return $this->exportService->export($request->user(), $request->period(), $request->filters(), $request->validated('format'));
+    }
+
+    public function roomGrid(RoomGridRequest $request): JsonResponse
+    {
+        $facultyId = $request->validated('faculty_id');
+        $grid = $this->exportService->roomGrid(
+            $request->user(),
+            $request->period(),
+            $request->validated('scope'),
+            $facultyId !== null ? (int) $facultyId : null,
+        );
+
+        return $this->response($grid === null ? null : RoomGridTransformer::toArray($grid));
+    }
+
+    public function exportRoomGrid(ExportRoomGridRequest $request): Response
+    {
+        $facultyId = $request->validated('faculty_id');
+
+        return $this->exportService->exportRoomGrid(
+            $request->user(),
+            $request->period(),
+            $request->validated('scope'),
+            $facultyId !== null ? (int) $facultyId : null,
+            $request->validated('format'),
+        );
     }
 
     public function options(ScheduleDetail $scheduleDetail): JsonResponse
