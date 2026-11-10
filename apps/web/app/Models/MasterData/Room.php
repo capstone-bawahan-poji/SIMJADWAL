@@ -44,12 +44,6 @@ class Room extends Model
         return $this->belongsTo(Faculty::class);
     }
 
-    /** @return HasMany<CourseLecturer, $this> TPB classes placed in this room */
-    public function courseLecturers(): HasMany
-    {
-        return $this->hasMany(CourseLecturer::class);
-    }
-
     /** @return HasMany<ScheduleDetail, $this> */
     public function scheduleDetails(): HasMany
     {

@@ -22,7 +22,11 @@ pub enum PreferenceType {
 pub struct Dataset {
     pub fingerprint: String,
     pub period: String,
-    pub faculty: FacultyRef,
+    /// "faculty" or "tpb". TPB datasets have no faculty and group their classes.
+    #[serde(default)]
+    pub scope: Option<String>,
+    #[serde(default)]
+    pub faculty: Option<FacultyRef>,
     pub study_programs: Vec<StudyProgram>,
     pub time_slots: Vec<TimeSlot>,
     pub rooms: Vec<Room>,
@@ -32,6 +36,80 @@ pub struct Dataset {
     pub constraint_types: Vec<ConstraintType>,
     #[serde(default)]
     pub occupied_rooms: Vec<OccupiedRoom>,
+    #[serde(default)]
+    pub tpb_groups: Vec<TpbGroup>,
+    #[serde(default)]
+    pub revision: Option<Revision>,
+    #[serde(default)]
+    pub tpb_blocks: Option<TpbBlocks>,
+}
+
+impl Dataset {
+    pub fn is_tpb(&self) -> bool {
+        self.scope.as_deref() == Some("tpb")
+    }
+}
+
+/// TPB revision of a published schedule: only `revise_group_ids` move.
+#[derive(Debug, Clone, Default, Deserialize)]
+pub struct Revision {
+    #[serde(default)]
+    pub required: bool,
+    #[serde(default)]
+    pub revise_group_ids: Vec<i64>,
+}
+
+/// A TPB group: its classes share one slot per meeting. Regular cohorts (maba, non_maba,
+/// campuran) may not meet twice in one slot for the same program and target semester.
+#[derive(Debug, Clone, Deserialize)]
+pub struct TpbGroup {
+    pub id: i64,
+    pub cohort: String,
+    #[serde(default)]
+    pub study_programs: Vec<TpbParticipant>,
+}
+
+impl TpbGroup {
+    pub fn is_regular(&self) -> bool {
+        matches!(self.cohort.as_str(), "maba" | "non_maba" | "campuran")
+    }
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct TpbParticipant {
+    pub id: i64,
+    #[serde(default)]
+    pub target_semester: Option<u8>,
+}
+
+/// Slots the active TPB schedule takes from a faculty dataset.
+#[derive(Debug, Clone, Default, Deserialize)]
+pub struct TpbBlocks {
+    #[serde(default)]
+    pub study_programs: Vec<ProgramBlock>,
+    #[serde(default)]
+    pub retake: Vec<RetakeBlock>,
+    #[serde(default)]
+    pub lecturers: Vec<LecturerBlock>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct ProgramBlock {
+    pub study_program_id: i64,
+    pub semester: u8,
+    pub time_slot_ids: Vec<i64>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct RetakeBlock {
+    pub study_program_id: i64,
+    pub time_slot_ids: Vec<i64>,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct LecturerBlock {
+    pub lecturer_id: i64,
+    pub time_slot_ids: Vec<i64>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -64,15 +142,18 @@ pub struct Room {
 #[derive(Debug, Clone, Deserialize)]
 pub struct Course {
     pub id: i64,
-    pub study_program_id: i64,
+    /// None for TPB courses: their programs come from the groups.
+    #[serde(default)]
+    pub study_program_id: Option<i64>,
     pub code: String,
     pub name: String,
     pub sks: u8,
-    pub semester: u8,
+    #[serde(default)]
+    pub semester: Option<u8>,
     pub class_capacity: u32,
 }
 
-#[derive(Debug, Clone, Deserialize)]
+#[derive(Debug, Clone, Default, Deserialize)]
 pub struct ClassRow {
     pub course_id: i64,
     pub class_number: u16,
@@ -81,6 +162,13 @@ pub struct ClassRow {
     pub fixed_room_id: Option<i64>,
     #[serde(default)]
     pub fixed_time_slot_id: Option<i64>,
+    #[serde(default)]
+    pub tpb_group_id: Option<i64>,
+    /// Revision: published slot and room per meeting of a class that does not move.
+    #[serde(default)]
+    pub fixed_time_slot_ids: Vec<i64>,
+    #[serde(default)]
+    pub fixed_room_ids: Vec<Option<i64>>,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -183,7 +271,11 @@ pub struct RunSummary {
 pub struct RunResult {
     pub run_id: String,
     pub batch_id: String,
-    pub faculty_id: i64,
+    /// None for a TPB run.
+    pub faculty_id: Option<i64>,
+    /// TPB revision: groups placed again. Sent back with the upload.
+    #[serde(default)]
+    pub revise_group_ids: Vec<i64>,
     pub period: String,
     pub dataset_fingerprint: String,
     pub preset_id: Option<i64>,

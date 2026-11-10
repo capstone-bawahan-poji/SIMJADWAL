@@ -89,6 +89,6 @@ class StudyProgram extends Model
     /** @return BelongsToMany<TpbGroup, $this> */
     public function tpbGroups(): BelongsToMany
     {
-        return $this->belongsToMany(TpbGroup::class, 'tpb_group_study_programs')->withTimestamps();
+        return $this->belongsToMany(TpbGroup::class, 'tpb_group_study_programs')->withPivot('target_semester')->withTimestamps();
     }
 }

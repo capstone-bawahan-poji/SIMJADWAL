@@ -52,9 +52,10 @@ pub struct Storage {
 }
 
 impl Storage {
-    pub fn new(app_data_dir: &Path) -> Self {
+    /// Runs live in `runs/user-<id>/`, so each account on this machine has its own history.
+    pub fn new(app_data_dir: &Path, user_id: i64) -> Self {
         Self {
-            root: app_data_dir.join("runs"),
+            root: app_data_dir.join("runs").join(format!("user-{user_id}")),
         }
     }
 
@@ -176,7 +177,8 @@ mod tests {
             result: RunResult {
                 run_id: run.into(),
                 batch_id: batch.into(),
-                faculty_id: 1,
+                faculty_id: Some(1),
+                revise_group_ids: Vec::new(),
                 period: "2026/2027-GANJIL".into(),
                 dataset_fingerprint: "sha256:x".into(),
                 preset_id: None,
@@ -210,7 +212,7 @@ mod tests {
     #[test]
     fn saves_lists_updates_and_deletes_runs() {
         let dir = temp_dir("storage");
-        let storage = Storage::new(&dir);
+        let storage = Storage::new(&dir, 1);
         storage.save(&record("b1", "r1", 1)).unwrap();
         storage.save(&record("b1", "r2", 2)).unwrap();
 
@@ -244,7 +246,7 @@ mod tests {
 
     #[test]
     fn rejects_ids_that_could_escape_the_folder() {
-        let storage = Storage::new(&temp_dir("escape"));
+        let storage = Storage::new(&temp_dir("escape"), 1);
         assert!(storage.load("../secret").is_err());
         assert!(storage.save(&record("..", "r1", 1)).is_err());
     }

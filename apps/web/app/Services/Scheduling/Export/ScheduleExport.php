@@ -26,7 +26,14 @@ readonly class ScheduleExport
         public Collection $details,
         public Collection $timeSlots,
         public Carbon $generatedAt,
+        /** @var array<string, string> "courseId:classNumber" => TpbCohort value, TPB classes only */
+        public array $cohorts = [],
     ) {}
+
+    public function cohortOf(ScheduleDetail $detail): ?string
+    {
+        return $this->cohorts["{$detail->course_id}:{$detail->class_number}"] ?? null;
+    }
 
     public function matrix(): ScheduleMatrix
     {

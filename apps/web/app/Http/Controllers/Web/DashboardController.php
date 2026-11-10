@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Web;
 use App\Enums\Account\Role;
 use App\Services\Dashboard\FacultyDashboardService;
 use App\Services\Dashboard\StudyProgramDashboardService;
+use App\Services\Dashboard\TpbDashboardService;
 use App\Services\MasterData\DashboardStatsService;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
@@ -16,6 +17,7 @@ class DashboardController extends InertiaController
         private readonly DashboardStatsService $dashboardStatsService,
         private readonly FacultyDashboardService $facultyDashboard,
         private readonly StudyProgramDashboardService $studyProgramDashboard,
+        private readonly TpbDashboardService $tpbDashboard,
     ) {}
 
     /**
@@ -32,6 +34,9 @@ class DashboardController extends InertiaController
             ]),
             $user->hasRole(Role::FACULTY_ADMIN->value) => Inertia::render('Fakultas/Dashboard', [
                 'dashboard' => fn () => $this->facultyDashboard->get($user->faculty_id),
+            ]),
+            $user->hasRole(Role::TPB_ADMIN->value) => Inertia::render('Tpb/Dashboard', [
+                'dashboard' => fn () => $this->tpbDashboard->get(),
             ]),
             $user->hasRole(Role::LECTURER->value) => Inertia::render('Dosen/Dashboard'),
             default => Inertia::render('Dashboard', [

@@ -13,14 +13,16 @@ return new class extends Migration
             $table->id();
             $table->foreignId('course_id')->index()->constrained()->restrictOnDelete();
             $table->smallInteger('class_number');
-            $table->foreignId('lecturer_id')->index()->constrained()->restrictOnDelete();
-            // TPB classes only: the group fixes the slot, the room is allocated by hand.
+            $table->foreignId('lecturer_id')->nullable()->index()->constrained()->restrictOnDelete();
+            $table->foreignId('tpb_offering_id')->nullable()->index()->constrained()->restrictOnDelete();
             $table->foreignId('tpb_group_id')->nullable()->index()->constrained()->restrictOnDelete();
-            $table->foreignId('room_id')->nullable()->index()->constrained()->restrictOnDelete();
             $table->timestamps();
-
-            $table->unique(['course_id', 'class_number']);
         });
+
+        DB::statement('CREATE UNIQUE INDEX uq_course_lecturers_class ON course_lecturers (course_id, class_number) WHERE tpb_offering_id IS NULL');
+        DB::statement('CREATE UNIQUE INDEX uq_course_lecturers_tpb_class ON course_lecturers (tpb_offering_id, class_number) WHERE tpb_offering_id IS NOT NULL');
+        DB::statement('ALTER TABLE course_lecturers ADD CONSTRAINT chk_course_lecturers_tpb CHECK ((tpb_offering_id IS NULL) = (tpb_group_id IS NULL))');
+        DB::statement('ALTER TABLE course_lecturers ADD CONSTRAINT chk_course_lecturers_lecturer CHECK (lecturer_id IS NOT NULL OR tpb_offering_id IS NOT NULL)');
 
         DB::statement('ALTER TABLE course_lecturers ADD CONSTRAINT chk_course_lecturers_class_number CHECK (class_number >= 1)');
     }

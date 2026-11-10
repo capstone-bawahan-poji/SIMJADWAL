@@ -2,19 +2,22 @@
 
 namespace App\Data\MasterData;
 
+use App\Enums\MasterData\TpbCohort;
 use App\Models\MasterData\TpbGroup;
 use Spatie\LaravelData\Data;
 
 class TpbGroupFormData extends Data
 {
     /**
-     * @param  list<int>  $studyProgramIds  participating programs, from any faculty
+     * @param  array<int, int|null>  $participants  study_program_id => target semester (null for mengulang)
+     * @param  list<int>  $classNumbers
      */
     public function __construct(
-        public int $courseId,
+        public int $tpbOfferingId,
         public string $code,
-        public ?int $timeSlotId,
-        public array $studyProgramIds,
+        public TpbCohort $cohort,
+        public array $participants,
+        public array $classNumbers,
     ) {}
 
     /**
@@ -22,13 +25,18 @@ class TpbGroupFormData extends Data
      */
     public static function fromInput(array $input, ?TpbGroup $current = null): self
     {
+        $participants = array_key_exists('study_programs', $input)
+            ? collect($input['study_programs'])->mapWithKeys(fn (array $row) => [
+                (int) $row['id'] => isset($row['target_semester']) ? (int) $row['target_semester'] : null,
+            ])->all()
+            : collect($current?->participants ?? [])->mapWithKeys(fn (array $row) => [$row['study_program_id'] => $row['target_semester']])->all();
+
         return new self(
-            courseId: (int) ($input['course_id'] ?? $current?->course_id),
+            tpbOfferingId: (int) ($input['tpb_offering_id'] ?? $current?->tpb_offering_id),
             code: $input['code'] ?? $current?->code,
-            timeSlotId: array_key_exists('time_slot_id', $input)
-                ? ($input['time_slot_id'] === null ? null : (int) $input['time_slot_id'])
-                : $current?->time_slot_id,
-            studyProgramIds: array_map('intval', $input['study_program_ids'] ?? $current?->studyPrograms->modelKeys() ?? []),
+            cohort: isset($input['cohort']) ? TpbCohort::from($input['cohort']) : $current?->cohort,
+            participants: $participants,
+            classNumbers: array_map('intval', $input['class_numbers'] ?? $current?->class_numbers ?? []),
         );
     }
 }

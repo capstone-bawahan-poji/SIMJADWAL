@@ -5,7 +5,6 @@ namespace Tests\Feature\MasterData;
 use App\Models\MasterData\Course;
 use App\Models\MasterData\CourseLecturer;
 use App\Models\MasterData\Lecturer;
-use App\Models\MasterData\Room;
 use App\Models\MasterData\StudyProgram;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -57,16 +56,15 @@ class TeachingAssignmentApiTest extends TestCase
             ->assertJsonPath('errors.class_number.0', 'Mata kuliah ini hanya punya 2 kelas.');
     }
 
-    public function test_regular_class_takes_no_group_or_room(): void
+    public function test_tpb_classes_are_created_by_their_group_not_here(): void
     {
-        Sanctum::actingAs(User::factory()->studyProgramAdmin($this->program)->create());
+        Sanctum::actingAs(User::factory()->tpbAdmin()->create());
 
         $this->postJson('/api/v1/teaching-assignments', [
-            'course_id' => $this->course->id,
+            'course_id' => Course::factory()->tpb()->create()->id,
             'class_number' => 1,
             'lecturer_id' => Lecturer::factory()->create()->id,
-            'room_id' => Room::factory()->shared()->create()->id,
-        ])->assertUnprocessable()->assertJsonValidationErrors('room_id');
+        ])->assertUnprocessable()->assertJsonValidationErrors('course_id');
     }
 
     public function test_program_admin_sees_and_changes_only_own_assignments(): void

@@ -38,7 +38,8 @@ export interface Violation {
 export interface RunResult {
   run_id: string;
   batch_id: string;
-  faculty_id: number;
+  faculty_id: number | null;
+  revise_group_ids?: number[];
   period: string;
   dataset_fingerprint: string;
   preset_id: number | null;

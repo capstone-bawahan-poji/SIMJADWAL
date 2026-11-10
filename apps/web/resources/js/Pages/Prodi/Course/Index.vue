@@ -33,7 +33,6 @@ function refresh(message: string): void {
     void reload();
 }
 
-// Create / edit modal.
 const isModalOpen = ref(false);
 const editing = ref<Course | null>(null);
 const form = useApiForm(() => ({
@@ -58,9 +57,9 @@ function openEdit(course: Course): void {
         code: course.code,
         name: course.name,
         sks: course.sks,
-        semester: course.semester,
-        parallel_class_count: course.parallel_class_count,
-        class_capacity: course.class_capacity,
+        semester: course.semester ?? 1,
+        parallel_class_count: course.parallel_class_count ?? 1,
+        class_capacity: course.class_capacity ?? 50,
         is_active: course.is_active,
     });
     isModalOpen.value = true;
@@ -84,7 +83,6 @@ async function save(): Promise<void> {
     }
 }
 
-// Delete; refused with 409 while classes are mapped or scheduled.
 const deleteTarget = ref<Course | null>(null);
 const deleteProcessing = ref(false);
 const deleteError = ref<string | null>(null);

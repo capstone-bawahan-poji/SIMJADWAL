@@ -54,6 +54,11 @@ export function toApiError(error: unknown): ApiError {
         };
     }
 
+    // A thrown JS error (not an HTTP or network failure) must not pose as a connection problem.
+    if (!(error instanceof AxiosError)) {
+        return { status: 0, message: `Terjadi kesalahan pada aplikasi: ${error instanceof Error ? error.message : 'tidak diketahui'}`, code: 'CLIENT_ERROR', errors: {} };
+    }
+
     return { status: 0, message: 'Tidak dapat terhubung ke server.', code: 'NETWORK_ERROR', errors: {} };
 }
 

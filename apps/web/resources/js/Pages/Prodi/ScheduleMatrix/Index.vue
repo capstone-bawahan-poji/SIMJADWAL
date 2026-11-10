@@ -72,7 +72,7 @@ const failure = ref<ApiError | null>(null);
 const referencesFailure = ref<ApiError | null>(null);
 const overrideTarget = ref<ScheduleDetailBase | null>(null);
 let scheduleRequest = 0;
-// "Periode berjalan" ('') resolves to the current period so its parity still applies.
+
 const semesterOptions = useSemesterOptions(
     () => filters.period || periods.value.find((period) => period.is_current)?.code || '',
     toRef(filters, 'semester'),

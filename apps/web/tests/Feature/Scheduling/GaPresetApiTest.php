@@ -176,4 +176,12 @@ class GaPresetApiTest extends TestCase
         $this->assertSame(2, GaParameterPreset::query()->where('faculty_id', $this->faculty->id)->count());
         $this->assertDatabaseHas('ga_parameter_presets', ['faculty_id' => $this->faculty->id, 'name' => 'Preset 2 (TSR)', 'selection_operator' => 'TSR']);
     }
+
+    public function test_tpb_admin_lists_and_creates_tpb_presets_without_faculty(): void
+    {
+        $this->seed(\Database\Seeders\Reference\GaPresetSeeder::class);
+        Sanctum::actingAs(User::factory()->tpbAdmin()->create());
+
+        $this->getJson('/api/v1/ga-presets')->assertOk()->assertJsonCount(2, 'data')->assertJsonPath('data.0.faculty_id', null);
+    }
 }

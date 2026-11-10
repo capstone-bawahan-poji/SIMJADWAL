@@ -27,7 +27,6 @@ const { filters, items: courses, pagination, page, loading, error, reload: reloa
     ['course_lecturers'],
 );
 
-// One lecturer per class. Lecturers and assignments of one program are few, so load them whole.
 const lecturers = ref<Lecturer[]>([]);
 const assignments = ref<TeachingAssignment[]>([]);
 const loadError = ref<string | null>(null);
@@ -54,8 +53,8 @@ function openEdit(course: Course): void {
     editing.value = course;
     courseForm.reset({
         sks: course.sks,
-        class_capacity: course.class_capacity,
-        parallel_class_count: course.parallel_class_count,
+        class_capacity: course.class_capacity ?? 50,
+        parallel_class_count: course.parallel_class_count ?? 1,
     });
 }
 
@@ -86,7 +85,6 @@ async function loadMapping(): Promise<void> {
     }
 }
 
-// Lecturers do not change while mapping, so a save only refreshes the assignments.
 async function reloadAssignments(): Promise<void> {
     try {
         assignments.value = await fetchAssignments();
@@ -131,6 +129,7 @@ const loads = computed(() => {
     const totals = new Map<number, { classes: number; sks: number }>();
 
     for (const a of assignments.value) {
+        if (a.lecturer_id === null) continue;
         const row = totals.get(a.lecturer_id) ?? { classes: 0, sks: 0 };
         row.classes++;
         row.sks += a.course.sks;

@@ -2,10 +2,12 @@
 
 namespace App\Services\Scheduling\Export;
 
+use App\Enums\Account\Role;
 use App\Exceptions\Shared\ApiException;
 use App\Models\MasterData\CourseLecturer;
 use App\Models\MasterData\Faculty;
 use App\Models\MasterData\Lecturer;
+use App\Models\MasterData\Room;
 use App\Models\MasterData\StudyProgram;
 use App\Models\MasterData\TimeSlot;
 use App\Models\Scheduling\ScheduleDetail;
@@ -17,6 +19,7 @@ use Illuminate\Contracts\Container\Container;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Response;
+use Illuminate\Support\Collection as SupportCollection;
 use Illuminate\Support\Str;
 
 /**
@@ -25,11 +28,15 @@ use Illuminate\Support\Str;
  */
 readonly class ScheduleExportService
 {
-    /** format => exporter class */
     public const FORMATS = [
         'xlsx' => XlsxScheduleExporter::class,
         'pdf' => PdfScheduleExporter::class,
         'ics' => IcsScheduleExporter::class,
+    ];
+
+    public const ROOM_GRID_FORMATS = [
+        'xlsx' => RoomGridXlsxExporter::class,
+        'pdf' => RoomGridPdfExporter::class,
     ];
 
     public function __construct(
@@ -44,6 +51,8 @@ readonly class ScheduleExportService
     {
         $runs = $this->queryService->visibleRuns($actor, $period)
             ->when($filters['faculty_id'] ?? null, fn (Builder $q, int $id) => $q->where('faculty_id', $id))
+            ->when(($filters['scope'] ?? null) === 'tpb', fn (Builder $q) => $q->whereNull('faculty_id'))
+            ->when(($filters['scope'] ?? null) === 'faculty', fn (Builder $q) => $q->whereNotNull('faculty_id'))
             ->get(['id', 'published_at']);
 
         $file = $this->render($runs, $period, $filters, $format, true);
@@ -51,6 +60,71 @@ readonly class ScheduleExportService
         return new Response($file['content'], 200, [
             'Content-Type' => $file['content_type'],
             'Content-Disposition' => 'attachment; filename="'.$file['filename'].'"',
+            'Cache-Control' => 'no-store',
+        ]);
+    }
+
+    public function roomGrid(User $actor, string $period, ?string $scope, ?int $facultyId): ?RoomGridExport
+    {
+        [$scope, $facultyId, $mode] = match (true) {
+            $actor->hasRole(Role::SUPER_ADMIN->value) => [$scope, $facultyId, ExportColors::MODE_SUPERADMIN],
+            $actor->hasRole(Role::TPB_ADMIN->value) => ['tpb', null, ExportColors::MODE_TPB],
+            $actor->hasRole(Role::FACULTY_ADMIN->value) => ['faculty', $actor->faculty_id, ExportColors::MODE_FACULTY],
+            default => throw ApiException::invalidState(__('Your role cannot export the room grid.')),
+        };
+
+        $runs = $this->queryService->publishedRuns($period)
+            ->when($facultyId, fn (Builder $q, int $id) => $q->where('faculty_id', $id))
+            ->when($scope === 'tpb', fn (Builder $q) => $q->whereNull('faculty_id'))
+            ->when($scope === 'faculty', fn (Builder $q) => $q->whereNotNull('faculty_id'))
+            ->get(['id']);
+
+        $details = $this->queryService->details($runs->modelKeys(), [])->get();
+        if ($details->isEmpty()) {
+            return null;
+        }
+
+        // TPB only uses the shared rooms; a faculty also its own. A superadmin sees every room.
+        $rooms = Room::query()
+            ->when($scope === 'tpb', fn (Builder $q) => $q->whereNull('faculty_id'))
+            ->when($scope === 'faculty' && $facultyId, fn (Builder $q) => $q->where(fn (Builder $q) => $q->whereNull('faculty_id')->orWhere('faculty_id', $facultyId)))
+            ->get();
+        $missing = $details->pluck('room_id')->filter()->unique()->diff($rooms->modelKeys());
+        if ($missing->isNotEmpty()) {
+            $rooms = $rooms->concat(Room::query()->withTrashed()->whereIn('id', $missing)->get());
+        }
+
+        $faculty = $facultyId ? Faculty::query()->find($facultyId) : null;
+        $label = match (true) {
+            $scope === 'tpb' => 'TPB',
+            $faculty !== null => __('Faculty').' '.$faculty->code,
+            $scope === 'faculty' => __('Faculty'),
+            default => __('TPB and faculty'),
+        };
+
+        $facultyCodes = StudyProgram::query()->join('faculties', 'faculties.id', '=', 'study_programs.faculty_id')
+            ->pluck('faculties.code', 'study_programs.id')->all();
+
+        return new RoomGridExport(
+            title: __('All schedules').' '.$label,
+            subtitle: __('Period').' '.Period::label($period).' · '.__('Published schedule'),
+            filename: Str::slug('seluruh jadwal '.($scope === 'tpb' ? 'tpb' : ($faculty?->code ?? ($scope === 'faculty' ? 'fakultas' : 'tpb fakultas'))).' '.str_replace('/', '-', $period)),
+            grid: new RoomGrid($details, TimeSlot::query()->orderBy('day')->orderBy('session')->get(), $rooms, $mode, $facultyCodes),
+            generatedAt: now(IcsScheduleExporter::TIMEZONE),
+        );
+    }
+
+    public function exportRoomGrid(User $actor, string $period, ?string $scope, ?int $facultyId, string $format): Response
+    {
+        $export = $this->roomGrid($actor, $period, $scope, $facultyId)
+            ?? throw ApiException::invalidState(__('There is no published schedule to export.'));
+
+        /** @var RoomGridExporter $exporter */
+        $exporter = $this->container->make(self::ROOM_GRID_FORMATS[$format]);
+
+        return new Response($exporter->render($export), 200, [
+            'Content-Type' => $exporter->contentType(),
+            'Content-Disposition' => 'attachment; filename="'.$export->filename.'.'.$exporter->extension().'"',
             'Cache-Control' => 'no-store',
         ]);
     }
@@ -106,6 +180,7 @@ readonly class ScheduleExportService
             details: $details,
             timeSlots: TimeSlot::query()->orderBy('day')->orderBy('session')->get(),
             generatedAt: now(IcsScheduleExporter::TIMEZONE),
+            cohorts: $this->cohorts($details, $period),
         );
 
         /** @var ScheduleExporter $exporter */
@@ -116,6 +191,29 @@ readonly class ScheduleExportService
             'content_type' => $exporter->contentType(),
             'filename' => $export->filename.'.'.$exporter->extension(),
         ];
+    }
+
+    /**
+     * Cohort of every TPB class in the export, for the colours of the PDF matrix.
+     *
+     * @param  SupportCollection<int, ScheduleDetail>  $details
+     * @return array<string, string>
+     */
+    private function cohorts(SupportCollection $details, string $period): array
+    {
+        $courseIds = $details->filter(fn (ScheduleDetail $d) => $d->course->is_tpb)->pluck('course_id')->unique();
+        if ($courseIds->isEmpty()) {
+            return [];
+        }
+
+        return CourseLecturer::query()
+            ->with('tpbGroup:id,cohort')
+            ->whereIn('course_id', $courseIds)
+            ->whereRelation('tpbOffering', 'period', $period)
+            ->get()
+            ->filter(fn (CourseLecturer $class) => $class->tpbGroup !== null)
+            ->mapWithKeys(fn (CourseLecturer $class) => ["{$class->course_id}:{$class->class_number}" => $class->tpbGroup->cohort->value])
+            ->all();
     }
 
     /**
@@ -139,6 +237,8 @@ readonly class ScheduleExportService
         } elseif ($faculty = $this->find(Faculty::class, $filters['faculty_id'] ?? null)) {
             $title = __('Class schedule').' · '.$faculty->name;
             $slug[] = $faculty->code;
+        } elseif (($filters['scope'] ?? null) === 'tpb') {
+            $title = __('TPB schedule');
         } else {
             $title = __('Class schedule');
         }

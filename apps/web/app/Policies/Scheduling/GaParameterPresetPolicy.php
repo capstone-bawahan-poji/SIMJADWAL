@@ -8,7 +8,8 @@ use App\Models\User;
 use App\Permissions\Scheduling\GaPresetPermissions;
 
 /**
- * A faculty admin manages the presets of their own faculty. superadmin passes through Gate::before.
+ * A faculty admin manages the presets of their own faculty, admin_tpb the TPB presets (faculty null).
+ * superadmin passes through Gate::before.
  */
 class GaParameterPresetPolicy
 {
@@ -24,14 +25,12 @@ class GaParameterPresetPolicy
      */
     public function viewFaculty(User $user, ?int $facultyId = null): bool
     {
-        return $user->can(GaPresetPermissions::VIEW)
-            && $facultyId !== null
-            && $this->orgScope->canAccessFaculty($user, $facultyId);
+        return $user->can(GaPresetPermissions::VIEW) && $this->orgScope->canAccessScheduleScope($user, $facultyId);
     }
 
     public function view(User $user, GaParameterPreset $preset): bool
     {
-        return $user->can(GaPresetPermissions::VIEW) && $this->orgScope->canAccessFaculty($user, $preset->faculty_id);
+        return $user->can(GaPresetPermissions::VIEW) && $this->orgScope->canAccessScheduleScope($user, $preset->faculty_id);
     }
 
     /**
@@ -39,18 +38,16 @@ class GaParameterPresetPolicy
      */
     public function create(User $user, ?int $facultyId = null): bool
     {
-        return $user->can(GaPresetPermissions::CREATE)
-            && $facultyId !== null
-            && $this->orgScope->canAccessFaculty($user, $facultyId);
+        return $user->can(GaPresetPermissions::CREATE) && $this->orgScope->canAccessScheduleScope($user, $facultyId);
     }
 
     public function update(User $user, GaParameterPreset $preset): bool
     {
-        return $user->can(GaPresetPermissions::UPDATE) && $this->orgScope->canAccessFaculty($user, $preset->faculty_id);
+        return $user->can(GaPresetPermissions::UPDATE) && $this->orgScope->canAccessScheduleScope($user, $preset->faculty_id);
     }
 
     public function delete(User $user, GaParameterPreset $preset): bool
     {
-        return $user->can(GaPresetPermissions::DELETE) && $this->orgScope->canAccessFaculty($user, $preset->faculty_id);
+        return $user->can(GaPresetPermissions::DELETE) && $this->orgScope->canAccessScheduleScope($user, $preset->faculty_id);
     }
 }

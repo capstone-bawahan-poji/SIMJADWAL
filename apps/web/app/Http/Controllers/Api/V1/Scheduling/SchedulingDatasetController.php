@@ -15,8 +15,9 @@ class SchedulingDatasetController extends ApiController
     public function show(ShowSchedulingDatasetRequest $request): JsonResponse
     {
         return $this->response($this->datasetService->build(
-            faculty: Faculty::query()->findOrFail($request->facultyId()),
+            faculty: $request->facultyId() === null ? null : Faculty::query()->findOrFail($request->facultyId()),
             period: $request->period(),
+            reviseGroupIds: array_map('intval', $request->validated('revise_group_ids') ?? []),
         ));
     }
 }

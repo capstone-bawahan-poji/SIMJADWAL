@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { tpbConstraintTypes } from '@/lib/tpb';
 import { computed, ref, watch } from 'vue';
 import PageHeader from '@/components/layout/PageHeader.vue';
 import Alert from '@/components/ui/Alert.vue';
@@ -60,9 +61,9 @@ const dataSummary = computed(() => {
   ];
 });
 
-watch(() => dataset.value?.faculty.id, async (id) => {
-  if (!id) return;
-  await loadPresets(id);
+watch(() => (dataset.value ? `${dataset.value.scope}:${dataset.value.faculty?.id ?? ''}` : null), async (key) => {
+  if (!key || !dataset.value) return;
+  await loadPresets(dataset.value.faculty?.id ?? null);
   if (!presets.value.some((p) => p.id === presetId.value)) {
     const operator = period.value?.endsWith('-GENAP') ? 'TSR' : 'TS';
     const preset = presets.value.find((p) => p.selection_operator === operator) ?? presets.value[0];
@@ -87,12 +88,16 @@ watch(() => dataset.value?.faculty.id, async (id) => {
     </Card>
 
     <template v-else>
-      <PresetBar :faculty-id="dataset.faculty.id" :super-admin="isSuperAdmin" />
+      <PresetBar :faculty-id="dataset.faculty?.id ?? null" :super-admin="isSuperAdmin" />
 
       <div class="grid grid-cols-[minmax(0,1fr)_320px] items-start gap-6">
         <div class="flex min-w-0 flex-col gap-6">
           <ParameterForm />
-          <ConstraintWeights :constraint-types="dataset.constraint_types" :programs="dataset.study_programs" />
+          <ConstraintWeights
+            :constraint-types="dataset.scope === 'tpb' ? tpbConstraintTypes(dataset) : dataset.constraint_types"
+            :programs="dataset.scope === 'tpb' ? [] : dataset.study_programs"
+            :tpb="dataset.scope === 'tpb'"
+          />
         </div>
 
         <aside class="sticky top-8">

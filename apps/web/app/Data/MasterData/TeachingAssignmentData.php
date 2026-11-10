@@ -10,7 +10,7 @@ use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
  * One class of a course and its lecturer (a course_lecturers row). class_label is A, B, ...
- * tpb_group_id and room are filled for TPB classes only.
+ * tpb_offering_id and tpb_group_id are filled for TPB classes only. A TPB class may have no lecturer yet.
  */
 #[TypeScript]
 #[MapName(SnakeCaseMapper::class)]
@@ -21,12 +21,11 @@ class TeachingAssignmentData extends BaseData
         public int $courseId,
         public int $classNumber,
         public string $classLabel,
-        public int $lecturerId,
+        public ?int $lecturerId,
+        public ?int $tpbOfferingId,
         public ?int $tpbGroupId,
-        public ?int $roomId,
         public CourseSummaryData $course,
-        public LecturerSummaryData $lecturer,
-        public ?RoomSummaryData $room,
+        public ?LecturerSummaryData $lecturer,
         #[FromPolicy('update')]
         public bool $canUpdate = false,
         #[FromPolicy('delete')]
@@ -35,6 +34,6 @@ class TeachingAssignmentData extends BaseData
 
     public static function relations(): array
     {
-        return ['course.studyProgram', 'lecturer', 'room'];
+        return ['course.studyProgram', 'lecturer'];
     }
 }

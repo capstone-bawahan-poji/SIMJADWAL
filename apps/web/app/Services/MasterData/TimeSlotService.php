@@ -76,7 +76,6 @@ readonly class TimeSlotService
     {
         $this->referenceGuard->ensureUnused([
             ReferenceType::LECTURER_PREFERENCES->value => $timeSlot->lecturerPreferences()->count(),
-            ReferenceType::TPB_GROUPS->value => $timeSlot->tpbGroups()->count(),
             ReferenceType::SCHEDULES->value => $timeSlot->scheduleDetails()->count(),
         ]);
     }

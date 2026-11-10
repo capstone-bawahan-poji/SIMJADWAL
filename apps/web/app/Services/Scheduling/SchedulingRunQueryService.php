@@ -3,6 +3,7 @@
 namespace App\Services\Scheduling;
 
 use App\Contracts\Account\ResolvesOrgScope;
+use App\Enums\Account\Role;
 use App\Enums\Constraint\ConstraintCategory;
 use App\Models\Scheduling\ScheduleDetail;
 use App\Models\Scheduling\SchedulingRun;
@@ -13,16 +14,24 @@ use Illuminate\Database\Eloquent\Builder;
 
 readonly class SchedulingRunQueryService
 {
-    public function __construct(private ResolvesOrgScope $orgScope) {}
+    public function __construct(
+        private ResolvesOrgScope $orgScope,
+        private TpbRunResolver $tpbRuns,
+    ) {}
 
     /**
+     * $tpb lists the TPB runs (faculty null). admin_tpb only ever sees those.
+     *
      * @return LengthAwarePaginator<int, array<string, mixed>>
      */
-    public function getRuns(User $actor, ?int $facultyId, ?string $period, ?string $batchId, int $perPage, ?bool $isActive = null): LengthAwarePaginator
+    public function getRuns(User $actor, ?int $facultyId, ?string $period, ?string $batchId, int $perPage, ?bool $isActive = null, bool $tpb = false): LengthAwarePaginator
     {
+        $tpb = $tpb || $actor->role === Role::TPB_ADMIN;
+
         return $this->summaryQuery()
             ->tap(fn (Builder $query) => $this->orgScope->applyFacultyScope($query, $actor))
-            ->when($facultyId, fn (Builder $query) => $query->where('faculty_id', $facultyId))
+            ->when($tpb, fn (Builder $query) => $query->whereNull('faculty_id'))
+            ->when(! $tpb && $facultyId, fn (Builder $query) => $query->where('faculty_id', $facultyId))
             ->when($period, fn (Builder $query) => $query->where('period', $period))
             ->when($batchId, fn (Builder $query) => $query->where('batch_id', $batchId))
             ->when($isActive !== null, fn (Builder $query) => $query->where('is_active', $isActive))
@@ -53,7 +62,7 @@ readonly class SchedulingRunQueryService
      */
     public function getScheduleDetails(SchedulingRun $run, ?int $studyProgramId, ?int $day): array
     {
-        return $run->scheduleDetails()
+        return ScheduleDetailTransformer::withTpb($run->scheduleDetails()
             ->with(ScheduleDetailTransformer::relations())
             ->withCount('violationLogs')
             ->when($studyProgramId, fn (Builder $query) => $query->whereHas('course', fn (Builder $q) => $q->where('study_program_id', $studyProgramId)))
@@ -64,7 +73,7 @@ readonly class SchedulingRunQueryService
             ->map(fn (ScheduleDetail $d) => [
                 ...ScheduleDetailTransformer::toArray($d),
                 'violations_count' => $d->violation_logs_count,
-            ])->values()->all();
+            ])->values()->all(), $run->period);
     }
 
     /**
@@ -111,6 +120,9 @@ readonly class SchedulingRunQueryService
             'id' => $run->id,
             'batch_id' => $run->batch_id,
             'faculty' => $run->faculty ? ['id' => $run->faculty->id, 'code' => $run->faculty->code, 'name' => $run->faculty->name] : null,
+            'scope' => $run->faculty_id === null ? 'tpb' : 'faculty',
+            'tpb_run_id' => $run->tpb_run_id,
+            'is_stale' => $this->tpbRuns->isStale($run),
             'period' => $run->period,
             'preset' => $run->preset ? ['id' => $run->preset->id, 'name' => $run->preset->name] : null,
             'status' => $run->status->value,

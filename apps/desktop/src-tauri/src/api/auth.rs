@@ -18,6 +18,7 @@ impl ApiClient {
             .data(self.request(Method::POST, "/auth/login")?.json(&body))
             .await?;
         self.set_token(&auth.token)?;
+        self.set_user_id(Some(auth.user.id));
         Ok(auth.user)
     }
 
@@ -38,8 +39,15 @@ impl ApiClient {
             return Ok(None);
         }
         match self.data(self.request(Method::GET, "/auth/me")?).await {
-            Ok(user) => Ok(Some(user)),
-            Err(e) if e.status == 401 => Ok(None),
+            Ok(user) => {
+                let user: AuthUser = user;
+                self.set_user_id(Some(user.id));
+                Ok(Some(user))
+            }
+            Err(e) if e.status == 401 => {
+                self.set_user_id(None);
+                Ok(None)
+            }
             Err(e) => Err(e),
         }
     }

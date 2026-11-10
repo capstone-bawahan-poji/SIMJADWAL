@@ -12,7 +12,7 @@ use uuid::Uuid;
 use super::engine::{self, Progress};
 use super::fitness::Score;
 use super::model::{BatchRequest, RunResult, RunSpec, RunSummary, ScheduleDetail};
-use super::problem::{Problem, HC1, HC2, HC3, HC4, SC_HINDARI, SC_INGIN, SC_SKS};
+use super::problem::{Problem, HC1, HC2, HC3, HC4, SC_HINDARI, SC_INGIN, SC_SKS, SC_ULANG};
 use super::{rooms, violations};
 use crate::error::AppError;
 
@@ -136,9 +136,9 @@ pub fn run_one(
     let schedule_details: Vec<ScheduleDetail> = problem
         .genes
         .iter()
-        .zip(&outcome.best)
         .zip(&room_ids)
-        .map(|((gene, &slot), &room_id)| ScheduleDetail {
+        .map(|(gene, &room_id)| (gene, outcome.best[gene.unit], room_id))
+        .map(|(gene, slot, room_id)| ScheduleDetail {
             course_id: gene.course_id,
             class_number: gene.class_number,
             meeting_number: gene.meeting_number,
@@ -154,7 +154,13 @@ pub fn run_one(
     RunResult {
         run_id: spec.run_id.clone(),
         batch_id: batch_id.to_string(),
-        faculty_id: request.dataset.faculty.id,
+        faculty_id: request.dataset.faculty.as_ref().map(|f| f.id),
+        revise_group_ids: request
+            .dataset
+            .revision
+            .as_ref()
+            .map(|r| r.revise_group_ids.clone())
+            .unwrap_or_default(),
         period: request.dataset.period.clone(),
         dataset_fingerprint: request.dataset.fingerprint.clone(),
         preset_id: request.config.preset_id,
@@ -220,7 +226,7 @@ fn snapshot(
                     .unwrap_or(0.0)
             })
     };
-    let weights: HashMap<&str, f64> = [HC1, HC2, HC3, HC4, SC_INGIN, SC_HINDARI, SC_SKS]
+    let weights: HashMap<&str, f64> = [HC1, HC2, HC3, HC4, SC_INGIN, SC_HINDARI, SC_SKS, SC_ULANG]
         .into_iter()
         .map(|code| (code, weight(code)))
         .collect();

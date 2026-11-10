@@ -75,8 +75,13 @@ export const NAV_BY_ROLE: Partial<Record<Role, NavItem[]>> = {
     ],
     admin_tpb: [
         dashboard,
-        { ...schedule, label: 'Jadwal Semua Fakultas' },
-        { label: 'Kelola Data TPB', routeName: 'tpb.index', icon: icons.book },
+        { label: 'Jadwal TPB', routeName: 'tpb.schedule.index', icon: icons.matrix },
+        { label: 'Kelola Mata Kuliah', routeName: 'tpb.courses.index', icon: icons.book },
+        { label: 'Kelola Dosen', routeName: 'tpb.lecturers.index', icon: icons.person },
+        { label: 'Mapping Dosen Pengampu', routeName: 'tpb.mappings.index', icon: icons.mapping },
+        { label: 'Penjadwalan GA', routeName: 'tpb.ga.index', icon: icons.bolt },
+        { label: 'Alokasi Ruangan', routeName: 'tpb.rooms.index', icon: icons.room },
+        DOWNLOAD_APP_ITEM,
     ],
     dosen: [
         { label: 'Dashboard Dosen', routeName: 'dashboard', icon: icons.dashboard },

@@ -5,7 +5,7 @@ namespace Tests\Feature\MasterData;
 use App\Models\MasterData\Course;
 use App\Models\MasterData\CourseLecturer;
 use App\Models\MasterData\StudyProgram;
-use App\Models\MasterData\TpbGroup;
+use App\Models\MasterData\TpbOffering;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Laravel\Sanctum\Sanctum;
@@ -40,15 +40,15 @@ class CourseApiTest extends TestCase
     public function test_only_tpb_admin_creates_tpb_course_without_program(): void
     {
         Sanctum::actingAs(User::factory()->studyProgramAdmin($this->program)->create());
-        $this->postJson('/api/v1/courses', $this->payload(['is_tpb' => true, 'study_program_id' => null, 'code' => 'KU2511014']))
+        $this->postJson('/api/v1/courses', $this->tpbPayload())
             ->assertForbidden();
 
         Sanctum::actingAs(User::factory()->tpbAdmin()->create());
-        $this->postJson('/api/v1/courses', $this->payload(['is_tpb' => true, 'study_program_id' => $this->program->id]))
+        $this->postJson('/api/v1/courses', $this->tpbPayload(['study_program_id' => $this->program->id]))
             ->assertUnprocessable()
             ->assertJsonValidationErrors('study_program_id');
 
-        $this->postJson('/api/v1/courses', $this->payload(['is_tpb' => true, 'study_program_id' => null, 'code' => 'KU2511014']))
+        $this->postJson('/api/v1/courses', $this->tpbPayload())
             ->assertCreated()
             ->assertJsonPath('data.is_tpb', true)
             ->assertJsonPath('data.study_program', null);
@@ -146,17 +146,23 @@ class CourseApiTest extends TestCase
         $this->assertSoftDeleted($course);
 
         $tpb = Course::factory()->tpb()->create();
-        TpbGroup::factory()->create(['course_id' => $tpb->id]);
+        TpbOffering::factory()->create(['course_id' => $tpb->id]);
         Sanctum::actingAs(User::factory()->tpbAdmin()->create());
         $this->deleteJson("/api/v1/courses/{$tpb->id}")
             ->assertStatus(409)
-            ->assertJsonPath('errors.references.tpb_groups', 1);
+            ->assertJsonPath('errors.references.tpb_offerings', 1);
     }
 
     /**
      * @param  array<string, mixed>  $overrides
      * @return array<string, mixed>
      */
+    /** A TPB course: no program, semester, class count or capacity. */
+    private function tpbPayload(array $overrides = []): array
+    {
+        return ['is_tpb' => true, 'code' => 'KU2511014', 'name' => 'Agama Islam', 'sks' => 2, ...$overrides];
+    }
+
     private function payload(array $overrides = []): array
     {
         return [

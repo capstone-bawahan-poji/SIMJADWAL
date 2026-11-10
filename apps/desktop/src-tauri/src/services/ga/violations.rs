@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use super::model::Violation;
-use super::problem::{Problem, HC2, HC3, HC4, SC_HINDARI, SC_INGIN, SC_SKS};
+use super::problem::{Problem, HC2, HC3, HC4, SC_HINDARI, SC_INGIN, SC_SKS, SC_ULANG};
 
 const DAYS: [&str; 7] = [
     "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu", "Minggu",
@@ -9,54 +9,79 @@ const DAYS: [&str; 7] = [
 
 pub fn collect(problem: &Problem, chromosome: &[u16]) -> Vec<Violation> {
     let mut out = Vec::new();
+    let slot_of = |gene: usize| problem.slot_of(chromosome, gene);
 
-    for (code, key) in [(HC2, Key::Lecturer), (HC3, Key::Cohort)] {
-        let mut seen: HashMap<(usize, u16), usize> = HashMap::new();
-        for (i, gene) in problem.genes.iter().enumerate() {
-            let k = match key {
-                Key::Lecturer => gene.lecturer,
-                Key::Cohort => gene.cohort,
-            };
-            let slot = chromosome[i];
-            if let Some(&first) = seen.get(&(k, slot)) {
-                let weight = if code == HC2 {
-                    problem.w_hc2
-                } else {
-                    problem.w_hc3
-                };
-                let message = match key {
-                    Key::Lecturer => format!(
-                        "{} bentrok dengan {} pada {} (dosen {} sama)",
-                        label(problem, i),
-                        label(problem, first),
-                        when(problem, slot),
-                        problem.lecturers[gene.lecturer].name
-                    ),
-                    Key::Cohort => format!(
-                        "{} bentrok dengan {} pada {} (semester dan kelas sama)",
-                        label(problem, i),
+    let mut seen: HashMap<(usize, u16), usize> = HashMap::new();
+    for (i, gene) in problem.genes.iter().enumerate() {
+        let slot = slot_of(i);
+        if let Some(&first) = seen.get(&(gene.lecturer, slot)) {
+            out.push(Violation {
+                detail_index: i,
+                constraint_code: HC2.into(),
+                penalty: problem.w_hc2,
+                message: format!(
+                    "{} bentrok dengan {} pada {} (dosen {} sama)",
+                    label(problem, i),
+                    label(problem, first),
+                    when(problem, slot),
+                    problem.lecturers[gene.lecturer].name
+                ),
+            });
+        } else {
+            seen.insert((gene.lecturer, slot), i);
+        }
+    }
+
+    let mut seen: HashMap<(usize, u16), usize> = HashMap::new();
+    for (i, gene) in problem.genes.iter().enumerate() {
+        let Some(cohort) = gene.cohort else { continue };
+        let slot = slot_of(i);
+        if let Some(&first) = seen.get(&(cohort, slot)) {
+            out.push(Violation {
+                detail_index: i,
+                constraint_code: HC3.into(),
+                penalty: problem.w_hc3,
+                message: format!(
+                    "{} bentrok dengan {} pada {} (semester dan kelas sama)",
+                    label(problem, i),
+                    label(problem, first),
+                    when(problem, slot)
+                ),
+            });
+        } else {
+            seen.insert((cohort, slot), i);
+        }
+    }
+    // TPB: one row per extra group meeting a program would attend in the same slot.
+    let mut seen: HashMap<(usize, u16), usize> = HashMap::new();
+    for (unit, &slot) in problem.units.iter().zip(chromosome) {
+        for &cohort in &unit.cohorts {
+            if let Some(&first) = seen.get(&(cohort, slot)) {
+                out.push(Violation {
+                    detail_index: unit.first_gene,
+                    constraint_code: HC3.into(),
+                    penalty: problem.w_hc3,
+                    message: format!(
+                        "{} bentrok dengan {} pada {} (prodi dan semester peserta sama)",
+                        label(problem, unit.first_gene),
                         label(problem, first),
                         when(problem, slot)
                     ),
-                };
-                out.push(Violation {
-                    detail_index: i,
-                    constraint_code: code.into(),
-                    penalty: weight,
-                    message,
                 });
             } else {
-                seen.insert((k, slot), i);
+                seen.insert((cohort, slot), unit.first_gene);
             }
         }
     }
 
     let mut per_program_slot: HashMap<(usize, u16), Vec<usize>> = HashMap::new();
     for (i, gene) in problem.genes.iter().enumerate() {
-        per_program_slot
-            .entry((gene.program, chromosome[i]))
-            .or_default()
-            .push(i);
+        if let Some(program) = gene.program {
+            per_program_slot
+                .entry((program, slot_of(i)))
+                .or_default()
+                .push(i);
+        }
     }
     let mut over: Vec<_> = per_program_slot
         .into_iter()
@@ -78,7 +103,7 @@ pub fn collect(problem: &Problem, chromosome: &[u16]) -> Vec<Violation> {
     }
 
     for (i, gene) in problem.genes.iter().enumerate() {
-        let slot = chromosome[i];
+        let slot = slot_of(i);
         let prefs = &problem.lecturers[gene.lecturer];
         if !prefs.want.is_empty() && !prefs.want[slot as usize] {
             out.push(Violation {
@@ -123,12 +148,27 @@ pub fn collect(problem: &Problem, chromosome: &[u16]) -> Vec<Violation> {
         }
     }
 
-    out
-}
+    for course in &problem.retake {
+        if course
+            .units
+            .iter()
+            .all(|&u| course.blocked[chromosome[u] as usize])
+        {
+            let label = problem
+                .course_labels
+                .get(&course.course_id)
+                .cloned()
+                .unwrap_or_else(|| course.course_id.to_string());
+            out.push(Violation {
+                detail_index: course.first_gene,
+                constraint_code: SC_ULANG.into(),
+                penalty: course.weight,
+                message: format!("Semua kelas {label} berada di slot kelas mengulang TPB prodinya"),
+            });
+        }
+    }
 
-enum Key {
-    Lecturer,
-    Cohort,
+    out
 }
 
 fn label(problem: &Problem, gene: usize) -> String {

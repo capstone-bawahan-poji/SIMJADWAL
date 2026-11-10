@@ -4,47 +4,47 @@
         {
             "nip": "199001012020000241",
             "name": "Afif Taufiiqul Hakim, S.T., M.Sc.",
-            "email": "dosen_Afif@dosen.itk.ac.id"
+            "email": "dosen_Afif@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000242",
             "name": "Arief Nugraha Pontoh, S.T., M.Eng.",
-            "email": "dosen_Arief_Pontoh@dosen.itk.ac.id"
+            "email": "dosen_Arief_Pontoh@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000243",
             "name": "Dr. Hijriah, S.T., M.T.",
-            "email": "dosen_Hijriah@dosen.itk.ac.id"
+            "email": "dosen_Hijriah@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000244",
             "name": "Dwi Aneka Kartini, S.T., M.T.",
-            "email": "dosen_Dwi@dosen.itk.ac.id"
+            "email": "dosen_Dwi@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000245",
             "name": "Fachreza Akbar, S.T., M.T.",
-            "email": "dosen_Fachreza@dosen.itk.ac.id"
+            "email": "dosen_Fachreza@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000246",
             "name": "Oryza Lhara Sari, S.T., M.T.",
-            "email": "dosen_Oryza@dosen.itk.ac.id"
+            "email": "dosen_Oryza@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000247",
             "name": "Priyo Wibisono, S.T., M.T",
-            "email": "dosen_Priyo@dosen.itk.ac.id"
+            "email": "dosen_Priyo@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000248",
             "name": "Raftonado Situmorang, S.T., M.T.",
-            "email": "dosen_Raftonado@dosen.itk.ac.id"
+            "email": "dosen_Raftonado@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000249",
             "name": "Riyan Benny Sukmara, S.T., M.T.",
-            "email": "dosen_Riyan@dosen.itk.ac.id"
+            "email": "dosen_Riyan@lecturer.itk.ac.id"
         }
     ],
     "courses": [
@@ -446,7 +446,7 @@
         },
         {
             "code": "TS2514071",
-            "name": "Kerja Praktek",
+            "name": "Kerja Praktik",
             "sks": 2,
             "semester": 7,
             "classes": [

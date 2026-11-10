@@ -60,6 +60,14 @@ function listenOnce() {
   return listening;
 }
 
+/** Drops the progress of finished batches on sign-out. A batch that is still running is left alone. */
+export function resetGaRunner() {
+  if (running.value) return;
+  batchId.value = null;
+  runs.value = [];
+  error.value = '';
+}
+
 export function useGaRunner() {
   const { dataset } = useDataset();
   const { params, scOverrides, presetId, runMode, multiOperators } = useGaConfig();

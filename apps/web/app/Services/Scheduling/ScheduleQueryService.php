@@ -8,6 +8,7 @@ use App\Models\Scheduling\SchedulingRun;
 use App\Models\User;
 use App\Permissions\Scheduling\SchedulingPermissions;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 
 /**
  * The official schedule of a period: genes of the active run of each faculty.
@@ -35,7 +36,7 @@ readonly class ScheduleQueryService
     public function __construct(private ResolvesOrgScope $orgScope) {}
 
     /**
-     * @param  array<string, mixed>  $filters  keys from FILTERS, FLAGS and classes
+     * @param  array<string, mixed>  $filters  keys from FILTERS, FLAGS, scope and classes
      * @return array{period: string, runs: list<array<string, mixed>>, schedule_details: list<array<string, mixed>>}
      */
     public function getSchedule(User $actor, string $period, array $filters): array
@@ -43,6 +44,8 @@ readonly class ScheduleQueryService
         $runs = $this->visibleRuns($actor, $period)
             ->with('faculty:id,code,name')
             ->when($filters['faculty_id'] ?? null, fn (Builder $q, int $id) => $q->where('faculty_id', $id))
+            ->when(($filters['scope'] ?? null) === 'tpb', fn (Builder $q) => $q->whereNull('faculty_id'))
+            ->when(($filters['scope'] ?? null) === 'faculty', fn (Builder $q) => $q->whereNotNull('faculty_id'))
             ->orderBy('faculty_id')
             ->get();
 
@@ -50,15 +53,16 @@ readonly class ScheduleQueryService
             'period' => $period,
             'runs' => $runs->map(fn (SchedulingRun $run) => [
                 'id' => $run->id,
-                'faculty' => ['id' => $run->faculty->id, 'code' => $run->faculty->code, 'name' => $run->faculty->name],
+                'faculty' => $run->faculty ? ['id' => $run->faculty->id, 'code' => $run->faculty->code, 'name' => $run->faculty->name] : null,
+                'scope' => $run->faculty_id === null ? 'tpb' : 'faculty',
                 'published_at' => $run->published_at?->toIso8601String(),
             ])->values()->all(),
-            'schedule_details' => $this->details($runs->pluck('id')->all(), $filters)
+            'schedule_details' => ScheduleDetailTransformer::withTpb($this->details($runs->pluck('id')->all(), $filters)
                 ->get()
                 ->map(fn (ScheduleDetail $d) => [
                     'scheduling_run_id' => $d->scheduling_run_id,
                     ...ScheduleDetailTransformer::toArray($d),
-                ])->values()->all(),
+                ])->values()->all(), $period),
         ];
     }
 
@@ -80,7 +84,7 @@ readonly class ScheduleQueryService
         $query = SchedulingRun::query()->active()->where('period', $period);
 
         if (! $this->orgScope->readsAllFacultySchedules($actor)) {
-            $this->orgScope->applyFacultyScope($query, $actor);
+            $query->where(fn (Builder $q) => $this->orgScope->applyFacultyScope($q, $actor)->orWhereNull('faculty_id'));
         }
 
         if (! $actor->can(SchedulingPermissions::PUBLISH_RUN)) {
@@ -102,13 +106,11 @@ readonly class ScheduleQueryService
      */
     public function details(array $runIds, array $filters): Builder
     {
-        $course = fn (string $column) => fn (Builder $q, int $value) => $q->whereHas('course', fn (Builder $c) => $c->where($column, $value));
 
         return ScheduleDetail::query()
             ->with(ScheduleDetailTransformer::relations())
             ->whereIn('scheduling_run_id', $runIds)
-            ->when($filters['study_program_id'] ?? null, $course('study_program_id'))
-            ->when($filters['semester'] ?? null, $course('semester'))
+            ->when(isset($filters['study_program_id']) || isset($filters['semester']), fn (Builder $q) => $this->whereProgram($q, $filters['study_program_id'] ?? null, $filters['semester'] ?? null))
             ->when($filters['course_id'] ?? null, fn (Builder $q, int $id) => $q->where('course_id', $id))
             ->when($filters['class_number'] ?? null, fn (Builder $q, int $n) => $q->where('class_number', $n))
             ->when($filters['lecturer_id'] ?? null, fn (Builder $q, int $id) => $q->where('lecturer_id', $id))
@@ -125,5 +127,29 @@ readonly class ScheduleQueryService
             ->when($filters['day'] ?? null, fn (Builder $q, int $day) => $q->whereHas('timeSlot', fn (Builder $t) => $t->where('day', $day)))
             ->orderBy('time_slot_id')
             ->orderBy('id');
+    }
+
+    /**
+     * Regular genes by their course's program and semester. TPB genes by the groups of their class:
+     * a program attends a TPB class when its group lists the program (at that target semester).
+     */
+    private function whereProgram(Builder $query, ?int $studyProgramId, ?int $semester): Builder
+    {
+        return $query->where(fn (Builder $any) => $any
+            ->whereHas('course', fn (Builder $c) => $c
+                ->where('is_tpb', false)
+                ->when($studyProgramId, fn (Builder $c) => $c->where('study_program_id', $studyProgramId))
+                ->when($semester, fn (Builder $c) => $c->where('semester', $semester)))
+            ->orWhereExists(fn (QueryBuilder $sub) => $sub
+                ->selectRaw('1')
+                ->from('course_lecturers')
+                ->join('tpb_offerings', 'tpb_offerings.id', '=', 'course_lecturers.tpb_offering_id')
+                ->join('scheduling_runs', 'scheduling_runs.period', '=', 'tpb_offerings.period')
+                ->join('tpb_group_study_programs', 'tpb_group_study_programs.tpb_group_id', '=', 'course_lecturers.tpb_group_id')
+                ->whereColumn('scheduling_runs.id', 'schedule_details.scheduling_run_id')
+                ->whereColumn('course_lecturers.course_id', 'schedule_details.course_id')
+                ->whereColumn('course_lecturers.class_number', 'schedule_details.class_number')
+                ->when($studyProgramId, fn (QueryBuilder $s) => $s->where('tpb_group_study_programs.study_program_id', $studyProgramId))
+                ->when($semester, fn (QueryBuilder $s) => $s->where('tpb_group_study_programs.target_semester', $semester))));
     }
 }

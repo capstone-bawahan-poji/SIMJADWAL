@@ -1,9 +1,13 @@
 import { computed, readonly, ref } from 'vue';
 import * as auth from '@/lib/api/auth';
+import { resetDataset } from '@/composables/useDataset';
+import { resetGaPresets } from '@/composables/useGaPresets';
+import { resetGaRunner } from '@/composables/useGaRunner';
+import { resetRunSync } from '@/composables/useRunSync';
 import { startChanges, stopChanges } from '@/lib/echo';
 import type { AuthUser, Role } from '@/types';
 
-const DESKTOP_ROLES: Role[] = ['superadmin', 'admin_fakultas'];
+const DESKTOP_ROLES: Role[] = ['superadmin', 'admin_fakultas', 'admin_tpb'];
 const canUseDesktop = (u: AuthUser) => u.role !== null && DESKTOP_ROLES.includes(u.role);
 
 const LEGACY_TOKEN_KEY = 'token';
@@ -19,6 +23,10 @@ function signedIn(me: AuthUser) {
 function forget() {
   user.value = null;
   stopChanges();
+  resetRunSync();
+  resetDataset();
+  resetGaPresets();
+  resetGaRunner();
 }
 
 function readLegacyToken(): string | null {
