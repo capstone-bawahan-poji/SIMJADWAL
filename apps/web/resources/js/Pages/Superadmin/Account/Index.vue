@@ -46,22 +46,21 @@ watch(
 );
 
 // Metric cards: meta.total of filtered lists.
-const metrics = ref({ total: 0, admins: 0, lecturers: 0, students: 0 });
+const metrics = ref({ total: 0, admins: 0, lecturers: 0 });
 const metricsError = ref<ApiError | null>(null);
 
 async function loadMetrics(): Promise<void> {
     metricsError.value = null;
 
     try {
-        const [total, facultyAdmins, programAdmins, tpbAdmins, lecturers, students] = await Promise.all([
+        const [total, facultyAdmins, programAdmins, tpbAdmins, lecturers] = await Promise.all([
             countOf('users'),
             countOf('users', { role: 'admin_fakultas' }),
             countOf('users', { role: 'admin_prodi' }),
             countOf('users', { role: 'admin_tpb' }),
             countOf('users', { role: 'dosen' }),
-            countOf('users', { role: 'mahasiswa', is_active: true }),
         ]);
-        metrics.value = { total, admins: facultyAdmins + programAdmins + tpbAdmins, lecturers, students };
+        metrics.value = { total, admins: facultyAdmins + programAdmins + tpbAdmins, lecturers };
     } catch (error) {
         metricsError.value = toApiError(error);
     }
@@ -93,7 +92,7 @@ const form = useApiForm(() => ({
 }));
 
 const needsFaculty = computed(() => form.data.role === 'admin_fakultas');
-const needsProgram = computed(() => form.data.role === 'admin_prodi' || form.data.role === 'mahasiswa');
+const needsProgram = computed(() => form.data.role === 'admin_prodi');
 const needsLecturer = computed(() => form.data.role === 'dosen');
 
 const formPrograms = computed(() =>
@@ -236,11 +235,10 @@ async function toggleStatus(): Promise<void> {
             <Alert v-if="metricsError" :title="`Gagal memuat ringkasan akun: ${metricsError.message}`" />
 
             <!-- Metrics grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
                 <MetricCard title="Total Pengguna" :value="metrics.total.toLocaleString('id-ID')" unit="Akun" />
                 <MetricCard title="Admin Institusi" :value="metrics.admins.toLocaleString('id-ID')" unit="Admin" />
                 <MetricCard title="Akun Dosen" :value="metrics.lecturers.toLocaleString('id-ID')" unit="Dosen" />
-                <MetricCard title="Mahasiswa Aktif" :value="metrics.students.toLocaleString('id-ID')" unit="Mahasiswa" />
             </div>
 
             <!-- Table & Filters Section -->
@@ -312,7 +310,7 @@ async function toggleStatus(): Promise<void> {
                                         <div>
                                             <p class="font-bold text-gray-900">{{ user.name }}</p>
                                             <p v-if="user.identity_number" class="text-xs text-gray-500">
-                                                {{ user.role === 'mahasiswa' ? 'NIM' : 'NIP' }}. {{ user.identity_number }}
+                                                NIP. {{ user.identity_number }}
                                             </p>
                                         </div>
                                     </div>
@@ -392,7 +390,6 @@ async function toggleStatus(): Promise<void> {
                             <option value="admin_tpb">Admin TPB (Mata Kuliah Bersama Tingkat Institut)</option>
                             <option value="admin_prodi">Koor Prodi (Setup Kurikulum & Jadwal)</option>
                             <option value="dosen">Dosen (Jadwal Mengajar)</option>
-                            <option value="mahasiswa">Mahasiswa (Lihat Jadwal)</option>
                         </select>
                         <p v-if="form.errors.value.role" class="mt-1 text-xs text-red-600">{{ form.errors.value.role }}</p>
                     </div>
