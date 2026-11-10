@@ -9,14 +9,17 @@ import { useCollection } from '@/composables/useApiList';
 import { onResourcesChanged } from '@/composables/useResourceChanges';
 import { api, toApiError, type ApiError } from '@/lib/api';
 import { formatTime } from '@/lib/labels';
-import type { AcademicPeriod, Collection, Paginated, Pagination as PaginationMeta, RunScheduleDetail, SchedulingRunDetail, SchedulingRunSummary, TimeSlot, Violation } from '@/types/models';
+import type { AcademicPeriod, Collection, Paginated, Pagination as PaginationMeta, RunScheduleDetail, ScheduleScope, SchedulingRunDetail, SchedulingRunSummary, TimeSlot, Violation } from '@/types/models';
 import { Head } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 
 type ConfirmAction = 'activate' | 'publish';
 
-const props = withDefaults(defineProps<{ scope?: 'faculty' | 'tpb' }>(), { scope: 'faculty' });
+const props = withDefaults(defineProps<{ scope?: ScheduleScope }>(), { scope: 'faculty' });
 const isTpb = computed(() => props.scope === 'tpb');
+const isProdi = computed(() => props.scope === 'prodi');
+const pageTitle = computed(() => isTpb.value ? 'Penjadwalan GA TPB' : isProdi.value ? 'Penjadwalan GA Prodi' : 'Review Hasil Jadwal GA');
+const pageHeading = computed(() => isTpb.value ? 'Penjadwalan GA TPB' : isProdi.value ? 'Penjadwalan GA per Prodi' : 'Review & tetapkan hasil jadwal GA');
 const DAYS: Record<number, string> = { 1: 'Senin', 2: 'Selasa', 3: 'Rabu', 4: 'Kamis', 5: 'Jumat', 6: 'Sabtu', 7: 'Minggu' };
 const { items: periods, error: periodError } = useCollection<AcademicPeriod>('academic-periods');
 const { items: timeSlots, error: timeSlotError } = useCollection<TimeSlot>('time-slots');
@@ -242,13 +245,13 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
 </script>
 
 <template>
-    <Head :title="isTpb ? 'Penjadwalan GA TPB' : 'Review Hasil Jadwal GA'" />
+    <Head :title="pageTitle" />
     <AppLayout>
         <div class="mx-auto w-full max-w-7xl space-y-10 p-6 md:p-8">
             <header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                    <h1 class="text-2xl font-bold tracking-tight text-gray-900">{{ isTpb ? 'Penjadwalan GA TPB' : 'Review & tetapkan hasil jadwal GA' }}</h1>
-                    <p class="mt-1 text-sm text-gray-600">
+                    <h1 class="text-2xl font-bold tracking-tight text-gray-900">{{ pageHeading }}</h1>
+                    <p v-if="!isProdi" class="mt-1 text-sm text-gray-600">
                         Tinjau hasil run, cek pelanggaran, lalu aktifkan dan publikasikan jadwal.
                         <template v-if="isTpb">Jadwal TPB dibuat paling awal: fakultas baru bisa menjalankan GA setelah jadwal TPB aktif.</template>
                     </p>
@@ -386,10 +389,10 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                     <div>
                         <h2 class="text-lg font-semibold text-gray-900">Detail Run #{{ selectedRun.id }}</h2>
-                        <p class="mt-1 text-sm text-gray-600">{{ selectedRun.faculty?.code ?? 'TPB' }} · {{ selectedRun.period }} · {{ selectedRun.schedule_details_count }} jadwal</p>
+                        <p class="mt-1 text-sm text-gray-600">{{ isProdi ? 'Prodi Anda' : selectedRun.faculty?.code ?? 'TPB' }} · {{ selectedRun.period }} · {{ selectedRun.schedule_details_count }} jadwal</p>
                     </div>
                     <div class="flex flex-wrap gap-2">
-                        <select v-model="programFilter" class="rounded-lg border-gray-200 text-sm" aria-label="Filter prodi">
+                        <select v-if="!isProdi" v-model="programFilter" class="rounded-lg border-gray-200 text-sm" aria-label="Filter prodi">
                             <option value="">Semua prodi</option>
                             <option v-for="program in programs" :key="program.id" :value="String(program.id)">{{ program.code }} · {{ program.name }}</option>
                         </select>

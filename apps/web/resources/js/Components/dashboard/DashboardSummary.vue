@@ -7,7 +7,7 @@ defineProps<{
 
 <template>
     <section class="rounded-[20px] border border-[#DBE2EF] bg-white px-6 py-5" :aria-label="label">
-        <dl class="grid grid-cols-2 gap-y-5 sm:grid-cols-4">
+        <dl class="grid grid-cols-2 gap-y-5" :class="figures.length === 3 ? 'sm:grid-cols-3' : 'sm:grid-cols-4'">
             <div
                 v-for="(figure, index) in figures"
                 :key="figure.label"

@@ -11,14 +11,15 @@ import { usePaginatedList } from '@/composables/useApiList';
 import { onResourcesChanged } from '@/composables/useResourceChanges';
 import { api, toApiError, type ApiError } from '@/lib/api';
 import { queryParam } from '@/lib/query';
-import type { Schedule, ScheduleDetailBase, ScheduleFilters, Room } from '@/types/models';
+import type { Schedule, ScheduleDetailBase, ScheduleFilters, ScheduleScope, Room } from '@/types/models';
 import { Head } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 
 type RoomIssue = Schedule['schedule_details'][number];
 
-const props = withDefaults(defineProps<{ scope?: 'faculty' | 'tpb' }>(), { scope: 'faculty' });
+const props = withDefaults(defineProps<{ scope?: ScheduleScope }>(), { scope: 'faculty' });
 const readonly = computed(() => props.scope === 'tpb');
+const isProdi = computed(() => props.scope === 'prodi');
 
 const { filters: roomFilters, items: rooms, pagination, page, loading: roomsLoading, error: roomError } = usePaginatedList<Room, { q: string; shared: string }>(
     'rooms',
@@ -103,18 +104,18 @@ watch(view, (value) => {
 </script>
 
 <template>
-    <Head title="Alokasi Ruangan" />
+    <Head :title="isProdi ? 'Alokasi Ruangan Prodi' : 'Alokasi Ruangan'" />
     <AppLayout>
         <div class="w-full space-y-6 p-6 md:p-8">
             <div class="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                    <h1 class="text-2xl font-bold tracking-tight text-gray-900">Alokasi Ruangan</h1>
+                    <h1 class="text-2xl font-bold tracking-tight text-gray-900">{{ isProdi ? 'Alokasi Ruangan Prodi' : 'Alokasi Ruangan' }}</h1>
                     <p class="mt-1 text-sm text-gray-500">
-                        {{ readonly ? 'Jadwal TPB aktif' : 'Jadwal aktif' }} periode {{ currentPeriod || 'berjalan' }}.
+                        {{ readonly ? 'Jadwal TPB aktif' : isProdi ? 'Jadwal prodi aktif' : 'Jadwal aktif' }} periode {{ currentPeriod || 'berjalan' }}.
                         <template v-if="readonly">Ruang kelas TPB ditentukan GA; jalankan ulang GA untuk mengubahnya.</template>
                     </p>
                 </div>
-                <RoomGridExportButton :period="currentPeriod || undefined" />
+                <RoomGridExportButton v-if="!isProdi" :period="currentPeriod || undefined" :scope="props.scope" />
             </div>
 
 
@@ -131,7 +132,7 @@ watch(view, (value) => {
                 >{{ item.label }}</button>
             </div>
 
-            <RoomMatrix v-if="view === 'matrix'" :period="currentPeriod || undefined" />
+            <RoomMatrix v-if="view === 'matrix'" :period="currentPeriod || undefined" :scope="props.scope" />
             <template v-else>
             <Alert v-if="flash" variant="success" :title="flash" dismissible @dismiss="flash = null" />
             <Alert v-if="roomError" :title="roomError.message" />
@@ -247,7 +248,7 @@ watch(view, (value) => {
                         :class="[controlClass, 'w-full placeholder-gray-400 md:w-72']"
                     />
                     <p class="text-sm text-gray-500 md:ml-auto">
-                        <span class="font-semibold tabular-nums text-gray-900">{{ pagination.total }}</span> {{ readonly ? 'ruangan ITK' : 'ruangan fakultas' }}
+                        <span class="font-semibold tabular-nums text-gray-900">{{ pagination.total }}</span> {{ readonly ? 'ruangan ITK' : isProdi ? 'ruangan tersedia' : 'ruangan fakultas' }}
                     </p>
                 </div>
 

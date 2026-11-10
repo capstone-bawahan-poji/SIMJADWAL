@@ -3,10 +3,10 @@ import Alert from '@/Components/ui/Alert.vue';
 import Panel from '@/Components/ui/Panel.vue';
 import { onResourcesChanged } from '@/composables/useResourceChanges';
 import { api, toApiError, type ApiError } from '@/lib/api';
-import type { RoomGridData } from '@/types/models';
+import type { RoomGridData, ScheduleScope } from '@/types/models';
 import { computed, ref, watch } from 'vue';
 
-const props = defineProps<{ period?: string }>();
+const props = defineProps<{ period?: string; scope?: ScheduleScope }>();
 
 const data = ref<RoomGridData | null>(null);
 const loading = ref(false);
@@ -66,7 +66,7 @@ async function load(): Promise<void> {
     const id = ++requestId;
     loading.value = true;
     try {
-        const response = await api.get<{ data: RoomGridData | null }>('schedules/room-grid', { params: props.period ? { period: props.period } : {} });
+        const response = await api.get<{ data: RoomGridData | null }>('schedules/room-grid', { params: { period: props.period, scope: props.scope } });
         if (id !== requestId) return;
         data.value = response.data.data;
         failure.value = null;
@@ -77,7 +77,7 @@ async function load(): Promise<void> {
     }
 }
 
-watch(() => props.period, () => void load(), { immediate: true });
+watch(() => [props.period, props.scope], () => void load(), { immediate: true });
 onResourcesChanged(['scheduling_runs', 'schedule_details'], () => void load());
 </script>
 

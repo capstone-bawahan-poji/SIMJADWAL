@@ -3,7 +3,6 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import DashboardChart from '@/Components/dashboard/DashboardChart.vue';
 import DashboardSummary from '@/Components/dashboard/DashboardSummary.vue';
 import Card from '@/Components/ui/Card.vue';
-import { fetchAll } from '@/composables/useApiList';
 import Panel from '@/Components/ui/Panel.vue';
 import { onResourcesChanged } from '@/composables/useResourceChanges';
 import { APP_RELEASES_URL } from '@/lib/navigation';
@@ -15,13 +14,6 @@ import { computed } from 'vue';
 
 const props = defineProps<{ dashboard: TpbDashboard }>();
 
-const COHORT_BAR: Record<TpbCohort, string> = {
-    maba: 'bg-blue-500',
-    non_maba: 'bg-indigo-500',
-    campuran: 'bg-teal-500',
-    mengulang: 'bg-amber-500',
-    pilihan: 'bg-gray-400',
-};
 const dateFormat = new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeStyle: 'short' });
 const number = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 2 });
 const linkButton = 'inline-flex h-10 items-center rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary';
@@ -38,6 +30,11 @@ const readiness = computed(() => [
     { label: 'Grup kelas', done: props.dashboard.offerings.count > 0 && props.dashboard.classes.ungrouped === 0, href: '/tpb/mappings?tab=groups' },
     { label: 'Dosen pengampu', done: props.dashboard.offerings.count > 0 && props.dashboard.classes.without_lecturer === 0, href: '/tpb/mappings?tab=classes' },
     { label: 'Jadwal aktif', done: run.value !== null, href: '/tpb/ga' },
+]);
+const classReadiness = computed(() => [
+    { label: 'Siap dijadwalkan', value: Math.max(0, props.dashboard.classes.total - props.dashboard.classes.ungrouped - props.dashboard.classes.without_lecturer) },
+    { label: 'Belum masuk grup', value: props.dashboard.classes.ungrouped },
+    { label: 'Belum ada dosen', value: props.dashboard.classes.without_lecturer },
 ]);
 const STATE_LABEL: Record<TpbDashboard['schedule']['status'], string> = {
     none: 'Belum ada hasil GA',
@@ -64,10 +61,9 @@ const next = computed<{ tone: 'ok' | 'todo' | 'blocked'; title: string; text: st
 });
 const stateBadge = computed(() => ({ ok: 'bg-green-50 text-green-700', todo: 'bg-amber-50 text-amber-800', blocked: 'bg-red-50 text-red-700' })[next.value.tone]);
 
-const cohortTotal = computed(() => Object.values(props.dashboard.cohorts).reduce((sum, n) => sum + n, 0));
 const cohortRows = computed(() => (Object.keys(COHORT_LABELS) as TpbCohort[]).map((cohort) => {
     const total = props.dashboard.cohorts[cohort] ?? 0;
-    return { cohort, total, share: cohortTotal.value ? (total / cohortTotal.value) * 100 : 0 };
+    return { cohort, total };
 }));
 
 function formatDate(value: string | null): string {
@@ -91,9 +87,32 @@ onResourcesChanged(['scheduling_runs', 'tpb_offerings', 'tpb_groups', 'course_le
                     <p class="mt-1 text-sm text-gray-500">Status persiapan dan hasil jadwal TPB untuk {{ periodLabel }}.</p>
                 </div>
                 <div class="flex flex-wrap gap-3">
+                    <Link href="/tpb/schedule-import" :class="linkButton">Import Jadwal TPB</Link>
                     <Link href="/tpb/schedule" :class="linkButton">Buka Jadwal TPB</Link>
                 </div>
             </header>
+
+            <DashboardSummary label="Ringkasan TPB" :figures="[
+                { label: 'Mata kuliah', value: dashboard.offerings.count },
+                { label: 'Kelas', value: dashboard.classes.total, detail: `${dashboard.offerings.groups} grup kelas` },
+                { label: 'Dosen pengampu', value: dashboard.lecturers.count, detail: dashboard.lecturers.over_limit ? `${dashboard.lecturers.over_limit} melebihi batas SKS` : 'Semua dalam batas SKS' },
+                { label: 'Kelas terjadwal', value: run?.schedule_details_count ?? 0, detail: run ? STATE_LABEL[dashboard.schedule.status] : 'Belum ada jadwal aktif' },
+            ]" />
+
+            <section class="grid gap-6 lg:grid-cols-2" aria-label="Grafik ringkasan TPB">
+                <DashboardChart
+                    title="Jumlah Kelas per Kategori"
+                    description="Komposisi kelas TPB periode ini"
+                    unit="kelas"
+                    :items="cohortRows.map((row) => ({ label: COHORT_LABELS[row.cohort], value: row.total }))"
+                />
+                <DashboardChart
+                    title="Kesiapan Kelas"
+                    description="Status pengelompokan dan dosen"
+                    unit="kelas"
+                    :items="classReadiness"
+                />
+            </section>
 
             <Panel>
                 <div class="grid lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:divide-x lg:divide-gray-200">
@@ -161,8 +180,8 @@ onResourcesChanged(['scheduling_runs', 'tpb_offerings', 'tpb_groups', 'course_le
                     <h2 class="text-sm font-bold text-gray-900">Data TPB periode ini</h2>
                     <p class="mt-1 text-xs text-gray-500">Mata kuliah, dosen, ruang, dan kelas yang masuk jadwal TPB.</p>
                 </div>
-                <div class="grid gap-x-10 gap-y-6 p-6 lg:grid-cols-2">
-                    <dl class="divide-y divide-gray-100">
+                <div class="p-6">
+                    <dl class="max-w-3xl divide-y divide-gray-100">
                         <div class="flex items-start justify-between gap-4 py-3 text-sm">
                             <dt class="text-gray-600">Mata kuliah TPB</dt>
                             <dd class="text-right"><Link href="/tpb/courses" class="font-bold tabular-nums text-gray-900 hover:underline">{{ dashboard.offerings.count }} mata kuliah</Link><span class="block text-xs text-gray-500">{{ dashboard.offerings.groups }} grup, {{ dashboard.offerings.classes }} kelas, {{ dashboard.offerings.seats.toLocaleString('id-ID') }} kursi</span></dd>
@@ -184,21 +203,6 @@ onResourcesChanged(['scheduling_runs', 'tpb_offerings', 'tpb_groups', 'course_le
                         </div>
                     </dl>
 
-                    <div>
-                        <div class="flex items-center justify-between py-3 text-sm">
-                            <h3 class="font-semibold text-gray-900">Jumlah kelas per kategori</h3>
-                            <Link href="/tpb/mappings?tab=groups" class="text-xs font-semibold text-primary hover:underline">Buka grup kelas</Link>
-                        </div>
-                        <div class="flex h-3 overflow-hidden rounded-full bg-gray-100" role="img" :aria-label="`Komposisi ${cohortTotal} kelas: ${cohortRows.map((r) => `${COHORT_LABELS[r.cohort]} ${r.total}`).join(', ')}`">
-                            <span v-for="row in cohortRows" :key="row.cohort" :class="COHORT_BAR[row.cohort]" :style="{ width: `${row.share}%` }" />
-                        </div>
-                        <dl class="mt-3 divide-y divide-gray-100">
-                            <div v-for="row in cohortRows" :key="row.cohort" class="flex items-center justify-between py-2.5 text-sm">
-                                <dt class="flex items-center gap-2 text-gray-600"><span class="size-3 rounded-sm" :class="COHORT_BAR[row.cohort]" aria-hidden="true" />{{ COHORT_LABELS[row.cohort] }}</dt>
-                                <dd class="font-bold tabular-nums text-gray-900">{{ row.total }}<span class="ml-2 text-xs font-normal text-gray-500">{{ Math.round(row.share) }}%</span></dd>
-                            </div>
-                        </dl>
-                    </div>
                 </div>
             </Panel>
         </div>
