@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\Catalog\CatalogController;
 use App\Http\Controllers\Api\Internal\Account\ActivityLogController as InternalActivityLogController;
 use App\Http\Controllers\Api\Internal\Account\UserController as InternalUserController;
 use App\Http\Controllers\Api\Internal\Constraint\ConstraintSubmissionController as InternalConstraintSubmissionController;
@@ -46,8 +47,15 @@ use Illuminate\Support\Facades\Route;
 | /api/internal/* Session + CSRF for the web (Inertia) frontend. Api\Internal controllers.
 | /api/v1/*       Bearer token (Sanctum) for the mobile and desktop clients. Api\V1 controllers,
 |                 versioned apart from Internal so the external contract stays stable.
-| Both call the same services.
+| /api/public/*   No auth. Read-only catalog and the email request of the landing page. Throttled.
+| Internal and v1 call the same services.
 */
+
+Route::middleware('throttle:public')->prefix('public')->name('api.public.')->group(function () {
+    Route::get('faculties', [CatalogController::class, 'faculties'])->name('faculties.index');
+    Route::get('courses', [CatalogController::class, 'courses'])->name('courses.index');
+    Route::post('schedule-email', [CatalogController::class, 'sendSchedule'])->middleware('throttle:schedule-email')->name('schedule-email');
+});
 
 Route::middleware(['web', 'auth'])->prefix('internal')->name('api.internal.')->group(function () {
     Route::apiResource('users', InternalUserController::class)->except(['destroy']);
