@@ -19,7 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
  * Regular courses belong to one study program. TPB/MKWU courses (is_tpb) have no program:
  * the TPB admin splits their classes into groups (TpbGroup) shared by several programs.
  */
-#[Fillable(['study_program_id', 'is_tpb', 'code', 'name', 'sks', 'semester', 'parallel_class_count', 'class_capacity'])]
+#[Fillable(['study_program_id', 'is_tpb', 'code', 'name', 'sks', 'semester', 'parallel_class_count', 'class_capacity', 'is_active'])]
 #[UsePolicy(CoursePolicy::class)]
 class Course extends Model
 {
@@ -34,6 +34,7 @@ class Course extends Model
             'semester' => 'integer',
             'parallel_class_count' => 'integer',
             'class_capacity' => 'integer',
+            'is_active' => 'boolean',
         ];
     }
 

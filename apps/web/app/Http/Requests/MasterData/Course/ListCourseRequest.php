@@ -14,6 +14,7 @@ class ListCourseRequest extends FormRequest
             'is_tpb' => ['nullable', 'boolean'],
             'faculty_id' => ['nullable', 'integer'],
             'study_program_id' => ['nullable', 'integer'],
+            'is_active' => ['nullable', 'boolean'],
             'semester' => ['nullable', 'integer', 'between:1,8'],
             'page' => ['nullable', 'integer', 'min:1'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:'.Query::MAX_PER_PAGE],

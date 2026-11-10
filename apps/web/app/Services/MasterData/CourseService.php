@@ -34,6 +34,7 @@ readonly class CourseService
         ?int $facultyId,
         ?int $studyProgramId,
         ?int $semester,
+        ?bool $isActive,
         int $perPage,
     ): LengthAwarePaginator {
         return CourseData::prepareQuery($this->course->newQuery())
@@ -47,6 +48,7 @@ readonly class CourseService
             ->when($facultyId, fn (Builder $query) => $query->whereRelation('studyProgram', 'faculty_id', $facultyId))
             ->when($studyProgramId, fn (Builder $query) => $query->where('study_program_id', $studyProgramId))
             ->when($semester, fn (Builder $query) => $query->where('semester', $semester))
+            ->when($isActive !== null, fn (Builder $query) => $query->where('is_active', $isActive))
             ->orderBy('semester')
             ->orderBy('code')
             ->paginate($perPage)
@@ -122,6 +124,7 @@ readonly class CourseService
             'semester' => $data->semester,
             'parallel_class_count' => $data->parallelClassCount,
             'class_capacity' => $data->classCapacity,
+            'is_active' => $data->isActive,
         ];
     }
 }

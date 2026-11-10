@@ -48,6 +48,7 @@ class CourseController extends ApiController implements HasMiddleware
             facultyId: isset($v['faculty_id']) ? (int) $v['faculty_id'] : null,
             studyProgramId: isset($v['study_program_id']) ? (int) $v['study_program_id'] : null,
             semester: isset($v['semester']) ? (int) $v['semester'] : null,
+            isActive: isset($v['is_active']) ? (bool) $v['is_active'] : null,
             perPage: (int) ($v['per_page'] ?? Query::DEFAULT_PER_PAGE),
         ));
     }

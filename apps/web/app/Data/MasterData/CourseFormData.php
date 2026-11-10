@@ -19,6 +19,7 @@ class CourseFormData extends Data
         public int $semester,
         public int $parallelClassCount,
         public int $classCapacity,
+        public bool $isActive = true,
     ) {}
 
     /**
@@ -37,6 +38,7 @@ class CourseFormData extends Data
             semester: (int) ($input['semester'] ?? $current?->semester),
             parallelClassCount: (int) ($input['parallel_class_count'] ?? $current?->parallel_class_count ?? 1),
             classCapacity: (int) ($input['class_capacity'] ?? $current?->class_capacity),
+            isActive: (bool) ($input['is_active'] ?? $current?->is_active ?? true),
         );
     }
 }

@@ -21,6 +21,7 @@ class CourseFactory extends Factory
             'semester' => fake()->numberBetween(1, 8),
             'parallel_class_count' => 1,
             'class_capacity' => 50,
+            'is_active' => true,
         ];
     }
 

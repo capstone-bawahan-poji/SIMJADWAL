@@ -98,6 +98,39 @@ class CourseApiTest extends TestCase
             ->assertJsonPath('data.name', 'Nama Baru');
     }
 
+    public function test_course_is_active_by_default_and_can_be_toggled_and_filtered(): void
+    {
+        Sanctum::actingAs(User::factory()->studyProgramAdmin($this->program)->create());
+
+        $id = $this->postJson('/api/v1/courses', $this->payload())
+            ->assertCreated()
+            ->assertJsonPath('data.is_active', true)
+            ->json('data.id');
+
+        $this->patchJson("/api/v1/courses/{$id}", ['is_active' => false])
+            ->assertOk()
+            ->assertJsonPath('data.is_active', false);
+
+        $this->patchJson("/api/v1/courses/{$id}", ['name' => 'Nama Baru'])
+            ->assertOk()
+            ->assertJsonPath('data.is_active', false);
+
+        Course::factory()->create(['study_program_id' => $this->program->id]);
+
+        $this->getJson('/api/v1/courses?is_active=0')->assertOk()->assertJsonCount(1, 'data');
+        $this->getJson('/api/v1/courses?is_active=1')->assertOk()->assertJsonCount(1, 'data');
+        $this->getJson('/api/v1/courses')->assertOk()->assertJsonCount(2, 'data');
+    }
+
+    public function test_is_active_must_be_boolean(): void
+    {
+        Sanctum::actingAs(User::factory()->studyProgramAdmin($this->program)->create());
+
+        $this->postJson('/api/v1/courses', $this->payload(['is_active' => 'maybe']))
+            ->assertUnprocessable()
+            ->assertJsonValidationErrorFor('is_active', 'errors');
+    }
+
     public function test_delete_is_refused_while_mapped_or_grouped(): void
     {
         $course = Course::factory()->create(['study_program_id' => $this->program->id]);
