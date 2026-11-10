@@ -25,6 +25,16 @@ function periodOptions(current: string | null): string[] {
   return [start, start + 1].flatMap((year) => [`${year}/${year + 1}-GANJIL`, `${year}/${year + 1}-GENAP`]);
 }
 
+/** A dataset belongs to the signed-in account's scope (TPB or one faculty): drop it on sign-out. */
+export function resetDataset() {
+  dataset.value = null;
+  period.value = null;
+  facultyId.value = null;
+  error.value = '';
+  stale.value = false;
+  reviseGroupIds.value = [];
+}
+
 export function useDataset() {
   async function load() {
     loading.value = true;

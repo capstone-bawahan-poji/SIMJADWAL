@@ -1,5 +1,9 @@
 import { computed, readonly, ref } from 'vue';
 import * as auth from '@/lib/api/auth';
+import { resetDataset } from '@/composables/useDataset';
+import { resetGaPresets } from '@/composables/useGaPresets';
+import { resetGaRunner } from '@/composables/useGaRunner';
+import { resetRunSync } from '@/composables/useRunSync';
 import { startChanges, stopChanges } from '@/lib/echo';
 import type { AuthUser, Role } from '@/types';
 
@@ -19,6 +23,10 @@ function signedIn(me: AuthUser) {
 function forget() {
   user.value = null;
   stopChanges();
+  resetRunSync();
+  resetDataset();
+  resetGaPresets();
+  resetGaRunner();
 }
 
 function readLegacyToken(): string | null {

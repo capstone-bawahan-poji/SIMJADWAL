@@ -8,6 +8,12 @@ const loadedFor = ref<number | null | undefined>(undefined);
 const loading = ref(false);
 const error = ref('');
 
+export function resetGaPresets() {
+  presets.value = [];
+  loadedFor.value = undefined;
+  error.value = '';
+}
+
 async function fetchPresets(facultyId: number | null) {
   loading.value = true;
   error.value = '';

@@ -33,6 +33,8 @@ pub struct ApiClient {
     http: reqwest::Client,
     base_url: String,
     token: Mutex<TokenState>,
+    /// Id of the signed-in user. Local run results are kept per user, so two accounts on one machine do not see each other's runs.
+    user_id: Mutex<Option<i64>>,
 }
 
 impl Default for ApiClient {
@@ -54,6 +56,7 @@ impl ApiClient {
             http,
             base_url: base_url.trim_end_matches('/').to_string(),
             token: Mutex::new(TokenState::Unloaded),
+            user_id: Mutex::new(None),
         }
     }
 
@@ -79,7 +82,16 @@ impl ApiClient {
         Ok(())
     }
 
+    pub fn user_id(&self) -> Option<i64> {
+        *self.user_id.lock().unwrap_or_else(|e| e.into_inner())
+    }
+
+    pub fn set_user_id(&self, id: Option<i64>) {
+        *self.user_id.lock().unwrap_or_else(|e| e.into_inner()) = id;
+    }
+
     pub fn clear_token(&self) -> Result<(), ApiError> {
+        self.set_user_id(None);
         *self.token.lock().unwrap_or_else(|e| e.into_inner()) = TokenState::Loaded(None);
         token::clear()
     }

@@ -110,7 +110,10 @@ pub async fn ga_upload_result(
     api: State<'_, ApiClient>,
     run_id: String,
 ) -> Result<RunListItem, AppError> {
-    let storage = Storage::new(&app.path().app_data_dir()?);
+    let user_id = api
+        .user_id()
+        .ok_or_else(|| AppError::Invalid("Anda belum masuk.".into()))?;
+    let storage = Storage::new(&app.path().app_data_dir()?, user_id);
     let record = storage.load(&run_id)?;
 
     let upload = match api.upload_run(&record.result).await {
