@@ -86,7 +86,7 @@ class DatabaseSeederTest extends TestCase
         $this->assertSame(25, Course::where('study_program_id', $informatics->id)->count());
         $this->assertSame(44, CourseLecturer::whereRelation('course', 'study_program_id', $informatics->id)->count());
 
-        $teaching = ['Ilmu Aktuaria' => 9, 'Bisnis Digital' => 9, 'Fisika' => 11, 'Informatika' => 15,
+        $teaching = ['Ilmu Aktuaria' => 9, 'Bisnis Digital' => 9, 'Fisika' => 11, 'Informatika' => 16,
             'Matematika' => 8, 'Sistem Informasi' => 13, 'Statistika' => 9, 'Teknik Elektro' => 13];
 
         foreach ($teaching as $program => $count) {
@@ -94,7 +94,7 @@ class DatabaseSeederTest extends TestCase
         }
 
         // FPB, FRTI and Informatika carry real lecturers and courses; the other FSTI programs are still anonymized.
-        $this->assertSame(329, Lecturer::count());
+        $this->assertSame(286, Lecturer::count());
         $this->assertSame(80, Lecturer::where('name', 'like', 'Dosen % __')->count());
         $this->assertSame([1, 2, 3, 4, 5, 6, 7, 8], Course::where('is_tpb', false)->distinct()->orderBy('semester')->pluck('semester')->all());
         $this->assertGreaterThan(0, LecturerPreference::count());
@@ -105,7 +105,7 @@ class DatabaseSeederTest extends TestCase
         $this->seed(DatabaseSeeder::class);
 
         $shipbuilding = StudyProgram::where('name', 'Teknik Perkapalan')->first();
-        $this->assertSame(22, Lecturer::where('study_program_id', $shipbuilding->id)->count());
+        $this->assertSame(18, Lecturer::where('study_program_id', $shipbuilding->id)->count());
 
         // Teknik Sistem Perkapalan and Teknik Transportasi Laut are taught by Teknik Perkapalan lecturers.
         foreach (['Teknik Sistem Perkapalan', 'Teknik Transportasi Laut'] as $program) {
@@ -124,10 +124,10 @@ class DatabaseSeederTest extends TestCase
 
         $lecturer = Lecturer::where('name', 'like', 'Amanda Dwi Wantira%')->firstOrFail();
 
-        $this->assertSame('dosen_Amanda@dosen.itk.ac.id', $lecturer->user->email);
+        $this->assertSame('dosen_Amanda@lecturer.itk.ac.id', $lecturer->user->email);
         $this->assertTrue($lecturer->user->hasRole(Role::LECTURER->value));
-        // Every lecturer with an email in data/master (249), except the first Informatika lecturer, who uses dosen.if01 instead.
-        $this->assertSame(249, Lecturer::whereNotNull('user_id')->count());
+        // Every lecturer with an email in data/master.
+        $this->assertSame(206, Lecturer::whereNotNull('user_id')->count());
     }
 
     public function test_demo_accounts_exist_for_every_faculty_and_study_program(): void
@@ -137,7 +137,7 @@ class DatabaseSeederTest extends TestCase
         $this->assertSame(3, User::query()->role(Role::FACULTY_ADMIN->value)->whereNotNull('faculty_id')->count());
         $this->assertSame(25, User::query()->role(Role::STUDY_PROGRAM_ADMIN->value)->distinct()->count('study_program_id'));
         $this->assertSame('Informatika', User::where('email', 'admin.if@example.test')->first()->studyProgram->name);
-        $this->assertSame('Nur Fajri Azhar S.Kom., M.Kom.', User::where('email', 'dosen.if01@example.test')->first()->lecturer->name);
+        $this->assertSame('Miftahul Fauzi', User::where('email', 'dosen.if01@lecturer.itk.ac.id')->first()->lecturer->name);
         $this->assertTrue(User::where('email', 'admin.tpb@example.test')->first()->hasRole(Role::TPB_ADMIN->value));
     }
 
@@ -189,9 +189,9 @@ class DatabaseSeederTest extends TestCase
         $this->seed(DatabaseSeeder::class);
 
         $math = TpbOffering::query()->whereRelation('course', 'code', 'KU2512015')->where('period', '2026/2027-GANJIL')->sole();
-        $this->assertSame(19, $math->parallel_class_count);
+        $this->assertSame(29, $math->parallel_class_count);
         $groups = $math->groups()->with('studyPrograms', 'courseLecturers')->orderBy('code')->get();
-        $this->assertSame(['maba', 'maba', 'maba', 'maba', 'mengulang'], $groups->pluck('cohort.value')->all());
+        $this->assertSame(['maba', 'maba', 'maba', 'maba', 'mengulang', 'campuran'], $groups->pluck('cohort.value')->all());
         $this->assertSame([1, 2, 3], $groups[0]->class_numbers);
         // Attending programs are dummy: as many as the source lists, at most six.
         $this->assertSame(4, $groups[0]->studyPrograms->count());
