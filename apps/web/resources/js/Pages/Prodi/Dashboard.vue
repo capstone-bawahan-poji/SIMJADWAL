@@ -2,7 +2,7 @@
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { onResourcesChanged } from '@/composables/useResourceChanges';
 import { SUBMISSION_STATUS_LABELS } from '@/lib/labels';
-import type { ConstraintStatus, StudyProgramDashboard } from '@/types/models';
+import type { StudyProgramDashboard } from '@/types/models';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ArrowRight, BookOpen, CalendarDays, Check, DoorOpen, Settings2, SlidersHorizontal, Users } from 'lucide-vue-next';
 import { computed, ref } from 'vue';
@@ -36,15 +36,8 @@ function percentage(part: number, total: number): number {
 
 const completeCourses = computed(() => constraint.value.courses_count - constraint.value.incomplete_courses_count);
 const pendingLecturers = computed(() => constraint.value.lecturers_count - constraint.value.lecturers_with_preferences_count);
-const isDraft = computed(() => constraint.value.status === 'draft');
 const isPublished = computed(() => schedule.value.status === 'published');
 
-const CONSTRAINT_STATUS_LABEL: Record<ConstraintStatus, string> = {
-    draft: 'Belum dikirim',
-    submitted: 'Menunggu review fakultas',
-    accepted: 'Disetujui fakultas',
-};
-const constraintStatusLabel = computed(() => CONSTRAINT_STATUS_LABEL[constraint.value.status]);
 const scheduleStatusLabel = computed(() => {
     if (isPublished.value) {
         return schedule.value.published_at ? `Diterbitkan ${formatDate(schedule.value.published_at)}` : 'Diterbitkan';
@@ -82,8 +75,8 @@ const bars = computed(() => [
     },
     {
         label: 'Constraint',
-        value: isDraft.value ? 0 : 100,
-        detail: constraintStatusLabel.value,
+        value: constraint.value.completeness_percent,
+        detail: `${constraint.value.completeness_percent}% data terisi`,
     },
     {
         label: 'Jadwal',
@@ -106,12 +99,6 @@ const tasks = computed(() => [
         value: pendingLecturers.value === 0 ? 'Selesai' : format(pendingLecturers.value),
         done: pendingLecturers.value === 0,
         routeName: 'prodi.constraints.index',
-    },
-    {
-        label: 'Kirim constraint ke fakultas',
-        value: isDraft.value ? 'Perlu submit' : constraintStatusLabel.value,
-        done: !isDraft.value,
-        routeName: isDraft.value ? 'prodi.constraints.review' : 'prodi.constraints.index',
     },
     {
         label: schedule.value.status === 'none' ? 'Periksa hasil GA' : 'Kirim jadwal ke fakultas',
@@ -156,10 +143,10 @@ const steps = computed(() => [
     {
         title: 'Constraint',
         icon: Check,
-        state: (isDraft.value ? 'todo' : 'done') as StepState,
+        state: (constraint.value.completeness_percent === 100 ? 'done' : 'todo') as StepState,
         figure: `${constraint.value.completeness_percent}%`,
-        caption: constraintStatusLabel.value,
-        routeName: 'prodi.constraints.review',
+        caption: 'kelengkapan data',
+        routeName: 'prodi.constraints.index',
     },
     {
         title: 'Proses GA',

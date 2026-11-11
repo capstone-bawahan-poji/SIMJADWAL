@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
-import ProgramLockBanner from '@/Components/constraint/ProgramLockBanner.vue';
 import Alert from '@/Components/ui/Alert.vue';
 import Button from '@/Components/ui/Button.vue';
 import Panel from '@/Components/ui/Panel.vue';
-import { useOwnSubmission } from '@/composables/useOwnSubmission';
 import { api, toApiError, type ApiError } from '@/lib/api';
 import { Head, Link, usePage } from '@inertiajs/vue3';
 import { ArrowLeft, ArrowRight, CheckCircle2, CircleHelp, Download, FileSpreadsheet, Trash2, UploadCloud } from 'lucide-vue-next';
@@ -71,7 +69,6 @@ interface ImportResult {
 }
 
 const studyProgramId = computed(() => usePage().props.auth.user.study_program_id);
-const { submission, locked } = useOwnSubmission();
 
 const templateUrl = (prefill: boolean) => `/api/internal/courses/import/template?study_program_id=${studyProgramId.value}${prefill ? '&prefill=1' : ''}`;
 
@@ -178,7 +175,7 @@ function pickFile(event: Event): void {
 
 function dropFile(event: DragEvent): void {
     isDragging.value = false;
-    if (locked.value || processing.value) return;
+    if (processing.value) return;
     chooseFile(event.dataTransfer?.files[0] ?? null);
 }
 
@@ -283,10 +280,8 @@ function unresolve(match: LecturerMatch): void {
                     <h1 class="mt-2 text-2xl font-bold tracking-tight text-gray-900">Import Mata Kuliah</h1>
                     <p class="mt-1 text-sm text-gray-600">Tambah atau perbarui mata kuliah dan dosen pengampu dari file Excel.</p>
                 </div>
-                <ProgramLockBanner v-if="locked" :submission="submission" />
             </header>
 
-            <ProgramLockBanner v-if="!locked" :submission="submission" />
 
             <Panel v-if="result" class="overflow-hidden border-green-200 p-0 shadow-sm">
                 <div class="flex flex-col gap-5 bg-green-50/40 p-6 md:flex-row md:items-center md:justify-between md:p-8">
@@ -399,7 +394,7 @@ function unresolve(match: LecturerMatch): void {
                                 ref="fileInput"
                                 type="file"
                                 accept=".xlsx"
-                                :disabled="locked || processing"
+                                :disabled="processing"
                                 class="sr-only"
                                 @change="pickFile"
                             />
@@ -415,11 +410,11 @@ function unresolve(match: LecturerMatch): void {
                                 <label
                                     for="import-file"
                                     class="inline-flex h-8 cursor-pointer items-center rounded-lg border border-gray-200 bg-white px-3 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50 focus-within:ring-2 focus-within:ring-primary"
-                                    :class="{ 'pointer-events-none opacity-60': locked || processing }"
+                                    :class="{ 'pointer-events-none opacity-60': processing }"
                                 >
                                     Ganti
                                 </label>
-                                <Button variant="ghost" size="sm" :disabled="locked || processing" :aria-label="`Hapus file ${file.name}`" class="text-red-700 hover:bg-red-50" @click="removeFile">
+                                <Button variant="ghost" size="sm" :disabled="processing" :aria-label="`Hapus file ${file.name}`" class="text-red-700 hover:bg-red-50" @click="removeFile">
                                     <Trash2 class="h-4 w-4" aria-hidden="true" />
                                     Hapus
                                 </Button>
@@ -431,7 +426,7 @@ function unresolve(match: LecturerMatch): void {
                                 class="group flex min-h-52 cursor-pointer flex-col items-center justify-center rounded-xl border-2 border-dashed px-5 py-8 text-center transition"
                                 :class="[
                                     isDragging ? 'border-primary bg-blue-50' : 'border-gray-300 bg-gray-50/70 hover:border-primary/50 hover:bg-blue-50/50',
-                                    locked || processing ? 'cursor-not-allowed opacity-60' : '',
+                                    processing ? 'cursor-not-allowed opacity-60' : '',
                                 ]"
                                 @dragenter.prevent="isDragging = true"
                                 @dragover.prevent="isDragging = true"
@@ -444,7 +439,7 @@ function unresolve(match: LecturerMatch): void {
                             </label>
 
                             <div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-                                <Button :disabled="!file || locked" :loading="processing && !preview" @click="send(true)">
+                                <Button :disabled="!file" :loading="processing && !preview" @click="send(true)">
                                     <FileSpreadsheet class="h-4 w-4" aria-hidden="true" />
                                     Lihat preview
                                 </Button>
@@ -677,7 +672,7 @@ function unresolve(match: LecturerMatch): void {
                     </Panel>
 
                     <div class="flex flex-col items-end gap-2">
-                        <Button :disabled="!preview.can_commit || locked" :loading="processing" @click="send(false)">Import {{ preview.summary.courses }} Mata Kuliah</Button>
+                        <Button :disabled="!preview.can_commit" :loading="processing" @click="send(false)">Import {{ preview.summary.courses }} Mata Kuliah</Button>
                         <p v-if="!preview.can_commit" class="text-xs text-red-600">Tombol aktif setelah semua error diperbaiki.</p>
                     </div>
                 </template>

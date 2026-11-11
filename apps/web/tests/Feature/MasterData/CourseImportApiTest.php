@@ -231,12 +231,12 @@ class CourseImportApiTest extends TestCase
             ->assertJsonPath('data.errors.0.message', 'Kelas B masih dipakai jadwal aktif.');
     }
 
-    public function test_locked_program_blocks_program_admin_but_not_faculty_admin(): void
+    public function test_submitted_program_import_is_available_to_program_and_faculty_admin(): void
     {
         $this->program->update(['constraint_status' => ConstraintStatus::SUBMITTED, 'constraint_submitted_at' => now()]);
         $file = $this->sheet([['IF2514101', 'Matematika Diskrit', 3, 1, 40, 'A', null]]);
 
-        $this->import($file)->assertStatus(409)->assertJsonPath('code', 'CONSTRAINTS_LOCKED');
+        $this->import($file)->assertOk();
 
         Sanctum::actingAs(User::factory()->facultyAdmin($this->program->faculty)->create());
         $this->import($file)->assertOk();

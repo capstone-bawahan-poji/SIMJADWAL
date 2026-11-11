@@ -5,7 +5,6 @@ namespace App\Data\Constraint;
 use App\Data\BaseData;
 use App\Data\MasterData\FacultySummaryData;
 use App\Enums\Constraint\ConstraintStatus;
-use App\Extensions\Data\FromPolicy;
 use Carbon\CarbonImmutable;
 use Spatie\LaravelData\Attributes\Computed;
 use Spatie\LaravelData\Attributes\MapName;
@@ -38,12 +37,10 @@ class ConstraintSubmissionData extends BaseData
         public int $lecturersWithPreferencesCount,
         public int $coursesCount,
         public int $incompleteCoursesCount,
-        #[FromPolicy('submitConstraints')]
         public bool $canSubmit = false,
-        #[FromPolicy('reviewConstraints')]
         public bool $canReview = false,
     ) {
-        $this->isLocked = $constraintStatus->locks();
+        $this->isLocked = false;
     }
 
     public static function relations(): array

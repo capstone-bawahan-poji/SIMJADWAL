@@ -38,14 +38,6 @@ class StudyProgram extends Model
         ];
     }
 
-    /**
-     * Submitted and accepted programs are read-only for their master data and lecturer preferences.
-     */
-    public function isLocked(): bool
-    {
-        return $this->constraint_status->locks();
-    }
-
     /** @return BelongsTo<Faculty, $this> */
     public function faculty(): BelongsTo
     {

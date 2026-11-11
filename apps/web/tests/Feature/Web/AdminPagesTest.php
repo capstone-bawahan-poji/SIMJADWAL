@@ -14,7 +14,7 @@ class AdminPagesTest extends TestCase
 
     private const PRODI_PAGES = [
         '/prodi/courses', '/prodi/lecturers', '/prodi/mappings',
-        '/prodi/constraints', '/prodi/constraints/review', '/prodi/schedule-matrix', '/prodi/ga', '/prodi/rooms',
+        '/prodi/constraints', '/prodi/schedule-matrix', '/prodi/ga', '/prodi/rooms',
     ];
 
     // The GA moved to the programs; the faculty hands out room slots and imports the TPB schedule.
@@ -38,6 +38,7 @@ class AdminPagesTest extends TestCase
         foreach (self::FACULTY_PAGES as $page) {
             $this->get($page)->assertForbidden();
         }
+        $this->get('/prodi/constraints/review')->assertNotFound();
     }
 
     public function test_faculty_admin_opens_faculty_pages_only(): void

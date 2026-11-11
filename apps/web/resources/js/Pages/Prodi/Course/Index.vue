@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
-import ProgramLockBanner from '@/Components/constraint/ProgramLockBanner.vue';
 import Modal from '@/Components/Modal.vue';
 import Alert from '@/Components/ui/Alert.vue';
 import Button from '@/Components/ui/Button.vue';
@@ -9,7 +8,6 @@ import Panel from '@/Components/ui/Panel.vue';
 import Pagination from '@/Components/ui/Pagination.vue';
 import { useApiForm } from '@/composables/useApiForm';
 import { usePaginatedList } from '@/composables/useApiList';
-import { useOwnSubmission } from '@/composables/useOwnSubmission';
 import { destroy } from '@/lib/api';
 import { queryParam } from '@/lib/query';
 import type { Course } from '@/types/models';
@@ -18,7 +16,6 @@ import { computed, ref } from 'vue';
 
 const fieldClass = 'w-full rounded-xl border-gray-200 bg-gray-50 text-gray-900 text-sm focus:border-primary focus:ring-primary';
 const studyProgramId = computed(() => usePage().props.auth.user.study_program_id);
-const { submission, locked } = useOwnSubmission();
 const { filters, items: courses, pagination, page, loading, error, reload } = usePaginatedList<
     Course,
     { q: string; semester: number | ''; study_program_id: number | null; is_tpb: boolean }
@@ -123,12 +120,10 @@ async function confirmDelete(): Promise<void> {
                     <p class="mt-1 text-sm text-gray-600">Kelola daftar mata kuliah program studi.</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-4">
-                    <ProgramLockBanner v-if="locked" :submission="submission" />
-                    <Button type="button" :disabled="locked" @click="openCreate">Tambah Mata Kuliah</Button>
+                    <Button type="button" @click="openCreate">Tambah Mata Kuliah</Button>
                 </div>
             </header>
 
-            <ProgramLockBanner v-if="!locked" :submission="submission" />
             <Alert v-if="flash" variant="success" :title="flash" dismissible @dismiss="flash = null" />
 
             <Panel>

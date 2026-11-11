@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
-import ProgramLockBanner from '@/Components/constraint/ProgramLockBanner.vue';
 import Modal from '@/Components/Modal.vue';
 import Alert from '@/Components/ui/Alert.vue';
 import Button from '@/Components/ui/Button.vue';
@@ -18,7 +17,7 @@ import { computed, onMounted, ref } from 'vue';
 
 const inertiaPage = usePage();
 const studyProgramId = computed(() => inertiaPage.props.auth.user.study_program_id);
-const { submission, locked, reload: reloadSubmission } = useOwnSubmission();
+const { submission, reload: reloadSubmission } = useOwnSubmission();
 
 const { filters, items: courses, pagination, page, loading, error, reload: reloadCourses } = usePaginatedList<Course, { q: string; study_program_id: number | null; is_tpb: boolean }>(
     'courses',
@@ -156,14 +155,12 @@ const fieldClass = 'w-full rounded-xl border-gray-200 bg-gray-50 text-gray-900 t
                     <p class="mt-1 text-sm text-gray-600">Atur dosen pengampu tiap paralel. SKS, kapasitas, dan jumlah paralel diubah lewat tombol Edit di setiap mata kuliah.</p>
                 </div>
                 <div class="flex flex-wrap items-center gap-4">
-                    <ProgramLockBanner v-if="locked" :submission="submission" />
                     <Link
                         :href="route('prodi.courses.import')"
                         class="inline-flex h-10 items-center justify-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/20 transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
                     >Import Mata Kuliah</Link>
                 </div>
             </header>
-            <ProgramLockBanner v-if="!locked" :submission="submission" />
             <Alert v-if="flash" variant="success" :title="flash" dismissible @dismiss="flash = null" />
             <Alert v-if="failure" :title="failure" dismissible @dismiss="failure = null" />
             <Alert v-if="loadError || error" :title="loadError ?? error?.message ?? ''" />
@@ -191,7 +188,7 @@ const fieldClass = 'w-full rounded-xl border-gray-200 bg-gray-50 text-gray-900 t
                                     Semester {{ course.semester }} · {{ course.sks }} SKS · {{ course.class_capacity }} mahasiswa · {{ course.parallel_class_count }} paralel
                                 </p>
                             </div>
-                            <Button variant="secondary" size="md" :disabled="locked" @click="openEdit(course)">Edit</Button>
+                            <Button variant="secondary" size="md" @click="openEdit(course)">Edit</Button>
                         </div>
                         <ul class="divide-y divide-gray-100">
                             <li v-for="n in course.parallel_class_count" :key="n" class="grid gap-3 px-5 py-4 sm:grid-cols-[minmax(100px,.7fr)_minmax(220px,2fr)] sm:items-center">
@@ -200,7 +197,7 @@ const fieldClass = 'w-full rounded-xl border-gray-200 bg-gray-50 text-gray-900 t
                                     Dosen pengampu
                                     <select
                                         :value="assignmentOf(course, n)?.lecturer_id ?? ''"
-                                        :disabled="locked || saving === classKey(course.id, n)"
+                                        :disabled="saving === classKey(course.id, n)"
                                         :class="[fieldClass, assignmentOf(course, n) ? '' : '!border-amber-400']"
                                         :aria-label="`Dosen ${course.code} paralel ${classLabel(n)}`"
                                         @change="assign(course, n, ($event.target as HTMLSelectElement).value)"

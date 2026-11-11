@@ -1049,7 +1049,7 @@ paths:
       tags: [Scheduling]
       summary: GA input dataset for one faculty and period
       description: |
-        Only study programs with `constraint_status = accepted` contribute courses.
+        Study program courses are included independently of the legacy constraint status.
         `fingerprint` must be sent back as `dataset_fingerprint` when uploading a run.
       parameters:
         - $ref: '#/components/parameters/Period'
@@ -1447,7 +1447,7 @@ components:
       description: '`RESOURCE_IN_USE`: `errors.references` holds a count per reference type'
       content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
     Conflict:
-      description: '409 with one of `INVALID_STATE`, `CONSTRAINTS_LOCKED`, `DATASET_CHANGED`, `IMPORT_PLAN_CHANGED`'
+      description: '409 with one of `INVALID_STATE`, `DATASET_CHANGED`, `IMPORT_PLAN_CHANGED`'
       content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } }
     ValidationFailed:
       description: '`VALIDATION_FAILED`: `errors` maps field to messages'
@@ -1507,7 +1507,7 @@ components:
         code:
           type: string
           description: Stable code. Clients must handle unknown codes generically.
-          examples: [UNAUTHENTICATED, INVALID_CREDENTIALS, FORBIDDEN, NOT_FOUND, METHOD_NOT_ALLOWED, RESOURCE_IN_USE, INVALID_STATE, CONSTRAINTS_LOCKED, DATASET_CHANGED, IMPORT_PLAN_CHANGED, VALIDATION_FAILED, TOO_MANY_REQUESTS, PDF_UNAVAILABLE, HTTP_ERROR, SERVER_ERROR]
+          examples: [UNAUTHENTICATED, INVALID_CREDENTIALS, FORBIDDEN, NOT_FOUND, METHOD_NOT_ALLOWED, RESOURCE_IN_USE, INVALID_STATE, DATASET_CHANGED, IMPORT_PLAN_CHANGED, VALIDATION_FAILED, TOO_MANY_REQUESTS, PDF_UNAVAILABLE, HTTP_ERROR, SERVER_ERROR]
         errors:
           type: object
           additionalProperties: true
@@ -2010,8 +2010,9 @@ components:
         lecturers_with_preferences_count: { type: integer }
         courses_count: { type: integer }
         incomplete_courses_count: { type: integer }
-        can_submit: { type: boolean }
-        can_review: { type: boolean }
+        is_locked: { type: boolean, description: Always false; retained for compatibility. }
+        can_submit: { type: boolean, description: Always false; constraint submission has been removed. }
+        can_review: { type: boolean, description: Always false; constraint review has been removed. }
 
     LecturerPreference:
       type: object
@@ -2039,7 +2040,7 @@ components:
               constraint_reviewed_at: { type: [string, 'null'], format: date-time }
               lecturers_count: { type: integer }
               courses_count: { type: integer }
-              included: { type: boolean, description: true when constraints are accepted }
+              included: { type: boolean, description: Whether the program is included in this dataset. }
         courses:
           type: array
           description: Non-TPB courses of included programs for the period's semesters

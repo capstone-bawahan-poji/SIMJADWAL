@@ -50,16 +50,6 @@ class StudyProgramPolicy
         return $this->canOnProgram($user, ConstraintPermissions::VIEW, $studyProgram);
     }
 
-    public function submitConstraints(User $user, StudyProgram $studyProgram): bool
-    {
-        return $this->canOnProgram($user, ConstraintPermissions::SUBMIT, $studyProgram);
-    }
-
-    public function reviewConstraints(User $user, StudyProgram $studyProgram): bool
-    {
-        return $this->canOnProgram($user, ConstraintPermissions::REVIEW, $studyProgram);
-    }
-
     public function viewRoomSlots(User $user, StudyProgram $studyProgram): bool
     {
         return $this->canOnProgram($user, AllocationPermissions::VIEW, $studyProgram);

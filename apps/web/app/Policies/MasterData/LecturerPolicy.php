@@ -48,9 +48,6 @@ class LecturerPolicy extends StudyProgramOwnedPolicy
         return $user->can(ConstraintPermissions::VIEW) && $this->canRead($user, $lecturer->studyProgram);
     }
 
-    /**
-     * Refused with 409 CONSTRAINTS_LOCKED once the program is submitted or accepted.
-     */
     public function updatePreferences(User $user, Lecturer $lecturer): Response
     {
         return $this->canWrite($user, ConstraintPermissions::UPDATE_PREFERENCE, $lecturer->studyProgram);

@@ -1,12 +1,10 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import Badge from '@/components/ui/Badge.vue';
 import EmptyState from '@/components/ui/EmptyState.vue';
 import Tabs from '@/components/ui/Tabs.vue';
 import { classLetter } from '@/lib/format';
 import { colorOf, type ProgramColor } from '@/lib/programColors';
 import type { DatasetStudyProgram, SchedulingDataset } from '@/types/scheduling';
-import { CONSTRAINT_STATUS } from '@/views/data/constraintStatus';
 import PreferenceGrid from '@/views/data/PreferenceGrid.vue';
 
 const props = defineProps<{
@@ -68,15 +66,11 @@ watch(() => props.program.id, () => {
         <h2 class="truncate text-base font-semibold text-ink">{{ program.name }}</h2>
         <p class="font-mono text-xs text-ink-muted">{{ program.code }}</p>
       </div>
-      <Badge :tone="CONSTRAINT_STATUS[program.constraint_status].tone">{{ CONSTRAINT_STATUS[program.constraint_status].label }}</Badge>
     </div>
 
     <div v-if="!program.included" class="p-6">
       <EmptyState title="Program studi tidak termasuk dataset" dashed>
         Program studi ini tidak termasuk dalam dataset penjadwalan sehingga algoritma genetika tidak menyusun jadwal untuknya.
-        <template v-if="program.constraint_status !== 'accepted'">
-          Status constraint saat ini: {{ CONSTRAINT_STATUS[program.constraint_status].label }}.
-        </template>
       </EmptyState>
     </div>
 

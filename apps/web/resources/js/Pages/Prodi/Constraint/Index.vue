@@ -1,16 +1,14 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
-import ProgramLockBanner from '@/Components/constraint/ProgramLockBanner.vue';
 import PreferenceMatrix from '@/Components/constraint/PreferenceMatrix.vue';
 import Alert from '@/Components/ui/Alert.vue';
 import Button from '@/Components/ui/Button.vue';
 import Card from '@/Components/ui/Card.vue';
 import StatCard from '@/Components/ui/StatCard.vue';
 import { fetchAll, useCollection } from '@/composables/useApiList';
-import { useOwnSubmission } from '@/composables/useOwnSubmission';
 import { api, toApiError } from '@/lib/api';
 import type { Lecturer, PreferenceType, SlotPreference, TimeSlot } from '@/types/models';
-import { Head, Link, usePage } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import { computed, onMounted, ref } from 'vue';
 
 interface LecturerPreferenceState {
@@ -23,7 +21,6 @@ interface LecturerPreferenceState {
 }
 
 const studyProgramId = computed(() => usePage().props.auth.user.study_program_id);
-const { submission, locked } = useOwnSubmission();
 const { items: timeSlots, error: timeSlotError } = useCollection<TimeSlot>('time-slots');
 const lecturers = ref<Lecturer[]>([]);
 const search = ref('');
@@ -155,18 +152,8 @@ onMounted(loadLecturers);
                     <h1 class="text-2xl font-bold tracking-tight text-gray-900">Constraint &amp; Preferensi</h1>
                     <p class="mt-1 text-sm text-gray-600">Atur preferensi waktu setiap dosen program studi.</p>
                 </div>
-                <div class="flex flex-wrap items-center gap-4">
-                    <ProgramLockBanner v-if="locked" :submission="submission" />
-                    <Link
-                        :href="route('prodi.constraints.review')"
-                        class="inline-flex w-fit items-center rounded-lg bg-primary px-4 py-2 text-sm font-semibold text-white hover:bg-primary-hover"
-                    >
-                        Review
-                    </Link>
-                </div>
             </header>
 
-            <ProgramLockBanner v-if="!locked" :submission="submission" />
             <Alert v-if="loadError" :title="loadError" />
             <Alert v-if="timeSlotError" :title="timeSlotError.message" />
 
@@ -204,7 +191,7 @@ onMounted(loadLecturers);
                             <Button
                                 type="button"
                                 :loading="stateFor(lecturer.id).saving"
-                                :disabled="locked || !stateFor(lecturer.id).dirty || stateFor(lecturer.id).loading"
+                                :disabled="!stateFor(lecturer.id).dirty || stateFor(lecturer.id).loading"
                                 @click="save(lecturer.id)"
                             >Simpan Preferensi</Button>
                         </div>
@@ -217,7 +204,7 @@ onMounted(loadLecturers);
                             <PreferenceMatrix
                                 :time-slots="timeSlots"
                                 :model-value="stateFor(lecturer.id).preferences"
-                                :disabled="locked || stateFor(lecturer.id).saving"
+                                :disabled="stateFor(lecturer.id).saving"
                                 @update:model-value="updatePreferences(lecturer.id, $event)"
                             />
                         </div>

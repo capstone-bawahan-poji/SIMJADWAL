@@ -102,9 +102,6 @@ Route::middleware(['web', 'auth'])->prefix('internal')->name('api.internal.')->g
     Route::put('lecturers/{lecturer}/preferences', [InternalLecturerPreferenceController::class, 'update'])->name('lecturers.preferences.update');
     Route::get('constraint-submissions', [InternalConstraintSubmissionController::class, 'index'])->name('constraint-submissions.index');
     Route::get('constraint-submissions/{studyProgram}', [InternalConstraintSubmissionController::class, 'show'])->name('constraint-submissions.show');
-    Route::post('constraint-submissions/{studyProgram}/submit', [InternalConstraintSubmissionController::class, 'submit'])->name('constraint-submissions.submit');
-    Route::post('constraint-submissions/{studyProgram}/accept', [InternalConstraintSubmissionController::class, 'accept'])->name('constraint-submissions.accept');
-    Route::post('constraint-submissions/{studyProgram}/return', [InternalConstraintSubmissionController::class, 'return'])->name('constraint-submissions.return');
 
     // scheduling
     Route::apiResource('ga-presets', InternalGaPresetController::class)->parameters(['ga-presets' => 'gaPreset']);

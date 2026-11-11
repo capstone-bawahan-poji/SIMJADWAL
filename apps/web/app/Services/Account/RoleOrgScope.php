@@ -39,11 +39,6 @@ readonly class RoleOrgScope implements ResolvesOrgScope
         return $this->readsAllFaculties($user) || $user->role === Role::LECTURER;
     }
 
-    public function canBypassSubmissionLock(User $user): bool
-    {
-        return in_array($user->role, [Role::SUPER_ADMIN, Role::FACULTY_ADMIN], true);
-    }
-
     public function canAccessFaculty(User $user, ?int $facultyId): bool
     {
         if ($user->role === Role::SUPER_ADMIN) {

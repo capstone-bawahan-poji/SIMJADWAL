@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\MasterData;
 
+use App\Enums\Constraint\ConstraintStatus;
 use App\Models\MasterData\Course;
 use App\Models\MasterData\CourseLecturer;
 use App\Models\MasterData\Lecturer;
@@ -82,5 +83,21 @@ class TeachingAssignmentApiTest extends TestCase
 
         $this->deleteJson("/api/v1/teaching-assignments/{$own->id}")->assertNoContent();
         $this->assertModelMissing($own);
+    }
+
+    public function test_program_admin_can_manage_assignments_after_legacy_submission_and_acceptance(): void
+    {
+        $lecturer = Lecturer::factory()->create(['study_program_id' => $this->program->id]);
+        Sanctum::actingAs(User::factory()->studyProgramAdmin($this->program)->create());
+
+        $this->program->update(['constraint_status' => ConstraintStatus::SUBMITTED]);
+        $response = $this->postJson('/api/v1/teaching-assignments', [
+            'course_id' => $this->course->id,
+            'class_number' => 1,
+            'lecturer_id' => $lecturer->id,
+        ])->assertCreated();
+
+        $this->program->update(['constraint_status' => ConstraintStatus::ACCEPTED]);
+        $this->deleteJson('/api/v1/teaching-assignments/'.$response->json('data.id'))->assertNoContent();
     }
 }

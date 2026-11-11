@@ -19,15 +19,4 @@ enum ConstraintStatus: string
             self::ACCEPTED => __('Accepted'),
         };
     }
-
-    /**
-     * Submitted and accepted programs are read-only until a faculty admin returns them.
-     */
-    public function locks(): bool
-    {
-        return match ($this) {
-            self::DRAFT => false,
-            self::SUBMITTED, self::ACCEPTED => true,
-        };
-    }
 }
