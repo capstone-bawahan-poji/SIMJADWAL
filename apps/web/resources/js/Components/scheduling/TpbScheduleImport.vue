@@ -3,14 +3,9 @@ import Alert from '@/Components/ui/Alert.vue';
 import Button from '@/Components/ui/Button.vue';
 import { api, fieldErrors, toApiError, type ApiError } from '@/lib/api';
 import type { TpbImportResult } from '@/types/models';
-import { FileSpreadsheet } from 'lucide-vue-next';
+import { ArrowRight, FileSpreadsheet, Info, TriangleAlert } from 'lucide-vue-next';
 import { computed, ref, watch } from 'vue';
 
-/**
- * Upload of the TPB schedule file, checked by the server first (dry run), saved on confirm.
- *   - target tpb: the TPB admin enters the TPB schedule as a run (POST tpb-schedule/import),
- *   - target faculty: the faculty keeps its own record of what TPB holds (POST tpb-occupancy/import).
- */
 const props = defineProps<{ target: 'tpb' | 'faculty'; period: string; disabled?: boolean }>();
 const emit = defineEmits<{ imported: [result: TpbImportResult] }>();
 
@@ -22,9 +17,62 @@ const failure = ref<ApiError | null>(null);
 const dragging = ref(false);
 const input = ref<HTMLInputElement | null>(null);
 
-const columns = computed(() => (props.target === 'tpb'
-    ? 'Kolom Kode MK, Grup, Peserta, Prodi, Semester, Kelas, Kapasitas, dan Dosen Pengampu membuat grup dan kelas, kolom Ruangan, Hari, Sesi, dan Pertemuan membuat jadwal. MK 4 SKS memakai dua baris per kelas (Pertemuan 1 dan 2). Kolom jadwal boleh kosong untuk impor data saja.'
-    : 'Ruangan, Hari, dan Sesi wajib diisi. Kode MK, Mata Kuliah, Kelas, SKS, Kapasitas, dan Dosen Pengampu boleh diisi. Grup, Peserta, Prodi, dan Semester dibaca tetapi belum dipakai.'));
+interface FormatGroup { title: string; hint: string; columns: string[]; required?: boolean }
+
+const formatGroups = computed<FormatGroup[]>(() => (props.target === 'tpb'
+    ? [
+        { title: 'Data grup dan kelas', hint: 'Membuat grup dan kelas. Boleh dikosongkan jika grup dan kelas sudah ada di Mapping Dosen.', columns: ['Kode MK', 'Grup', 'Peserta', 'Prodi', 'Semester', 'Kelas', 'Kapasitas', 'Dosen Pengampu'] },
+        { title: 'Jadwal', hint: 'Membuat jadwal. Kosongkan semuanya jika hanya mengimpor data.', columns: ['Ruangan', 'Hari', 'Sesi', 'Pertemuan'] },
+    ]
+    : [
+        { title: 'Wajib diisi', hint: 'Menentukan slot ruangan yang dipakai TPB.', columns: ['Ruangan', 'Hari', 'Sesi'], required: true },
+        { title: 'Boleh diisi', hint: 'Dosen Pengampu dipakai untuk memeriksa bentrok dosen.', columns: ['Kode MK', 'Mata Kuliah', 'Kelas', 'SKS', 'Kapasitas', 'Dosen Pengampu'] },
+    ]));
+const formatNotes = computed(() => (props.target === 'tpb'
+    ? ['Satu baris untuk satu pertemuan kelas.', 'MK 4 SKS butuh dua baris per kelas (Pertemuan 1 dan 2).']
+    : ['Satu baris untuk satu pertemuan kelas.']));
+const summaryTitle = computed(() => {
+    const result = preview.value;
+    if (!result) return '';
+    if (props.target === 'faculty') return `${result.rows ?? 0} baris siap disimpan`;
+
+    return result.meetings ? `${result.meetings} pertemuan siap disimpan` : 'Data TPB siap disimpan, tanpa jadwal';
+});
+const summaryStats = computed(() => {
+    const result = preview.value;
+    if (!result) return [];
+    if (props.target === 'faculty') return [{ label: 'Baris', value: result.rows ?? 0 }, { label: 'Dilewati', value: result.skipped ?? 0 }];
+
+    return [
+        ...(result.data ? [
+            { label: 'Mata kuliah', value: result.data.offerings },
+            { label: 'Grup', value: result.data.groups },
+            { label: 'Kelas', value: result.data.classes },
+        ] : []),
+        ...(result.meetings ? [{ label: 'Pertemuan', value: result.meetings }] : []),
+    ];
+});
+const summaryNotes = computed(() => {
+    const result = preview.value;
+    if (!result) return [];
+    const notes: { icon: typeof Info; tone: string; text: string }[] = [];
+    if (props.target === 'faculty') {
+        notes.push({ icon: Info, tone: 'text-gray-400', text: 'Import ini menggantikan import sebelumnya untuk periode yang sama.' });
+
+        return notes;
+    }
+    if (result.data?.replaced) {
+        notes.push({ icon: TriangleAlert, tone: 'text-amber-600', text: `${result.data.replaced} mata kuliah sudah punya grup. Grup dan kelas lamanya diganti isi file.` });
+    }
+    if (result.warnings.length) {
+        notes.push({ icon: TriangleAlert, tone: 'text-amber-600', text: `${result.warnings.length} peringatan. Peringatan tidak menghalangi penyimpanan.` });
+    }
+    notes.push(result.meetings
+        ? { icon: ArrowRight, tone: 'text-primary', text: 'Jadwal disimpan sebagai run TPB baru yang belum aktif. Aktifkan dan publikasikan lewat halaman Proses GA.' }
+        : { icon: Info, tone: 'text-gray-400', text: 'File ini tidak berisi jadwal, jadi tidak ada run baru.' });
+
+    return notes;
+});
 const readyToSave = computed(() => preview.value !== null && preview.value.errors.length === 0 && !busy.value);
 
 async function send(dryRun: boolean): Promise<TpbImportResult | null> {
@@ -91,10 +139,7 @@ watch(() => props.period, () => {
 <template>
     <section class="space-y-4 rounded-xl border border-gray-200 bg-white p-5">
         <div class="flex flex-wrap items-start justify-between gap-3">
-            <div>
-                <h2 class="text-base font-semibold text-gray-900">Unggah file jadwal TPB</h2>
-                <p class="mt-1 max-w-2xl text-sm text-gray-600">Satu baris untuk satu pertemuan kelas. {{ columns }}</p>
-            </div>
+            <h2 class="text-base font-semibold text-gray-900">Unggah file jadwal TPB</h2>
             <div class="flex flex-wrap gap-2">
                 <a href="/api/internal/tpb-schedule/import/template" class="inline-flex h-10 items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50">
                     <FileSpreadsheet class="size-4" aria-hidden="true" />
@@ -108,6 +153,25 @@ watch(() => props.period, () => {
                     <FileSpreadsheet class="size-4" aria-hidden="true" />
                     Unduh data dan jadwal saat ini
                 </a>
+            </div>
+        </div>
+
+        <div class="space-y-3 rounded-lg bg-gray-50 p-4">
+            <p class="text-sm font-medium text-gray-900">Format file</p>
+            <ul class="list-inside list-disc space-y-0.5 text-sm text-gray-600">
+                <li v-for="note in formatNotes" :key="note">{{ note }}</li>
+            </ul>
+            <div class="grid gap-3 md:grid-cols-2">
+                <section v-for="group in formatGroups" :key="group.title" class="rounded-lg border border-gray-200 bg-white p-3">
+                    <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                        {{ group.title }}
+                        <span v-if="group.required" class="rounded bg-primary/10 px-1.5 py-0.5 text-xs font-medium text-primary">Wajib</span>
+                    </h3>
+                    <p class="mt-0.5 text-xs text-gray-500">{{ group.hint }}</p>
+                    <ul class="mt-2 flex flex-wrap gap-1.5">
+                        <li v-for="column in group.columns" :key="column" class="rounded-md border border-gray-200 bg-gray-50 px-2 py-0.5 text-xs font-medium text-gray-700">{{ column }}</li>
+                    </ul>
+                </section>
             </div>
         </div>
 
@@ -128,13 +192,21 @@ watch(() => props.period, () => {
 
         <template v-if="preview">
             <Alert v-if="preview.errors.length" :title="`${preview.errors.length} baris perlu diperbaiki`">Perbaiki file lalu unggah ulang. Tidak ada data yang disimpan.</Alert>
-            <Alert v-else variant="success" :title="target === 'tpb' ? (preview.meetings ? `${preview.meetings} pertemuan siap disimpan` : 'Data TPB siap disimpan, tanpa jadwal') : `${preview.rows ?? 0} baris siap disimpan`">
-                <template v-if="target === 'tpb'">
-                    <template v-if="preview.data">Data: {{ preview.data.offerings }} mata kuliah, {{ preview.data.groups }} grup, {{ preview.data.classes }} kelas<template v-if="preview.data.replaced">, {{ preview.data.replaced }} mata kuliah diganti</template>. </template>
-                    <template v-if="preview.meetings">Jadwalnya menjadi run TPB baru yang belum aktif. Aktifkan dan publikasikan dari halaman Proses GA.</template>
-                </template>
-                <template v-else>Import ini menggantikan import sebelumnya untuk periode yang sama.</template>
-            </Alert>
+            <template v-else>
+                <Alert variant="success" :title="summaryTitle" />
+                <dl class="grid grid-cols-2 gap-3 md:grid-cols-4">
+                    <div v-for="stat in summaryStats" :key="stat.label" class="rounded-lg border border-gray-200 bg-white px-3 py-2">
+                        <dt class="text-xs text-gray-500">{{ stat.label }}</dt>
+                        <dd class="text-xl font-semibold tabular-nums text-gray-900">{{ stat.value }}</dd>
+                    </div>
+                </dl>
+                <ul class="space-y-1.5">
+                    <li v-for="note in summaryNotes" :key="note.text" class="flex items-start gap-2 text-sm text-gray-600">
+                        <component :is="note.icon" class="mt-0.5 size-4 shrink-0" :class="note.tone" aria-hidden="true" />
+                        {{ note.text }}
+                    </li>
+                </ul>
+            </template>
             <div v-if="preview.errors.length || preview.warnings.length" class="max-h-72 overflow-y-auto rounded-lg border border-gray-200">
                 <table class="w-full text-left text-sm">
                     <thead class="sticky top-0 bg-gray-50 text-xs text-gray-500">
@@ -151,6 +223,39 @@ watch(() => props.period, () => {
                         </tr>
                     </tbody>
                 </table>
+            </div>
+            <div v-if="preview.schedule?.length" class="space-y-2">
+                <h3 class="text-sm font-semibold text-gray-900">Pratinjau jadwal ({{ preview.schedule.length }} pertemuan)</h3>
+                <div class="max-h-96 overflow-auto rounded-lg border border-gray-200">
+                    <table class="w-full text-left text-sm">
+                        <thead class="sticky top-0 bg-gray-50 text-xs text-gray-500">
+                            <tr>
+                                <th class="px-3 py-2 font-medium">No</th>
+                                <th class="px-3 py-2 font-medium">Mata kuliah</th>
+                                <th class="px-3 py-2 font-medium">Kelas</th>
+                                <th class="px-3 py-2 font-medium">Grup</th>
+                                <th class="px-3 py-2 font-medium">Pert.</th>
+                                <th class="px-3 py-2 font-medium">Hari</th>
+                                <th class="px-3 py-2 font-medium">Sesi</th>
+                                <th class="px-3 py-2 font-medium">Ruang</th>
+                                <th class="px-3 py-2 font-medium">Dosen</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-gray-100">
+                            <tr v-for="(item, index) in preview.schedule" :key="item.row">
+                                <td class="px-3 py-2 tabular-nums text-gray-500">{{ index + 1 }}</td>
+                                <td class="px-3 py-2"><span class="font-medium text-gray-900">{{ item.course }}</span> <span class="text-xs text-gray-500">{{ item.code }}</span></td>
+                                <td class="px-3 py-2">{{ item.class }}</td>
+                                <td class="px-3 py-2">{{ item.group ?? '-' }}</td>
+                                <td class="px-3 py-2 tabular-nums">{{ item.meeting }}</td>
+                                <td class="px-3 py-2">{{ item.day }}</td>
+                                <td class="px-3 py-2">{{ item.session }}</td>
+                                <td class="px-3 py-2">{{ item.room }}</td>
+                                <td class="px-3 py-2 text-gray-600">{{ item.lecturer ?? '-' }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
             </div>
             <div class="flex justify-end">
                 <Button :disabled="!readyToSave" :loading="busy === 'save'" @click="save">Simpan jadwal TPB</Button>

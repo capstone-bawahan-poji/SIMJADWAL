@@ -19,13 +19,13 @@ const imported = ref<TpbImportResult | null>(null);
 <template>
     <Head title="Import Jadwal TPB" />
     <AppLayout>
-        <div class="mx-auto w-full max-w-5xl space-y-6 p-6 md:p-8">
+        <div class="space-y-6">
             <header class="flex flex-wrap items-end justify-between gap-4">
                 <div>
                     <h1 class="text-2xl font-bold tracking-tight text-gray-900">Import Jadwal TPB</h1>
                     <p class="mt-1 max-w-3xl text-sm text-gray-600">
-                        Isi grup, kelas, dan jadwal TPB dari satu file Excel tanpa menjalankan GA. File tanpa kolom Grup dan Peserta
-                        hanya memuat jadwal, dan kelasnya harus sudah ada di
+                        Isi grup, kelas, dan jadwal TPB dari satu file Excel, tanpa menjalankan GA. Jika file tidak punya kolom Grup dan
+                        Peserta, file hanya berisi jadwal, dan kelasnya harus sudah ada di
                         <Link href="/tpb/mappings" class="font-medium text-primary hover:underline">Mapping Dosen</Link>.
                     </p>
                 </div>

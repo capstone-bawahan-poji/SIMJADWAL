@@ -38,7 +38,7 @@ readonly class TpbScheduleImportService
     ) {}
 
     /**
-     * @return array{committed: bool, run_id: int|null, meetings: int, data: array<string, int>|null, errors: list<array{row: int, message: string}>, warnings: list<array{row: int, message: string}>}
+     * @return array{committed: bool, run_id: int|null, meetings: int, schedule?: list<array<string, mixed>>, data: array<string, int>|null, errors: list<array{row: int, message: string}>, warnings: list<array{row: int, message: string}>}
      */
     public function run(User $actor, string $period, string $path, bool $apply): array
     {
@@ -68,7 +68,7 @@ readonly class TpbScheduleImportService
     /**
      * Runs inside the caller's transaction. Rolled back by the caller unless committed is true.
      *
-     * @return array{committed: bool, run_id: int|null, meetings: int, data: array<string, int>|null, errors: list<array{row: int, message: string}>, warnings: list<array{row: int, message: string}>}
+     * @return array{committed: bool, run_id: int|null, meetings: int, schedule?: list<array<string, mixed>>, data: array<string, int>|null, errors: list<array{row: int, message: string}>, warnings: list<array{row: int, message: string}>}
      */
     private function import(User $actor, string $period, string $path, bool $apply, TpbScheduleSheet $sheet, bool $withData): array
     {
@@ -82,7 +82,7 @@ readonly class TpbScheduleImportService
         }
 
         $classes = CourseLecturer::query()
-            ->with(['course:id,code,name,sks', 'tpbGroup:id,code'])
+            ->with(['course:id,code,name,sks', 'tpbGroup:id,code', 'lecturer:id,name'])
             ->whereRelation('tpbOffering', 'period', $period)
             ->get()
             ->keyBy(fn (CourseLecturer $c) => mb_strtoupper($c->course->code).':'.$c->class_number);
@@ -90,6 +90,7 @@ readonly class TpbScheduleImportService
         $errors = [];
         $warnings = [];
         $details = [];
+        $schedule = [];
         $seen = [];
         $lecturerAt = [];
         $roomAt = [];
@@ -139,6 +140,18 @@ readonly class TpbScheduleImportService
             if ($room->capacity < (int) ($v['capacity'] ?? 0)) {
                 $warnings[] = ['row' => $line, 'message' => __('Room :room is smaller than the class.', ['room' => $room->code])];
             }
+            $schedule[] = [
+                'row' => $line,
+                'code' => $class->course->code,
+                'course' => $class->course->name,
+                'class' => CourseLecturer::labelFor($class->class_number),
+                'group' => $class->tpbGroup?->code,
+                'meeting' => $meeting,
+                'day' => $v['day'],
+                'session' => $v['session'],
+                'room' => $room->code,
+                'lecturer' => $class->lecturer->name ?? null,
+            ];
             $details[] = [
                 'course_id' => $class->course_id,
                 'class_number' => $class->class_number,
@@ -190,6 +203,6 @@ readonly class TpbScheduleImportService
             $runId = $run->id;
         }
 
-        return ['committed' => $commit, 'run_id' => $runId, 'meetings' => count($details), 'data' => $data, 'errors' => $errors, 'warnings' => $warnings];
+        return ['committed' => $commit, 'run_id' => $runId, 'meetings' => count($details), 'schedule' => $schedule, 'data' => $data, 'errors' => $errors, 'warnings' => $warnings];
     }
 }
