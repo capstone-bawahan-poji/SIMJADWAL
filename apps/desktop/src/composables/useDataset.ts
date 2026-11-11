@@ -5,7 +5,8 @@ import type { SchedulingDataset } from '@/types/scheduling';
 
 const dataset = ref<SchedulingDataset | null>(null);
 const period = ref<string | null>(null);
-const facultyId = ref<number | null>(null);
+/** superadmin: the program picked in the context bar. Others work on their own scope. */
+const studyProgramId = ref<number | null>(null);
 const loading = ref(false);
 const error = ref('');
 const stale = ref(false);
@@ -14,6 +15,8 @@ const reviseGroupIds = ref<number[]>([]);
 const DATASET_TABLES = [
   'faculties', 'study_programs', 'courses', 'course_lecturers', 'lecturers', 'rooms',
   'time_slots', 'tpb_groups', 'lecturer_preferences', 'constraint_types',
+  // Program datasets also change when the faculty moves cells or another program activates a run.
+  'room_slot_allocations', 'scheduling_runs', 'program_schedule_submissions', 'tpb_occupancy_imports',
 ];
 
 onChanges(DATASET_TABLES, () => {
@@ -25,11 +28,11 @@ function periodOptions(current: string | null): string[] {
   return [start, start + 1].flatMap((year) => [`${year}/${year + 1}-GANJIL`, `${year}/${year + 1}-GENAP`]);
 }
 
-/** A dataset belongs to the signed-in account's scope (TPB or one faculty): drop it on sign-out. */
+/** A dataset belongs to the signed-in account's scope (TPB or one study program): drop it on sign-out. */
 export function resetDataset() {
   dataset.value = null;
   period.value = null;
-  facultyId.value = null;
+  studyProgramId.value = null;
   error.value = '';
   stale.value = false;
   reviseGroupIds.value = [];
@@ -40,7 +43,7 @@ export function useDataset() {
     loading.value = true;
     error.value = '';
     try {
-      dataset.value = await fetchDataset({ period: period.value ?? undefined, facultyId: facultyId.value, reviseGroupIds: reviseGroupIds.value });
+      dataset.value = await fetchDataset({ period: period.value ?? undefined, studyProgramId: studyProgramId.value, reviseGroupIds: reviseGroupIds.value });
       stale.value = false;
       period.value = dataset.value.period;
     } catch (e) {
@@ -56,8 +59,8 @@ export function useDataset() {
     return load();
   }
 
-  function setFaculty(value: number | null) {
-    facultyId.value = value;
+  function setStudyProgram(value: number | null) {
+    studyProgramId.value = value;
     dataset.value = null;
     return value ? load() : Promise.resolve();
   }
@@ -71,7 +74,7 @@ export function useDataset() {
     reviseGroupIds.value = [];
     dataset.value = null;
     period.value = null;
-    facultyId.value = null;
+    studyProgramId.value = null;
     error.value = '';
     stale.value = false;
   }
@@ -79,12 +82,12 @@ export function useDataset() {
   return {
     dataset: computed(() => dataset.value),
     period: readonly(period),
-    facultyId: readonly(facultyId),
+    studyProgramId: readonly(studyProgramId),
     loading: readonly(loading),
     error: readonly(error),
     stale: readonly(stale),
     periodOptions: computed(() => periodOptions(period.value)),
     reviseGroupIds: readonly(reviseGroupIds),
-    load, setPeriod, setFaculty, setRevision, clear,
+    load, setPeriod, setStudyProgram, setRevision, clear,
   };
 }

@@ -14,12 +14,12 @@ export function resetGaPresets() {
   error.value = '';
 }
 
-async function fetchPresets(facultyId: number | null) {
+async function fetchPresets(studyProgramId: number | null) {
   loading.value = true;
   error.value = '';
   try {
-    presets.value = await listPresets(facultyId);
-    loadedFor.value = facultyId;
+    presets.value = await listPresets(studyProgramId);
+    loadedFor.value = studyProgramId;
   } catch (e) {
     error.value = (e as Error).message;
   } finally {
@@ -32,9 +32,9 @@ onChanges(['ga_parameter_presets'], () => {
 });
 
 export function useGaPresets() {
-  async function load(facultyId: number | null, force = false) {
-    if (!force && loadedFor.value === facultyId) return;
-    await fetchPresets(facultyId);
+  async function load(studyProgramId: number | null, force = false) {
+    if (!force && loadedFor.value === studyProgramId) return;
+    await fetchPresets(studyProgramId);
   }
 
   async function create(payload: GaPresetPayload) {

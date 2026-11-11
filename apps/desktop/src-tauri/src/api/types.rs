@@ -12,6 +12,15 @@ pub struct FacultySummary {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+pub struct StudyProgramSummary {
+    pub id: i64,
+    pub code: String,
+    pub name: String,
+    #[serde(default)]
+    pub faculty: Option<FacultySummary>,
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct AuthUser {
     pub id: i64,
     pub name: String,
@@ -19,6 +28,10 @@ pub struct AuthUser {
     pub role: Option<String>,
     pub faculty_id: Option<i64>,
     pub faculty: Option<FacultySummary>,
+    #[serde(default)]
+    pub study_program_id: Option<i64>,
+    #[serde(default)]
+    pub study_program: Option<StudyProgramSummary>,
     pub is_active: bool,
 }
 
@@ -41,6 +54,8 @@ pub type ScOverrides = HashMap<String, HashMap<String, f64>>;
 pub struct GaPreset {
     pub id: i64,
     pub faculty_id: Option<i64>,
+    #[serde(default)]
+    pub study_program_id: Option<i64>,
     pub name: String,
     pub population_size: u32,
     pub min_generations: u32,
@@ -64,8 +79,12 @@ pub struct GaPreset {
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct GaPresetInput {
+    /// superadmin only: the program the preset belongs to.
     #[serde(skip_serializing_if = "Option::is_none")]
-    pub faculty_id: Option<i64>,
+    pub study_program_id: Option<i64>,
+    /// superadmin only: "tpb" for a TPB preset.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub scope: Option<String>,
     pub name: String,
     pub population_size: u32,
     pub min_generations: u32,

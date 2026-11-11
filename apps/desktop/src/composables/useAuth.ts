@@ -7,7 +7,8 @@ import { resetRunSync } from '@/composables/useRunSync';
 import { startChanges, stopChanges } from '@/lib/echo';
 import type { AuthUser, Role } from '@/types';
 
-const DESKTOP_ROLES: Role[] = ['superadmin', 'admin_fakultas', 'admin_tpb'];
+// POS 040/IT10.1/OT.07/2026: each study program runs its own GA; faculties hand out room slots on the web.
+const DESKTOP_ROLES: Role[] = ['superadmin', 'admin_prodi', 'admin_tpb'];
 const canUseDesktop = (u: AuthUser) => u.role !== null && DESKTOP_ROLES.includes(u.role);
 
 const LEGACY_TOKEN_KEY = 'token';
@@ -42,7 +43,9 @@ export function useAuth() {
     const me = await auth.login(email, password);
     if (!canUseDesktop(me)) {
       await logout();
-      throw new Error('Akun ini tidak memiliki akses ke aplikasi desktop.');
+      throw new Error(me.role === 'admin_fakultas'
+        ? 'Penjadwalan GA kini dijalankan oleh admin program studi. Admin fakultas membagi slot ruangan dan meninjau jadwal melalui aplikasi web.'
+        : 'Akun ini tidak memiliki akses ke aplikasi desktop.');
     }
     signedIn(me);
   }

@@ -1,7 +1,7 @@
 use serde_json::Value;
 use tauri::{AppHandle, Manager, State};
 
-use crate::api::types::{AuthUser, FacultySummary, GaPreset, GaPresetInput};
+use crate::api::types::{AuthUser, FacultySummary, GaPreset, GaPresetInput, StudyProgramSummary};
 use crate::api::{ApiClient, ApiError, ErrorCode};
 use crate::error::AppError;
 use crate::services::storage::{RunListItem, Storage, UploadState, UploadStatus};
@@ -49,12 +49,12 @@ pub async fn broadcast_auth(
 pub async fn api_dataset(
     api: State<'_, ApiClient>,
     period: Option<String>,
-    faculty_id: Option<i64>,
+    study_program_id: Option<i64>,
     revise_group_ids: Option<Vec<i64>>,
 ) -> Result<Value, ApiError> {
     api.dataset(
         period.as_deref(),
-        faculty_id,
+        study_program_id,
         &revise_group_ids.unwrap_or_default(),
     )
     .await
@@ -75,11 +75,18 @@ pub async fn api_faculties(api: State<'_, ApiClient>) -> Result<Vec<FacultySumma
 }
 
 #[tauri::command]
+pub async fn api_study_programs(
+    api: State<'_, ApiClient>,
+) -> Result<Vec<StudyProgramSummary>, ApiError> {
+    api.study_programs().await
+}
+
+#[tauri::command]
 pub async fn api_ga_presets(
     api: State<'_, ApiClient>,
-    faculty_id: Option<i64>,
+    study_program_id: Option<i64>,
 ) -> Result<Vec<GaPreset>, ApiError> {
-    api.ga_presets(faculty_id).await
+    api.ga_presets(study_program_id).await
 }
 
 #[tauri::command]

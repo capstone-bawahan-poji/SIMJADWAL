@@ -67,6 +67,13 @@ const tabs = computed(() => [
         </dl>
       </div>
 
+      <div v-if="record.result.study_program_id && record.result.summary.unassigned_rooms > 0" class="mt-4 px-6">
+        <Alert variant="warning" title="Sebagian pertemuan tidak mendapat slot ruangan">
+          {{ record.result.summary.unassigned_rooms }} pertemuan tidak muat di slot ruangan program studi, sehingga hasil ini akan ditolak server.
+          Ajukan tambahan slot ruangan ke fakultas melalui aplikasi web, lalu jalankan GA lagi.
+        </Alert>
+      </div>
+
       <div class="mt-4 px-6"><Tabs v-model="tab" :tabs="tabs" /></div>
 
       <div v-if="tab === 'matrix'" class="p-6">
