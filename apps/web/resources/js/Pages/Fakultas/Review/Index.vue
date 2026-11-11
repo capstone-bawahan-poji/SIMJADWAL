@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import Modal from '@/Components/Modal.vue';
-import SubmissionStatusBadge from '@/Components/scheduling/SubmissionStatusBadge.vue';
+import FacultyScheduleGrid from '@/Components/scheduling/FacultyScheduleGrid.vue';
 import Alert from '@/Components/ui/Alert.vue';
 import Button from '@/Components/ui/Button.vue';
 import ConfirmDialog from '@/Components/ui/ConfirmDialog.vue';
@@ -10,11 +10,12 @@ import { useProgramSubmission } from '@/composables/useProgramSubmission';
 import { onResourcesChanged } from '@/composables/useResourceChanges';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { api, toApiError, type ApiError } from '@/lib/api';
-import { classLabel, DAY_LABELS, formatDateTime, formatTime } from '@/lib/labels';
+import { formatDateTime } from '@/lib/labels';
 import { queryParam } from '@/lib/query';
-import type { Collection, FacultySubmissionRow, RunScheduleDetail, SchedulePublicationState, TimeSlot } from '@/types/models';
+import type { Collection, FacultySubmissionRow, RunScheduleDetail, SchedulePublicationState, SubmissionStatus, TimeSlot } from '@/types/models';
 import { Head, usePage } from '@inertiajs/vue3';
-import { computed, ref, watch } from 'vue';
+import { CheckCircle2 } from 'lucide-vue-next';
+import { computed, nextTick, ref, watch } from 'vue';
 
 /**
  * POS 040/IT10.1/OT.07/2026 steps 9 and 10: the faculty reviews the schedule each program handed
@@ -30,6 +31,8 @@ const selectedId = ref<number | null>(Number(queryParam('program')) || null);
 const details = ref<RunScheduleDetail[]>([]);
 const detailsLoading = ref(false);
 const detailsError = ref<ApiError | null>(null);
+const detailSection = ref<HTMLElement | null>(null);
+let detailsRequestId = 0;
 const flash = ref<string | null>(null);
 const returnOpen = ref(false);
 const returnNote = ref('');
@@ -38,24 +41,28 @@ const publishOpen = ref(false);
 const publishing = ref(false);
 const publishError = ref<string | null>(null);
 
+const STATUS: Record<SubmissionStatus, { label: string; dot: string; pill: string }> = {
+    draft: { label: 'Draf', dot: 'bg-gray-300', pill: 'bg-gray-50 text-gray-600' },
+    submitted: { label: 'Perlu ditinjau', dot: 'bg-amber-400', pill: 'bg-amber-50 text-amber-800' },
+    accepted: { label: 'Diterima', dot: 'bg-primary', pill: 'bg-primary/10 text-primary' },
+    returned: { label: 'Dikembalikan', dot: 'bg-sky-400', pill: 'bg-sky-50 text-sky-800' },
+    published: { label: 'Dipublikasikan', dot: 'bg-primary', pill: 'bg-primary/10 text-primary' },
+};
+const countOf = (status: SubmissionStatus) => rows.value.filter((row) => row.status === status).length;
+const completedCount = computed(() => countOf('accepted') + countOf('published'));
 const selectedRow = computed(() => rows.value.find((row) => row.study_program.id === selectedId.value) ?? null);
 const { submission, processing, step } = useProgramSubmission(selectedId, period);
 const days = computed(() => [...new Set(timeSlots.value.map((slot) => slot.day))].sort((a, b) => a - b));
-const sessions = computed(() => [...new Set(timeSlots.value.map((slot) => slot.session))].sort((a, b) => a - b));
-const detailsByCell = computed(() => {
-    const cells = new Map<string, RunScheduleDetail[]>();
-    for (const detail of details.value) {
-        const key = `${detail.time_slot.day}-${detail.time_slot.session}`;
-        cells.set(key, [...(cells.get(key) ?? []), detail]);
-    }
-    return cells;
-});
 const violationCount = computed(() => details.value.reduce((sum, detail) => sum + detail.violations_count, 0));
-const canReview = computed(() => !publication.value?.published && ['submitted', 'accepted'].includes(submission.value?.status ?? ''));
+const canReview = computed(() => !publication.value?.published
+    && submission.value?.study_program.id === selectedId.value
+    && submission.value?.period === period.value
+    && ['submitted', 'accepted'].includes(submission.value.status));
 
-function timeForSession(session: number): string {
-    const slot = timeSlots.value.find((item) => item.session === session);
-    return slot ? `${formatTime(slot.start_time)}–${formatTime(slot.end_time)}` : '';
+async function selectProgram(id: number): Promise<void> {
+    selectedId.value = id;
+    await nextTick();
+    detailSection.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 async function load(): Promise<void> {
@@ -75,18 +82,20 @@ async function load(): Promise<void> {
 }
 
 async function loadDetails(): Promise<void> {
+    const requestId = ++detailsRequestId;
     const runId = selectedRow.value?.scheduling_run_id;
     details.value = [];
     detailsError.value = null;
+    detailsLoading.value = false;
     if (!runId || selectedRow.value?.status === 'draft' || selectedRow.value?.status === 'returned') return;
     detailsLoading.value = true;
     try {
         const response = await api.get<Collection<RunScheduleDetail>>(`scheduling-runs/${runId}/schedule-details`);
-        details.value = response.data.data;
+        if (requestId === detailsRequestId) details.value = response.data.data;
     } catch (error) {
-        detailsError.value = toApiError(error);
+        if (requestId === detailsRequestId) detailsError.value = toApiError(error);
     } finally {
-        detailsLoading.value = false;
+        if (requestId === detailsRequestId) detailsLoading.value = false;
     }
 }
 
@@ -128,7 +137,7 @@ async function publish(): Promise<void> {
 }
 
 watch(period, () => void load(), { immediate: true });
-watch(() => [selectedRow.value?.scheduling_run_id, selectedRow.value?.status], () => void loadDetails(), { immediate: true });
+watch(() => [selectedId.value, selectedRow.value?.scheduling_run_id, selectedRow.value?.status], () => void loadDetails(), { immediate: true });
 onResourcesChanged(['program_schedule_submissions', 'schedule_publications', 'room_slot_allocations', 'slot_requests'], () => void load());
 onResourcesChanged(['schedule_details'], () => void loadDetails());
 </script>
@@ -159,12 +168,13 @@ onResourcesChanged(['schedule_details'], () => void loadDetails());
                 <Alert v-if="flash" variant="success" :title="flash" dismissible @dismiss="flash = null" />
             </div>
 
-            <section v-if="publication" class="rounded-xl border p-5" :class="publication.published ? 'border-emerald-200 bg-emerald-50' : 'border-gray-200 bg-white'">
+            <section v-if="publication" class="rounded-xl border border-gray-200 bg-white p-6">
                 <div class="flex flex-wrap items-start justify-between gap-4">
                     <div class="space-y-1 text-sm">
                         <h2 class="text-base font-semibold text-gray-900">Publikasi jadwal fakultas</h2>
+                        <p class="text-gray-600"><strong class="text-base font-semibold tabular-nums text-gray-900">{{ completedCount }}</strong> dari {{ rows.length }} program studi {{ publication.published ? 'dipublikasikan atau diterima' : 'diterima' }}</p>
                         <template v-if="publication.published">
-                            <p class="text-emerald-800">
+                            <p class="text-primary">
                                 Dipublikasikan {{ formatDateTime(publication.published_at) }} oleh {{ publication.published_by?.name ?? '-' }}. Jadwal bersifat final.
                             </p>
                             <p class="text-gray-600">
@@ -172,53 +182,62 @@ onResourcesChanged(['schedule_details'], () => void loadDetails());
                                 <code class="rounded bg-white px-1 font-mono text-xs">GET /api/v1/published-schedules?faculty_code={{ publication.faculty.code }}</code>.
                             </p>
                         </template>
-                        <template v-else-if="publication.waiting_programs.length">
-                            <p class="text-gray-600">Menunggu {{ publication.waiting_programs.length }} program studi diterima:</p>
-                            <p class="flex flex-wrap gap-2">
-                                <span v-for="program in publication.waiting_programs" :key="program.id" class="inline-flex items-center gap-1.5 text-gray-700">
-                                    {{ program.code }} <SubmissionStatusBadge :status="program.status" />
-                                </span>
-                            </p>
-                        </template>
-                        <p v-else class="text-gray-600">Semua program studi sudah diterima.</p>
                     </div>
                     <Button v-if="!publication.published" :disabled="!publication.can_publish" @click="publishOpen = true">Publikasikan jadwal fakultas</Button>
                 </div>
+                <dl class="mt-4 flex flex-wrap gap-x-6 gap-y-2 text-sm text-gray-600">
+                    <div v-for="(meta, status) in STATUS" :key="status" class="inline-flex items-center gap-1.5">
+                        <span class="size-2.5 rounded-sm" :class="meta.dot" aria-hidden="true" />
+                        <dt>{{ meta.label }}:</dt>
+                        <dd class="font-semibold tabular-nums text-gray-900">{{ countOf(status) }}</dd>
+                    </div>
+                </dl>
+                <p v-if="!publication.published && !publication.can_publish" class="mt-3 text-sm text-gray-600">Publikasi tersedia setelah semua persyaratan terpenuhi dan semua program studi diterima.</p>
             </section>
 
-            <div class="grid gap-6 lg:grid-cols-[320px_minmax(0,1fr)]">
-                <aside>
+            <div class="space-y-6">
+                <section>
                     <h2 class="mb-3 text-base font-semibold text-gray-900">Program studi</h2>
-                    <ul class="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white">
-                        <li v-if="!rows.length" class="px-4 py-6 text-center text-sm text-gray-500">Belum ada program studi.</li>
-                        <li v-for="row in rows" :key="row.study_program.id">
-                            <button
-                                type="button"
-                                class="block w-full px-4 py-3 text-left text-sm transition-colors hover:bg-gray-50"
-                                :class="row.study_program.id === selectedId ? 'bg-primary/5' : ''"
-                                :aria-pressed="row.study_program.id === selectedId"
-                                @click="selectedId = row.study_program.id"
-                            >
-                                <span class="flex items-center justify-between gap-2">
-                                    <span class="font-semibold text-gray-900">{{ row.study_program.code }}</span>
-                                    <SubmissionStatusBadge :status="row.status" />
-                                </span>
-                                <span class="mt-0.5 block truncate text-gray-600">{{ row.study_program.name }}</span>
-                                <span class="mt-1 block text-xs text-gray-500">
-                                    {{ row.cells_count }} slot ruangan<template v-if="row.submitted_at">, dikirim {{ formatDateTime(row.submitted_at) }}</template>
-                                </span>
-                                <span v-if="row.has_pending_slot_request" class="mt-1 block text-xs text-amber-700">Ada permintaan tambahan slot</span>
-                            </button>
-                        </li>
-                    </ul>
-                </aside>
+                    <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white">
+                        <table class="w-full min-w-[560px] text-sm">
+                            <thead>
+                                <tr class="border-b border-gray-200 bg-primary/5 text-xs text-gray-600">
+                                    <th scope="col" class="py-3 pl-5 pr-3 text-left font-medium">Program studi</th>
+                                    <th scope="col" class="px-3 py-3 text-right font-medium">Slot ruangan</th>
+                                    <th scope="col" class="px-3 py-3 text-left font-medium">Status</th>
+                                    <th scope="col" class="py-3 pl-3 pr-5"><span class="sr-only">Aksi</span></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr v-if="!rows.length"><td colspan="4" class="px-4 py-6 text-center text-gray-500">Belum ada program studi.</td></tr>
+                                <tr v-for="row in rows" :key="row.study_program.id" class="cursor-pointer border-b border-gray-100 last:border-0 hover:bg-gray-50" :class="row.study_program.id === selectedId ? 'bg-primary/5 shadow-[inset_3px_0_0_0] shadow-primary' : ''" @click="selectProgram(row.study_program.id)">
+                                    <td class="py-3 pl-5 pr-3">
+                                        <span class="font-semibold text-gray-900">{{ row.study_program.code }}</span>
+                                        <span class="ml-3 text-gray-700">{{ row.study_program.name }}</span>
+                                        <span v-if="row.submitted_at" class="mt-1 block text-xs text-gray-500">Dikirim {{ formatDateTime(row.submitted_at) }}</span>
+                                        <span v-if="row.has_pending_slot_request" class="mt-1 block text-xs text-amber-700">Ada permintaan tambahan slot</span>
+                                    </td>
+                                    <td class="px-3 py-3 text-right tabular-nums text-gray-600">{{ row.cells_count }}</td>
+                                    <td class="px-3 py-3">
+                                        <span class="inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs font-medium" :class="STATUS[row.status].pill">
+                                            <span class="size-1.5 rounded-full" :class="STATUS[row.status].dot" aria-hidden="true" />{{ STATUS[row.status].label }}
+                                        </span>
+                                    </td>
+                                    <td class="py-3 pl-3 pr-5 text-right">
+                                        <button type="button" class="font-medium text-primary hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary" :aria-label="`Tinjau ${row.study_program.code} ${row.study_program.name}`" aria-controls="detail-review-prodi" :aria-pressed="row.study_program.id === selectedId" @click.stop="selectProgram(row.study_program.id)">Tinjau</button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
 
-                <section v-if="selectedRow" class="space-y-4">
+                <section v-if="selectedRow" id="detail-review-prodi" ref="detailSection" class="scroll-mt-6 space-y-4">
                     <div class="flex flex-wrap items-start justify-between gap-4">
                         <div>
                             <h2 class="text-lg font-semibold text-gray-900">{{ selectedRow.study_program.code }} {{ selectedRow.study_program.name }}</h2>
                             <p class="mt-1 text-sm text-gray-600">
-                                <template v-if="selectedRow.scheduling_run_id">Run #{{ selectedRow.scheduling_run_id }}, fitness {{ selectedRow.best_fitness?.toFixed(3) ?? '-' }}</template>
+                                <template v-if="selectedRow.scheduling_run_id">Run #{{ selectedRow.scheduling_run_id }}</template>
                                 <template v-else>Belum ada run yang ditetapkan.</template>
                             </p>
                         </div>
@@ -237,41 +256,13 @@ onResourcesChanged(['schedule_details'], () => void loadDetails());
                         <Alert v-if="detailsError" :title="detailsError.message" />
                         <p v-if="detailsLoading" class="py-8 text-center text-sm text-gray-500">Memuat jadwal…</p>
                         <template v-else>
-                            <p class="text-sm text-gray-600">{{ details.length }} pertemuan, {{ violationCount }} pelanggaran tercatat dari GA.</p>
-                            <div class="overflow-x-auto rounded-xl border border-gray-200 bg-white">
-                                <table class="w-full min-w-[960px] border-collapse text-sm">
-                                    <thead>
-                                        <tr class="border-b border-gray-200 bg-gray-50/60 text-xs text-gray-500">
-                                            <th class="w-32 px-4 py-3 text-left font-medium">Sesi</th>
-                                            <th v-for="day in days" :key="day" class="min-w-48 border-l border-gray-200 px-4 py-3 text-left font-medium">{{ DAY_LABELS[day] }}</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody class="divide-y divide-gray-200">
-                                        <tr v-for="session in sessions" :key="session" class="align-top">
-                                            <th class="whitespace-nowrap px-4 py-4 text-left font-medium text-gray-900">
-                                                Sesi {{ session }}
-                                                <span class="mt-1 block text-xs font-normal text-gray-500">{{ timeForSession(session) }}</span>
-                                            </th>
-                                            <td v-for="day in days" :key="day" class="border-l border-gray-200 px-4 py-4">
-                                                <p v-if="!detailsByCell.get(`${day}-${session}`)?.length" class="text-gray-300" aria-label="Kosong">-</p>
-                                                <ul v-else class="space-y-3">
-                                                    <li
-                                                        v-for="detail in detailsByCell.get(`${day}-${session}`)"
-                                                        :key="detail.id"
-                                                        class="border-l-2 pl-3"
-                                                        :class="detail.violations_count ? 'border-red-400' : detail.is_overridden ? 'border-amber-400' : 'border-transparent'"
-                                                    >
-                                                        <p class="font-medium leading-snug text-gray-900">{{ detail.course.name }}</p>
-                                                        <p class="text-xs text-gray-500">{{ detail.course.code }}, kelas {{ classLabel(detail.class_number) }}</p>
-                                                        <p class="text-xs text-gray-600">{{ detail.lecturer.name }}, ruang {{ detail.room?.code ?? '-' }}</p>
-                                                        <p v-if="detail.is_overridden" class="text-xs text-amber-700">Diubah manual</p>
-                                                    </li>
-                                                </ul>
-                                            </td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                            <div v-if="!detailsError && selectedRow.scheduling_run_id" class="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-600">
+                                <span>Fitness <strong class="font-semibold tabular-nums text-gray-900">{{ selectedRow.best_fitness?.toFixed(3) ?? '-' }}</strong></span>
+                                <span><strong class="font-semibold tabular-nums text-gray-900">{{ details.length }}</strong> pertemuan</span>
+                                <span v-if="violationCount === 0" class="inline-flex items-center gap-1.5 font-medium text-primary"><CheckCircle2 class="size-4" aria-hidden="true" />Tanpa pelanggaran tercatat dari GA</span>
+                                <span v-else class="rounded-md bg-amber-50 px-2 py-0.5 font-medium text-amber-800">{{ violationCount }} pelanggaran tercatat dari GA</span>
                             </div>
+                            <FacultyScheduleGrid v-if="!detailsError && selectedRow.scheduling_run_id" :details="details" :time-slots="timeSlots" :days="days" :fallback-program="selectedRow.study_program" />
                         </template>
                     </template>
                 </section>

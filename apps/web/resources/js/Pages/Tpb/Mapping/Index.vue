@@ -585,7 +585,7 @@ async function confirmDelete(): Promise<void> {
                                 </p>
                                 <div class="flex flex-wrap gap-3 border-t border-gray-100 pt-4">
                                     <Button type="submit" :loading="offeringForm.processing.value" :disabled="!selected.can_update">Simpan</Button>
-                                    <Button v-if="selected.can_delete" type="button" variant="danger" @click="deleteTarget = { kind: 'offering', id: selected.id, label: `${selected.course.name} dari periode ini` }; deleteError = null">Hapus dari periode ini</Button>
+                                    <Button v-if="selected.can_delete" type="button" @click="deleteTarget = { kind: 'offering', id: selected.id, label: `${selected.course.name} dari periode ini` }; deleteError = null">Hapus dari periode ini</Button>
                                     <Button type="button" variant="secondary" class="ml-auto" @click="goStep(1)">Lanjut ke grup peserta</Button>
                                 </div>
                             </form>
@@ -623,7 +623,7 @@ async function confirmDelete(): Promise<void> {
                                         </div>
                                         <div class="flex items-start gap-2">
                                             <Button v-if="group.can_update" size="sm" variant="secondary" @click="openEditGroup(group)">Edit</Button>
-                                            <Button v-if="group.can_delete" size="sm" variant="danger" @click="deleteTarget = { kind: 'group', id: group.id, label: `Grup ${group.code}` }; deleteError = null">Hapus</Button>
+                                            <Button v-if="group.can_delete" size="sm" @click="deleteTarget = { kind: 'group', id: group.id, label: `Grup ${group.code}` }; deleteError = null">Hapus</Button>
                                         </div>
                                     </li>
                                 </ul>
@@ -825,7 +825,7 @@ async function confirmDelete(): Promise<void> {
             </div>
         </Modal>
 
-        <ConfirmDialog :show="deleteTarget !== null" :title="`Hapus ${deleteTarget?.label ?? ''}?`" :processing="deleting" :error="deleteError" @confirm="confirmDelete" @close="deleteTarget = null">
+        <ConfirmDialog :show="deleteTarget !== null" :title="`Hapus ${deleteTarget?.label ?? ''}?`" :danger="false" :processing="deleting" :error="deleteError" @confirm="confirmDelete" @close="deleteTarget = null">
             <template v-if="deleteTarget?.kind === 'group'">Semua kelas di grup ini ikut terhapus, termasuk dosen pengampunya.</template>
             <template v-else>Mata kuliah kembali berstatus belum dibuka di periode ini. Ini hanya bisa dilakukan setelah semua grupnya dihapus.</template>
         </ConfirmDialog>

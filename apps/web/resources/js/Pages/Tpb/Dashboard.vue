@@ -3,13 +3,12 @@ import AppLayout from '@/Layouts/AppLayout.vue';
 import DashboardChart from '@/Components/dashboard/DashboardChart.vue';
 import DashboardSummary from '@/Components/dashboard/DashboardSummary.vue';
 import Card from '@/Components/ui/Card.vue';
-import Panel from '@/Components/ui/Panel.vue';
 import { onResourcesChanged } from '@/composables/useResourceChanges';
 import { APP_RELEASES_URL } from '@/lib/navigation';
 import { COHORT_LABELS, DAY_LABELS } from '@/lib/labels';
 import type { TpbCohort, TpbDashboard } from '@/types/models';
 import { Head, Link, router } from '@inertiajs/vue3';
-import { Check } from 'lucide-vue-next';
+import { BookOpen, CalendarDays, Check, DoorOpen, FileUp, Network, Settings2, Users } from 'lucide-vue-next';
 import { computed } from 'vue';
 
 const props = defineProps<{ dashboard: TpbDashboard }>();
@@ -18,6 +17,16 @@ const dateFormat = new Intl.DateTimeFormat('id-ID', { dateStyle: 'medium', timeS
 const number = new Intl.NumberFormat('id-ID', { maximumFractionDigits: 2 });
 const linkButton = 'inline-flex h-10 items-center rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary';
 const primaryButton = 'inline-flex h-10 shrink-0 items-center rounded-lg bg-primary px-4 text-sm font-semibold text-white shadow-md shadow-primary/20 hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2';
+
+const quickLinks = [
+    { title: 'Mata Kuliah', description: 'Data mata kuliah TPB', routeName: 'tpb.courses.index', icon: BookOpen },
+    { title: 'Dosen', description: 'Data dosen pengampu', routeName: 'tpb.lecturers.index', icon: Users },
+    { title: 'Mapping Dosen', description: 'Atur grup dan pengampu', routeName: 'tpb.mappings.index', icon: Network },
+    { title: 'Proses GA', description: 'Tinjau dan tetapkan hasil GA', routeName: 'tpb.ga.index', icon: Settings2 },
+    { title: 'Import Jadwal TPB', description: 'Impor jadwal dari file', routeName: 'tpb.schedule-import.index', icon: FileUp },
+    { title: 'Jadwal TPB', description: 'Lihat jadwal TPB', routeName: 'tpb.schedule.index', icon: CalendarDays },
+    { title: 'Alokasi Ruang', description: 'Lihat penggunaan ruangan', routeName: 'tpb.rooms.index', icon: DoorOpen },
+];
 
 const run = computed(() => props.dashboard.schedule.active_run);
 const staleNames = computed(() => props.dashboard.stale_faculties.map((f) => f.code).join(', '));
@@ -80,11 +89,11 @@ onResourcesChanged(['scheduling_runs', 'tpb_offerings', 'tpb_groups', 'course_le
 <template>
     <Head title="Dashboard TPB" />
     <AppLayout>
-        <div class="mx-auto w-full max-w-7xl space-y-6 p-6 md:p-8">
-            <header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+        <div class="dashboard-page w-full space-y-6 p-6 md:p-8">
+            <header class="flex flex-wrap items-end justify-between gap-4">
                 <div>
-                    <h1 class="text-2xl font-bold tracking-tight text-gray-900">Dashboard TPB</h1>
-                    <p class="mt-1 text-sm text-gray-500">Status persiapan dan hasil jadwal TPB untuk {{ periodLabel }}.</p>
+                    <h1 class="text-3xl font-bold tracking-tight text-[#112D4E]">Dashboard</h1>
+                    <p class="mt-1 text-sm text-[#112D4E]/70">Admin TPB · Ringkasan data dan jadwal untuk {{ periodLabel }}.</p>
                 </div>
                 <div class="flex flex-wrap gap-3">
                     <Link href="/tpb/schedule-import" :class="linkButton">Import Jadwal TPB</Link>
@@ -114,7 +123,25 @@ onResourcesChanged(['scheduling_runs', 'tpb_offerings', 'tpb_groups', 'course_le
                 />
             </section>
 
-            <Panel>
+            <section aria-labelledby="quick-links-heading" class="rounded-[24px] bg-[#DBE2EF] p-6">
+                <div class="mb-5">
+                    <h2 id="quick-links-heading" class="text-xl font-bold text-[#112D4E]">Akses cepat</h2>
+                    <p class="mt-1 text-sm text-[#112D4E]/70">Buka halaman pengelolaan dan jadwal TPB.</p>
+                </div>
+                <ul class="grid grid-cols-2 gap-4 sm:grid-cols-3 xl:grid-cols-7">
+                    <li v-for="item in quickLinks" :key="item.routeName">
+                        <Link :href="route(item.routeName)" class="flex h-full flex-col rounded-[18px] bg-white p-4 shadow-[0_8px_20px_rgba(17,45,78,0.08)] transition hover:shadow-md focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
+                            <span class="flex size-[34px] items-center justify-center rounded-full bg-[#3F72AF] text-white">
+                                <component :is="item.icon" class="size-4" aria-hidden="true" />
+                            </span>
+                            <span class="mt-3 text-sm font-bold text-[#112D4E]">{{ item.title }}</span>
+                            <span class="mt-1 text-xs text-[#112D4E]/70">{{ item.description }}</span>
+                        </Link>
+                    </li>
+                </ul>
+            </section>
+
+            <Card class="!p-0 overflow-hidden border border-gray-100 shadow-sm">
                 <div class="grid lg:grid-cols-[minmax(0,3fr)_minmax(0,2fr)] lg:divide-x lg:divide-gray-200">
                     <section class="space-y-6 p-6" aria-label="Status penjadwalan TPB">
                         <div class="space-y-3">
@@ -173,9 +200,9 @@ onResourcesChanged(['scheduling_runs', 'tpb_offerings', 'tpb_groups', 'course_le
                         <p v-else class="mt-5 rounded-lg bg-gray-50 p-4 text-sm text-gray-500">Setelah GA dijalankan dan satu run ditetapkan aktif, kualitasnya muncul di sini.</p>
                     </section>
                 </div>
-            </Panel>
+            </Card>
 
-            <Panel>
+            <Card class="!p-0 overflow-hidden border border-gray-100 shadow-sm">
                 <div class="px-6 pt-5">
                     <h2 class="text-sm font-bold text-gray-900">Data TPB periode ini</h2>
                     <p class="mt-1 text-xs text-gray-500">Mata kuliah, dosen, ruang, dan kelas yang masuk jadwal TPB.</p>
@@ -204,7 +231,7 @@ onResourcesChanged(['scheduling_runs', 'tpb_offerings', 'tpb_groups', 'course_le
                     </dl>
 
                 </div>
-            </Panel>
+            </Card>
         </div>
     </AppLayout>
 </template>

@@ -113,7 +113,7 @@ async function confirmDelete(): Promise<void> {
                                 <td class="whitespace-nowrap px-6 py-3.5 text-right">
                                     <div class="flex justify-end gap-3">
                                         <Button v-if="course.can_update" variant="secondary" size="sm" @click="openEdit(course)">Edit</Button>
-                                        <Button v-if="course.can_delete" variant="danger" size="sm" @click="deleteTarget = course; deleteError = null">Hapus</Button>
+                                        <Button v-if="course.can_delete" size="sm" @click="deleteTarget = course; deleteError = null">Hapus</Button>
                                     </div>
                                 </td>
                             </tr>
@@ -150,7 +150,7 @@ async function confirmDelete(): Promise<void> {
             </form>
         </Modal>
 
-        <ConfirmDialog :show="deleteTarget !== null" title="Hapus mata kuliah TPB?" :processing="deleting" :error="deleteError" @confirm="confirmDelete" @close="deleteTarget = null">
+        <ConfirmDialog :show="deleteTarget !== null" title="Hapus mata kuliah TPB?" :danger="false" :processing="deleting" :error="deleteError" @confirm="confirmDelete" @close="deleteTarget = null">
             Mata kuliah <strong>{{ deleteTarget?.code }} {{ deleteTarget?.name }}</strong> akan dihapus. Mata kuliah yang masih dipakai di suatu periode tidak bisa dihapus.
         </ConfirmDialog>
     </AppLayout>

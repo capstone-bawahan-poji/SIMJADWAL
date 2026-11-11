@@ -12,9 +12,10 @@ import { onResourcesChanged } from '@/composables/useResourceChanges';
 import { api, toApiError, type ApiError } from '@/lib/api';
 import { DOWNLOAD_APP_ITEM } from '@/lib/navigation';
 import { formatDateTime, formatTime, SUBMISSION_PROBLEM_LABELS } from '@/lib/labels';
+import { programTone } from '@/lib/programTone';
 import type { AcademicPeriod, Collection, Paginated, Pagination as PaginationMeta, RunScheduleDetail, SchedulingRunDetail, SchedulingRunSummary, SubmissionProblem, TimeSlot, Violation } from '@/types/models';
 import { Head, Link, usePage } from '@inertiajs/vue3';
-import { computed, ref, watch } from 'vue';
+import { computed, nextTick, ref, watch } from 'vue';
 
 /**
  * POS 040/IT10.1/OT.07/2026 step 2 and 8: the program runs the GA in the desktop app inside the
@@ -45,9 +46,14 @@ const flash = ref<string | null>(null);
 const pendingAction = ref<ConfirmAction | null>(null);
 const actionTarget = ref<SchedulingRunSummary | null>(null);
 const processing = ref(false);
-const compareRuns = ref<SchedulingRunSummary[]>([]);
-const compareBatchId = ref<string | null>(null);
 const compareLoading = ref(false);
+const selectedComparisonIds = ref<number[]>([]);
+const comparedDetails = ref<SchedulingRunDetail[]>([]);
+const comparisonLoading = ref(false);
+const comparisonError = ref<string | null>(null);
+const comparisonSection = ref<HTMLElement | null>(null);
+const comparisonMode = ref<'selected' | 'batch'>('selected');
+let comparisonRequestId = 0;
 const overrideTarget = ref<RunScheduleDetail | null>(null);
 let listRequestId = 0;
 
@@ -69,6 +75,43 @@ const detailsByCell = computed(() => {
 });
 const bestRun = computed(() => [...runs.value].filter((run) => run.best_fitness !== null).sort((a, b) => (b.best_fitness ?? 0) - (a.best_fitness ?? 0))[0] ?? null);
 const activeRun = computed(() => runs.value.find((run) => run.is_active) ?? null);
+const comparisonBatchRun = computed(() => runs.value.find((run) => run.id === selectedRunId.value) ?? runs.value[0] ?? null);
+const bestComparedRun = computed(() => [...comparedDetails.value]
+    .filter((run) => run.best_fitness !== null)
+    .sort((a, b) => (b.best_fitness ?? 0) - (a.best_fitness ?? 0))[0] ?? null);
+
+function toggleComparison(id: number): void {
+    comparisonRequestId++;
+    comparedDetails.value = [];
+    comparisonError.value = null;
+    comparisonLoading.value = false;
+    compareLoading.value = false;
+    selectedComparisonIds.value = selectedComparisonIds.value.includes(id)
+        ? selectedComparisonIds.value.filter((selected) => selected !== id)
+        : [...selectedComparisonIds.value, id];
+}
+
+async function compareSelected(): Promise<void> {
+    if (selectedComparisonIds.value.length < 2) return;
+    const requestId = ++comparisonRequestId;
+    const ids = [...selectedComparisonIds.value];
+    comparisonMode.value = 'selected';
+    compareLoading.value = false;
+    comparisonLoading.value = true;
+    comparisonError.value = null;
+    comparedDetails.value = [];
+    await nextTick();
+    if (requestId !== comparisonRequestId) return;
+    comparisonSection.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    try {
+        const responses = await Promise.all(ids.map((id) => api.get<{ data: SchedulingRunDetail }>(`scheduling-runs/${id}`)));
+        if (requestId === comparisonRequestId) comparedDetails.value = responses.map((response) => response.data.data);
+    } catch (error) {
+        if (requestId === comparisonRequestId) comparisonError.value = toApiError(error).message;
+    } finally {
+        if (requestId === comparisonRequestId) comparisonLoading.value = false;
+    }
+}
 
 function classLabel(value: number): string {
     return value > 0 && value <= 26 ? String.fromCharCode(64 + value) : String(value);
@@ -156,19 +199,39 @@ async function loadSelectedRun(): Promise<void> {
 }
 
 async function loadCompare(batchId: string): Promise<void> {
-    compareBatchId.value = batchId;
+    const requestId = ++comparisonRequestId;
+    const requestedPeriod = period.value;
+    comparisonMode.value = 'batch';
     compareLoading.value = true;
-    actionError.value = null;
+    comparisonLoading.value = true;
+    comparisonError.value = null;
+    comparedDetails.value = [];
+    await nextTick();
+    if (requestId !== comparisonRequestId) return;
+    comparisonSection.value?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     try {
-        const response = await api.get<Paginated<SchedulingRunSummary>>('scheduling-runs', {
-            params: { period: period.value, batch_id: batchId, per_page: 100 },
+        const first = await api.get<Paginated<SchedulingRunSummary>>('scheduling-runs', {
+            params: { period: requestedPeriod, batch_id: batchId, per_page: 100, page: 1 },
         });
-        compareRuns.value = response.data.data;
+        const remaining = await Promise.all(Array.from({ length: Math.max(0, first.data.meta.pagination.last_page - 1) }, (_, index) =>
+            api.get<Paginated<SchedulingRunSummary>>('scheduling-runs', {
+                params: { period: requestedPeriod, batch_id: batchId, per_page: 100, page: index + 2 },
+            })));
+        const batch = [first, ...remaining].flatMap((response) => response.data.data);
+        if (!batch.length) {
+            if (requestId === comparisonRequestId) comparisonError.value = 'Tidak ada run dalam batch ini.';
+            return;
+        }
+        const responses = await Promise.all(batch.map((run) => api.get<{ data: SchedulingRunDetail }>(`scheduling-runs/${run.id}`)));
+        if (requestId !== comparisonRequestId) return;
+        comparedDetails.value = responses.map((response) => response.data.data);
     } catch (error) {
-        actionError.value = toApiError(error).message;
-        compareBatchId.value = null;
+        if (requestId === comparisonRequestId) comparisonError.value = toApiError(error).message;
     } finally {
-        compareLoading.value = false;
+        if (requestId === comparisonRequestId) {
+            compareLoading.value = false;
+            comparisonLoading.value = false;
+        }
     }
 }
 
@@ -231,7 +294,12 @@ watch(periods, (items) => {
 }, { immediate: true });
 watch(period, () => {
     page.value = 1;
-    compareBatchId.value = null;
+    comparisonRequestId++;
+    selectedComparisonIds.value = [];
+    comparedDetails.value = [];
+    comparisonLoading.value = false;
+    compareLoading.value = false;
+    comparisonError.value = null;
     void loadRuns();
 });
 watch(page, () => void loadRuns());
@@ -330,14 +398,23 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
             </p>
 
             <section>
-                <div class="mb-3 flex items-center justify-between">
-                    <h2 class="text-base font-semibold text-gray-900">Daftar hasil run</h2>
-                    <span v-if="loadingRuns" class="text-sm text-gray-500">Memuat…</span>
+                <div class="mb-3 flex flex-wrap items-center justify-between gap-3">
+                    <div>
+                        <h2 class="text-base font-semibold text-gray-900">Daftar hasil run</h2>
+                        <p class="mt-1 text-sm text-gray-500">Pilih minimal dua run untuk membandingkan hasilnya.</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <span v-if="loadingRuns" class="text-sm text-gray-500">Memuat…</span>
+                        <Button variant="secondary" :disabled="!comparisonBatchRun" :loading="compareLoading" :title="comparisonBatchRun ? `Bandingkan semua run dalam batch Run #${comparisonBatchRun.id}` : 'Belum ada run'" @click="comparisonBatchRun && loadCompare(comparisonBatchRun.batch_id)">Bandingkan batch</Button>
+                        <span class="text-sm text-gray-600">{{ selectedComparisonIds.length }} dipilih</span>
+                        <Button :disabled="selectedComparisonIds.length < 2" :loading="comparisonLoading" @click="compareSelected">Bandingkan run</Button>
+                    </div>
                 </div>
                 <div class="overflow-x-auto rounded-xl border border-gray-100 bg-white">
                     <table class="w-full min-w-[900px] border-collapse text-left text-sm">
                         <thead>
                             <tr class="border-b border-gray-100 text-xs font-medium text-gray-500">
+                                <th class="px-4 py-3 font-medium"><span class="sr-only">Pilih untuk perbandingan</span></th>
                                 <th class="px-4 py-3 font-medium">Run</th>
                                 <th class="px-4 py-3 font-medium">Fitness</th>
                                 <th class="px-4 py-3 font-medium">HC / SC</th>
@@ -349,9 +426,10 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
                         </thead>
                         <tbody class="divide-y divide-gray-100 text-gray-700" :class="{ 'opacity-60': loadingRuns }">
                             <tr v-if="!loadingRuns && runs.length === 0">
-                                <td colspan="7" class="p-8 text-center text-gray-500">Belum ada hasil run untuk periode ini. Jalankan GA dari aplikasi desktop.</td>
+                                <td colspan="8" class="p-8 text-center text-gray-500">Belum ada hasil run untuk periode ini. Jalankan GA dari aplikasi desktop.</td>
                             </tr>
                             <tr v-for="run in runs" :key="run.id" :class="run.id === selectedRunId ? 'bg-primary/5' : ''">
+                                <td class="px-4 py-3"><input type="checkbox" class="rounded border-gray-300 text-primary focus:ring-primary" :checked="selectedComparisonIds.includes(run.id)" :aria-label="`Pilih Run #${run.id} untuk perbandingan`" @change="toggleComparison(run.id)" /></td>
                                 <td class="px-4 py-3">
                                     <button class="font-semibold text-primary hover:underline" @click="selectedRunId = run.id">Run #{{ run.id }}</button>
                                     <span class="block text-xs text-gray-500">{{ run.finished_at ? new Date(run.finished_at).toLocaleString('id-ID') : run.status }}</span>
@@ -373,11 +451,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
                                 </td>
                                 <td class="px-4 py-3">
                                     <div class="flex items-center justify-end gap-4">
-                                        <button
-                                            v-if="!compareBatchId || compareBatchId !== run.batch_id"
-                                            class="text-sm text-gray-500 hover:text-gray-900 hover:underline"
-                                            @click="loadCompare(run.batch_id)"
-                                        >Bandingkan batch</button>
+                                        <Button variant="secondary" size="sm" :disabled="compareLoading" @click="loadCompare(run.batch_id)">Bandingkan batch</Button>
                                         <span v-if="run.is_stale" class="text-xs text-amber-700" title="Data penjadwalan (slot ruangan, mata kuliah, dosen, atau jadwal TPB) berubah setelah run ini dibuat">Data sudah berubah</span>
                                         <Button v-if="run.status === 'done' && !run.is_active && editable" size="sm" @click="confirm('activate', run)">Tetapkan sebagai jadwal</Button>
                                     </div>
@@ -389,40 +463,38 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
                 </div>
             </section>
 
-            <section v-if="compareBatchId">
-                <div class="mb-3 flex items-center justify-between">
-                    <h2 class="text-base font-semibold text-gray-900">Perbandingan run dalam batch</h2>
-                    <Button variant="secondary" size="sm" @click="compareBatchId = null">Tutup</Button>
+            <section v-if="comparisonLoading || comparisonError || comparedDetails.length" ref="comparisonSection" class="scroll-mt-6 space-y-4 rounded-xl border border-gray-200 bg-white p-5">
+                <div class="flex flex-wrap items-start justify-between gap-3">
+                    <div>
+                        <h2 class="text-lg font-semibold text-gray-900">{{ comparisonMode === 'batch' ? 'Perbandingan fitness satu batch' : 'Perbandingan run terpilih' }}</h2>
+                        <p class="mt-1 text-sm text-gray-600">Run dengan fitness tertinggi ditandai sebagai rekomendasi terbaik.</p>
+                    </div>
+                    <Button variant="secondary" @click="comparisonRequestId++; comparedDetails = []; comparisonError = null; comparisonLoading = false; compareLoading = false">Tutup</Button>
                 </div>
-                <p v-if="compareLoading" class="text-sm text-gray-500">Memuat perbandingan…</p>
-                <div v-else class="overflow-x-auto rounded-xl border border-gray-100 bg-white">
-                    <table class="w-full min-w-[760px] border-collapse text-left text-sm">
-                        <thead>
-                            <tr class="border-b border-gray-100 text-xs text-gray-500">
-                                <th class="px-4 py-3 font-medium">Run</th>
-                                <th class="px-4 py-3 font-medium">Operator</th>
-                                <th class="px-4 py-3 font-medium">Cr / Mr</th>
-                                <th class="px-4 py-3 font-medium">Seed</th>
-                                <th class="px-4 py-3 font-medium">Fitness</th>
-                                <th class="px-4 py-3 font-medium">HC</th>
-                                <th class="px-4 py-3 font-medium">SC</th>
-                                <th class="px-4 py-3 font-medium">Tanpa ruang</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100 tabular-nums">
-                            <tr v-for="run in [...compareRuns].sort((a, b) => (b.best_fitness ?? -1) - (a.best_fitness ?? -1))" :key="run.id" :class="run.id === bestRun?.id ? 'bg-emerald-50/60' : ''">
-                                <td class="px-4 py-3 font-semibold">#{{ run.id }}<span v-if="run.id === bestRun?.id" class="ml-2 text-xs font-normal text-emerald-700">terbaik</span></td>
-                                <td class="px-4 py-3">{{ run.selection_operator ?? '—' }}</td>
-                                <td class="px-4 py-3">{{ run.crossover_rate ?? '—' }} / {{ run.mutation_rate ?? '—' }}</td>
-                                <td class="px-4 py-3">{{ run.seed ?? '—' }}</td>
-                                <td class="px-4 py-3 font-semibold">{{ run.best_fitness?.toFixed(3) ?? '—' }}</td>
-                                <td class="px-4 py-3">{{ run.hc_violations }}</td>
-                                <td class="px-4 py-3">{{ run.sc_unmet }}</td>
-                                <td class="px-4 py-3">{{ run.unassigned_rooms }}</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
+                <p v-if="comparisonLoading" class="text-sm text-gray-500">Memuat perbandingan…</p>
+                <Alert v-if="comparisonError" :title="comparisonError" />
+                <template v-if="comparedDetails.length">
+                    <div class="overflow-x-auto">
+                        <table class="w-full min-w-[640px] border-collapse text-sm">
+                            <thead><tr class="border-b border-gray-200 bg-gray-50 text-left text-xs text-gray-600">
+                                <th scope="col" class="px-3 py-3">Run</th><th scope="col" class="px-3 py-3">Fitness terbaik</th><th scope="col" class="px-3 py-3">Fitness (%)</th><th scope="col" class="px-3 py-3">HC / SC</th><th scope="col" class="px-3 py-3">Tanpa ruang</th><th scope="col" class="px-3 py-3">Generasi terbaik / akhir</th>
+                            </tr></thead>
+                            <tbody class="divide-y divide-gray-100">
+                                <tr v-for="run in comparedDetails" :key="run.id" :class="run.id === bestComparedRun?.id ? 'bg-emerald-50/60' : ''">
+                                    <th scope="row" class="px-3 py-3 text-left">
+                                        Run #{{ run.id }}
+                                        <span v-if="run.id === bestComparedRun?.id" class="ml-2 inline-flex rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-semibold text-emerald-800">Rekomendasi terbaik</span>
+                                    </th>
+                                    <td class="px-3 py-3 font-semibold tabular-nums">{{ run.best_fitness?.toFixed(3) ?? '—' }}</td>
+                                    <td class="px-3 py-3 tabular-nums">{{ run.fitness_percent !== null ? `${run.fitness_percent}%` : '—' }}</td>
+                                    <td class="px-3 py-3 tabular-nums">{{ run.hc_violations }} / {{ run.sc_unmet }}</td>
+                                    <td class="px-3 py-3 tabular-nums">{{ run.unassigned_rooms }}</td>
+                                    <td class="px-3 py-3 tabular-nums">{{ run.best_generation ?? '—' }} / {{ run.final_generation }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </template>
             </section>
 
             <section v-if="selectedRun" class="space-y-6">
@@ -510,10 +582,10 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
                                                 <component
                                                     :is="canOverride ? 'button' : 'div'"
                                                     :type="canOverride ? 'button' : undefined"
-                                                    class="block w-full border-l-2 pl-3 text-left"
+                                                    class="block w-full rounded-lg border-l-4 px-3 py-3 text-left"
                                                     :class="[
-                                                        detail.violations_count ? 'border-red-400' : detail.is_overridden ? 'border-amber-400' : 'border-transparent',
-                                                        canOverride ? 'rounded-r-lg hover:bg-primary/5 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary' : '',
+                                                        programTone(detail.course.study_program?.code ?? selectedRun.study_program?.code).card,
+                                                        canOverride ? 'hover:brightness-95 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary' : '',
                                                     ]"
                                                     @click="canOverride && (overrideTarget = detail)"
                                                 >
@@ -524,7 +596,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
                                                     <p class="mt-2 text-xs leading-relaxed text-gray-600">
                                                         {{ detail.lecturer.name }}
                                                         <span class="text-gray-300"> / </span>
-                                                        {{ detail.room?.code ?? 'tanpa ruang' }}
+                                                        <span class="font-semibold" :class="detail.room ? 'text-gray-800' : 'text-amber-800'">{{ detail.room?.code ?? 'tanpa ruang' }}</span>
                                                     </p>
                                                     <p v-if="detail.violations_count" class="mt-2 text-xs font-medium text-red-700">
                                                         {{ detail.violations_count }} pelanggaran
@@ -556,7 +628,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
 
                     <div v-if="selectedRun.fitness_history.length > 1">
                         <h3 class="text-base font-semibold text-gray-900">Riwayat fitness</h3>
-                        <svg viewBox="0 0 300 42" class="mt-3 h-20 w-full max-w-xl overflow-visible text-primary" preserveAspectRatio="none" role="img" :aria-label="`Fitness naik dari ${selectedRun.fitness_history[0]} ke ${selectedRun.fitness_history[selectedRun.fitness_history.length - 1]} selama ${selectedRun.fitness_history.length} generasi`">
+                        <svg viewBox="0 0 300 42" class="mt-3 h-20 w-full max-w-xl overflow-visible text-primary" preserveAspectRatio="none" role="img" :aria-label="`Riwayat fitness dari ${selectedRun.fitness_history[0]} ke ${selectedRun.fitness_history[selectedRun.fitness_history.length - 1]} selama ${selectedRun.fitness_history.length - 1} generasi`">
                             <polyline :points="sparkPoints" fill="none" stroke="currentColor" stroke-width="1.5" vector-effect="non-scaling-stroke" stroke-linejoin="round" />
                         </svg>
                     </div>

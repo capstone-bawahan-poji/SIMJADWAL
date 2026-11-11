@@ -257,7 +257,7 @@ async function send(dryRun: boolean): Promise<void> {
                                 <template v-if="file">
                                     <span class="mt-3 max-w-full truncate text-sm font-semibold text-gray-900">{{ file.name }}</span>
                                     <span class="mt-0.5 text-xs text-gray-500">{{ fileSize }} · klik untuk mengganti file</span>
-                                    <button type="button" class="absolute right-3 top-3 rounded-md p-1.5 text-gray-400 hover:bg-white hover:text-red-600 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" aria-label="Hapus file" @click="clearFile">
+                                    <button type="button" class="absolute right-3 top-3 rounded-md p-1.5 text-primary hover:bg-white hover:text-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" aria-label="Hapus file" @click="clearFile">
                                         <X class="size-4" aria-hidden="true" />
                                     </button>
                                 </template>
