@@ -1,6 +1,10 @@
 //! Fitness of one chromosome
 //!
 //! `fitness = C − Σ(HC violations × HC weight) + Σ(SC met × SC weight)`
+//!
+//! Program datasets replace HC4 with the cells: a slot holds at most as many meetings as the
+//! program has cells in it. Each meeting over that is penalised with the HC4 weight, but it is not
+//! an HC4 violation for the server; it shows as a meeting without a room.
 
 use super::problem::Problem;
 
@@ -12,12 +16,14 @@ pub struct Score {
     pub hc2: u32,
     pub hc3: u32,
     pub hc4: u32,
+    /// Program datasets: meetings beyond the cells of their slot.
+    pub cell_overflow: u32,
     pub soft_points: f64,
 }
 
 impl Score {
     pub fn hard_violations(&self) -> u32 {
-        self.hc2 + self.hc3 + self.hc4
+        self.hc2 + self.hc3 + self.hc4 + self.cell_overflow
     }
 }
 
@@ -92,22 +98,35 @@ pub fn evaluate(problem: &Problem, chromosome: &[u16], scratch: &mut Scratch) ->
     };
     let hc2 = excess(&scratch.lecturer_slot);
     let hc3 = excess(&scratch.cohort_slot);
-    let limit = problem.parallel_class_limit;
-    let hc4 = scratch
-        .program_slot
-        .iter()
-        .filter(|&&c| u32::from(c) > limit)
-        .count() as u32;
+    let (hc4, cell_overflow) = if problem.uses_cells() {
+        let mut overflow = 0u32;
+        for slot in 0..s {
+            let meetings: u32 = (0..problem.program_count)
+                .map(|p| u32::from(scratch.program_slot[p * s + slot]))
+                .sum();
+            overflow += meetings.saturating_sub(problem.slot_cells[slot]);
+        }
+        (0, overflow)
+    } else {
+        let limit = problem.parallel_class_limit;
+        let hc4 = scratch
+            .program_slot
+            .iter()
+            .filter(|&&c| u32::from(c) > limit)
+            .count() as u32;
+        (hc4, 0)
+    };
 
     let penalty = f64::from(hc2) * problem.w_hc2
         + f64::from(hc3) * problem.w_hc3
-        + f64::from(hc4) * problem.w_hc4;
+        + f64::from(hc4 + cell_overflow) * problem.w_hc4;
 
     Score {
         fitness: problem.fitness_constant - penalty + soft_points,
         hc2,
         hc3,
         hc4,
+        cell_overflow,
         soft_points,
     }
 }
@@ -478,5 +497,33 @@ mod tests {
             assert_eq!(pop[0][frozen], 5);
             assert!([2, 3].contains(&pop[0][moving]));
         }
+    }
+
+    #[test]
+    fn program_dataset_counts_meetings_over_the_cells_not_hc4() {
+        use super::super::model::Cell;
+        let mut ds = dataset(&[(1, 10, 3, 3), (2, 10, 3, 5), (3, 10, 3, 7)], |id| id);
+        ds.cells = vec![
+            Cell {
+                time_slot_id: 1,
+                room_id: 1,
+            },
+            Cell {
+                time_slot_id: 1,
+                room_id: 2,
+            },
+        ];
+        let mut cfg = config();
+        cfg.params.parallel_class_limit = 1;
+        let p = Problem::build(&ds, &cfg).unwrap();
+        let mut scratch = Scratch::new(&p);
+        let score = evaluate(&p, &[0, 0, 0], &mut scratch);
+
+        assert_eq!(
+            (score.hc4, score.cell_overflow),
+            (0, 1),
+            "three meetings, two cells, no parallel limit"
+        );
+        assert_eq!(score.fitness, 500.0 - 10.0 + 3.0 * 2.0);
     }
 }

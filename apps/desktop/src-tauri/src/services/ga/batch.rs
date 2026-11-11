@@ -130,6 +130,7 @@ pub fn run_one(
         &outcome.best,
         &request.dataset.rooms,
         &request.dataset.occupied_rooms,
+        &request.dataset.cells,
     );
     let violations = violations::collect(problem, &outcome.best);
 
@@ -155,6 +156,7 @@ pub fn run_one(
         run_id: spec.run_id.clone(),
         batch_id: batch_id.to_string(),
         faculty_id: request.dataset.faculty.as_ref().map(|f| f.id),
+        study_program_id: request.dataset.study_program.as_ref().map(|p| p.id),
         revise_group_ids: request
             .dataset
             .revision

@@ -95,11 +95,19 @@ pub struct Problem {
     pub free_units: Vec<usize>,
     pub retake: Vec<RetakeCourse>,
     pub is_tpb: bool,
+    /// study_program datasets: cells per slot, the most meetings a slot can hold. Empty otherwise,
+    /// and then HC4 (parallel class limit) applies instead.
+    pub slot_cells: Vec<u32>,
 }
 
 impl Problem {
     pub fn slot_count(&self) -> usize {
         self.slots.len()
+    }
+
+    /// The dataset limits meetings to the program's cells.
+    pub fn uses_cells(&self) -> bool {
+        !self.slot_cells.is_empty()
     }
 
     /// Slot of a gene in a chromosome.
@@ -227,11 +235,32 @@ impl Problem {
             .iter()
             .map(|b| ((b.study_program_id, b.semester), to_slots(&b.time_slot_ids)))
             .collect();
-        let blocked_lecturer: HashMap<i64, HashSet<u16>> = blocks
+        let mut blocked_lecturer: HashMap<i64, HashSet<u16>> = blocks
             .lecturers
             .iter()
             .map(|b| (b.lecturer_id, to_slots(&b.time_slot_ids)))
             .collect();
+        // Program datasets: a lecturer is also taken where another program's active schedule holds them.
+        for busy in &dataset.lecturer_busy {
+            blocked_lecturer
+                .entry(busy.lecturer_id)
+                .or_default()
+                .extend(to_slots(&busy.time_slot_ids));
+        }
+        let mut slot_cells = vec![
+            0u32;
+            if dataset.cells.is_empty() {
+                0
+            } else {
+                slots.len()
+            }
+        ];
+        for cell in &dataset.cells {
+            if let Some(&s) = slot_index.get(&cell.time_slot_id) {
+                slot_cells[s as usize] += 1;
+            }
+        }
+        let uses_cells = !slot_cells.is_empty();
         let retake_slots: HashMap<i64, HashSet<u16>> = blocks
             .retake
             .iter()
@@ -370,18 +399,21 @@ impl Problem {
                     if let Some(s) = blocked_lecturer.get(&class.lecturer_id) {
                         taken.extend(s);
                     }
-                    let allowed: Vec<u16> = if taken.is_empty() {
+                    // A program meeting may only go to a slot where the program holds a cell.
+                    let allowed: Vec<u16> = if taken.is_empty() && !uses_cells {
                         Vec::new()
                     } else {
                         all_slots
                             .iter()
                             .copied()
-                            .filter(|s| !taken.contains(s))
+                            .filter(|s| {
+                                !taken.contains(s) && (!uses_cells || slot_cells[*s as usize] > 0)
+                            })
                             .collect()
                     };
-                    if !taken.is_empty() && allowed.is_empty() {
+                    if (uses_cells || !taken.is_empty()) && allowed.is_empty() {
                         return Err(AppError::Invalid(format!(
-                            "Mata kuliah {} kelas {} tidak punya slot tersisa setelah slot TPB dikunci.",
+                            "Mata kuliah {} kelas {} tidak punya slot tersisa: semua slot ruangan program studi bentrok dengan TPB atau jadwal dosen di program studi lain.",
                             course.code, class.class_number
                         )));
                     }
@@ -518,6 +550,7 @@ impl Problem {
             free_units,
             retake,
             is_tpb,
+            slot_cells,
         })
     }
 }
@@ -652,6 +685,9 @@ pub(crate) mod fixtures {
             tpb_groups: Vec::new(),
             revision: None,
             tpb_blocks: None,
+            study_program: None,
+            cells: Vec::new(),
+            lecturer_busy: Vec::new(),
         }
     }
 }
@@ -713,5 +749,41 @@ mod tests {
     fn empty_dataset_is_rejected() {
         let ds = dataset(&[], |_| 1);
         assert!(Problem::build(&ds, &config()).is_err());
+    }
+
+    #[test]
+    fn program_genes_only_take_slots_with_cells_and_skip_busy_lecturers() {
+        use super::super::model::{Cell, LecturerBlock};
+        let mut ds = dataset(&[(1, 10, 3, 3)], |_| 7);
+        ds.cells = vec![
+            Cell {
+                time_slot_id: 1,
+                room_id: 1,
+            },
+            Cell {
+                time_slot_id: 2,
+                room_id: 1,
+            },
+            Cell {
+                time_slot_id: 5,
+                room_id: 2,
+            },
+        ];
+        ds.lecturer_busy = vec![LecturerBlock {
+            lecturer_id: 7,
+            time_slot_ids: vec![2],
+        }];
+        let p = Problem::build(&ds, &config()).unwrap();
+
+        // Slot ids 1 and 5 are indexes 0 and 4; id 2 is the busy lecturer's.
+        assert_eq!(p.units[0].allowed, vec![0, 4]);
+        assert!(p.uses_cells());
+        assert_eq!(p.slot_cells[0], 1);
+
+        ds.lecturer_busy[0].time_slot_ids = vec![1, 2, 5];
+        assert!(
+            Problem::build(&ds, &config()).is_err(),
+            "no cell left for the class"
+        );
     }
 }
