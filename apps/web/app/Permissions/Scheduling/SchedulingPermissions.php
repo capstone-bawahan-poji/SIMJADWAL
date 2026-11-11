@@ -16,6 +16,9 @@ enum SchedulingPermissions: string implements Permissionable
     case PUBLISH_RUN = 'scheduling:run:publish';
     case VIEW_SCHEDULE = 'scheduling:schedule:view';
     case OVERRIDE_SCHEDULE = 'scheduling:schedule:override';
+    case SUBMIT_SCHEDULE = 'scheduling:submission:submit';
+    case REVIEW_SCHEDULE = 'scheduling:submission:review';
+    case IMPORT_TPB = 'scheduling:tpb:import';
 
     public static function getGroupName(): string
     {
@@ -32,6 +35,9 @@ enum SchedulingPermissions: string implements Permissionable
             self::PUBLISH_RUN => __('Publish Schedule'),
             self::VIEW_SCHEDULE => __('View Schedule'),
             self::OVERRIDE_SCHEDULE => __('Override Schedule'),
+            self::SUBMIT_SCHEDULE => __('Submit Study Program Schedule'),
+            self::REVIEW_SCHEDULE => __('Review Study Program Schedule'),
+            self::IMPORT_TPB => __('Import TPB Schedule'),
         };
     }
 }
