@@ -243,7 +243,7 @@ class TpbSchedulingTest extends TestCase
         $this->postJson('/api/v1/scheduling-runs', $revise([0, 0, 1]))->assertCreated();
     }
 
-    public function test_tpb_runs_are_listed_for_tpb_admin_and_never_overridden(): void
+    public function test_tpb_runs_are_listed_for_tpb_admin_and_not_moved_per_gene(): void
     {
         $run = $this->activeTpbRun(self::PERIOD, [
             ['course_id' => $this->math->course_id, 'class_number' => 1, 'lecturer_id' => $this->lecturer->id, 'time_slot_id' => $this->slots[0]->id, 'room_id' => null],
@@ -252,7 +252,8 @@ class TpbSchedulingTest extends TestCase
 
         $this->getJson('/api/v1/scheduling-runs')->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.id', $run->id);
         $detail = ScheduleDetail::query()->where('scheduling_run_id', $run->id)->sole();
-        $this->patchJson("/api/v1/schedule-details/{$detail->id}", ['time_slot_id' => $this->slots[1]->id, 'room_id' => null])->assertForbidden();
+        // A TPB meeting moves with its whole group through /tpb-blocks (TpbOverrideTest), never per gene.
+        $this->patchJson("/api/v1/schedule-details/{$detail->id}", ['time_slot_id' => $this->slots[1]->id, 'room_id' => $this->room->id])->assertStatus(409);
     }
 
     public function test_tpb_schedule_shows_its_group_to_every_program(): void

@@ -5,6 +5,7 @@ import Alert from '@/Components/ui/Alert.vue';
 import Button from '@/Components/ui/Button.vue';
 import ConfirmDialog from '@/Components/ui/ConfirmDialog.vue';
 import Pagination from '@/Components/ui/Pagination.vue';
+import TpbBlockOverrideModal from '@/Components/scheduling/TpbBlockOverrideModal.vue';
 import { useCollection } from '@/composables/useApiList';
 import { onResourcesChanged } from '@/composables/useResourceChanges';
 import { api, toApiError, type ApiError } from '@/lib/api';
@@ -45,6 +46,9 @@ const compareRuns = ref<SchedulingRunSummary[]>([]);
 const compareBatchId = ref<string | null>(null);
 const compareLoading = ref(false);
 const openedBlock = ref<Block | null>(null);
+const overrideBlock = ref<Block | null>(null);
+// A block may move by hand while its run is active and not published: lecturers and faculties do not build on it yet.
+const canOverride = computed(() => selectedRun.value?.is_active === true && !selectedRun.value.published_at);
 let listRequestId = 0;
 
 const programs = computed(() => {
@@ -183,6 +187,13 @@ function classesOf(block: Block): string {
 
 function openBlock(block: Block): void {
     openedBlock.value = block;
+}
+
+function blockOverridden(): void {
+    overrideBlock.value = null;
+    openedBlock.value = null;
+    flash.value = 'Jadwal blok TPB diperbarui.';
+    void loadSelectedRun();
 }
 
 async function loadRuns(): Promise<void> {
@@ -622,9 +633,21 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
                             </tr>
                         </tbody>
                     </table>
+                    <div v-if="canOverride" class="mt-5 flex items-center justify-between gap-3 border-t border-gray-100 pt-4">
+                        <p class="text-xs text-gray-500">Run aktif belum terbit: blok ini masih bisa dipindah atau ditukar.</p>
+                        <Button variant="secondary" @click="overrideBlock = openedBlock">Ubah jadwal blok</Button>
+                    </div>
                 </div>
             </template>
         </Modal>
+
+        <TpbBlockOverrideModal
+            v-if="overrideBlock"
+            :schedule-detail-id="overrideBlock.details[0].id"
+            :show="true"
+            @close="overrideBlock = null"
+            @updated="blockOverridden"
+        />
 
         <ConfirmDialog
             :show="pendingAction !== null"

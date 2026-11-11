@@ -17,7 +17,7 @@ use Illuminate\Database\DatabaseManager;
  * one meeting to a free cell of the program, or swap the cells of two meetings when no cell is
  * free. Only time_slot_id and room_id change (DATABASE.md §2 rule 9), and the new places must
  * break no hard constraint (ScheduleSlotChecker). Once handed to the faculty nothing moves; a
- * published schedule is final. TPB runs are never changed by hand.
+ * published schedule is final. TPB runs move per group block in TpbOverrideService.
  */
 readonly class ScheduleOverrideService
 {
@@ -194,7 +194,7 @@ readonly class ScheduleOverrideService
             throw ApiException::invalidState(__('Only the active schedule can be overridden.'));
         }
         if ($run->isTpb()) {
-            throw ApiException::invalidState(__('The TPB schedule cannot be overridden. Run the GA again instead.'));
+            throw ApiException::invalidState(__('A TPB meeting moves together with its group. Use the TPB block override instead.'));
         }
         if ($run->study_program_id === null) {
             throw ApiException::invalidState(__('Faculty-wide runs are no longer used. Each study program runs its own GA.'));

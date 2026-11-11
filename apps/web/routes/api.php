@@ -118,6 +118,9 @@ Route::middleware(['web', 'auth'])->prefix('internal')->name('api.internal.')->g
     Route::get('schedule-details/{scheduleDetail}/options', [InternalScheduleController::class, 'options'])->name('schedule-details.options');
     Route::post('schedule-details/swap', [InternalScheduleController::class, 'swap'])->name('schedule-details.swap');
     Route::patch('schedule-details/{scheduleDetail}', [InternalScheduleController::class, 'override'])->name('schedule-details.override');
+    Route::get('tpb-blocks/{scheduleDetail}/options', [InternalScheduleController::class, 'tpbOptions'])->name('tpb-blocks.options');
+    Route::post('tpb-blocks/swap', [InternalScheduleController::class, 'tpbSwap'])->name('tpb-blocks.swap');
+    Route::patch('tpb-blocks/{scheduleDetail}', [InternalScheduleController::class, 'tpbOverride'])->name('tpb-blocks.override');
 
     // POS 040/IT10.1/OT.07/2026: TPB data, room slots per program, slot requests, review and publication
     Route::get('tpb-schedule/import/template', [InternalTpbScheduleImportController::class, 'template'])->name('tpb-schedule.import.template');
@@ -202,6 +205,9 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('schedule-details/{scheduleDetail}/options', [V1ScheduleController::class, 'options'])->name('schedule-details.options');
         Route::post('schedule-details/swap', [V1ScheduleController::class, 'swap'])->name('schedule-details.swap');
         Route::patch('schedule-details/{scheduleDetail}', [V1ScheduleController::class, 'override'])->name('schedule-details.override');
+        Route::get('tpb-blocks/{scheduleDetail}/options', [V1ScheduleController::class, 'tpbOptions'])->name('tpb-blocks.options');
+        Route::post('tpb-blocks/swap', [V1ScheduleController::class, 'tpbSwap'])->name('tpb-blocks.swap');
+        Route::patch('tpb-blocks/{scheduleDetail}', [V1ScheduleController::class, 'tpbOverride'])->name('tpb-blocks.override');
 
         // POS 040/IT10.1/OT.07/2026: TPB data, room slots per program, slot requests, review and publication
         Route::get('tpb-schedule/import/template', [V1TpbScheduleImportController::class, 'template'])->name('tpb-schedule.import.template');

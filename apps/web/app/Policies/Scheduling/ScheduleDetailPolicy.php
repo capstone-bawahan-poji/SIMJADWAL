@@ -8,8 +8,9 @@ use App\Models\User;
 use App\Permissions\Scheduling\SchedulingPermissions;
 
 /**
- * A study program admin moves the meetings of their own program's run. TPB runs are never
- * overridden. superadmin passes through Gate::before.
+ * A study program admin moves the meetings of their own program's run. admin_tpb moves the
+ * meetings of the TPB run (TpbOverrideService refuses it once published). superadmin passes
+ * through Gate::before.
  */
 class ScheduleDetailPolicy
 {
@@ -20,7 +21,7 @@ class ScheduleDetailPolicy
         $run = $detail->schedulingRun;
 
         return $user->can(SchedulingPermissions::OVERRIDE_SCHEDULE)
-            && $run->study_program_id !== null
+            && ($run->isTpb() || $run->study_program_id !== null)
             && $this->orgScope->canAccessScheduleScope($user, $run->faculty_id, $run->study_program_id);
     }
 }

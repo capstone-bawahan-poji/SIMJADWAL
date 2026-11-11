@@ -7,6 +7,7 @@ use App\Http\Requests\Scheduling\ExportRoomGridRequest;
 use App\Http\Requests\Scheduling\ExportScheduleRequest;
 use App\Http\Requests\Scheduling\ListScheduleRequest;
 use App\Http\Requests\Scheduling\OverrideScheduleDetailRequest;
+use App\Http\Requests\Scheduling\OverrideTpbBlockRequest;
 use App\Http\Requests\Scheduling\RoomGridRequest;
 use App\Http\Requests\Scheduling\SwapScheduleDetailsRequest;
 use App\Models\Scheduling\ScheduleDetail;
@@ -15,6 +16,7 @@ use App\Services\Scheduling\Export\ScheduleExportService;
 use App\Services\Scheduling\ScheduleDetailTransformer;
 use App\Services\Scheduling\ScheduleOverrideService;
 use App\Services\Scheduling\ScheduleQueryService;
+use App\Services\Scheduling\TpbOverrideService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controllers\HasMiddleware;
@@ -28,13 +30,14 @@ class ScheduleController extends ApiController implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            new Middleware('can:override,scheduleDetail', only: ['options', 'override']),
+            new Middleware('can:override,scheduleDetail', only: ['options', 'override', 'tpbOptions', 'tpbOverride']),
         ];
     }
 
     public function __construct(
         protected readonly ScheduleQueryService $queryService,
         protected readonly ScheduleOverrideService $overrideService,
+        protected readonly TpbOverrideService $tpbOverrideService,
         protected readonly ScheduleExportService $exportService,
     ) {}
 
@@ -105,5 +108,40 @@ class ScheduleController extends ApiController implements HasMiddleware
             fn ($detail) => ScheduleDetailTransformer::toArray($detail->fresh(ScheduleDetailTransformer::relations())),
             $details,
         ));
+    }
+
+    public function tpbOptions(ScheduleDetail $scheduleDetail): JsonResponse
+    {
+        return $this->response($this->tpbOverrideService->options($scheduleDetail));
+    }
+
+    public function tpbOverride(OverrideTpbBlockRequest $request, ScheduleDetail $scheduleDetail): JsonResponse
+    {
+        $block = $this->tpbOverrideService->override($request->user(), $scheduleDetail, (int) $request->validated('time_slot_id'), $request->validated('reason'));
+
+        return $this->response($this->transformed($block->pluck('id')->all()));
+    }
+
+    public function tpbSwap(SwapScheduleDetailsRequest $request): JsonResponse
+    {
+        $a = $request->detailA();
+        $b = $request->detailB();
+        $this->authorize('override', $a);
+        $this->authorize('override', $b);
+
+        $details = $this->tpbOverrideService->swap($request->user(), $a, $b, $request->validated('reason'));
+
+        return $this->response($this->transformed($details->pluck('id')->all()));
+    }
+
+    /**
+     * @param  list<int>  $ids
+     * @return list<array<string, mixed>>
+     */
+    private function transformed(array $ids): array
+    {
+        return ScheduleDetail::query()->with(ScheduleDetailTransformer::relations())->whereKey($ids)->orderBy('id')->get()
+            ->map(fn (ScheduleDetail $detail) => ScheduleDetailTransformer::toArray($detail))
+            ->all();
     }
 }

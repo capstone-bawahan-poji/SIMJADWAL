@@ -78,6 +78,7 @@ class RoleSeeder extends Seeder
                 SchedulingPermissions::ACTIVATE_RUN,
                 SchedulingPermissions::PUBLISH_RUN,
                 SchedulingPermissions::VIEW_SCHEDULE,
+                SchedulingPermissions::OVERRIDE_SCHEDULE,
                 SchedulingPermissions::IMPORT_TPB,
                 ...GaPresetPermissions::cases(),
                 AllocationPermissions::VIEW,
