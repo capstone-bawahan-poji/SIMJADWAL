@@ -36,9 +36,9 @@ class AuthenticationTest extends TestCase
         $this->seedAccessControl();
         $faculty = User::factory()->facultyAdmin()->create();
 
-        $this->withSession(['url.intended' => '/fakultas/ga'])
+        $this->withSession(['url.intended' => '/fakultas/program-slot-allocation'])
             ->post('/login', ['email' => $faculty->email, 'password' => 'password'])
-            ->assertRedirect('/fakultas/ga');
+            ->assertRedirect('/fakultas/program-slot-allocation');
         $this->post('/logout');
 
         $this->withSession(['url.intended' => '/schedule'])
