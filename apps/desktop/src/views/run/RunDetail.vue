@@ -7,9 +7,9 @@ import SegmentedControl from '@/components/ui/SegmentedControl.vue';
 import Skeleton from '@/components/ui/Skeleton.vue';
 import Tabs from '@/components/ui/Tabs.vue';
 import { useDataset } from '@/composables/useDataset';
-import { runLabel } from '@/lib/format';
+import { classLetter, runLabel } from '@/lib/format';
 import { gaGetResult } from '@/lib/tauri';
-import type { RunRecord } from '@/types/run';
+import type { RunRecord, Violation } from '@/types/run';
 import FitnessChart from '@/views/run/FitnessChart.vue';
 import ScheduleMatrix from '@/views/run/ScheduleMatrix.vue';
 import TpbRunTable from '@/views/run/TpbRunTable.vue';
@@ -29,7 +29,34 @@ watch(() => props.runId, async (id) => {
   try { record.value = await gaGetResult(id); } catch (e) { error.value = String(e); }
 }, { immediate: true });
 
-const allViolations = computed(() => record.value?.result.violations ?? []);
+const DAYS = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu'];
+
+/**
+ * Program datasets replace the parallel class limit (HC4) with the program's cells: a meeting over
+ * the cells of its slot counts as an HC4 in the summary and ends up without a room. The GA lists no
+ * violation row for it (the upload carries none), so rows are made here and the HC count and this
+ * list agree.
+ */
+const unplacedRows = computed<Violation[]>(() => {
+  const details = record.value?.result.schedule_details ?? [];
+  return details
+    .map((d, index) => ({ d, index }))
+    .filter(({ d }) => d.room_id === null)
+    .map(({ d, index }) => {
+      const course = dataset.value?.courses.find((c) => c.id === d.course_id);
+      const slot = dataset.value?.time_slots.find((t) => t.id === d.time_slot_id);
+      const meeting = d.meeting_number > 1 ? ` pertemuan ${d.meeting_number}` : '';
+      const when = slot ? ` pada ${DAYS[slot.day - 1] ?? '?'} sesi ${slot.session}` : '';
+      return {
+        detail_index: index,
+        constraint_code: 'HC4',
+        penalty: 0,
+        message: `${course?.code ?? d.course_id} ${course?.name ?? ''} kelas ${classLetter(d.class_number)}${meeting}${when} melebihi sel ruangan prodi pada slot itu`.replace(/\s+/g, ' '),
+      };
+    });
+});
+
+const allViolations = computed(() => [...(record.value?.result.violations ?? []), ...unplacedRows.value]);
 const violations = computed(() =>
   allViolations.value.filter((v) => violationFilter.value === 'all' || v.constraint_code.startsWith(violationFilter.value)),
 );
@@ -95,7 +122,7 @@ const tabs = computed(() => [
             <li v-for="(v, i) in violations" :key="i" class="grid grid-cols-[96px_minmax(0,1fr)_96px] gap-4 px-4 py-3 text-sm">
               <span class="font-mono text-xs font-semibold" :class="v.constraint_code.startsWith('HC') ? 'text-danger-ink' : 'text-ink-secondary'">{{ v.constraint_code }}</span>
               <span class="text-ink-secondary">{{ v.message }}</span>
-              <span class="tabular text-right text-xs text-ink-muted">-{{ v.penalty }}</span>
+              <span class="tabular text-right text-xs text-ink-muted">{{ v.penalty ? `-${v.penalty}` : '' }}</span>
             </li>
           </ul>
         </div>
