@@ -128,7 +128,7 @@ class RoomGridXlsxExporter implements RoomGridExporter
 
         $body = "A{$buildingRow}:{$lastColumn}".($row - 1);
         $sheet->getStyle($body)->getBorders()->getAllBorders()->setBorderStyle(Border::BORDER_THIN)->getColor()->setARGB('FF'.ltrim(ExportColors::CELL_BORDER, '#'));
-        
+
         foreach ($edges as [$cell, $color, $clash]) {
             $this->edge($sheet, $cell, $color, $clash);
         }
