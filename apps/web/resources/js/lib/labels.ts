@@ -1,5 +1,5 @@
 import type { Role, User } from '@/types';
-import type { FacultySummary, StudyProgramSummary, TimeSlot, TpbCohort } from '@/types/models';
+import type { CellStatus, FacultySummary, SlotRequestStatus, StudyProgramSummary, SubmissionProblem, SubmissionStatus, TimeSlot, TpbCohort } from '@/types/models';
 
 export const ROLE_LABELS: Record<Role, string> = {
     superadmin: 'Superadmin',
@@ -80,3 +80,72 @@ export function classLabel(classNumber: number): string {
 }
 
 export const DAY_LABELS: Record<number, string> = { 1: 'Senin', 2: 'Selasa', 3: 'Rabu', 4: 'Kamis', 5: 'Jumat', 6: 'Sabtu', 7: 'Minggu' };
+
+/** Where a study program's schedule stands in the review by its faculty. */
+export const SUBMISSION_STATUS_LABELS: Record<SubmissionStatus, string> = {
+    draft: 'Draf',
+    submitted: 'Dikirim ke fakultas',
+    returned: 'Dikembalikan',
+    accepted: 'Diterima fakultas',
+    published: 'Dipublikasikan',
+};
+
+/** Badge colors per submission status: gray draft, amber returned, blue waiting, green accepted or final. */
+export const SUBMISSION_STATUS_TONES: Record<SubmissionStatus, string> = {
+    draft: 'bg-gray-100 text-gray-700',
+    submitted: 'bg-blue-50 text-blue-700',
+    returned: 'bg-amber-50 text-amber-800',
+    accepted: 'bg-emerald-50 text-emerald-700',
+    published: 'bg-emerald-600 text-white',
+};
+
+export const SLOT_REQUEST_STATUS_LABELS: Record<SlotRequestStatus, string> = {
+    pending: 'Menunggu',
+    fulfilled: 'Dipenuhi',
+    partially_fulfilled: 'Dipenuhi sebagian',
+    rejected: 'Ditolak',
+};
+
+export const CELL_STATUS_LABELS: Record<CellStatus | 'free', string> = {
+    free: 'Kosong',
+    allocated: 'Sudah dialokasikan',
+    other_faculty: 'Dipakai fakultas lain',
+    tpb: 'Dipakai TPB',
+    conflict: 'Bentrok dengan TPB',
+};
+
+/** Counts of ProgramScheduleSubmission.problems, worded for "n …". */
+export const SUBMISSION_PROBLEM_LABELS: Record<SubmissionProblem, string> = {
+    cell: 'pertemuan di luar slot ruangan program studi',
+    capacity: 'ruang lebih kecil dari kelas',
+    tpb: 'pertemuan bentrok dengan TPB',
+    lecturer: 'bentrok dosen',
+    class: 'bentrok kelas',
+};
+
+/**
+ * Identity color per study program, by its order in the faculty (sorted by code), so a program
+ * keeps its color on every page. No red: red means a problem.
+ */
+export const PROGRAM_COLORS = [
+    { bg: 'bg-blue-100', text: 'text-blue-900', ring: 'ring-blue-300', solid: 'bg-blue-600' },
+    { bg: 'bg-emerald-100', text: 'text-emerald-900', ring: 'ring-emerald-300', solid: 'bg-emerald-600' },
+    { bg: 'bg-violet-100', text: 'text-violet-900', ring: 'ring-violet-300', solid: 'bg-violet-600' },
+    { bg: 'bg-amber-100', text: 'text-amber-900', ring: 'ring-amber-300', solid: 'bg-amber-500' },
+    { bg: 'bg-cyan-100', text: 'text-cyan-900', ring: 'ring-cyan-300', solid: 'bg-cyan-600' },
+    { bg: 'bg-fuchsia-100', text: 'text-fuchsia-900', ring: 'ring-fuchsia-300', solid: 'bg-fuchsia-600' },
+    { bg: 'bg-lime-100', text: 'text-lime-900', ring: 'ring-lime-300', solid: 'bg-lime-600' },
+    { bg: 'bg-sky-100', text: 'text-sky-900', ring: 'ring-sky-300', solid: 'bg-sky-600' },
+    { bg: 'bg-teal-100', text: 'text-teal-900', ring: 'ring-teal-300', solid: 'bg-teal-600' },
+    { bg: 'bg-indigo-100', text: 'text-indigo-900', ring: 'ring-indigo-300', solid: 'bg-indigo-600' },
+    { bg: 'bg-orange-100', text: 'text-orange-900', ring: 'ring-orange-300', solid: 'bg-orange-500' },
+    { bg: 'bg-stone-200', text: 'text-stone-900', ring: 'ring-stone-400', solid: 'bg-stone-600' },
+] as const;
+
+export function programColor(index: number): (typeof PROGRAM_COLORS)[number] {
+    return PROGRAM_COLORS[((index % PROGRAM_COLORS.length) + PROGRAM_COLORS.length) % PROGRAM_COLORS.length];
+}
+
+export function formatDateTime(value: string | null): string {
+    return value ? new Date(value).toLocaleString('id-ID', { dateStyle: 'medium', timeStyle: 'short' }) : '-';
+}

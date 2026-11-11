@@ -13,7 +13,8 @@ class ListSchedulingRunRequest extends FormRequest
     {
         return [
             'faculty_id' => ['nullable', 'integer'],
-            'scope' => ['nullable', Rule::in(['faculty', 'tpb'])],
+            'study_program_id' => ['nullable', 'integer'],
+            'scope' => ['nullable', Rule::in(['study_program', 'tpb'])],
             'period' => ['nullable', new PeriodRule],
             'batch_id' => ['nullable', 'uuid'],
             'is_active' => ['nullable', 'boolean'],

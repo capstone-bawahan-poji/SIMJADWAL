@@ -83,9 +83,12 @@ pub fn collect(problem: &Problem, chromosome: &[u16]) -> Vec<Violation> {
                 .push(i);
         }
     }
+    // Program datasets have no HC4: the cells cap the meetings per slot (see fitness.rs).
     let mut over: Vec<_> = per_program_slot
         .into_iter()
-        .filter(|(_, genes)| genes.len() as u32 > problem.parallel_class_limit)
+        .filter(|(_, genes)| {
+            !problem.uses_cells() && genes.len() as u32 > problem.parallel_class_limit
+        })
         .collect();
     over.sort_by_key(|((program, slot), _)| (*program, *slot));
     for ((_, slot), genes) in over {

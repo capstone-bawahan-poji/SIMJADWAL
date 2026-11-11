@@ -3,22 +3,28 @@ import Modal from '@/Components/Modal.vue';
 import Alert from '@/Components/ui/Alert.vue';
 import Button from '@/Components/ui/Button.vue';
 import { api, fieldErrors, toApiError, type ApiError } from '@/lib/api';
+import { classLabel, DAY_LABELS } from '@/lib/labels';
 import type { ScheduleDetailBase, ScheduleOptions } from '@/types/models';
 import { computed, onMounted, ref, watch } from 'vue';
 
+/**
+ * Manual change to one meeting of the active run of a study program, while its schedule is a
+ * draft: move it to a free cell of the program, or swap cells with another meeting of the run.
+ */
 const props = defineProps<{
     scheduleDetail: ScheduleDetailBase;
     show: boolean;
 }>();
 const emit = defineEmits<{
     close: [];
-    updated: [detail: ScheduleDetailBase];
+    updated: [];
 }>();
-const DAYS: Record<number, string> = { 1: 'Senin', 2: 'Selasa', 3: 'Rabu', 4: 'Kamis', 5: 'Jumat', 6: 'Sabtu', 7: 'Minggu' };
-const fieldClass = 'w-full rounded-xl border-gray-200 bg-white text-sm text-gray-900 focus:border-primary focus:ring-primary';
+const fieldClass = 'w-full rounded-lg border-gray-200 bg-white text-sm text-gray-900 focus:border-primary focus:ring-primary';
+const mode = ref<'move' | 'swap'>('move');
 const options = ref<ScheduleOptions | null>(null);
 const selectedSlotId = ref<number | null>(null);
 const selectedRoomId = ref<number | null>(null);
+const swapWith = ref<number | null>(null);
 const reason = ref('');
 const loading = ref(false);
 const saving = ref(false);
@@ -28,23 +34,22 @@ const errors = ref<Record<string, string>>({});
 const selectedSlot = computed(() => options.value?.time_slots.find((slot) => slot.id === selectedSlotId.value) ?? null);
 const slotDays = computed(() => [...new Set(options.value?.time_slots.map((slot) => slot.day) ?? [])].sort((a, b) => a - b));
 const slotSessions = computed(() => [...new Set(options.value?.time_slots.map((slot) => slot.session) ?? [])].sort((a, b) => a - b));
-const roomsForSelectedSlot = computed(() => {
-    if (!selectedSlot.value) return [];
-    const availableRooms = [...selectedSlot.value.rooms];
-    const currentRoom = props.scheduleDetail.room;
+const slotById = computed(() => new Map((options.value?.time_slots ?? []).map((slot) => [slot.id, slot])));
+const isCurrent = computed(() => selectedSlotId.value === options.value?.current.time_slot_id && selectedRoomId.value === options.value?.current.room_id);
+const canSave = computed(() => (mode.value === 'move'
+    ? selectedSlot.value?.available === true && selectedRoomId.value !== null && !isCurrent.value
+    : swapWith.value !== null));
 
-    if (selectedSlot.value.id === options.value?.current.time_slot_id && currentRoom && !availableRooms.some((room) => room.id === currentRoom.id)) {
-        availableRooms.unshift(currentRoom);
-    }
+function slotLabel(slotId: number): string {
+    const slot = slotById.value.get(slotId);
 
-    return availableRooms;
-});
+    return slot ? `${DAY_LABELS[slot.day]}, sesi ${slot.session}` : '';
+}
 
 async function loadOptions(): Promise<void> {
     loading.value = true;
     failure.value = null;
     errors.value = {};
-
     try {
         const response = await api.get<{ data: ScheduleOptions }>(`schedule-details/${props.scheduleDetail.id}/options`);
         options.value = response.data.data;
@@ -59,30 +64,26 @@ async function loadOptions(): Promise<void> {
 
 function chooseSlot(slotId: number): void {
     selectedSlotId.value = slotId;
-    const slot = options.value?.time_slots.find((item) => item.id === slotId);
-    if (selectedRoomId.value !== null && !slot?.rooms.some((room) => room.id === selectedRoomId.value)) {
-        selectedRoomId.value = null;
-    }
+    const rooms = options.value?.time_slots.find((item) => item.id === slotId)?.rooms ?? [];
+    selectedRoomId.value = rooms.some((room) => room.id === selectedRoomId.value) ? selectedRoomId.value : (rooms[0]?.id ?? null);
     errors.value = {};
 }
 
 async function save(): Promise<void> {
-    if (selectedSlotId.value === null) return;
     saving.value = true;
     failure.value = null;
     errors.value = {};
-
     try {
-        const response = await api.patch<{ data: ScheduleDetailBase }>(`schedule-details/${props.scheduleDetail.id}`, {
-            time_slot_id: selectedSlotId.value,
-            room_id: selectedRoomId.value,
-            reason: reason.value.trim() || null,
-        });
-        emit('updated', response.data.data);
+        const note = reason.value.trim() || null;
+        if (mode.value === 'move') {
+            await api.patch(`schedule-details/${props.scheduleDetail.id}`, { time_slot_id: selectedSlotId.value, room_id: selectedRoomId.value, reason: note });
+        } else {
+            await api.post('schedule-details/swap', { a: props.scheduleDetail.id, b: swapWith.value, reason: note });
+        }
+        emit('updated');
     } catch (error) {
         const apiError = toApiError(error);
         const fieldMessages = fieldErrors(apiError);
-
         if (apiError.status === 422 && Object.keys(fieldMessages).length) {
             errors.value = fieldMessages;
         } else {
@@ -93,12 +94,12 @@ async function save(): Promise<void> {
     }
 }
 
-watch(
-    () => props.show,
-    (visible) => {
-        if (visible && !options.value && !loading.value) void loadOptions();
-    },
-);
+watch(() => props.show, (visible) => {
+    if (visible && !options.value && !loading.value) void loadOptions();
+});
+watch(mode, () => {
+    errors.value = {};
+});
 onMounted(() => {
     if (props.show) void loadOptions();
 });
@@ -109,18 +110,26 @@ onMounted(() => {
         <div class="space-y-5 p-6">
             <div>
                 <h2 class="text-lg font-bold text-gray-900">Ubah Jadwal Manual</h2>
-                <p class="mt-1 text-sm text-gray-600">{{ scheduleDetail.course.code }} · {{ scheduleDetail.course.name }} · Kelas {{ String.fromCharCode(64 + scheduleDetail.class_number) }}</p>
+                <p class="mt-1 text-sm text-gray-600">{{ scheduleDetail.course.code }} {{ scheduleDetail.course.name }}, kelas {{ classLabel(scheduleDetail.class_number) }}</p>
+            </div>
+
+            <div class="flex gap-1 border-b border-gray-100" role="tablist" aria-label="Cara mengubah">
+                <button
+                    v-for="tab in ([['move', 'Pindah ke slot kosong'], ['swap', 'Tukar dengan jadwal lain']] as const)"
+                    :key="tab[0]"
+                    type="button"
+                    role="tab"
+                    :aria-selected="mode === tab[0]"
+                    class="-mb-px border-b-2 px-3 py-2 text-sm"
+                    :class="mode === tab[0] ? 'border-primary font-semibold text-gray-900' : 'border-transparent text-gray-500 hover:text-gray-900'"
+                    @click="mode = tab[0]"
+                >{{ tab[1] }}</button>
             </div>
 
             <Alert v-if="failure" :title="failure.message" />
-            <div v-if="loading" class="py-8 text-center text-sm text-gray-500">Memeriksa slot dan ruang yang tersedia…</div>
+            <div v-if="loading" class="py-8 text-center text-sm text-gray-500">Memeriksa slot ruangan program studi…</div>
 
-            <template v-else-if="options">
-                <div v-if="options.published" class="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm" role="status">
-                    <p class="font-semibold text-amber-800">Jadwal ini sudah dipublikasikan</p>
-                    <p class="mt-0.5 text-amber-700">Dosen sudah melihat jadwal ini. Perubahan langsung terlihat oleh mereka, jadi tulis alasannya untuk catatan.</p>
-                </div>
-
+            <template v-else-if="options && mode === 'move'">
                 <section class="space-y-2">
                     <h3 class="text-sm font-bold text-gray-900">Pilih hari dan sesi</h3>
                     <p v-if="errors.time_slot_id" class="text-xs text-red-600">{{ errors.time_slot_id }}</p>
@@ -129,7 +138,7 @@ onMounted(() => {
                             <thead>
                                 <tr>
                                     <th class="p-2 text-left text-gray-500">Sesi</th>
-                                    <th v-for="day in slotDays" :key="day" class="p-2 text-center text-gray-500">{{ DAYS[day] }}</th>
+                                    <th v-for="day in slotDays" :key="day" class="p-2 text-center text-gray-500">{{ DAY_LABELS[day] }}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -142,15 +151,17 @@ onMounted(() => {
                                                 class="w-full rounded-lg border px-2 py-2 text-left transition-colors"
                                                 :class="[
                                                     selectedSlotId === slot.id ? 'border-primary bg-primary/10 text-primary' : 'border-gray-200 bg-white text-gray-700',
-                                                    slot.available ? 'hover:border-primary' : 'cursor-not-allowed bg-gray-50 text-gray-400',
+                                                    slot.available && slot.rooms.length ? 'hover:border-primary' : 'cursor-not-allowed bg-gray-50 text-gray-400',
                                                 ]"
-                                                :disabled="!slot.available"
-                                                :title="slot.available ? `${slot.start_time}–${slot.end_time}` : slot.reasons.join('\n')"
+                                                :disabled="!slot.available || (!slot.rooms.length && slot.id !== options.current.time_slot_id)"
+                                                :title="slot.available ? (slot.rooms.length ? `${slot.rooms.length} ruang kosong` : 'Tidak ada slot ruangan kosong') : slot.reasons.join('\n')"
                                                 @click="chooseSlot(slot.id)"
                                             >
                                                 <span class="block font-semibold">{{ slot.start_time }}–{{ slot.end_time }}</span>
                                                 <span v-if="slot.id === options.current.time_slot_id" class="mt-0.5 block text-[10px]">Saat ini</span>
-                                                <span v-else-if="!slot.available" class="mt-0.5 block text-[10px]">Tidak tersedia</span>
+                                                <span v-else-if="!slot.available" class="mt-0.5 block text-[10px]">Bentrok</span>
+                                                <span v-else-if="!slot.rooms.length" class="mt-0.5 block text-[10px]">Tidak ada ruang</span>
+                                                <span v-else class="mt-0.5 block text-[10px]">{{ slot.rooms.length }} ruang</span>
                                             </button>
                                         </template>
                                     </td>
@@ -159,37 +170,49 @@ onMounted(() => {
                         </table>
                     </div>
                     <ul v-if="selectedSlot && !selectedSlot.available" class="list-disc pl-5 text-xs text-red-600">
-                        <li v-for="reason in selectedSlot.reasons" :key="reason">{{ reason }}</li>
+                        <li v-for="item in selectedSlot.reasons" :key="item">{{ item }}</li>
                     </ul>
                 </section>
 
                 <label class="block space-y-1 text-sm font-semibold text-gray-700">
                     Ruangan
-                    <select v-model="selectedRoomId" class="block" :class="fieldClass" :disabled="!selectedSlot || !selectedSlot.available">
-                        <option :value="null">Tanpa ruang</option>
-                        <option v-for="room in roomsForSelectedSlot" :key="room.id" :value="room.id">{{ room.code }}{{ room.name ? ` · ${room.name}` : '' }} · {{ room.capacity }} kursi</option>
+                    <select v-model="selectedRoomId" class="block" :class="fieldClass" :disabled="!selectedSlot?.available">
+                        <option v-if="selectedSlotId === options.current.time_slot_id && options.current.room_id !== null" :value="options.current.room_id">
+                            {{ scheduleDetail.room?.code ?? 'Ruang saat ini' }} (saat ini)
+                        </option>
+                        <option v-for="room in selectedSlot?.rooms ?? []" :key="room.id" :value="room.id">{{ room.code }}, {{ room.capacity }} kursi</option>
                     </select>
                     <span v-if="errors.room_id" class="block text-xs font-normal text-red-600">{{ errors.room_id }}</span>
-                    <span v-if="selectedSlot && selectedSlot.available && selectedSlot.rooms.length === 0" class="block text-xs font-normal text-amber-700">Tidak ada ruang kosong di jam ini, pilih slot lain atau lanjutkan tanpa ruang.</span>
-                </label>
-
-                <label class="block space-y-1 text-sm font-semibold text-gray-700">
-                    Alasan perubahan<span v-if="options.published" class="text-red-600"> *</span>
-                    <textarea
-                        v-model="reason"
-                        rows="2"
-                        maxlength="500"
-                        class="block"
-                        :class="fieldClass"
-                        :placeholder="options.published ? 'Contoh: dosen berhalangan, ruang dipakai acara fakultas' : 'Opsional'"
-                    />
-                    <span v-if="errors.reason" class="block text-xs font-normal text-red-600">{{ errors.reason }}</span>
+                    <span class="block text-xs font-normal text-gray-500">Hanya slot ruangan yang diberikan fakultas kepada program studi dan masih kosong.</span>
                 </label>
             </template>
 
+            <template v-else-if="options && mode === 'swap'">
+                <p class="text-sm text-gray-600">Saat tidak ada slot kosong, tukar slot dan ruang pertemuan ini dengan pertemuan lain. Daftar hanya berisi pertukaran yang tidak menimbulkan bentrok.</p>
+                <p v-if="errors.a || errors.b" class="text-xs text-red-600">{{ errors.a ?? errors.b }}</p>
+                <p v-if="!options.swap_candidates.length" class="rounded-lg bg-gray-50 px-4 py-6 text-center text-sm text-gray-500">Tidak ada pertemuan yang bisa ditukar tanpa bentrok.</p>
+                <ul v-else class="max-h-72 divide-y divide-gray-100 overflow-y-auto rounded-lg border border-gray-200">
+                    <li v-for="candidate in options.swap_candidates" :key="candidate.schedule_detail_id">
+                        <label class="flex cursor-pointer items-center gap-3 px-4 py-3 text-sm hover:bg-gray-50">
+                            <input v-model="swapWith" type="radio" :value="candidate.schedule_detail_id" class="text-primary focus:ring-primary" />
+                            <span class="flex-1">
+                                <span class="block font-medium text-gray-900">{{ candidate.course.name }}, kelas {{ classLabel(candidate.class_number) }}</span>
+                                <span class="block text-xs text-gray-500">{{ slotLabel(candidate.time_slot_id) }}, ruang {{ candidate.room_code ?? '-' }}</span>
+                            </span>
+                        </label>
+                    </li>
+                </ul>
+            </template>
+
+            <label v-if="options" class="block space-y-1 text-sm font-semibold text-gray-700">
+                Alasan perubahan
+                <textarea v-model="reason" rows="2" maxlength="500" class="block" :class="fieldClass" placeholder="Opsional, untuk catatan riwayat" />
+                <span v-if="errors.reason" class="block text-xs font-normal text-red-600">{{ errors.reason }}</span>
+            </label>
+
             <div class="flex justify-end gap-3 border-t border-gray-100 pt-4">
                 <Button variant="ghost" :disabled="saving" @click="emit('close')">Batal</Button>
-                <Button :disabled="!options || !selectedSlot?.available || (options.published && !reason.trim())" :loading="saving" @click="save">Simpan perubahan</Button>
+                <Button :disabled="!canSave" :loading="saving" @click="save">{{ mode === 'move' ? 'Pindahkan' : 'Tukar' }}</Button>
             </div>
         </div>
     </Modal>

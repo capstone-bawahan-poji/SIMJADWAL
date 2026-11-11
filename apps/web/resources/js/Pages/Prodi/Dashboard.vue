@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { onResourcesChanged } from '@/composables/useResourceChanges';
+import { SUBMISSION_STATUS_LABELS } from '@/lib/labels';
 import type { ConstraintStatus, StudyProgramDashboard } from '@/types/models';
 import { Head, Link, router } from '@inertiajs/vue3';
 import { ArrowRight, BookOpen, CalendarDays, Check, DoorOpen, Settings2, SlidersHorizontal, Users } from 'lucide-vue-next';
@@ -49,8 +50,10 @@ const scheduleStatusLabel = computed(() => {
         return schedule.value.published_at ? `Diterbitkan ${formatDate(schedule.value.published_at)}` : 'Diterbitkan';
     }
 
-    return schedule.value.status === 'active' ? 'Menunggu publikasi' : 'Belum ada jadwal aktif';
+    return schedule.value.status === 'active' ? SUBMISSION_STATUS_LABELS[schedule.value.submission_status] : 'Belum ada jadwal aktif';
 });
+/** The program hands its schedule to the faculty; the faculty publishes it. */
+const handedIn = computed(() => ['submitted', 'accepted', 'published'].includes(schedule.value.submission_status));
 
 const card = {
     backgroundColor: C.white,
@@ -111,9 +114,9 @@ const tasks = computed(() => [
         routeName: isDraft.value ? 'prodi.constraints.review' : 'prodi.constraints.index',
     },
     {
-        label: schedule.value.status === 'active' ? 'Publikasikan jadwal' : 'Periksa hasil GA',
-        value: isPublished.value ? 'Selesai' : schedule.value.status === 'active' ? 'Belum' : 'Lihat',
-        done: isPublished.value,
+        label: schedule.value.status === 'none' ? 'Periksa hasil GA' : 'Kirim jadwal ke fakultas',
+        value: handedIn.value ? SUBMISSION_STATUS_LABELS[schedule.value.submission_status] : schedule.value.status === 'none' ? 'Lihat' : 'Belum',
+        done: handedIn.value,
         routeName: isPublished.value ? 'prodi.schedule-matrix.index' : 'prodi.ga.index',
     },
 ]);
@@ -178,7 +181,7 @@ const steps = computed(() => [
     },
 ]);
 
-onResourcesChanged(['scheduling_runs', 'schedule_details', 'study_programs', 'lecturers', 'courses', 'course_lecturers', 'lecturer_preferences'], () => {
+onResourcesChanged(['scheduling_runs', 'schedule_details', 'study_programs', 'lecturers', 'courses', 'course_lecturers', 'lecturer_preferences', 'program_schedule_submissions', 'schedule_publications'], () => {
     router.reload({ only: ['dashboard'] });
 });
 </script>
@@ -412,7 +415,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'study_programs', 'le
                                 padding: '16px',
                             }"
                         >
-                            <span class="text-lg font-bold leading-tight">Alokasi Ruang</span>
+                            <span class="text-lg font-bold leading-tight">Slot Ruangan</span>
                             <span :style="{ width: '30px', height: '30px', borderRadius: '9999px', backgroundColor: C.blue, color: C.white, display: 'flex', alignItems: 'center', justifyContent: 'center' }">
                                 <DoorOpen class="h-4 w-4" aria-hidden="true" />
                             </span>

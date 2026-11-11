@@ -5,6 +5,7 @@ namespace App\Models\Scheduling;
 use App\Enums\Scheduling\SelectionOperator;
 use App\Extensions\Models\Traits\BroadcastsChanges;
 use App\Models\MasterData\Faculty;
+use App\Models\MasterData\StudyProgram;
 use App\Models\User;
 use App\Policies\Scheduling\GaParameterPresetPolicy;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -15,6 +16,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'faculty_id',
+    'study_program_id',
     'name',
     'population_size',
     'min_generations',
@@ -63,6 +65,12 @@ class GaParameterPreset extends Model
     public function faculty(): BelongsTo
     {
         return $this->belongsTo(Faculty::class);
+    }
+
+    /** @return BelongsTo<StudyProgram, $this> */
+    public function studyProgram(): BelongsTo
+    {
+        return $this->belongsTo(StudyProgram::class);
     }
 
     /** @return BelongsTo<User, $this> */

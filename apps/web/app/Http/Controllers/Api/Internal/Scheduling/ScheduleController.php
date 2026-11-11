@@ -8,6 +8,7 @@ use App\Http\Requests\Scheduling\ExportScheduleRequest;
 use App\Http\Requests\Scheduling\ListScheduleRequest;
 use App\Http\Requests\Scheduling\OverrideScheduleDetailRequest;
 use App\Http\Requests\Scheduling\RoomGridRequest;
+use App\Http\Requests\Scheduling\SwapScheduleDetailsRequest;
 use App\Models\Scheduling\ScheduleDetail;
 use App\Services\Scheduling\Export\RoomGridTransformer;
 use App\Services\Scheduling\Export\ScheduleExportService;
@@ -84,10 +85,25 @@ class ScheduleController extends ApiController implements HasMiddleware
             $request->user(),
             $scheduleDetail,
             (int) $request->validated('time_slot_id'),
-            $request->validated('room_id') !== null ? (int) $request->validated('room_id') : null,
+            (int) $request->validated('room_id'),
             $request->validated('reason'),
         );
 
         return $this->response(ScheduleDetailTransformer::toArray($detail->fresh(ScheduleDetailTransformer::relations())));
+    }
+
+    public function swap(SwapScheduleDetailsRequest $request): JsonResponse
+    {
+        $a = $request->detailA();
+        $b = $request->detailB();
+        $this->authorize('override', $a);
+        $this->authorize('override', $b);
+
+        $details = $this->overrideService->swap($request->user(), $a, $b, $request->validated('reason'));
+
+        return $this->response(array_map(
+            fn ($detail) => ScheduleDetailTransformer::toArray($detail->fresh(ScheduleDetailTransformer::relations())),
+            $details,
+        ));
     }
 }

@@ -1,302 +1,433 @@
 <script setup lang="ts">
-import AppLayout from '@/Layouts/AppLayout.vue';
+import Modal from '@/Components/Modal.vue';
+import CellGrid from '@/Components/scheduling/CellGrid.vue';
+import SubmissionStatusBadge from '@/Components/scheduling/SubmissionStatusBadge.vue';
 import Alert from '@/Components/ui/Alert.vue';
 import Button from '@/Components/ui/Button.vue';
-import {
-    FACULTY_PROGRAMS,
-    FACULTY_PROGRAM_CLASSES,
-    FACULTY_PROGRAM_SLOT_STORAGE_KEY,
-    type FacultyProgramSlotAllocation,
-} from '@/lib/facultyProgramSlotAllocation';
-import { Head } from '@inertiajs/vue3';
-import { computed, onMounted, ref } from 'vue';
+import { usePeriodPicker } from '@/composables/usePeriodPicker';
+import { onResourcesChanged } from '@/composables/useResourceChanges';
+import AppLayout from '@/Layouts/AppLayout.vue';
+import { api, fieldErrors, toApiError, type ApiError } from '@/lib/api';
+import { DAY_LABELS, formatDateTime, programColor } from '@/lib/labels';
+import type { CellChange, CellView, GridRoom, Paginated, RoomSlotGrid, SlotRequest, TimeSlot } from '@/types/models';
+import { Head, Link } from '@inertiajs/vue3';
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
-type Building = 'E' | 'F' | 'G';
-type Allocation = FacultyProgramSlotAllocation;
+/**
+ * POS 040/IT10.1/OT.07/2026 steps 1, 5 and 6: the faculty hands room slots (room × day × session)
+ * to its study programs, moves them between programs, and answers requests for more.
+ * Changes stay local until saved; one save sends only the changed cells.
+ */
+type GridCell = RoomSlotGrid['cells'][number];
 
-const DAYS = [
-    { id: 1, label: 'Senin' },
-    { id: 2, label: 'Selasa' },
-    { id: 3, label: 'Rabu' },
-    { id: 4, label: 'Kamis' },
-    { id: 5, label: 'Jumat' },
-] as const;
-const SESSIONS = [
-    { id: 1, time: '07.30–10.00' },
-    { id: 2, time: '10.20–12.00' },
-    { id: 3, time: '13.00–15.30' },
-    { id: 4, time: '16.00–17.40' },
-] as const;
-const PROGRAMS = FACULTY_PROGRAMS;
-const CLASSES = FACULTY_PROGRAM_CLASSES;
-const ROOMS: Record<Building, string[]> = {
-    E: ['E101', 'E102', 'E103', 'E104', 'E105', 'E106', 'E201', 'E202', 'E203', 'E204', 'E205', 'E206'],
-    F: ['F101', 'F102', 'F103', 'F104', 'F105', 'F106', 'F201', 'F202', 'F203', 'F204', 'F205', 'F206'],
-    G: ['G101', 'G102', 'G103', 'G104', 'G105', 'G106', 'G201', 'G202', 'G203', 'G204', 'G205', 'G206'],
-};
-const TPB_OCCUPIED = new Set([
-    'E101:1:1', 'E102:1:1', 'E103:2:2', 'E201:3:3', 'E202:4:2',
-    'F101:1:2', 'F102:2:1', 'F201:3:4', 'F202:5:2',
-    'G101:1:3', 'G102:2:3', 'G201:4:1', 'G202:5:4',
-]);
+const { periods, period, error: periodError } = usePeriodPicker();
+const grid = ref<RoomSlotGrid | null>(null);
+const loading = ref(false);
+const loadError = ref<ApiError | null>(null);
+const programId = ref<number | null>(null);
+const building = ref('');
+const day = ref(1);
+/** "slot:room" => desired holder, only for cells that differ from the server. */
+const pending = ref(new Map<string, number | null>());
+const cellErrors = ref(new Map<string, string>());
+const saving = ref(false);
+const saveError = ref<ApiError | null>(null);
+const flash = ref<string | null>(null);
 
-const building = ref<Building>('E');
-const programId = ref<(typeof PROGRAMS)[number]['id']>(PROGRAMS[0].id);
-const classLabel = ref<(typeof CLASSES)[number]>('A');
-const dayId = ref<number>(DAYS[0].id);
-const allocations = ref<Record<string, Allocation>>({});
-const savedAllocations = ref('');
-const saveError = ref('');
-const selectedProgram = computed(() => PROGRAMS.find((program) => program.id === programId.value) ?? PROGRAMS[0]);
-const rooms = computed(() => ROOMS[building.value]);
-const selectedDay = computed(() => DAYS.find((day) => day.id === dayId.value) ?? DAYS[0]);
-const allocationCount = computed(() => Object.values(allocations.value).filter((allocation) => allocation.programId === programId.value).length);
-const selectedClassCount = computed(() => Object.values(allocations.value).filter((allocation) => allocation.programId === programId.value && allocation.classLabel === classLabel.value).length);
-const hasUnsavedChanges = computed(() => JSON.stringify(allocations.value) !== savedAllocations.value);
-const allocationRows = computed(() => Object.entries(allocations.value).map(([key, allocation]) => {
-    const [room, dayId, sessionId] = key.split(':');
-    const program = PROGRAMS.find((item) => item.id === allocation.programId);
-    const day = DAYS.find((item) => item.id === Number(dayId));
-    return {
-        key,
-        room,
-        program: program ? `${program.code} · ${program.name}` : allocation.programId,
-        classLabel: allocation.classLabel,
-        day: day?.label ?? `Hari ${dayId}`,
-        session: Number(sessionId),
-    };
-}).sort((a, b) => a.day.localeCompare(b.day) || a.session - b.session || a.room.localeCompare(b.room)));
-const filtersClass = 'h-10 rounded-lg border-gray-200 bg-white text-sm text-gray-700 focus:border-primary focus:ring-primary';
+const requests = ref<SlotRequest[]>([]);
+const requestsError = ref<ApiError | null>(null);
+const activeRequest = ref<SlotRequest | null>(null);
+/** Cells picked to answer activeRequest. */
+const requestCells = ref(new Set<string>());
+const responseNote = ref('');
+const answering = ref<'fulfill' | 'reject' | null>(null);
+const rejectOpen = ref(false);
+const requestError = ref<ApiError | null>(null);
 
-onMounted(() => {
-    try {
-        const stored = localStorage.getItem(FACULTY_PROGRAM_SLOT_STORAGE_KEY);
-        if (!stored) {
-            savedAllocations.value = JSON.stringify(allocations.value);
-            return;
-        }
+const fieldClass = 'mt-1 block w-full rounded-lg border-gray-200 bg-white text-sm text-gray-700 focus:border-primary focus:ring-primary';
+const key = (slotId: number, roomId: number) => `${slotId}:${roomId}`;
 
-        const parsed: unknown = JSON.parse(stored);
-        if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-            throw new Error('Format data alokasi tersimpan tidak valid.');
-        }
+const programs = computed(() => [...(grid.value?.study_programs ?? [])].sort((a, b) => a.code.localeCompare(b.code)));
+const programIndex = computed(() => new Map(programs.value.map((program, index) => [program.id, index])));
+const programById = computed(() => new Map(programs.value.map((program) => [program.id, program])));
+const selectedProgram = computed(() => (programId.value ? programById.value.get(programId.value) ?? null : null));
+const cells = computed(() => new Map((grid.value?.cells ?? []).map((cell) => [key(cell.time_slot_id, cell.room_id), cell])));
+const buildings = computed(() => [...new Set((grid.value?.rooms ?? []).map((room) => room.building ?? ''))].sort());
+const rooms = computed(() => (grid.value?.rooms ?? []).filter((room) => !building.value || (room.building ?? '') === building.value));
+const days = computed(() => [...new Set((grid.value?.time_slots ?? []).map((slot) => slot.day))].sort((a, b) => a - b));
+const slots = computed(() => (grid.value?.time_slots ?? []).filter((slot) => slot.day === day.value).sort((a, b) => a.session - b.session));
+const locked = computed(() => !grid.value || grid.value.tpb_source.type === null || grid.value.published);
+const pendingCount = computed(() => pending.value.size);
 
-        const entries = Object.entries(parsed);
-        for (const [key, allocation] of entries) {
-            const [room, day, session] = key.split(':');
-            if (
-                !Object.values(ROOMS).some((buildingRooms) => buildingRooms.includes(room))
-                || !DAYS.some((item) => item.id === Number(day))
-                || !SESSIONS.some((item) => item.id === Number(session))
-                || !allocation
-                || typeof allocation !== 'object'
-                || !PROGRAMS.some((program) => program.id === allocation.programId)
-                || !CLASSES.includes(allocation.classLabel as (typeof CLASSES)[number])
-            ) {
-                throw new Error('Format data alokasi tersimpan tidak valid.');
-            }
-        }
-
-        allocations.value = parsed as Record<string, Allocation>;
-        savedAllocations.value = JSON.stringify(allocations.value);
-    } catch (error) {
-        saveError.value = error instanceof Error ? error.message : 'Data alokasi tersimpan tidak dapat dibaca.';
+/** Cells per program after the unsaved changes. */
+const effectiveCounts = computed(() => {
+    const counts = new Map(programs.value.map((program) => [program.id, program.cells_count]));
+    for (const [cellKey, holder] of pending.value) {
+        const original = originalHolder(cells.value.get(cellKey));
+        if (original !== null) counts.set(original, (counts.get(original) ?? 0) - 1);
+        if (holder !== null) counts.set(holder, (counts.get(holder) ?? 0) + 1);
     }
+    return counts;
 });
 
-function slotKey(room: string, day: number, session: number): string {
-    return `${room}:${day}:${session}`;
+function originalHolder(cell: GridCell | undefined): number | null {
+    return cell && (cell.status === 'allocated' || cell.status === 'conflict') ? cell.study_program_id : null;
 }
 
-function isTpbOccupied(room: string, day: number, session: number): boolean {
-    return TPB_OCCUPIED.has(slotKey(room, day, session));
+function holderOf(cellKey: string): number | null {
+    return pending.value.has(cellKey) ? pending.value.get(cellKey)! : originalHolder(cells.value.get(cellKey));
 }
 
-function allocatedTo(room: string, day: number, session: number): Allocation | undefined {
-    return allocations.value[slotKey(room, day, session)];
+function programTone(id: number): string {
+    const color = programColor(programIndex.value.get(id) ?? 0);
+    return `${color.bg} ${color.text}`;
 }
 
-function allocate(room: string, day: number, session: number): void {
-    const key = slotKey(room, day, session);
-    if (isTpbOccupied(room, day, session)) return;
+function cellView(slot: TimeSlot, room: GridRoom): CellView {
+    const cellKey = key(slot.id, room.id);
+    const cell = cells.value.get(cellKey);
+    const error = cellErrors.value.get(cellKey);
 
-    const existing = allocations.value[key];
-    if (existing?.programId === programId.value && existing.classLabel === classLabel.value) {
-        const next = { ...allocations.value };
-        delete next[key];
-        allocations.value = next;
+    if (cell?.status === 'tpb') return { label: 'TPB', tone: 'bg-gray-100 text-gray-500', title: 'Dipakai TPB', disabled: true };
+    if (cell?.status === 'other_faculty') return { label: cell.faculty?.code ?? 'Fakultas lain', tone: 'bg-gray-100 text-gray-500', title: 'Dipakai fakultas lain', disabled: true };
+
+    if (activeRequest.value) {
+        const picked = requestCells.value.has(cellKey);
+        const holder = holderOf(cellKey);
+        if (picked) return { label: `+ ${activeRequest.value.study_program.code}`, tone: 'bg-primary text-white', title: 'Dipilih untuk permintaan ini' };
+        if (holder === null) return { label: 'Kosong', tone: 'bg-blue-50 text-blue-700 hover:bg-blue-100', title: 'Klik untuk memberikan sel ini' };
+        if (cell?.locked) return { label: programById.value.get(holder)?.code ?? '-', tone: `${programTone(holder)} opacity-60`, title: 'Jadwal pemegang sudah dikirim ke fakultas', disabled: true };
+        return { label: programById.value.get(holder)?.code ?? '-', tone: programTone(holder), title: 'Klik untuk mengambil sel ini dari program studi lain', disabled: holder === activeRequest.value.study_program.id };
+    }
+
+    const holder = holderOf(cellKey);
+    const isPending = pending.value.has(cellKey);
+    if (cell?.status === 'conflict' && !isPending) {
+        return { label: `${programById.value.get(cell.study_program_id!)?.code ?? '-'} bentrok TPB`, tone: 'bg-red-100 text-red-800 hover:bg-red-200', title: 'TPB memakai sel ini setelah dialokasikan. Klik untuk mencabut.', disabled: locked.value };
+    }
+    if (holder === null) {
+        return { label: error ? 'Gagal' : 'Kosong', tone: error ? 'bg-red-50 text-red-700' : 'bg-blue-50 text-blue-700 hover:bg-blue-100', title: error ?? 'Klik untuk memberikan sel ini ke program studi terpilih', disabled: locked.value || !programId.value, pending: isPending };
+    }
+    return {
+        label: programById.value.get(holder)?.code ?? '-',
+        tone: `${programTone(holder)} ${error ? 'ring-2 ring-red-500' : ''} ${holder === programId.value ? 'hover:opacity-80' : ''}`,
+        title: error ?? (cell?.locked ? 'Jadwal pemegang sudah dikirim ke fakultas' : holder === programId.value ? 'Klik untuk mencabut' : 'Klik untuk memindahkan ke program studi terpilih'),
+        disabled: locked.value || !!cell?.locked || !programId.value,
+        pending: isPending,
+    };
+}
+
+function setHolder(cellKey: string, holder: number | null): void {
+    const next = new Map(pending.value);
+    if (holder === originalHolder(cells.value.get(cellKey))) next.delete(cellKey);
+    else next.set(cellKey, holder);
+    pending.value = next;
+    if (cellErrors.value.has(cellKey)) {
+        const errors = new Map(cellErrors.value);
+        errors.delete(cellKey);
+        cellErrors.value = errors;
+    }
+}
+
+function select(slot: TimeSlot, room: GridRoom): void {
+    const cellKey = key(slot.id, room.id);
+    if (activeRequest.value) {
+        const picked = new Set(requestCells.value);
+        if (picked.has(cellKey)) picked.delete(cellKey);
+        else picked.add(cellKey);
+        requestCells.value = picked;
         return;
     }
-
-    if (existing) return;
-    allocations.value = { ...allocations.value, [key]: { programId: programId.value, classLabel: classLabel.value } };
+    if (!programId.value) return;
+    setHolder(cellKey, holderOf(cellKey) === programId.value ? null : programId.value);
 }
 
-function clearCurrentProgram(): void {
-    allocations.value = Object.fromEntries(
-        Object.entries(allocations.value).filter(([, allocation]) => allocation.programId !== programId.value),
-    );
-}
-
-function removeAllocation(key: string): void {
-    const next = { ...allocations.value };
-    delete next[key];
-    allocations.value = next;
-}
-
-function saveAllocations(): void {
-    saveError.value = '';
+async function load(): Promise<void> {
+    if (!period.value) return;
+    loading.value = true;
     try {
-        const serialized = JSON.stringify(allocations.value);
-        localStorage.setItem(FACULTY_PROGRAM_SLOT_STORAGE_KEY, serialized);
-        savedAllocations.value = serialized;
+        const response = await api.get<{ data: RoomSlotGrid }>('room-slot-allocations', { params: { period: period.value } });
+        grid.value = response.data.data;
+        loadError.value = null;
+        if (!programId.value || !programById.value.has(programId.value)) programId.value = programs.value[0]?.id ?? null;
+        if (!days.value.includes(day.value)) day.value = days.value[0] ?? 1;
     } catch (error) {
-        saveError.value = error instanceof Error ? error.message : 'Alokasi gagal disimpan di browser.';
+        loadError.value = toApiError(error);
+    } finally {
+        loading.value = false;
     }
 }
+
+async function loadRequests(): Promise<void> {
+    if (!period.value) return;
+    try {
+        const response = await api.get<Paginated<SlotRequest>>('slot-requests', { params: { period: period.value, status: 'pending', per_page: 100 } });
+        requests.value = response.data.data;
+        requestsError.value = null;
+        if (activeRequest.value && !requests.value.some((request) => request.id === activeRequest.value?.id)) closeRequest();
+    } catch (error) {
+        requestsError.value = toApiError(error);
+    }
+}
+
+async function save(): Promise<void> {
+    const changes: CellChange[] = [...pending.value].map(([cellKey, holder]) => {
+        const [slotId, roomId] = cellKey.split(':').map(Number);
+        return { time_slot_id: slotId, room_id: roomId, study_program_id: holder };
+    });
+    saving.value = true;
+    saveError.value = null;
+    try {
+        const response = await api.put<{ data: { allocated: number; released: number; grid: RoomSlotGrid } }>('room-slot-allocations', { period: period.value, cells: changes });
+        grid.value = response.data.data.grid;
+        pending.value = new Map();
+        cellErrors.value = new Map();
+        flash.value = `${response.data.data.allocated} sel diberikan, ${response.data.data.released} sel dicabut.`;
+    } catch (error) {
+        const apiError = toApiError(error);
+        // cells.{i}... points at the changed cell i.
+        const errors = new Map<string, string>();
+        for (const [field, message] of Object.entries(fieldErrors(apiError))) {
+            const index = Number(field.split('.')[1]);
+            const change = changes[index];
+            if (change) errors.set(key(change.time_slot_id, change.room_id), message);
+        }
+        cellErrors.value = errors;
+        saveError.value = apiError;
+    } finally {
+        saving.value = false;
+    }
+}
+
+function discard(): void {
+    pending.value = new Map();
+    cellErrors.value = new Map();
+    saveError.value = null;
+}
+
+function openRequest(request: SlotRequest): void {
+    if (pendingCount.value) return;
+    activeRequest.value = request;
+    programId.value = request.study_program.id;
+    requestCells.value = new Set();
+    responseNote.value = '';
+    requestError.value = null;
+}
+
+function closeRequest(): void {
+    activeRequest.value = null;
+    requestCells.value = new Set();
+    rejectOpen.value = false;
+    requestError.value = null;
+}
+
+async function fulfill(): Promise<void> {
+    if (!activeRequest.value) return;
+    answering.value = 'fulfill';
+    requestError.value = null;
+    try {
+        const cellsPicked = [...requestCells.value].map((cellKey) => {
+            const [slotId, roomId] = cellKey.split(':').map(Number);
+            return { time_slot_id: slotId, room_id: roomId };
+        });
+        await api.post(`slot-requests/${activeRequest.value.id}/fulfill`, { cells: cellsPicked, response_note: responseNote.value.trim() || null });
+        flash.value = `Permintaan ${activeRequest.value.study_program.code} dipenuhi dengan ${cellsPicked.length} sel.`;
+        closeRequest();
+        await Promise.all([load(), loadRequests()]);
+    } catch (error) {
+        requestError.value = toApiError(error);
+    } finally {
+        answering.value = null;
+    }
+}
+
+async function reject(): Promise<void> {
+    if (!activeRequest.value) return;
+    answering.value = 'reject';
+    requestError.value = null;
+    try {
+        await api.post(`slot-requests/${activeRequest.value.id}/reject`, { note: responseNote.value.trim() });
+        flash.value = `Permintaan ${activeRequest.value.study_program.code} ditolak.`;
+        closeRequest();
+        await loadRequests();
+    } catch (error) {
+        requestError.value = toApiError(error);
+    } finally {
+        answering.value = null;
+    }
+}
+
+function warnUnsaved(event: BeforeUnloadEvent): void {
+    if (pendingCount.value) event.preventDefault();
+}
+
+watch(period, () => {
+    discard();
+    closeRequest();
+    void load();
+    void loadRequests();
+}, { immediate: true });
+onResourcesChanged(['room_slot_allocations', 'program_schedule_submissions', 'schedule_publications', 'tpb_occupancy_imports', 'scheduling_runs'], () => {
+    // Keep the local edits: a reload only refreshes what others changed.
+    void load();
+});
+onResourcesChanged(['slot_requests'], () => void loadRequests());
+onMounted(() => window.addEventListener('beforeunload', warnUnsaved));
+onBeforeUnmount(() => window.removeEventListener('beforeunload', warnUnsaved));
 </script>
 
 <template>
-    <Head title="Input Alokasi Slot Prodi" />
+    <Head title="Slot Ruangan Program Studi" />
     <AppLayout>
-        <div class="mx-auto w-full max-w-[1280px] space-y-4 p-5 md:p-6">
-            <header>
-                <h1 class="text-2xl font-bold tracking-tight text-gray-900">Input Alokasi Slot Prodi</h1>
-                <p class="mt-1 text-sm text-gray-500">Tentukan ruang, hari, dan sesi untuk kelas dari setiap program studi.</p>
+        <div class="mx-auto w-full max-w-[1400px] space-y-6 p-5 md:p-6">
+            <header class="flex flex-wrap items-end justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight text-gray-900">Slot Ruangan Program Studi</h1>
+                    <p class="mt-1 max-w-3xl text-sm text-gray-600">
+                        Bagikan slot ruangan (ruang, hari, sesi) kepada setiap program studi. Program studi menjalankan GA hanya di dalam slot yang diberikan.
+                    </p>
+                </div>
+                <label class="text-sm font-medium text-gray-700">
+                    Periode
+                    <select v-model="period" class="mt-1 block min-w-56 rounded-lg border-gray-200 bg-white text-sm focus:border-primary focus:ring-primary">
+                        <option v-for="item in periods" :key="item.id" :value="item.code">{{ item.label }}</option>
+                    </select>
+                </label>
             </header>
 
-            <section class="grid gap-4 rounded-lg border border-gray-200 bg-white p-4 sm:grid-cols-2 xl:grid-cols-[minmax(240px,1.3fr)_140px_170px_170px_auto] xl:items-end">
-                <label class="block text-sm font-medium text-gray-700">
-                    Program studi tujuan
-                    <select v-model="programId" class="mt-1 block w-full" :class="filtersClass">
-                        <option v-for="program in PROGRAMS" :key="program.id" :value="program.id">{{ program.code }} · {{ program.name }}</option>
-                    </select>
-                </label>
-                <label class="block text-sm font-medium text-gray-700">
-                    Kelas
-                    <select v-model="classLabel" class="mt-1 block w-full" :class="filtersClass">
-                        <option v-for="label in CLASSES" :key="label" :value="label">Kelas {{ label }}</option>
-                    </select>
-                </label>
-                <label class="block text-sm font-medium text-gray-700">
-                    Gedung
-                    <select v-model="building" class="mt-1 block w-full" :class="filtersClass">
-                        <option value="E">Gedung E</option>
-                        <option value="F">Gedung F</option>
-                        <option value="G">Gedung G</option>
-                    </select>
-                </label>
-                <label class="block text-sm font-medium text-gray-700">
-                    Hari
-                    <select v-model.number="dayId" class="mt-1 block w-full" :class="filtersClass">
-                        <option v-for="day in DAYS" :key="day.id" :value="day.id">{{ day.label }}</option>
-                    </select>
-                </label>
-                <Button type="button" variant="secondary" size="sm" :disabled="allocationCount === 0" @click="clearCurrentProgram">
-                    Hapus alokasi {{ selectedProgram.code }} ({{ allocationCount }})
-                </Button>
-            </section>
-
-            <Alert v-if="saveError" variant="error" title="Gagal menyimpan alokasi">{{ saveError }}</Alert>
-
-            <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-gray-600" aria-label="Legenda status slot">
-                <span class="inline-flex items-center gap-2"><i class="size-3 rounded-sm bg-blue-100 ring-1 ring-blue-200" aria-hidden="true" />Kosong</span>
-                <span class="inline-flex items-center gap-2"><i class="size-3 rounded-sm bg-gray-200" aria-hidden="true" />Dipakai TPB</span>
-                <span class="inline-flex items-center gap-2"><i class="size-3 rounded-sm bg-primary" aria-hidden="true" />Sudah dialokasikan</span>
-                <div class="flex w-full flex-wrap items-center justify-between gap-3 border-t border-gray-100 pt-3 sm:w-auto sm:flex-1 sm:border-0 sm:pt-0">
-                    <span class="text-gray-500">{{ selectedProgram.code }} · Kelas {{ classLabel }}: {{ selectedClassCount }} slot dipilih</span>
-                    <Button type="button" size="sm" :disabled="!hasUnsavedChanges" @click="saveAllocations">Simpan</Button>
-                </div>
+            <div class="space-y-3">
+                <Alert v-if="periodError" :title="periodError.message" />
+                <Alert v-if="loadError" :title="loadError.message" />
+                <Alert v-if="flash" variant="success" :title="flash" dismissible @dismiss="flash = null" />
+                <Alert v-if="grid && grid.tpb_source.type === null" variant="warning" title="Data jadwal TPB periode ini belum tersedia">
+                    Slot ruangan baru dapat dibagikan setelah jadwal TPB diketahui, supaya tidak bentrok.
+                    <Link href="/fakultas/tpb-import" class="font-semibold text-primary hover:underline">Import jadwal TPB</Link>
+                </Alert>
+                <Alert v-if="grid?.published" variant="success" title="Jadwal fakultas periode ini sudah dipublikasikan">Slot ruangan tidak dapat diubah lagi.</Alert>
+                <Alert v-if="saveError" :title="saveError.message">
+                    <span v-if="cellErrors.size">{{ cellErrors.size }} sel ditandai merah. Arahkan kursor ke sel untuk melihat alasannya.</span>
+                </Alert>
             </div>
 
-            <div class="overflow-hidden rounded-lg border border-gray-200 bg-white">
-                <div class="flex flex-wrap items-end justify-between gap-2 border-b border-gray-200 bg-gray-50 px-5 py-4">
-                    <div>
-                        <h2 class="text-base font-semibold text-gray-900">Pilih slot ruang</h2>
-                        <p class="mt-1 text-sm text-gray-500">{{ selectedDay.label }} · Gedung {{ building }} · klik slot kosong untuk mengalokasikan ke {{ selectedProgram.code }} kelas {{ classLabel }}</p>
-                    </div>
-                    <p class="text-xs font-medium text-gray-500">{{ rooms.length }} ruang · {{ SESSIONS.length }} sesi</p>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full min-w-[640px] border-collapse text-left text-sm">
-                        <thead>
-                            <tr>
-                                <th class="sticky left-0 z-20 min-w-28 border-b border-r border-gray-200 bg-gray-50 px-4 py-3 text-left font-semibold text-gray-700">Ruang</th>
-                                <th v-for="session in SESSIONS" :key="session.id" class="min-w-32 border-b border-r border-gray-200 bg-gray-50 px-3 py-3 text-center font-semibold text-gray-700">
-                                    <span class="block">Sesi {{ session.id }}</span>
-                                    <span class="mt-0.5 block whitespace-nowrap text-[11px] font-normal text-gray-500">{{ session.time }}</span>
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            <tr v-for="room in rooms" :key="room">
-                                <th class="sticky left-0 z-10 border-r border-gray-200 bg-white px-4 py-2.5 text-left font-semibold text-gray-900">{{ room }}</th>
-                                <td v-for="session in SESSIONS" :key="`${room}:${dayId}:${session.id}`" class="border-r border-gray-100 p-1.5">
-                                        <span
-                                            v-if="isTpbOccupied(room, dayId, session.id)"
-                                            class="flex min-h-10 items-center justify-center rounded-md bg-gray-100 px-2 text-xs font-medium text-gray-500"
-                                            title="Ruang sudah dipakai TPB"
-                                        >TPB</span>
-                                        <button
-                                            v-else
-                                            type="button"
-                                            class="flex min-h-10 w-full items-center justify-center rounded-md px-2 text-xs font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
-                                            :class="allocatedTo(room, dayId, session.id)
-                                                ? allocatedTo(room, dayId, session.id)?.programId === programId && allocatedTo(room, dayId, session.id)?.classLabel === classLabel
-                                                    ? 'bg-primary text-white'
-                                                    : 'cursor-not-allowed bg-indigo-50 text-indigo-700'
-                                                : 'bg-blue-50 text-gray-900 hover:bg-blue-100'"
-                                            :disabled="!!allocatedTo(room, dayId, session.id) && !(allocatedTo(room, dayId, session.id)?.programId === programId && allocatedTo(room, dayId, session.id)?.classLabel === classLabel)"
-                                            :aria-label="`${room}, ${selectedDay.label}, sesi ${session.id}${allocatedTo(room, dayId, session.id) ? `, dialokasikan ke ${allocatedTo(room, dayId, session.id)?.programId}, kelas ${allocatedTo(room, dayId, session.id)?.classLabel}` : ', kosong'}`"
-                                            :title="allocatedTo(room, dayId, session.id)
-                                                ? allocatedTo(room, dayId, session.id)?.programId === programId && allocatedTo(room, dayId, session.id)?.classLabel === classLabel ? `Dialokasikan ke ${selectedProgram.code} kelas ${classLabel}; klik untuk membatalkan` : `Sudah dialokasikan ke ${allocatedTo(room, dayId, session.id)?.programId} kelas ${allocatedTo(room, dayId, session.id)?.classLabel}`
-                                                : `Alokasikan ${room} · ${selectedDay.label} sesi ${session.id} ke ${selectedProgram.code} kelas ${classLabel}`"
-                                            @click="allocate(room, dayId, session.id)"
-                                        >{{ allocatedTo(room, dayId, session.id) ? `${allocatedTo(room, dayId, session.id)?.programId} · ${allocatedTo(room, dayId, session.id)?.classLabel}` : 'Pilih slot' }}</button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
+            <div class="grid gap-6 xl:grid-cols-[minmax(0,1fr)_320px]">
+                <div class="space-y-4">
+                    <section v-if="grid" class="flex flex-wrap gap-2" aria-label="Program studi">
+                        <button
+                            v-for="program in programs"
+                            :key="program.id"
+                            type="button"
+                            class="rounded-lg border px-3 py-2 text-left text-xs transition-colors disabled:cursor-not-allowed disabled:opacity-60"
+                            :class="programId === program.id ? 'border-gray-900 bg-white shadow-sm' : 'border-gray-200 bg-white hover:border-gray-400'"
+                            :disabled="!!activeRequest"
+                            @click="programId = program.id"
+                        >
+                            <span class="flex items-center gap-2">
+                                <span class="size-3 rounded-sm" :class="programColor(programIndex.get(program.id) ?? 0).solid" aria-hidden="true" />
+                                <span class="font-semibold text-gray-900">{{ program.code }}</span>
+                                <SubmissionStatusBadge :status="program.submission_status" />
+                            </span>
+                            <span class="mt-1 block tabular-nums" :class="program.sufficient ? 'text-gray-600' : 'text-amber-700'">
+                                {{ effectiveCounts.get(program.id) ?? 0 }} sel, butuh {{ program.required_meetings }} pertemuan
+                            </span>
+                        </button>
+                    </section>
 
-            <section class="space-y-3">
-                <div class="flex flex-wrap items-end justify-between gap-2">
-                    <div>
-                        <h2 class="text-base font-semibold text-gray-900">Daftar alokasi untuk prodi</h2>
-                        <p class="text-sm text-gray-500">Ruang, kelas, hari, dan sesi yang sudah ditetapkan · {{ allocationRows.length }} alokasi</p>
+                    <section class="flex flex-wrap items-end gap-4 rounded-lg border border-gray-200 bg-white p-4">
+                        <label class="block min-w-40 text-sm font-medium text-gray-700">
+                            Gedung
+                            <select v-model="building" :class="fieldClass">
+                                <option value="">Semua gedung</option>
+                                <option v-for="item in buildings.filter((value) => value)" :key="item" :value="item">{{ item }}</option>
+                            </select>
+                        </label>
+                        <div class="flex flex-wrap gap-1" role="tablist" aria-label="Hari">
+                            <button
+                                v-for="item in days"
+                                :key="item"
+                                type="button"
+                                role="tab"
+                                :aria-selected="day === item"
+                                class="rounded-lg px-3 py-2 text-sm"
+                                :class="day === item ? 'bg-primary text-white' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+                                @click="day = item"
+                            >{{ DAY_LABELS[item] }}</button>
+                        </div>
+                        <div class="ml-auto flex items-center gap-2">
+                            <span v-if="pendingCount" class="text-sm text-gray-600">{{ pendingCount }} perubahan belum disimpan</span>
+                            <Button variant="secondary" :disabled="!pendingCount || saving" @click="discard">Batalkan</Button>
+                            <Button :disabled="!pendingCount || locked" :loading="saving" @click="save">Simpan</Button>
+                        </div>
+                    </section>
+
+                    <p class="text-sm text-gray-600">
+                        <template v-if="activeRequest">Pilih sel untuk permintaan {{ activeRequest.study_program.code }}, lalu klik Penuhi.</template>
+                        <template v-else-if="selectedProgram">Klik sel kosong untuk memberikannya ke {{ selectedProgram.code }}. Klik sel milik {{ selectedProgram.code }} untuk mencabutnya, atau sel program studi lain untuk memindahkannya.</template>
+                    </p>
+
+                    <p v-if="loading && !grid" class="py-10 text-center text-sm text-gray-500">Memuat slot ruangan…</p>
+                    <CellGrid v-else-if="grid" :rooms="rooms" :slots="slots" :view="cellView" :caption="`Slot ruangan hari ${DAY_LABELS[day]}`" @select="select" />
+
+                    <div class="flex flex-wrap gap-x-5 gap-y-2 text-xs text-gray-600" aria-label="Keterangan">
+                        <span class="inline-flex items-center gap-2"><i class="size-3 rounded-sm bg-blue-50 ring-1 ring-blue-200" aria-hidden="true" />Kosong</span>
+                        <span class="inline-flex items-center gap-2"><i class="size-3 rounded-sm bg-gray-100 ring-1 ring-gray-200" aria-hidden="true" />TPB atau fakultas lain</span>
+                        <span class="inline-flex items-center gap-2"><i class="size-3 rounded-sm bg-red-100 ring-1 ring-red-200" aria-hidden="true" />Bentrok dengan TPB</span>
+                        <span class="inline-flex items-center gap-2"><i class="size-3 rounded-sm outline-dashed outline-2 outline-gray-700" aria-hidden="true" />Belum disimpan</span>
                     </div>
                 </div>
-                <div class="overflow-x-auto rounded-lg border border-gray-200 bg-white">
-                    <table class="w-full border-collapse text-left text-sm">
-                        <thead>
-                            <tr class="border-b border-gray-200 bg-gray-50 text-xs font-semibold uppercase tracking-wide text-gray-500">
-                                <th class="px-4 py-3">Program studi</th>
-                                <th class="px-4 py-3">Kelas</th>
-                                <th class="px-4 py-3">Ruang</th>
-                                <th class="px-4 py-3">Hari</th>
-                                <th class="px-4 py-3">Sesi</th>
-                                <th class="px-4 py-3 text-right">Aksi</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-gray-100">
-                            <tr v-if="allocationRows.length === 0">
-                                <td colspan="6" class="px-4 py-8 text-center text-sm text-gray-500">Belum ada alokasi. Pilih prodi dan kelas, lalu klik slot kosong pada tabel.</td>
-                            </tr>
-                            <tr v-for="allocation in allocationRows" :key="allocation.key" class="text-gray-700">
-                                <td class="px-4 py-3 font-medium text-gray-900">{{ allocation.program }}</td>
-                                <td class="px-4 py-3">Kelas {{ allocation.classLabel }}</td>
-                                <td class="px-4 py-3 font-semibold">{{ allocation.room }}</td>
-                                <td class="px-4 py-3">{{ allocation.day }}</td>
-                                <td class="px-4 py-3">Sesi {{ allocation.session }}</td>
-                                <td class="px-4 py-3 text-right">
-                                    <Button type="button" size="sm" :aria-label="`Hapus alokasi ${allocation.room}, kelas ${allocation.classLabel}`" @click="removeAllocation(allocation.key)">Hapus</Button>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
+
+                <aside class="space-y-3">
+                    <h2 class="text-base font-semibold text-gray-900">Permintaan tambahan slot</h2>
+                    <Alert v-if="requestsError" :title="requestsError.message" />
+                    <p v-if="!requests.length" class="rounded-lg border border-gray-200 bg-white px-4 py-6 text-center text-sm text-gray-500">Tidak ada permintaan yang menunggu.</p>
+                    <article
+                        v-for="request in requests"
+                        :key="request.id"
+                        class="rounded-lg border bg-white p-4 text-sm"
+                        :class="activeRequest?.id === request.id ? 'border-primary ring-1 ring-primary' : 'border-gray-200'"
+                    >
+                        <p class="flex items-center justify-between gap-2">
+                            <span class="font-semibold text-gray-900">{{ request.study_program.code }} {{ request.study_program.name }}</span>
+                        </p>
+                        <p class="mt-0.5 text-xs text-gray-500">{{ formatDateTime(request.created_at) }} oleh {{ request.requested_by?.name ?? '-' }}</p>
+                        <ul class="mt-2 space-y-1 text-xs text-gray-700">
+                            <li v-for="need in request.needs" :key="need.course_id">
+                                {{ need.code ?? `MK #${need.course_id}` }}: {{ need.meetings }} pertemuan, ruang minimal {{ need.min_capacity }} kursi
+                            </li>
+                        </ul>
+                        <p v-if="request.note" class="mt-2 whitespace-pre-line text-xs text-gray-600">{{ request.note }}</p>
+
+                        <div v-if="activeRequest?.id === request.id" class="mt-3 space-y-3 border-t border-gray-100 pt-3">
+                            <Alert v-if="requestError" :title="requestError.message" />
+                            <p class="text-xs text-gray-600">{{ requestCells.size }} sel dipilih.</p>
+                            <label class="block text-xs font-medium text-gray-700">
+                                Catatan untuk program studi
+                                <textarea v-model="responseNote" rows="2" maxlength="1000" :class="fieldClass" placeholder="Opsional saat memenuhi, wajib saat menolak" />
+                            </label>
+                            <div class="flex flex-wrap justify-end gap-2">
+                                <Button variant="ghost" size="sm" @click="closeRequest">Tutup</Button>
+                                <Button variant="secondary" size="sm" @click="rejectOpen = true">Tolak</Button>
+                                <Button size="sm" :disabled="!requestCells.size" :loading="answering === 'fulfill'" @click="fulfill">Penuhi</Button>
+                            </div>
+                        </div>
+                        <div v-else class="mt-3 flex justify-end">
+                            <Button variant="secondary" size="sm" :disabled="locked || pendingCount > 0" :title="pendingCount ? 'Simpan atau batalkan perubahan dulu' : undefined" @click="openRequest(request)">Tanggapi</Button>
+                        </div>
+                    </article>
+                </aside>
+            </div>
         </div>
+
+        <Modal :show="rejectOpen" max-width="md" @close="rejectOpen = false">
+            <div class="space-y-4 p-6">
+                <h2 class="text-lg font-bold text-gray-900">Tolak permintaan {{ activeRequest?.study_program.code }}?</h2>
+                <p class="text-sm text-gray-600">Tulis alasannya, misalnya tidak ada slot tersisa di fakultas dan permintaan diteruskan ke TPB Pusat di luar sistem.</p>
+                <Alert v-if="requestError" :title="requestError.message" />
+                <textarea v-model="responseNote" rows="3" maxlength="1000" :class="fieldClass" aria-label="Alasan penolakan" />
+                <div class="flex justify-end gap-3">
+                    <Button variant="secondary" @click="rejectOpen = false">Batal</Button>
+                    <Button variant="danger" :disabled="!responseNote.trim()" :loading="answering === 'reject'" @click="reject">Tolak</Button>
+                </div>
+            </div>
+        </Modal>
     </AppLayout>
 </template>

@@ -5,21 +5,24 @@ import Button from '@/Components/ui/Button.vue';
 import ConfirmDialog from '@/Components/ui/ConfirmDialog.vue';
 import Pagination from '@/Components/ui/Pagination.vue';
 import ScheduleOverrideModal from '@/Components/scheduling/ScheduleOverrideModal.vue';
+import SubmissionStatusBadge from '@/Components/scheduling/SubmissionStatusBadge.vue';
 import { useCollection } from '@/composables/useApiList';
+import { useProgramSubmission } from '@/composables/useProgramSubmission';
 import { onResourcesChanged } from '@/composables/useResourceChanges';
 import { api, toApiError, type ApiError } from '@/lib/api';
-import { formatTime } from '@/lib/labels';
-import type { AcademicPeriod, Collection, Paginated, Pagination as PaginationMeta, RunScheduleDetail, ScheduleScope, SchedulingRunDetail, SchedulingRunSummary, TimeSlot, Violation } from '@/types/models';
-import { Head } from '@inertiajs/vue3';
+import { DOWNLOAD_APP_ITEM } from '@/lib/navigation';
+import { formatDateTime, formatTime, SUBMISSION_PROBLEM_LABELS } from '@/lib/labels';
+import type { AcademicPeriod, Collection, Paginated, Pagination as PaginationMeta, RunScheduleDetail, SchedulingRunDetail, SchedulingRunSummary, SubmissionProblem, TimeSlot, Violation } from '@/types/models';
+import { Head, Link, usePage } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 
-type ConfirmAction = 'activate' | 'publish';
+/**
+ * POS 040/IT10.1/OT.07/2026 step 2 and 8: the program runs the GA in the desktop app inside the
+ * room slots its faculty gave it, compares the runs, picks one, adjusts it by hand, then hands
+ * the schedule to the faculty. The faculty publishes it.
+ */
+type ConfirmAction = 'activate' | 'submit' | 'withdraw';
 
-const props = withDefaults(defineProps<{ scope?: ScheduleScope }>(), { scope: 'faculty' });
-const isTpb = computed(() => props.scope === 'tpb');
-const isProdi = computed(() => props.scope === 'prodi');
-const pageTitle = computed(() => isTpb.value ? 'Penjadwalan GA TPB' : isProdi.value ? 'Penjadwalan GA Prodi' : 'Review Hasil Jadwal GA');
-const pageHeading = computed(() => isTpb.value ? 'Penjadwalan GA TPB' : isProdi.value ? 'Penjadwalan GA per Prodi' : 'Review & tetapkan hasil jadwal GA');
 const DAYS: Record<number, string> = { 1: 'Senin', 2: 'Selasa', 3: 'Rabu', 4: 'Kamis', 5: 'Jumat', 6: 'Sabtu', 7: 'Minggu' };
 const { items: periods, error: periodError } = useCollection<AcademicPeriod>('academic-periods');
 const { items: timeSlots, error: timeSlotError } = useCollection<TimeSlot>('time-slots');
@@ -34,7 +37,6 @@ const selectedRun = ref<SchedulingRunDetail | null>(null);
 const details = ref<RunScheduleDetail[]>([]);
 const violations = ref<Violation[]>([]);
 const category = ref<'HC' | 'SC' | ''>('');
-const programFilter = ref('');
 const dayFilter = ref('');
 const detailLoading = ref(false);
 const detailError = ref<ApiError | null>(null);
@@ -49,28 +51,14 @@ const compareLoading = ref(false);
 const overrideTarget = ref<RunScheduleDetail | null>(null);
 let listRequestId = 0;
 
-const canOverride = computed(() => !isTpb.value && selectedRun.value?.is_active === true);
-
-const programs = computed(() => {
-    const unique = new Map<number, { id: number; code: string; name: string }>();
-    for (const detail of details.value) {
-        const program = detail.course.study_program;
-        if (program) unique.set(program.id, program);
-        for (const participant of detail.tpb_group?.study_programs ?? []) unique.set(participant.id, participant);
-    }
-
-    return [...unique.values()].sort((a, b) => a.code.localeCompare(b.code));
-});
+const user = computed(() => usePage().props.auth.user);
+const programId = computed(() => user.value.study_program_id);
+const { submission, editable, problemCount, processing: stepProcessing, step } = useProgramSubmission(programId, period);
+const canOverride = computed(() => selectedRun.value?.is_active === true && editable.value);
+const problems = computed(() => Object.entries(submission.value?.problems ?? {}).filter(([, count]) => (count ?? 0) > 0) as [SubmissionProblem, number][]);
 const days = computed(() => [...new Set(timeSlots.value.map((slot) => slot.day))].sort((a, b) => a - b));
 const sessions = computed(() => [...new Set(timeSlots.value.map((slot) => slot.session))].sort((a, b) => a - b));
-const visibleDetails = computed(() =>
-    details.value.filter((detail) =>
-        (!programFilter.value
-            || detail.course.study_program?.id === Number(programFilter.value)
-            || detail.tpb_group?.study_programs.some((program) => program.id === Number(programFilter.value)))
-        && (!dayFilter.value || detail.time_slot.day === Number(dayFilter.value)),
-    ),
-);
+const visibleDetails = computed(() => details.value.filter((detail) => !dayFilter.value || detail.time_slot.day === Number(dayFilter.value)));
 const detailsByCell = computed(() => {
     const cells = new Map<string, RunScheduleDetail[]>();
     for (const detail of visibleDetails.value) {
@@ -93,7 +81,7 @@ function timeForSession(session: number): string {
 
 function stateLabel(run: SchedulingRunSummary): string {
     if (run.is_active && run.published_at) return 'Dipublikasikan';
-    if (run.is_active) return 'Aktif · belum publish';
+    if (run.is_active) return 'Jadwal aktif';
     if (run.published_at) return 'Arsip';
     return run.status === 'done' ? 'Draft' : run.status;
 }
@@ -121,7 +109,7 @@ async function loadRuns(): Promise<void> {
     runError.value = null;
     try {
         const response = await api.get<Paginated<SchedulingRunSummary>>('scheduling-runs', {
-            params: { period: period.value, page: page.value, per_page: 20, scope: props.scope },
+            params: { period: period.value, page: page.value, per_page: 20 },
         });
         if (requestId !== listRequestId) return;
         runs.value = response.data.data;
@@ -150,8 +138,7 @@ async function loadSelectedRun(): Promise<void> {
         const [runResponse, detailResponse, violationResponse] = await Promise.all([
             api.get<{ data: SchedulingRunDetail }>(`scheduling-runs/${id}`),
             api.get<Collection<RunScheduleDetail>>(`scheduling-runs/${id}/schedule-details`, {
-                // TPB courses have no program: their participants are filtered here, not on the server.
-                params: { study_program_id: isTpb.value ? '' : programFilter.value, day: dayFilter.value },
+                params: { day: dayFilter.value },
             }),
             api.get<Collection<Violation>>(`scheduling-runs/${id}/violations`, {
                 params: category.value ? { category: category.value } : {},
@@ -174,7 +161,7 @@ async function loadCompare(batchId: string): Promise<void> {
     actionError.value = null;
     try {
         const response = await api.get<Paginated<SchedulingRunSummary>>('scheduling-runs', {
-            params: { period: period.value, batch_id: batchId, per_page: 100, scope: props.scope },
+            params: { period: period.value, batch_id: batchId, per_page: 100 },
         });
         compareRuns.value = response.data.data;
     } catch (error) {
@@ -191,15 +178,32 @@ function confirm(action: ConfirmAction, run: SchedulingRunSummary): void {
     actionError.value = null;
 }
 
-async function performAction(): Promise<void> {
-    if (!pendingAction.value || !actionTarget.value) return;
-    const action = pendingAction.value;
-    const target = actionTarget.value;
-    processing.value = true;
+function confirmStep(action: 'submit' | 'withdraw'): void {
+    pendingAction.value = action;
+    actionTarget.value = null;
     actionError.value = null;
+}
+
+async function performAction(): Promise<void> {
+    const action = pendingAction.value;
+    if (!action) return;
+    actionError.value = null;
+    if (action !== 'activate') {
+        const failure = await step(action);
+        if (failure) {
+            actionError.value = failure.message;
+            return;
+        }
+        flash.value = action === 'submit' ? 'Jadwal dikirim ke fakultas untuk ditinjau.' : 'Jadwal ditarik kembali dan dapat diubah lagi.';
+        pendingAction.value = null;
+        return;
+    }
+    const target = actionTarget.value;
+    if (!target) return;
+    processing.value = true;
     try {
-        const response = await api.post<{ data: SchedulingRunDetail }>(`scheduling-runs/${target.id}/${action}`);
-        flash.value = action === 'activate' ? `Run #${target.id} ditetapkan sebagai jadwal aktif.` : `Run #${target.id} berhasil dipublikasikan.`;
+        const response = await api.post<{ data: SchedulingRunDetail }>(`scheduling-runs/${target.id}/activate`);
+        flash.value = `Run #${target.id} ditetapkan sebagai jadwal program studi.`;
         pendingAction.value = null;
         actionTarget.value = null;
         await loadRuns();
@@ -232,12 +236,11 @@ watch(period, () => {
 });
 watch(page, () => void loadRuns());
 watch(selectedRunId, () => {
-    programFilter.value = '';
     dayFilter.value = '';
     category.value = '';
     void loadSelectedRun();
 });
-watch([programFilter, dayFilter, category], () => void loadSelectedRun());
+watch([dayFilter, category], () => void loadSelectedRun());
 onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], () => {
     void loadRuns();
     void loadSelectedRun();
@@ -245,15 +248,15 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
 </script>
 
 <template>
-    <Head :title="pageTitle" />
+    <Head title="Proses GA Program Studi" />
     <AppLayout>
         <div class="mx-auto w-full max-w-7xl space-y-10 p-6 md:p-8">
             <header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
-                    <h1 class="text-2xl font-bold tracking-tight text-gray-900">{{ pageHeading }}</h1>
-                    <p v-if="!isProdi" class="mt-1 text-sm text-gray-600">
-                        Tinjau hasil run, cek pelanggaran, lalu aktifkan dan publikasikan jadwal.
-                        <template v-if="isTpb">Jadwal TPB dibuat paling awal: fakultas baru bisa menjalankan GA setelah jadwal TPB aktif.</template>
+                    <h1 class="text-2xl font-bold tracking-tight text-gray-900">Proses GA Program Studi</h1>
+                    <p class="mt-1 max-w-3xl text-sm text-gray-600">
+                        Jalankan GA di <a :href="DOWNLOAD_APP_ITEM.href" target="_blank" rel="noopener" class="font-medium text-primary hover:underline">aplikasi desktop</a>
+                        di dalam slot ruangan yang diberikan fakultas. Bandingkan hasil run, tetapkan satu sebagai jadwal, sesuaikan bila perlu, lalu kirim ke fakultas.
                     </p>
                 </div>
                 <label class="text-sm font-medium text-gray-700">
@@ -269,14 +272,52 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
                 <Alert v-if="timeSlotError" :title="timeSlotError.message" />
                 <Alert v-if="flash" variant="success" :title="flash" dismissible @dismiss="flash = null" />
                 <Alert v-if="runError" :title="runError.message" />
-                <Alert v-if="actionError" :title="actionError" />
+                <Alert v-if="actionError && !pendingAction" :title="actionError" />
             </div>
+
+            <section v-if="submission" class="rounded-xl border border-gray-200 bg-white p-5">
+                <div class="flex flex-wrap items-start justify-between gap-4">
+                    <div class="space-y-1">
+                        <p class="flex flex-wrap items-center gap-3 text-sm text-gray-600">
+                            Status jadwal program studi
+                            <SubmissionStatusBadge :status="submission.status" />
+                        </p>
+                        <p class="text-sm text-gray-600">
+                            {{ submission.cells_count }} slot ruangan dari fakultas.
+                            <Link href="/prodi/rooms" class="font-medium text-primary hover:underline">Lihat slot ruangan</Link>
+                        </p>
+                        <p v-if="submission.status === 'submitted'" class="text-sm text-gray-600">Dikirim {{ formatDateTime(submission.submitted_at) }}. Menunggu tinjauan fakultas.</p>
+                        <p v-if="submission.status === 'accepted'" class="text-sm text-gray-600">Diterima fakultas {{ formatDateTime(submission.reviewed_at) }}. Menunggu publikasi oleh fakultas.</p>
+                        <p v-if="submission.faculty_published" class="text-sm text-gray-600">Jadwal sudah dipublikasikan fakultas dan bersifat final.</p>
+                    </div>
+                    <div class="flex gap-2">
+                        <Button v-if="submission.status === 'submitted'" variant="secondary" :loading="stepProcessing === 'withdraw'" @click="confirmStep('withdraw')">Tarik kembali</Button>
+                        <Button
+                            v-if="editable"
+                            :disabled="!submission.scheduling_run?.is_active || problemCount > 0"
+                            :loading="stepProcessing === 'submit'"
+                            @click="confirmStep('submit')"
+                        >Kirim ke fakultas</Button>
+                    </div>
+                </div>
+                <div v-if="submission.status === 'returned' && submission.return_note" class="mt-4 rounded-lg border border-amber-200 bg-amber-50 px-4 py-3 text-sm">
+                    <p class="font-semibold text-amber-800">Dikembalikan fakultas {{ formatDateTime(submission.reviewed_at) }}</p>
+                    <p class="mt-1 whitespace-pre-line text-amber-800">{{ submission.return_note }}</p>
+                </div>
+                <div v-if="editable && problems.length" class="mt-4 rounded-lg border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-800">
+                    <p class="font-semibold">Jadwal aktif belum bisa dikirim</p>
+                    <ul class="mt-1 list-disc pl-5">
+                        <li v-for="[key, count] in problems" :key="key">{{ count }} {{ SUBMISSION_PROBLEM_LABELS[key] }}</li>
+                    </ul>
+                    <p class="mt-1">Pindahkan atau tukar pertemuan tersebut, atau jalankan GA lagi.</p>
+                </div>
+                <p v-else-if="editable && !submission.scheduling_run?.is_active" class="mt-4 text-sm text-gray-500">Tetapkan satu run sebagai jadwal sebelum mengirim ke fakultas.</p>
+            </section>
 
             <p class="flex flex-wrap items-baseline gap-x-8 gap-y-2 border-y border-gray-100 py-4 text-sm text-gray-600">
                 <span>
-                    Jadwal aktif
+                    Jadwal program studi
                     <strong class="ml-1 text-base font-semibold text-gray-900">{{ activeRun ? `Run #${activeRun.id}` : 'belum ditetapkan' }}</strong>
-                    <span v-if="activeRun" class="ml-1">· {{ activeRun.published_at ? 'sudah dipublikasikan' : 'belum dipublikasikan' }}</span>
                 </span>
                 <span>
                     Fitness terbaik
@@ -308,7 +349,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
                         </thead>
                         <tbody class="divide-y divide-gray-100 text-gray-700" :class="{ 'opacity-60': loadingRuns }">
                             <tr v-if="!loadingRuns && runs.length === 0">
-                                <td colspan="7" class="p-8 text-center text-gray-500">Belum ada hasil run untuk periode ini.</td>
+                                <td colspan="7" class="p-8 text-center text-gray-500">Belum ada hasil run untuk periode ini. Jalankan GA dari aplikasi desktop.</td>
                             </tr>
                             <tr v-for="run in runs" :key="run.id" :class="run.id === selectedRunId ? 'bg-primary/5' : ''">
                                 <td class="px-4 py-3">
@@ -337,9 +378,8 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
                                             class="text-sm text-gray-500 hover:text-gray-900 hover:underline"
                                             @click="loadCompare(run.batch_id)"
                                         >Bandingkan batch</button>
-                                        <span v-if="run.is_stale" class="text-xs text-amber-700" title="Jadwal TPB berubah setelah run ini dibuat">Peringatan: TPB berubah</span>
-                                        <Button v-if="run.status === 'done' && !run.is_active" @click="confirm('activate', run)">Tetapkan aktif</Button>
-                                        <Button v-else-if="run.is_active && !run.published_at" @click="confirm('publish', run)">Publikasikan</Button>
+                                        <span v-if="run.is_stale" class="text-xs text-amber-700" title="Data penjadwalan (slot ruangan, mata kuliah, dosen, atau jadwal TPB) berubah setelah run ini dibuat">Data sudah berubah</span>
+                                        <Button v-if="run.status === 'done' && !run.is_active && editable" size="sm" @click="confirm('activate', run)">Tetapkan sebagai jadwal</Button>
                                     </div>
                                 </td>
                             </tr>
@@ -389,13 +429,9 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
                 <div class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                     <div>
                         <h2 class="text-lg font-semibold text-gray-900">Detail Run #{{ selectedRun.id }}</h2>
-                        <p class="mt-1 text-sm text-gray-600">{{ isProdi ? 'Prodi Anda' : selectedRun.faculty?.code ?? 'TPB' }} · {{ selectedRun.period }} · {{ selectedRun.schedule_details_count }} jadwal</p>
+                        <p class="mt-1 text-sm text-gray-600">{{ selectedRun.study_program?.name ?? 'Program studi' }}, {{ selectedRun.schedule_details_count }} pertemuan</p>
                     </div>
                     <div class="flex flex-wrap gap-2">
-                        <select v-if="!isProdi" v-model="programFilter" class="rounded-lg border-gray-200 text-sm" aria-label="Filter prodi">
-                            <option value="">Semua prodi</option>
-                            <option v-for="program in programs" :key="program.id" :value="String(program.id)">{{ program.code }} · {{ program.name }}</option>
-                        </select>
                         <select v-model="category" class="rounded-lg border-gray-200 text-sm" aria-label="Filter pelanggaran">
                             <option value="">Semua pelanggaran</option>
                             <option value="HC">Hard constraint</option>
@@ -415,9 +451,9 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
                     </dl>
 
                     <p class="text-sm text-gray-600">
-                        <template v-if="isTpb">Jadwal TPB tidak diubah manual. Jalankan ulang GA bila hasilnya belum sesuai.</template>
-                        <template v-else-if="canOverride">Klik jadwal di grid untuk memindahkan hari, sesi, atau ruangnya.</template>
-                        <template v-else>Jadwal hanya bisa diubah manual setelah run ini ditetapkan aktif.</template>
+                        <template v-if="canOverride">Klik pertemuan di grid untuk memindahkannya ke slot ruangan kosong atau menukarnya dengan pertemuan lain.</template>
+                        <template v-else-if="!editable">Jadwal sudah dikirim ke fakultas dan tidak dapat diubah.</template>
+                        <template v-else>Jadwal hanya bisa diubah manual setelah run ini ditetapkan sebagai jadwal.</template>
                     </p>
 
                     <div class="flex flex-wrap gap-1 border-b border-gray-100" role="tablist" aria-label="Filter hari">
@@ -484,7 +520,6 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
                                                     <p class="font-medium leading-snug text-gray-900">{{ detail.course.name }}</p>
                                                     <p class="mt-1 text-xs text-gray-500">
                                                         {{ detail.course.code }} · Kelas {{ classLabel(detail.class_number) }}
-                                                        <template v-if="detail.tpb_group"> · Grup {{ detail.tpb_group.code }}</template>
                                                     </p>
                                                     <p class="mt-2 text-xs leading-relaxed text-gray-600">
                                                         {{ detail.lecturer.name }}
@@ -531,20 +566,21 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
 
         <ConfirmDialog
             :show="pendingAction !== null"
-            :title="pendingAction === 'activate' ? 'Tetapkan run sebagai jadwal aktif?' : 'Publikasikan jadwal ini?'"
-            :confirm-label="pendingAction === 'activate' ? 'Tetapkan aktif' : 'Publikasikan'"
+            :title="pendingAction === 'activate' ? 'Tetapkan run sebagai jadwal program studi?' : pendingAction === 'submit' ? 'Kirim jadwal ke fakultas?' : 'Tarik kembali jadwal?'"
+            :confirm-label="pendingAction === 'activate' ? 'Tetapkan' : pendingAction === 'submit' ? 'Kirim' : 'Tarik kembali'"
             :danger="false"
-            :processing="processing"
+            :processing="processing || stepProcessing !== null"
             :error="actionError"
             @confirm="performAction"
-            @close="pendingAction = null; actionTarget = null"
+            @close="pendingAction = null; actionTarget = null; actionError = null"
         >
             <template v-if="pendingAction === 'activate'">
-                Jadwal aktif yang lama akan digantikan. Run baru belum langsung terlihat mahasiswa dan dosen sampai dipublikasikan.
-                <p v-if="isTpb" class="mt-2">Slot TPB baru terkunci untuk fakultas setelah jadwal ini dipublikasikan. Jadwal fakultas yang sudah ada tetap berjalan dan hanya diberi peringatan.</p>
-                <p v-if="actionTarget && actionTarget.hc_violations > 0" class="mt-2 font-semibold text-amber-700">Peringatan: run ini memiliki {{ actionTarget.hc_violations }} pelanggaran hard constraint. Server tetap mengizinkan aktivasi.</p>
+                Run yang ditetapkan sebelumnya akan digantikan. Server memeriksa ulang slot ruangan, bentrok dosen dengan program studi lain, dan jadwal TPB.
+                <p v-if="actionTarget?.is_stale" class="mt-2 text-amber-700">Data penjadwalan sudah berubah sejak run ini dibuat. Run tetap bisa ditetapkan bila masih lolos pemeriksaan.</p>
+                <p v-if="actionTarget && actionTarget.hc_violations > 0" class="mt-2 font-semibold text-amber-700">Run ini memiliki {{ actionTarget.hc_violations }} pelanggaran hard constraint.</p>
             </template>
-            <template v-else>Setelah dipublikasikan, dosen dapat melihat jadwal ini.</template>
+            <template v-else-if="pendingAction === 'submit'">Setelah dikirim, jadwal tidak dapat diubah sampai fakultas mengembalikannya atau Anda menariknya kembali sebelum ditinjau.</template>
+            <template v-else>Jadwal kembali menjadi draf dan dapat diubah lagi.</template>
         </ConfirmDialog>
 
         <ScheduleOverrideModal

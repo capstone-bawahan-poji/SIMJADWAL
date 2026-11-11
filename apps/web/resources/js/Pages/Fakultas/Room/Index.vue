@@ -3,23 +3,20 @@ import RoomMatrix from '@/Components/scheduling/RoomMatrix.vue';
 import RoomGridExportButton from '@/Components/scheduling/RoomGridExportButton.vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Alert from '@/Components/ui/Alert.vue';
-import Button from '@/Components/ui/Button.vue';
 import Panel from '@/Components/ui/Panel.vue';
 import Pagination from '@/Components/ui/Pagination.vue';
-import ScheduleOverrideModal from '@/Components/scheduling/ScheduleOverrideModal.vue';
 import { usePaginatedList } from '@/composables/useApiList';
 import { onResourcesChanged } from '@/composables/useResourceChanges';
 import { api, toApiError, type ApiError } from '@/lib/api';
 import { queryParam } from '@/lib/query';
-import type { Schedule, ScheduleDetailBase, ScheduleFilters, ScheduleScope, Room } from '@/types/models';
-import { Head } from '@inertiajs/vue3';
+import type { Schedule, ScheduleFilters, ScheduleScope, Room } from '@/types/models';
+import { Head, Link } from '@inertiajs/vue3';
 import { computed, ref, watch } from 'vue';
 
 type RoomIssue = Schedule['schedule_details'][number];
 
 const props = withDefaults(defineProps<{ scope?: ScheduleScope }>(), { scope: 'faculty' });
 const readonly = computed(() => props.scope === 'tpb');
-const isProdi = computed(() => props.scope === 'prodi');
 
 const { filters: roomFilters, items: rooms, pagination, page, loading: roomsLoading, error: roomError } = usePaginatedList<Room, { q: string; shared: string }>(
     'rooms',
@@ -30,8 +27,6 @@ const overCapacity = ref<RoomIssue[]>([]);
 const unassigned = ref<RoomIssue[]>([]);
 const loadingIssues = ref(false);
 const issuesError = ref<ApiError | null>(null);
-const overrideTarget = ref<RoomIssue | null>(null);
-const flash = ref<string | null>(null);
 const currentPeriod = ref('');
 let issueRequestId = 0;
 
@@ -77,15 +72,9 @@ function locationOf(room: Room): string {
     return [room.building, room.floor != null ? `Lt ${room.floor}` : null].filter(Boolean).join(' · ') || '-';
 }
 
-function openOverride(detail: RoomIssue): void {
-    overrideTarget.value = detail;
-}
-
-function overrideSaved(updated: ScheduleDetailBase): void {
-    if (updated.room) flash.value = `Ruang kelas ${updated.course.code} berhasil diperbarui.`;
-    else flash.value = `Perubahan jadwal ${updated.course.code} berhasil disimpan.`;
-    overrideTarget.value = null;
-    void loadIssues();
+/** Rooms are moved by the program; the faculty returns the schedule with a note. */
+function reviewUrl(detail: RoomIssue): string {
+    return `/fakultas/review${detail.course.study_program ? `?program=${detail.course.study_program.id}` : ''}`;
 }
 
 onResourcesChanged(['scheduling_runs', 'schedule_details'], () => void loadIssues());
@@ -104,18 +93,18 @@ watch(view, (value) => {
 </script>
 
 <template>
-    <Head :title="isProdi ? 'Alokasi Ruangan Prodi' : 'Alokasi Ruangan'" />
+    <Head title="Alokasi Ruangan" />
     <AppLayout>
         <div class="w-full space-y-6 p-6 md:p-8">
             <div class="flex flex-wrap items-start justify-between gap-4">
                 <div>
-                    <h1 class="text-2xl font-bold tracking-tight text-gray-900">{{ isProdi ? 'Alokasi Ruangan Prodi' : 'Alokasi Ruangan' }}</h1>
+                    <h1 class="text-2xl font-bold tracking-tight text-gray-900">Alokasi Ruangan</h1>
                     <p class="mt-1 text-sm text-gray-500">
-                        {{ readonly ? 'Jadwal TPB aktif' : isProdi ? 'Jadwal prodi aktif' : 'Jadwal aktif' }} periode {{ currentPeriod || 'berjalan' }}.
+                        {{ readonly ? 'Jadwal TPB aktif' : 'Jadwal program studi yang sudah dikirim ke fakultas,' }} periode {{ currentPeriod || 'berjalan' }}.
                         <template v-if="readonly">Ruang kelas TPB ditentukan GA; jalankan ulang GA untuk mengubahnya.</template>
                     </p>
                 </div>
-                <RoomGridExportButton v-if="!isProdi" :period="currentPeriod || undefined" :scope="props.scope" />
+                <RoomGridExportButton :period="currentPeriod || undefined" :scope="props.scope" />
             </div>
 
 
@@ -134,7 +123,6 @@ watch(view, (value) => {
 
             <RoomMatrix v-if="view === 'matrix'" :period="currentPeriod || undefined" :scope="props.scope" />
             <template v-else>
-            <Alert v-if="flash" variant="success" :title="flash" dismissible @dismiss="flash = null" />
             <Alert v-if="roomError" :title="roomError.message" />
             <Alert v-if="issuesError" :title="issuesError.message" />
 
@@ -158,7 +146,7 @@ watch(view, (value) => {
             <Panel v-if="unassigned.length > 0">
                 <div class="border-b border-gray-200 px-6 py-4">
                     <h2 class="text-sm font-semibold text-gray-900">Kelas tanpa ruang <span class="ml-1 font-normal text-gray-400">{{ unassigned.length }}</span></h2>
-                    <p class="mt-0.5 text-sm text-gray-500">{{ readonly ? 'GA tidak menemukan ruang bersama yang kosong untuk kelas berikut.' : 'Pilih ruang yang tersedia untuk kelas berikut.' }}</p>
+                    <p class="mt-0.5 text-sm text-gray-500">{{ readonly ? 'GA tidak menemukan ruang bersama yang kosong untuk kelas berikut.' : 'Ruang diatur oleh program studi. Kembalikan jadwalnya dengan catatan bila perlu diperbaiki.' }}</p>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full border-collapse text-left text-sm">
@@ -184,7 +172,7 @@ watch(view, (value) => {
                                 <td class="px-6 py-3.5 text-gray-700">{{ detail.lecturer.name }}</td>
                                 <td class="whitespace-nowrap px-6 py-3.5 text-right tabular-nums text-gray-700">{{ detail.course.class_capacity }} kursi</td>
                                 <td v-if="!readonly" class="whitespace-nowrap px-6 py-3.5 text-right">
-                                    <Button class="h-8 px-3 text-xs" @click="openOverride(detail)">Pilih ruang</Button>
+                                    <Link :href="reviewUrl(detail)" class="text-xs font-semibold text-primary hover:underline">Tinjau</Link>
                                 </td>
                             </tr>
                         </tbody>
@@ -225,7 +213,7 @@ watch(view, (value) => {
                                     <p v-if="detail.room" class="text-xs text-gray-500">{{ detail.room.code }}</p>
                                 </td>
                                 <td v-if="!readonly" class="whitespace-nowrap px-6 py-3.5 text-right">
-                                    <Button class="h-8 px-3 text-xs" @click="openOverride(detail)">Pilih ruang</Button>
+                                    <Link :href="reviewUrl(detail)" class="text-xs font-semibold text-primary hover:underline">Tinjau</Link>
                                 </td>
                             </tr>
                         </tbody>
@@ -248,7 +236,7 @@ watch(view, (value) => {
                         :class="[controlClass, 'w-full placeholder-gray-400 md:w-72']"
                     />
                     <p class="text-sm text-gray-500 md:ml-auto">
-                        <span class="font-semibold tabular-nums text-gray-900">{{ pagination.total }}</span> {{ readonly ? 'ruangan ITK' : isProdi ? 'ruangan tersedia' : 'ruangan fakultas' }}
+                        <span class="font-semibold tabular-nums text-gray-900">{{ pagination.total }}</span> {{ readonly ? 'ruangan ITK' : 'ruangan fakultas' }}
                     </p>
                 </div>
 
@@ -290,12 +278,5 @@ watch(view, (value) => {
             </template>
         </div>
 
-        <ScheduleOverrideModal
-            v-if="overrideTarget && !readonly"
-            :schedule-detail="overrideTarget"
-            :show="true"
-            @close="overrideTarget = null"
-            @updated="overrideSaved"
-        />
     </AppLayout>
 </template>

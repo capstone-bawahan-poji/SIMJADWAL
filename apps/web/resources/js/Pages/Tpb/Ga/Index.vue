@@ -8,6 +8,7 @@ import Pagination from '@/Components/ui/Pagination.vue';
 import { useCollection } from '@/composables/useApiList';
 import { onResourcesChanged } from '@/composables/useResourceChanges';
 import { api, toApiError, type ApiError } from '@/lib/api';
+import { queryParam } from '@/lib/query';
 import { classLabel, COHORT_LABELS, formatTime } from '@/lib/labels';
 import type { TpbCohort, AcademicPeriod, Collection, Paginated, Pagination as PaginationMeta, RunScheduleDetail, SchedulingRunDetail, SchedulingRunSummary, TimeSlot, Violation } from '@/types/models';
 import { Head } from '@inertiajs/vue3';
@@ -25,7 +26,8 @@ const pagination = ref<PaginationMeta>({ page: 1, per_page: 20, total: 0, last_p
 const page = ref(1);
 const loadingRuns = ref(false);
 const runError = ref<ApiError | null>(null);
-const selectedRunId = ref<number | null>(null);
+// ?run= opens a run directly, e.g. right after a TPB schedule import.
+const selectedRunId = ref<number | null>(Number(queryParam('run')) || null);
 const selectedRun = ref<SchedulingRunDetail | null>(null);
 const details = ref<RunScheduleDetail[]>([]);
 const violations = ref<Violation[]>([]);
@@ -357,6 +359,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
                     <div v-for="run in runs" :key="run.id" class="grid gap-4 p-5 lg:grid-cols-[15rem_minmax(0,1fr)_auto] lg:items-center" :class="run.id === selectedRunId ? 'bg-primary/5' : ''">
                         <div class="min-w-0">
                             <button type="button" class="text-base font-bold text-gray-900 hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary" :aria-pressed="run.id === selectedRunId" @click="selectedRunId = run.id">Run #{{ run.id }}</button>
+                            <span v-if="run.source === 'import'" class="ml-2 rounded bg-gray-100 px-1.5 py-0.5 text-[11px] font-semibold text-gray-600" title="Diisi dari file, bukan hasil GA">Import</span>
                             <p class="mt-0.5 text-xs text-gray-500">{{ run.finished_at ? formatDate(run.finished_at) : run.status }}</p>
                             <p class="mt-1.5 flex flex-wrap items-center gap-2">
                                 <span class="rounded-full px-2.5 py-0.5 text-xs font-semibold" :class="stateClass(run)">{{ stateLabel(run) }}</span>

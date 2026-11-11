@@ -49,7 +49,7 @@ function overrideOf(programId: number, code: string) {
         v-model="tab"
         label="Sumber bobot"
         :options="[
-          { value: 'default', label: 'Default fakultas' },
+          { value: 'default', label: 'Bobot bawaan' },
           { value: 'override', label: 'Override per program studi', count: overrideCount },
         ]"
       />

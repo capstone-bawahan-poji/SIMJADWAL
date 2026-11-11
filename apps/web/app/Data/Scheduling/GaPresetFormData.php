@@ -3,6 +3,7 @@
 namespace App\Data\Scheduling;
 
 use App\Enums\Scheduling\SelectionOperator;
+use App\Models\MasterData\StudyProgram;
 use Spatie\LaravelData\Data;
 
 class GaPresetFormData extends Data
@@ -12,6 +13,7 @@ class GaPresetFormData extends Data
      */
     public function __construct(
         public ?int $facultyId,
+        public ?int $studyProgramId,
         public string $name,
         public int $populationSize,
         public int $minGenerations,
@@ -31,10 +33,11 @@ class GaPresetFormData extends Data
     /**
      * @param  array<string, mixed>  $input  validated request (PUT: every field present)
      */
-    public static function fromInput(array $input, ?int $facultyId): self
+    public static function fromInput(array $input, ?StudyProgram $studyProgram): self
     {
         return new self(
-            facultyId: $facultyId,
+            facultyId: $studyProgram?->faculty_id,
+            studyProgramId: $studyProgram?->id,
             name: $input['name'],
             populationSize: (int) $input['population_size'],
             minGenerations: (int) $input['min_generations'],

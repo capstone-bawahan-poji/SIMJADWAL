@@ -34,6 +34,16 @@ class TpbBlockService
     }
 
     /**
+     * blocks() without the cache, for callers that live across requests.
+     *
+     * @return array{run_id: int|null, programs: array<int, array<int, list<int>>>, retake: array<int, list<int>>, lecturers: array<int, list<int>>, rooms: array<int, list<int>>}
+     */
+    public function fresh(string $period): array
+    {
+        return $this->cache[$period] = $this->build($period);
+    }
+
+    /**
      * Shape sent to the desktop GA inside the faculty dataset. Lists are sorted, so the
      * dataset fingerprint only changes when the blocks do.
      *

@@ -38,7 +38,7 @@ function query(): Record<string, string> {
     const params: Record<string, string> = { format: format.value };
     if (props.period) params.period = props.period;
     if (!isSuperadmin.value) {
-        const scope = props.scope ?? (role.value === 'admin_tpb' ? 'tpb' : role.value === 'admin_prodi' ? 'prodi' : 'faculty');
+        const scope = props.scope ?? (role.value === 'admin_tpb' ? 'tpb' : role.value === 'admin_prodi' ? 'study_program' : 'faculty');
         params.scope = scope;
         return params;
     }
@@ -102,7 +102,7 @@ async function download(): Promise<void> {
                 </select>
             </label>
             <p v-else class="rounded-lg bg-gray-50 px-4 py-3 text-sm text-gray-600">
-                Yang diekspor: jadwal {{ props.scope === 'prodi' || role === 'admin_prodi' ? 'prodi Anda' : role === 'admin_tpb' ? 'TPB' : 'fakultas Anda' }}.
+                Yang diekspor: jadwal {{ role === 'admin_prodi' ? 'prodi Anda' : role === 'admin_tpb' ? 'TPB' : 'fakultas Anda' }}.
             </p>
 
             <fieldset>

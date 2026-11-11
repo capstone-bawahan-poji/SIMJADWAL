@@ -20,7 +20,7 @@ class ListScheduleRequest extends FormRequest
         return [
             'period' => ['nullable', new PeriodRule],
             'faculty_id' => ['nullable', 'integer'],
-            'scope' => ['nullable', Rule::in(['faculty', 'tpb'])],
+            'scope' => ['nullable', Rule::in(['faculty', 'study_program', 'tpb'])],
             'study_program_id' => ['nullable', 'integer'],
             'semester' => ['nullable', 'integer', 'between:1,14'],
             'class_number' => ['nullable', 'integer', 'min:1'],

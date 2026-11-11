@@ -147,7 +147,7 @@
     </div>
 @endif
 @if ($export->showOverrideIndicators && $export->details->contains(fn ($d) => $d->is_overridden))
-    <div class="legend">{{ __('Yellow background = changed manually by the faculty admin.') }}</div>
+    <div class="legend">{{ __('Yellow background = changed manually by the study program admin.') }}</div>
 @endif
 
 <section class="list">

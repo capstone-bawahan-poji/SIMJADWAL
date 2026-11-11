@@ -11,7 +11,8 @@ import { useGaConfig } from '@/composables/useGaConfig';
 import { useGaPresets } from '@/composables/useGaPresets';
 import type { GaPresetPayload } from '@/types/ga';
 
-const props = defineProps<{ facultyId: number | null; superAdmin: boolean }>();
+/** studyProgramId null = TPB presets. */
+const props = defineProps<{ studyProgramId: number | null; superAdmin: boolean }>();
 
 const { params, scOverrides, presetId, dirty, errors, applyPreset, markSaved } = useGaConfig();
 const { presets, error: loadError, create, update, remove } = useGaPresets();
@@ -37,7 +38,7 @@ function payload(name: string): GaPresetPayload {
     ...params,
     name,
     sc_overrides: scOverrides.value,
-    ...(props.superAdmin ? (props.facultyId === null ? { scope: 'tpb' as const } : { faculty_id: props.facultyId }) : {}),
+    ...(props.superAdmin ? (props.studyProgramId === null ? { scope: 'tpb' as const } : { study_program_id: props.studyProgramId }) : {}),
   };
 }
 
@@ -120,7 +121,7 @@ function openSaveAs() {
       @confirm="destroy"
       @close="dialog = null"
     >
-      Preset <strong class="text-ink">{{ selected?.name }}</strong> akan dihapus bagi seluruh admin fakultas ini.
+      Preset <strong class="text-ink">{{ selected?.name }}</strong> akan dihapus untuk program studi ini.
     </ConfirmDialog>
   </Card>
 </template>

@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api\V1\Scheduling;
 
 use App\Http\Controllers\Api\Internal\Scheduling\SchedulingRunController as InternalSchedulingRunController;
 use App\Http\Requests\Scheduling\StoreSchedulingRunRequest;
-use App\Models\MasterData\Faculty;
 use App\Services\Scheduling\SchedulingRunUploadService;
 use Illuminate\Http\JsonResponse;
 
@@ -17,7 +16,7 @@ class SchedulingRunController extends InternalSchedulingRunController
     {
         $result = $uploadService->store(
             $this->request->user(),
-            $request->facultyId() === null ? null : Faculty::query()->findOrFail($request->facultyId()),
+            $request->studyProgram(),
             [...$request->validated(), 'parameter_snapshot' => $request->input('parameter_snapshot')],
         );
 

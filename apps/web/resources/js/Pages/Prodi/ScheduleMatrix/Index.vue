@@ -2,8 +2,11 @@
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Alert from '@/Components/ui/Alert.vue';
 import Card from '@/Components/ui/Card.vue';
+import PublicationAdminPanel from '@/Components/scheduling/PublicationAdminPanel.vue';
 import ScheduleOverrideModal from '@/Components/scheduling/ScheduleOverrideModal.vue';
+import SubmissionStatusBadge from '@/Components/scheduling/SubmissionStatusBadge.vue';
 import { fetchAll } from '@/composables/useApiList';
+import { useProgramSubmission } from '@/composables/useProgramSubmission';
 import { onResourcesChanged } from '@/composables/useResourceChanges';
 import { useSemesterOptions } from '@/composables/useSemesterOptions';
 import { api, toApiError, type ApiError } from '@/lib/api';
@@ -38,7 +41,6 @@ const fieldClass = 'w-full rounded-xl border-gray-200 bg-white text-sm text-gray
 const page = usePage();
 const user = computed(() => page.props.auth.user);
 const canChooseFaculty = computed(() => ['superadmin', 'admin_tpb', 'dosen'].includes(user.value.role ?? ''));
-const canOverride = computed(() => ['superadmin', 'admin_fakultas'].includes(user.value.role ?? ''));
 const isLecturer = computed(() => user.value.role === 'dosen');
 const canReadLecturerAndRoomReferences = computed(() => !isLecturer.value);
 
@@ -74,6 +76,13 @@ const referencesFailure = ref<ApiError | null>(null);
 const overrideTarget = ref<ScheduleDetailBase | null>(null);
 const exportOpen = ref(false);
 let scheduleRequest = 0;
+
+// Only the program moves its own meetings, and only while its schedule is a draft or returned.
+const isProgramAdmin = computed(() => user.value.role === 'admin_prodi');
+const ownProgramId = computed(() => (isProgramAdmin.value ? user.value.study_program_id : null));
+const resolvedPeriod = computed(() => schedule.value?.period ?? '');
+const { submission, editable } = useProgramSubmission(ownProgramId, resolvedPeriod);
+const canOverride = computed(() => isProgramAdmin.value && editable.value);
 
 const semesterOptions = useSemesterOptions(
     () => filters.period || periods.value.find((period) => period.is_current)?.code || '',
@@ -238,11 +247,10 @@ watch(
     },
 );
 
-function replaceUpdatedRow(updated: ScheduleDetailBase): void {
-    if (!schedule.value) return;
-    const index = schedule.value.schedule_details.findIndex((row) => row.id === updated.id);
-    if (index >= 0) schedule.value.schedule_details[index] = { ...schedule.value.schedule_details[index], ...updated };
+// A swap moves two meetings, so reload instead of patching one row.
+function overrideSaved(): void {
     overrideTarget.value = null;
+    void loadSchedule();
 }
 
 onMounted(() => {
@@ -261,6 +269,10 @@ onResourcesChanged(['scheduling_runs', 'schedule_details'], () => void loadSched
                 <div>
                     <h1 class="text-2xl font-bold tracking-tight text-gray-900">{{ isLecturer ? 'Jadwal Mengajar' : 'Jadwal Kuliah' }}</h1>
                     <p v-if="isLecturer" class="mt-1 text-sm text-gray-500">Jadwal mengajar Anda sesuai periode dan filter yang dipilih.</p>
+                    <p v-if="isProgramAdmin && submission" class="mt-2 flex flex-wrap items-center gap-2 text-sm text-gray-600">
+                        Status jadwal program studi <SubmissionStatusBadge :status="submission.status" />
+                        <span v-if="canOverride">Klik pertemuan untuk memindahkan atau menukarnya.</span>
+                    </p>
                 </div>
                 <div class="flex flex-wrap gap-2">
                     <div v-if="isLecturer && user.lecturer_id && schedule?.schedule_details.length" class="flex flex-wrap gap-2" aria-label="Unduh jadwal mengajar">
@@ -311,6 +323,12 @@ onResourcesChanged(['scheduling_runs', 'schedule_details'], () => void loadSched
             </Alert>
             <Alert v-if="referencesFailure" :title="referencesFailure.message" />
             <Alert v-if="failure" :title="failure.message" />
+            <PublicationAdminPanel
+                v-if="user.role === 'superadmin' && filters.faculty_id && resolvedPeriod"
+                :faculty-id="Number(filters.faculty_id)"
+                :period="resolvedPeriod"
+                @withdrawn="loadSchedule"
+            />
             <Alert v-if="hasUnpublishedRun" title="Jadwal belum dipublikasikan">
                 Jadwal aktif ini belum dipublikasikan. Hanya admin yang berwenang yang dapat melihatnya.
             </Alert>
@@ -435,7 +453,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details'], () => void loadSched
             :schedule-detail="overrideTarget"
             :show="true"
             @close="overrideTarget = null"
-            @updated="replaceUpdatedRow"
+            @updated="overrideSaved"
         />
     </AppLayout>
 </template>

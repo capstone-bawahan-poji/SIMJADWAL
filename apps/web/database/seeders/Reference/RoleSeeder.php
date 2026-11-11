@@ -14,6 +14,7 @@ use App\Permissions\MasterData\RoomPermissions;
 use App\Permissions\MasterData\StudyProgramPermissions;
 use App\Permissions\MasterData\TimeSlotPermissions;
 use App\Permissions\MasterData\TpbPermissions;
+use App\Permissions\Scheduling\AllocationPermissions;
 use App\Permissions\Scheduling\GaPresetPermissions;
 use App\Permissions\Scheduling\SchedulingPermissions;
 use App\Services\Account\PermissionService;
@@ -53,8 +54,16 @@ class RoleSeeder extends Seeder
                 ConstraintPermissions::VIEW,
                 ConstraintPermissions::UPDATE_WEIGHT,
                 ConstraintPermissions::REVIEW,
-                ...SchedulingPermissions::cases(),
-                ...GaPresetPermissions::cases(),
+                // POS 040/IT10.1/OT.07/2026: the faculty hands out cells, reviews and publishes. Programs run the GA.
+                SchedulingPermissions::VIEW_RUN,
+                SchedulingPermissions::PUBLISH_RUN,
+                SchedulingPermissions::VIEW_SCHEDULE,
+                SchedulingPermissions::REVIEW_SCHEDULE,
+                SchedulingPermissions::IMPORT_TPB,
+                GaPresetPermissions::VIEW,
+                AllocationPermissions::VIEW,
+                AllocationPermissions::MANAGE,
+                AllocationPermissions::REVIEW_REQUEST,
             ],
             RoleEnum::TPB_ADMIN->value => [
                 ...$readReference,
@@ -63,8 +72,15 @@ class RoleSeeder extends Seeder
                 CoursePermissions::VIEW,
                 CourseLecturerPermissions::VIEW,
                 ...TpbPermissions::cases(),
-                ...SchedulingPermissions::cases(),
+                SchedulingPermissions::VIEW_DATASET,
+                SchedulingPermissions::VIEW_RUN,
+                SchedulingPermissions::UPLOAD_RUN,
+                SchedulingPermissions::ACTIVATE_RUN,
+                SchedulingPermissions::PUBLISH_RUN,
+                SchedulingPermissions::VIEW_SCHEDULE,
+                SchedulingPermissions::IMPORT_TPB,
                 ...GaPresetPermissions::cases(),
+                AllocationPermissions::VIEW,
             ],
             RoleEnum::STUDY_PROGRAM_ADMIN->value => [
                 ...$readReference,
@@ -76,7 +92,16 @@ class RoleSeeder extends Seeder
                 ConstraintPermissions::VIEW,
                 ConstraintPermissions::UPDATE_PREFERENCE,
                 ConstraintPermissions::SUBMIT,
+                SchedulingPermissions::VIEW_DATASET,
+                SchedulingPermissions::VIEW_RUN,
+                SchedulingPermissions::UPLOAD_RUN,
+                SchedulingPermissions::ACTIVATE_RUN,
                 SchedulingPermissions::VIEW_SCHEDULE,
+                SchedulingPermissions::OVERRIDE_SCHEDULE,
+                SchedulingPermissions::SUBMIT_SCHEDULE,
+                ...GaPresetPermissions::cases(),
+                AllocationPermissions::VIEW,
+                AllocationPermissions::REQUEST,
             ],
             RoleEnum::LECTURER->value => [...$readReference, SchedulingPermissions::VIEW_SCHEDULE],
         ];

@@ -11,12 +11,12 @@ class UpdateGaPresetRequest extends FormRequest
 {
     public function rules(): array
     {
-        return GaPresetRules::attributes($this->preset()->faculty_id, $this->preset());
+        return GaPresetRules::attributes($this->preset()->studyProgram, $this->preset());
     }
 
     public function after(): array
     {
-        return [fn (Validator $validator) => GaPresetRules::validateScOverrides($validator, $this->preset()->faculty_id)];
+        return [fn (Validator $validator) => GaPresetRules::validateScOverrides($validator, $this->preset()->studyProgram)];
     }
 
     private function preset(): GaParameterPreset

@@ -55,7 +55,7 @@ class ScheduleExportTest extends TestCase
 
         $faculty = Faculty::factory()->create();
         $this->program = StudyProgram::factory()->accepted()->create(['faculty_id' => $faculty->id, 'name' => 'Informatika']);
-        $this->admin = User::factory()->facultyAdmin($faculty)->create();
+        $this->admin = User::factory()->studyProgramAdmin($this->program)->create();
         $this->lecturer = Lecturer::factory()->create(['study_program_id' => $this->program->id, 'name' => 'Budi Santoso']);
         $this->otherLecturer = Lecturer::factory()->create(['study_program_id' => $this->program->id]);
         $this->algo = Course::factory()->create(['study_program_id' => $this->program->id, 'code' => 'IF201', 'name' => 'Algoritma, Struktur Data', 'sks' => 3, 'semester' => 3, 'parallel_class_count' => 2]);
@@ -64,6 +64,7 @@ class ScheduleExportTest extends TestCase
         $this->run = SchedulingRun::query()->create([
             'batch_id' => (string) Str::uuid(),
             'faculty_id' => $faculty->id,
+            'study_program_id' => $this->program->id,
             'period' => self::PERIOD,
             'parameter_snapshot' => [],
             'status' => RunStatus::DONE,
@@ -157,7 +158,7 @@ class ScheduleExportTest extends TestCase
 
         Http::assertSent(fn (Request $request) => str_contains($request->body(), 'Basis Data')
             && str_contains($request->body(), 'DRAF')
-            && ! str_contains($request->body(), __('Yellow background = changed manually by the faculty admin.'))
+            && ! str_contains($request->body(), __('Yellow background = changed manually by the study program admin.'))
             && str_contains($request->body(), 'name="paperWidth"'));
     }
 
@@ -168,7 +169,7 @@ class ScheduleExportTest extends TestCase
 
         $this->export('format=pdf')->assertOk();
 
-        Http::assertSent(fn (Request $request) => str_contains($request->body(), __('Yellow background = changed manually by the faculty admin.')));
+        Http::assertSent(fn (Request $request) => str_contains($request->body(), __('Yellow background = changed manually by the study program admin.')));
     }
 
     public function test_student_pdf_hides_manual_override_indicators(): void
@@ -183,7 +184,7 @@ class ScheduleExportTest extends TestCase
         $this->assertSame('application/pdf', $file['content_type']);
 
         Http::assertSent(fn (Request $request) => str_contains($request->body(), 'Algoritma, Struktur Data')
-            && ! str_contains($request->body(), __('Yellow background = changed manually by the faculty admin.'))
+            && ! str_contains($request->body(), __('Yellow background = changed manually by the study program admin.'))
             && ! str_contains($request->body(), 'entry overridden'));
     }
 

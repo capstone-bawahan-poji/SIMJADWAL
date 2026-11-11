@@ -14,10 +14,11 @@ class AdminPagesTest extends TestCase
 
     private const PRODI_PAGES = [
         '/prodi/courses', '/prodi/lecturers', '/prodi/mappings',
-        '/prodi/constraints', '/prodi/constraints/review', '/prodi/schedule-matrix',
+        '/prodi/constraints', '/prodi/constraints/review', '/prodi/schedule-matrix', '/prodi/ga', '/prodi/rooms',
     ];
 
-    private const FACULTY_PAGES = ['/fakultas/constraints', '/fakultas/ga', '/fakultas/rooms'];
+    // The GA moved to the programs; the faculty hands out room slots and imports the TPB schedule.
+    private const FACULTY_PAGES = ['/fakultas/schedule', '/fakultas/tpb-import', '/fakultas/program-slot-allocation', '/fakultas/review', '/fakultas/rooms'];
 
     protected function setUp(): void
     {

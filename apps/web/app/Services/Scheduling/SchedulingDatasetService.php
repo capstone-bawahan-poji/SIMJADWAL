@@ -3,13 +3,11 @@
 namespace App\Services\Scheduling;
 
 use App\Enums\Constraint\ConstraintCode;
-use App\Enums\Constraint\ConstraintStatus;
 use App\Exceptions\Shared\ApiException;
 use App\Models\Constraint\ConstraintType;
 use App\Models\Constraint\LecturerPreference;
 use App\Models\MasterData\Course;
 use App\Models\MasterData\CourseLecturer;
-use App\Models\MasterData\Faculty;
 use App\Models\MasterData\Lecturer;
 use App\Models\MasterData\Room;
 use App\Models\MasterData\StudyProgram;
@@ -24,8 +22,9 @@ use Illuminate\Support\Collection;
 /**
  * Everything the desktop GA needs for one schedule, plus a fingerprint of it. Two scopes:
  *
- *   - faculty: the accepted programs of a faculty. Needs the active TPB run of the period, whose
- *     slots come along as tpb_blocks and whose rooms as occupied_rooms.
+ *   - study_program: the active courses of one program. Needs the TPB data of its faculty
+ *     (TpbOccupancyResolver) and the cells the faculty gave it: a gene goes to one cell (slot,
+ *     room) of cells. tpb_blocks and lecturer_busy are slots the GA must keep away from.
  *   - tpb (build(null, ...)): every TPB offering of the period. One gene per class meeting,
  *     classes of one group share a slot, rooms are the shared ones.
  */
@@ -33,17 +32,22 @@ readonly class SchedulingDatasetService
 {
     public function __construct(
         private DatabaseManager $db,
-        private TpbBlockService $tpbBlocks,
         private TpbRunResolver $tpbRuns,
+        private TpbOccupancyResolver $tpbOccupancy,
+        private RoomSlotAllocationService $allocations,
+        private ProgramScheduleState $state,
     ) {}
 
     /**
      * @param  list<int>  $reviseGroupIds  TPB only: groups to place again after the TPB schedule is published
+     * @param  bool  $checkEditable  false only to compare fingerprints of a program that handed its schedule in
      * @return array<string, mixed>
      */
-    public function build(?Faculty $faculty, string $period, array $reviseGroupIds = []): array
+    public function build(?StudyProgram $studyProgram, string $period, array $reviseGroupIds = [], bool $checkEditable = true): array
     {
-        return $faculty === null ? $this->buildTpb($period, $reviseGroupIds) : $this->buildFaculty($faculty, $period);
+        return $studyProgram === null
+            ? $this->buildTpb($period, $reviseGroupIds)
+            : $this->buildStudyProgram($studyProgram, $period, $checkEditable);
     }
 
     /**
@@ -59,36 +63,47 @@ readonly class SchedulingDatasetService
     /**
      * @return array<string, mixed>
      */
-    private function buildFaculty(Faculty $faculty, string $period): array
+    private function buildStudyProgram(StudyProgram $program, string $period, bool $checkEditable): array
     {
-        $tpbRun = $this->tpbRuns->active($period);
-        if ($tpbRun === null) {
-            throw ApiException::invalidState(__('The TPB schedule of :period is not published yet. Faculties are scheduled after TPB.', ['period' => Period::label($period)]));
+        $tpb = $this->tpbOccupancy->forFaculty($program->faculty_id, $period);
+        if ($tpb['source'] === null) {
+            throw ApiException::invalidState(__('The TPB schedule of :period is not available yet. Programs are scheduled after TPB.', ['period' => Period::label($period)]));
+        }
+        if ($checkEditable) {
+            $this->state->assertEditable($program, $period);
         }
 
-        return $this->db->transaction(function () use ($faculty, $period, $tpbRun) {
-            $programs = StudyProgram::query()
-                ->where('faculty_id', $faculty->id)
-                ->withCount(['lecturers', 'courses'])
-                ->orderBy('code')
-                ->get();
-
-            $includedIds = $programs->where('constraint_status', ConstraintStatus::ACCEPTED)->pluck('id');
+        return $this->db->transaction(function () use ($program, $period, $tpb) {
+            $cells = $this->allocations->cellsOf($program, $period);
+            if ($cells === []) {
+                throw ApiException::invalidState(__('The faculty has not given this program any room slots for :period yet.', ['period' => Period::label($period)]));
+            }
 
             $courses = Course::query()
-                ->whereIn('study_program_id', $includedIds)
+                ->where('study_program_id', $program->id)
                 ->where('is_tpb', false)
                 ->where('is_active', true)
                 ->whereIn('semester', Period::semesters($period))
                 ->orderBy('id')
                 ->get();
+            if ($courses->isEmpty()) {
+                throw ApiException::invalidState(__('The program has no active course to schedule in :period.', ['period' => Period::label($period)]));
+            }
 
             $classes = CourseLecturer::query()
                 ->whereIn('course_id', $courses->pluck('id'))
                 ->orderBy('course_id')
                 ->orderBy('class_number')
                 ->get();
-            $lecturerIds = $classes->pluck('lecturer_id')->unique()->values();
+            $assigned = $classes->whereNotNull('lecturer_id')->countBy('course_id');
+            $unassigned = $classes->whereNull('lecturer_id')->countBy('course_id');
+            $incomplete = $courses->filter(fn (Course $course) => ($assigned[$course->id] ?? 0) < $course->parallel_class_count || isset($unassigned[$course->id]))->count();
+            if ($incomplete > 0) {
+                throw ApiException::invalidState(__(':count courses still have classes without a lecturer. Map their lecturers before running the GA.', ['count' => $incomplete]));
+            }
+            $lecturerIds = $classes->pluck('lecturer_id')->unique()->sort()->values();
+            $lecturerSet = $lecturerIds->flip();
+            $roomIds = collect($cells)->pluck('room_id')->unique();
 
             $data = [
                 'courses' => $courses->map(fn (Course $course) => [
@@ -109,30 +124,45 @@ readonly class SchedulingDatasetService
                 ])->values()->all(),
                 'lecturers' => $this->lecturers($lecturerIds),
                 'time_slots' => $this->timeSlots(),
-                'rooms' => $this->rooms(fn ($query) => $query->where('faculty_id', $faculty->id)->orWhereNull('faculty_id')),
+                'rooms' => $this->rooms(fn ($query) => $query->whereIn('id', $roomIds)),
+                'cells' => array_map(fn (array $cell) => ['time_slot_id' => $cell['time_slot_id'], 'room_id' => $cell['room_id']], $cells),
                 'constraint_types' => $this->constraintTypes(),
-                'tpb_run_id' => $tpbRun->id,
-                'tpb_blocks' => $this->tpbBlocks->forDataset($period, $includedIds->all(), $lecturerIds->all()),
+                'tpb_source' => ['type' => $tpb['source'], 'run_id' => $tpb['run_id'], 'import_id' => $tpb['import_id']],
+                'tpb_run_id' => $tpb['run_id'],
+                'tpb_blocks' => [
+                    'study_programs' => collect($tpb['programs'][$program->id] ?? [])
+                        ->map(fn (array $slots, int $semester) => ['study_program_id' => $program->id, 'semester' => $semester, 'time_slot_ids' => $slots])
+                        ->sortBy('semester')->values()->all(),
+                    'retake' => isset($tpb['retake'][$program->id])
+                        ? [['study_program_id' => $program->id, 'time_slot_ids' => $tpb['retake'][$program->id]]]
+                        : [],
+                    'lecturers' => collect($tpb['lecturers'])
+                        ->filter(fn (array $slots, int $id) => isset($lecturerSet[$id]))
+                        ->map(fn (array $slots, int $id) => ['lecturer_id' => $id, 'time_slot_ids' => $slots])
+                        ->sortBy('lecturer_id')->values()->all(),
+                ],
+                'lecturer_busy' => $this->lecturerBusy($program, $period, $lecturerIds->all()),
             ];
 
             return [
                 'fingerprint' => $this->fingerprint($data),
                 'generated_at' => now()->toIso8601String(),
-                'scope' => 'faculty',
+                'scope' => 'study_program',
                 'period' => $period,
-                'faculty' => ['id' => $faculty->id, 'code' => $faculty->code, 'name' => $faculty->name],
-                'study_programs' => $programs->map(fn (StudyProgram $program) => [
+                'faculty' => ['id' => $program->faculty->id, 'code' => $program->faculty->code, 'name' => $program->faculty->name],
+                'study_program' => ['id' => $program->id, 'code' => $program->code, 'name' => $program->name],
+                'study_programs' => [[
                     'id' => $program->id,
                     'code' => $program->code,
                     'name' => $program->name,
                     'constraint_status' => $program->constraint_status->value,
                     'constraint_reviewed_at' => $program->constraint_reviewed_at?->toIso8601String(),
-                    'lecturers_count' => $program->lecturers_count,
-                    'courses_count' => $program->courses_count,
-                    'included' => $includedIds->contains($program->id),
-                ])->values()->all(),
+                    'lecturers_count' => $program->lecturers()->count(),
+                    'courses_count' => $courses->count(),
+                    'included' => true,
+                ]],
                 ...$data,
-                'occupied_rooms' => $this->occupiedRooms($faculty, $period),
+                'occupied_rooms' => [],
             ];
         });
     }
@@ -375,23 +405,27 @@ readonly class SchedulingDatasetService
     }
 
     /**
-     * Rooms taken by the active schedules of other faculties and of TPB in the same period.
+     * Slots the program's lecturers already teach in the active runs of other programs (any
+     * faculty) of the period. Programs run their GA one by one, so the later one works around them.
      *
-     * @return list<array{time_slot_id: int, room_id: int}>
+     * @param  list<int>  $lecturerIds
+     * @return list<array{lecturer_id: int, time_slot_ids: list<int>}>
      */
-    private function occupiedRooms(Faculty $faculty, string $period): array
+    private function lecturerBusy(StudyProgram $program, string $period, array $lecturerIds): array
     {
         return ScheduleDetail::query()
             ->join('scheduling_runs', 'scheduling_runs.id', '=', 'schedule_details.scheduling_run_id')
             ->where('scheduling_runs.is_active', true)
             ->where('scheduling_runs.period', $period)
-            ->where(fn ($query) => $query->where('scheduling_runs.faculty_id', '!=', $faculty->id)->orWhereNull('scheduling_runs.faculty_id'))
-            ->whereNotNull('schedule_details.room_id')
+            ->whereNotNull('scheduling_runs.faculty_id')
+            ->where(fn ($q) => $q->whereNull('scheduling_runs.study_program_id')->orWhere('scheduling_runs.study_program_id', '!=', $program->id))
+            ->whereIn('schedule_details.lecturer_id', $lecturerIds)
             ->distinct()
+            ->orderBy('schedule_details.lecturer_id')
             ->orderBy('schedule_details.time_slot_id')
-            ->orderBy('schedule_details.room_id')
-            ->get(['schedule_details.time_slot_id', 'schedule_details.room_id'])
-            ->map(fn (ScheduleDetail $row) => ['time_slot_id' => $row->time_slot_id, 'room_id' => $row->room_id])
+            ->get(['schedule_details.lecturer_id', 'schedule_details.time_slot_id'])
+            ->groupBy('lecturer_id')
+            ->map(fn ($rows, int $id) => ['lecturer_id' => $id, 'time_slot_ids' => $rows->pluck('time_slot_id')->values()->all()])
             ->values()
             ->all();
     }

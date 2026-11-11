@@ -20,6 +20,7 @@ export type ScOverrides = Record<string, Record<string, number>>;
 export interface GaPreset extends GaParams {
   id: number;
   faculty_id: number | null;
+  study_program_id?: number | null;
   name: string;
   sc_overrides: ScOverrides | [];
   created_by: number | null;
@@ -28,7 +29,7 @@ export interface GaPreset extends GaParams {
   can_delete: boolean;
 }
 
-export type GaPresetPayload = GaParams & { name: string; sc_overrides: ScOverrides; faculty_id?: number; scope?: 'tpb' };
+export type GaPresetPayload = GaParams & { name: string; sc_overrides: ScOverrides; study_program_id?: number; scope?: 'tpb' };
 
 export function taDefaults(period: string | null): GaParams {
   const even = period?.endsWith('-GENAP') ?? false;

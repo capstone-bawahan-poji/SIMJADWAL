@@ -9,8 +9,11 @@ use App\Enums\MasterData\TpbCohort;
  * are errors; hard constraint violations are counted so they can be compared with what the
  * desktop reported.
  *
- *   - faculty: HC2 lecturer, HC3 class (program, semester, class), HC4 parallel limit. A gene in
- *     a slot blocked by TPB (program semester or lecturer) is an error, as the GA never places one there.
+ *   - study_program: every meeting sits in one of the program's cells (slot, room), one meeting per
+ *     cell, in a room that fits. HC2 lecturer, HC3 class (program, semester, class). HC4 does not
+ *     apply: the cells already cap the classes per slot. A gene in a slot blocked by TPB (program
+ *     semester or lecturer) or held by the lecturer in another program's active run is an error,
+ *     as the GA never places one there.
  *   - tpb: classes of one group share the slot of every meeting. HC2 lecturer, HC3 = a program
  *     attending two regular groups of the same target semester in one slot (counted per group
  *     meeting, not per class). HC4 does not apply.
@@ -22,14 +25,16 @@ class ScheduleIntegrityChecker
      * @param  list<array<string, int|null>>  $details
      * @return array{errors: array<string, list<string>>, hard: array{HC1: int, HC2: int, HC3: int, HC4: int}}
      */
-    public function check(array $dataset, array $details, int $parallelClassLimit): array
+    public function check(array $dataset, array $details): array
     {
-        $tpb = ($dataset['scope'] ?? 'faculty') === 'tpb';
+        $tpb = ($dataset['scope'] ?? 'study_program') === 'tpb';
         $errors = [];
         $courses = collect($dataset['courses'])->keyBy('id');
         $slotIds = collect($dataset['time_slots'])->pluck('id')->flip();
         $rooms = collect($dataset['rooms'])->keyBy('id');
         $occupied = collect($dataset['occupied_rooms'])->map(fn (array $o) => "{$o['time_slot_id']}:{$o['room_id']}")->flip();
+        $cells = collect($dataset['cells'] ?? [])->map(fn (array $c) => "{$c['time_slot_id']}:{$c['room_id']}")->flip();
+        $busy = collect($dataset['lecturer_busy'] ?? [])->mapWithKeys(fn (array $row) => [$row['lecturer_id'] => $row['time_slot_ids']]);
 
         $expected = [];
         $lecturerOf = [];
@@ -54,7 +59,7 @@ class ScheduleIntegrityChecker
         $seen = [];
         $roomUse = [];
         $hard = ['HC1' => 0, 'HC2' => 0, 'HC3' => 0, 'HC4' => 0];
-        $lecturerSlot = $cohortSlot = $programSlot = [];
+        $lecturerSlot = $cohortSlot = [];
         $unitSlot = [];
 
         foreach ($details as $i => $d) {
@@ -75,11 +80,14 @@ class ScheduleIntegrityChecker
             if (! isset($slotIds[$slot])) {
                 $errors["schedule_details.{$i}.time_slot_id"] = [__('Unknown time slot.')];
             }
+            if (! $tpb && $d['room_id'] === null) {
+                $errors["schedule_details.{$i}.room_id"] = [__('Every meeting needs a room from the program\'s room slots.')];
+            }
             if ($d['room_id'] !== null) {
                 $room = $rooms[$d['room_id']] ?? null;
                 $use = "{$slot}:{$d['room_id']}";
-                if ($room === null) {
-                    $errors["schedule_details.{$i}.room_id"] = [__('The room cannot be used by this faculty.')];
+                if ($room === null || (! $tpb && ! isset($cells[$use]))) {
+                    $errors["schedule_details.{$i}.room_id"] = [__('The room is not one of the program\'s room slots at this time.')];
                 } elseif ($room['capacity'] < $course['class_capacity']) {
                     $errors["schedule_details.{$i}.room_id"] = [__('The room is too small for the class.')];
                 } elseif (isset($roomUse[$use]) || isset($occupied[$use])) {
@@ -122,12 +130,12 @@ class ScheduleIntegrityChecker
                 $errors["schedule_details.{$i}.time_slot_id"] = [__('The slot is reserved for a TPB class of this semester.')];
             } elseif (in_array($slot, $blockedLecturer[$d['lecturer_id']] ?? [], true)) {
                 $errors["schedule_details.{$i}.time_slot_id"] = [__('The lecturer teaches a TPB class in this slot.')];
+            } elseif (in_array($slot, $busy[$d['lecturer_id']] ?? [], true)) {
+                $errors["schedule_details.{$i}.time_slot_id"] = [__('The lecturer already teaches another program\'s class in this slot.')];
             }
 
             $cohort = "{$course['study_program_id']}:{$course['semester']}:{$d['class_number']}:{$slot}";
             $cohortSlot[$cohort] = ($cohortSlot[$cohort] ?? 0) + 1;
-            $program = "{$course['study_program_id']}:{$slot}";
-            $programSlot[$program] = ($programSlot[$program] ?? 0) + 1;
         }
 
         if (count($seen) !== count($expected)) {
@@ -141,7 +149,6 @@ class ScheduleIntegrityChecker
         $excess = fn (array $counts) => array_sum(array_map(fn (int $c) => max(0, $c - 1), $counts));
         $hard['HC2'] = $excess($lecturerSlot);
         $hard['HC3'] = $excess($cohortSlot);
-        $hard['HC4'] = count(array_filter($programSlot, fn (int $c) => $c > $parallelClassLimit));
 
         return ['errors' => $errors, 'hard' => $hard];
     }

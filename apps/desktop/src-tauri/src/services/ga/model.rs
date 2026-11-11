@@ -22,11 +22,21 @@ pub enum PreferenceType {
 pub struct Dataset {
     pub fingerprint: String,
     pub period: String,
-    /// "faculty" or "tpb". TPB datasets have no faculty and group their classes.
+    /// "study_program" or "tpb". TPB datasets have no faculty and group their classes.
     #[serde(default)]
     pub scope: Option<String>,
     #[serde(default)]
     pub faculty: Option<FacultyRef>,
+    /// The program a study_program dataset schedules.
+    #[serde(default)]
+    pub study_program: Option<StudyProgramRef>,
+    /// study_program datasets: the cells (slot, room) the faculty gave the program. Every meeting
+    /// must sit in one of them, one meeting per cell.
+    #[serde(default)]
+    pub cells: Vec<Cell>,
+    /// Slots the program's lecturers already teach in other programs' active schedules.
+    #[serde(default)]
+    pub lecturer_busy: Vec<LecturerBlock>,
     pub study_programs: Vec<StudyProgram>,
     pub time_slots: Vec<TimeSlot>,
     pub rooms: Vec<Room>,
@@ -115,6 +125,17 @@ pub struct LecturerBlock {
 #[derive(Debug, Clone, Deserialize)]
 pub struct FacultyRef {
     pub id: i64,
+}
+
+#[derive(Debug, Clone, Deserialize)]
+pub struct StudyProgramRef {
+    pub id: i64,
+}
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Deserialize)]
+pub struct Cell {
+    pub time_slot_id: i64,
+    pub room_id: i64,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -273,6 +294,9 @@ pub struct RunResult {
     pub batch_id: String,
     /// None for a TPB run.
     pub faculty_id: Option<i64>,
+    /// None for a TPB run. Results stored before the GA moved to the programs have none either.
+    #[serde(default)]
+    pub study_program_id: Option<i64>,
     /// TPB revision: groups placed again. Sent back with the upload.
     #[serde(default)]
     pub revise_group_ids: Vec<i64>,

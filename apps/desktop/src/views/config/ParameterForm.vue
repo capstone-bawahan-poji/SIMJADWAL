@@ -31,7 +31,7 @@ const groups: { title: string; description: string; fields: NumberField[] }[] = 
   },
   {
     title: 'Fitness dan constraint',
-    description: 'Konstanta C mencegah nilai fitness negatif. Jumlah kelas paralel menjadi batas HC4 untuk setiap program studi pada satu slot waktu.',
+    description: 'Konstanta C mencegah nilai fitness negatif. Untuk dataset program studi, jumlah kelas per slot dibatasi oleh slot ruangan dari fakultas, sehingga jumlah kelas paralel tidak dipakai.',
     fields: [
       { key: 'fitness_constant', label: 'Konstanta fitness (C)', hint: 'Nilai acuan TA: 500' },
       { key: 'parallel_class_limit', label: 'Jumlah kelas paralel', hint: 'Nilai acuan TA: 4 dan 5' },

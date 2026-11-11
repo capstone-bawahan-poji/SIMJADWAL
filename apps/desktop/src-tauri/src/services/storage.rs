@@ -175,6 +175,7 @@ mod tests {
     fn record(batch: &str, run: &str, finished: u64) -> RunRecord {
         RunRecord {
             result: RunResult {
+                study_program_id: None,
                 run_id: run.into(),
                 batch_id: batch.into(),
                 faculty_id: Some(1),

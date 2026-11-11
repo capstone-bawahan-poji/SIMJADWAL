@@ -89,12 +89,23 @@ export interface DatasetConstraintType {
   weight: number;
 }
 
+export interface DatasetCell {
+  time_slot_id: number;
+  room_id: number;
+}
+
 export interface SchedulingDataset {
   fingerprint: string;
   generated_at: string;
   period: string;
-  scope: 'faculty' | 'tpb';
+  /** study_program: one program, scheduled only in the cells its faculty gave it. */
+  scope: 'study_program' | 'tpb';
   faculty: { id: number; code: string; name: string } | null;
+  study_program?: { id: number; code: string; name: string };
+  /** study_program: the (slot, room) cells every meeting must sit in, one meeting per cell. */
+  cells?: DatasetCell[];
+  /** study_program: slots the program's lecturers teach in other programs' active schedules. */
+  lecturer_busy?: { lecturer_id: number; time_slot_ids: number[] }[];
   study_programs: DatasetStudyProgram[];
   time_slots: DatasetTimeSlot[];
   rooms: DatasetRoom[];
@@ -113,4 +124,11 @@ export interface FacultyOption {
   id: number;
   code: string;
   name: string;
+}
+
+export interface StudyProgramOption {
+  id: number;
+  code: string;
+  name: string;
+  faculty: FacultyOption | null;
 }

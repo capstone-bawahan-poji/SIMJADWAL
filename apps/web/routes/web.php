@@ -44,14 +44,16 @@ Route::middleware('auth')->group(function () {
         Route::get('/constraints', fn () => inertia('Prodi/Constraint/Index'))->name('constraints.index');
         Route::get('/constraints/review', fn () => inertia('Prodi/Constraint/Review'))->name('constraints.review');
         Route::get('/schedule-matrix', fn () => inertia('Prodi/ScheduleMatrix/Index'))->name('schedule-matrix.index');
-        Route::get('/ga', fn () => inertia('Fakultas/Ga/Index', ['scope' => 'prodi']))->name('ga.index');
-        Route::get('/rooms', fn () => inertia('Fakultas/Room/Index', ['scope' => 'prodi']))->name('rooms.index');
+        Route::get('/ga', fn () => inertia('Prodi/Ga/Index'))->name('ga.index');
+        // Room slots the faculty gave the program, sufficiency and requests for more (POS steps 3-4).
+        Route::get('/rooms', fn () => inertia('Prodi/RoomSlot/Index'))->name('rooms.index');
     });
 
     Route::middleware('role:admin_fakultas')->prefix('fakultas')->name('fakultas.')->group(function () {
         Route::get('/schedule', fn () => inertia('Fakultas/Schedule/Index'))->name('schedule.index');
         Route::get('/tpb-import', fn () => inertia('Fakultas/TpbImport/Index'))->name('tpb-import.index');
         Route::get('/program-slot-allocation', fn () => inertia('Fakultas/ProgramSlotAllocation/Index'))->name('program-slot-allocation.index');
+        Route::get('/review', fn () => inertia('Fakultas/Review/Index'))->name('review.index');
         Route::get('/rooms', fn () => inertia('Fakultas/Room/Index'))->name('rooms.index');
     });
 
