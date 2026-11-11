@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
+import PageContainer from '@/Components/shared/PageContainer.vue';
 import { onResourcesChanged } from '@/composables/useResourceChanges';
 import { SUBMISSION_STATUS_LABELS } from '@/lib/labels';
 import type { StudyProgramDashboard } from '@/types/models';
@@ -46,7 +47,7 @@ const scheduleStatusLabel = computed(() => {
     return schedule.value.status === 'active' ? SUBMISSION_STATUS_LABELS[schedule.value.submission_status] : 'Belum ada jadwal aktif';
 });
 /** The program hands its schedule to the faculty; the faculty publishes it. */
-const handedIn = computed(() => ['submitted', 'accepted', 'published'].includes(schedule.value.submission_status));
+const handedIn = computed(() => ['submitted', 'published'].includes(schedule.value.submission_status));
 
 const card = {
     backgroundColor: C.white,
@@ -176,11 +177,9 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'study_programs', 'le
 <template>
     <Head title="Dashboard Koor Prodi" />
 
-    <AppLayout>
-        <div
-            class="w-full p-6 md:p-8"
-            :style="{ backgroundColor: C.paper, minHeight: 'calc(100vh - 4rem)', display: 'flex', flexDirection: 'column', gap: '24px' }"
-        >
+    <AppLayout bare>
+        <div :style="{ backgroundColor: C.paper, minHeight: 'calc(100vh - 4rem)' }">
+            <PageContainer :style="{ display: 'flex', flexDirection: 'column', gap: '24px' }">
             <div>
                 <h1 class="text-3xl font-bold tracking-tight" :style="{ color: C.navy }">Dashboard</h1>
                 <p class="mt-1 text-sm" :style="{ color: C.muted }">Koor Prodi · {{ dashboard.period }}</p>
@@ -410,6 +409,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'study_programs', 'le
                     </li>
                 </ol>
             </section>
+            </PageContainer>
         </div>
     </AppLayout>
 </template>

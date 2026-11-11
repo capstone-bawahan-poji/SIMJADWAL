@@ -10,7 +10,7 @@ import { ref, watch } from 'vue';
 
 /**
  * Superadmin only: the publication of one faculty, and withdrawing it after a wrong entry. A
- * publication is otherwise final; withdrawing returns every program of the faculty to accepted.
+ * publication is otherwise final; withdrawing returns every program of the faculty to submitted.
  */
 const props = defineProps<{ facultyId: number; period: string }>();
 const emit = defineEmits<{ withdrawn: [] }>();
@@ -67,7 +67,7 @@ onResourcesChanged(['schedule_publications'], () => void load());
         <div class="space-y-4 p-6">
             <h2 class="text-lg font-bold text-gray-900">Batalkan publikasi jadwal Fakultas {{ publication?.faculty.code }}?</h2>
             <p class="text-sm text-gray-600">
-                Dosen, mahasiswa, dan sistem kampus lain tidak lagi melihat jadwal ini. Semua program studi kembali berstatus diterima,
+                Dosen, mahasiswa, dan sistem kampus lain tidak lagi melihat jadwal ini. Semua program studi kembali berstatus diserahkan,
                 sehingga fakultas dapat mengembalikan jadwal untuk diperbaiki lalu mempublikasikannya lagi. Alasan dicatat di log aktivitas.
             </p>
             <Alert v-if="failure" :title="failure" />

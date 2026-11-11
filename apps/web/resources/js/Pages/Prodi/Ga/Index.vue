@@ -257,7 +257,7 @@ async function performAction(): Promise<void> {
             actionError.value = failure.message;
             return;
         }
-        flash.value = action === 'submit' ? 'Jadwal dikirim ke fakultas untuk ditinjau.' : 'Jadwal ditarik kembali dan dapat diubah lagi.';
+        flash.value = action === 'submit' ? 'Jadwal diserahkan ke fakultas.' : 'Jadwal ditarik kembali dan dapat diubah lagi.';
         pendingAction.value = null;
         return;
     }
@@ -318,7 +318,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
 <template>
     <Head title="Proses GA Program Studi" />
     <AppLayout>
-        <div class="mx-auto w-full max-w-7xl space-y-10 p-6 md:p-8">
+        <div class="space-y-10">
             <header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                     <h1 class="text-2xl font-bold tracking-tight text-gray-900">Proses GA Program Studi</h1>
@@ -354,8 +354,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
                             {{ submission.cells_count }} slot ruangan dari fakultas.
                             <Link href="/prodi/rooms" class="font-medium text-primary hover:underline">Lihat slot ruangan</Link>
                         </p>
-                        <p v-if="submission.status === 'submitted'" class="text-sm text-gray-600">Dikirim {{ formatDateTime(submission.submitted_at) }}. Menunggu tinjauan fakultas.</p>
-                        <p v-if="submission.status === 'accepted'" class="text-sm text-gray-600">Diterima fakultas {{ formatDateTime(submission.reviewed_at) }}. Menunggu publikasi oleh fakultas.</p>
+                        <p v-if="submission.status === 'submitted'" class="text-sm text-gray-600">Diserahkan {{ formatDateTime(submission.submitted_at) }}. Menunggu publikasi oleh fakultas.</p>
                         <p v-if="submission.faculty_published" class="text-sm text-gray-600">Jadwal sudah dipublikasikan fakultas dan bersifat final.</p>
                     </div>
                     <div class="flex gap-2">
@@ -651,7 +650,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
                 <p v-if="actionTarget?.is_stale" class="mt-2 text-amber-700">Data penjadwalan sudah berubah sejak run ini dibuat. Run tetap bisa ditetapkan bila masih lolos pemeriksaan.</p>
                 <p v-if="actionTarget && actionTarget.hc_violations > 0" class="mt-2 font-semibold text-amber-700">Run ini memiliki {{ actionTarget.hc_violations }} pelanggaran hard constraint.</p>
             </template>
-            <template v-else-if="pendingAction === 'submit'">Setelah dikirim, jadwal tidak dapat diubah sampai fakultas mengembalikannya atau Anda menariknya kembali sebelum ditinjau.</template>
+            <template v-else-if="pendingAction === 'submit'">Setelah diserahkan, jadwal tidak dapat diubah sampai fakultas mengembalikannya atau Anda menariknya kembali sebelum fakultas mempublikasikannya.</template>
             <template v-else>Jadwal kembali menjadi draf dan dapat diubah lagi.</template>
         </ConfirmDialog>
 

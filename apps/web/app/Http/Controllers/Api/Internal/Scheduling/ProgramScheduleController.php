@@ -35,13 +35,6 @@ class ProgramScheduleController extends ApiController
         return $this->response($this->submissions->withdraw($request->user(), $studyProgram, $request->period()));
     }
 
-    public function accept(PeriodRequest $request, StudyProgram $studyProgram): JsonResponse
-    {
-        $this->authorize('reviewSchedule', $studyProgram);
-
-        return $this->response($this->submissions->accept($request->user(), $studyProgram, $request->period()));
-    }
-
     public function return(NoteRequest $request, StudyProgram $studyProgram): JsonResponse
     {
         $this->authorize('reviewSchedule', $studyProgram);

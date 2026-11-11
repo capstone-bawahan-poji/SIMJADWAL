@@ -15,7 +15,7 @@ use Illuminate\Database\DatabaseManager;
 
 /**
  * POS step 10: the faculty publishes the schedules of all its programs at once. Every program with
- * a course to schedule in the period must be accepted. A publication is final: nothing in the
+ * a course to schedule in the period must have handed in its schedule (submitted). A publication is final: nothing in the
  * faculty's schedule moves afterwards. Only superadmin can withdraw one (with a reason), e.g.
  * after a wrong entry.
  */
@@ -33,7 +33,7 @@ readonly class SchedulePublicationService
     {
         $publication = SchedulePublication::query()->with('publishedBy:id,name')
             ->where('faculty_id', $faculty->id)->where('period', $period)->first();
-        $waiting = $this->unaccepted($faculty, $period);
+        $waiting = $this->unsubmitted($faculty, $period);
 
         return [
             'period' => $period,
@@ -42,7 +42,7 @@ readonly class SchedulePublicationService
             'published_at' => $publication?->published_at->toIso8601String(),
             'published_by' => $publication?->publishedBy ? ['id' => $publication->publishedBy->id, 'name' => $publication->publishedBy->name] : null,
             'checksum' => $publication?->checksum,
-            'can_publish' => $publication === null && $waiting === [] && $this->accepted($faculty, $period) !== [],
+            'can_publish' => $publication === null && $waiting === [] && $this->submitted($faculty, $period) !== [],
             'waiting_programs' => $waiting,
         ];
     }
@@ -60,16 +60,16 @@ readonly class SchedulePublicationService
             if (SchedulePublication::query()->where('faculty_id', $faculty->id)->where('period', $period)->exists()) {
                 throw ApiException::invalidState(__('The schedule of :period is published and final.', ['period' => Period::label($period)]));
             }
-            $waiting = $this->unaccepted($faculty, $period);
+            $waiting = $this->unsubmitted($faculty, $period);
             if ($waiting !== []) {
-                throw ApiException::invalidState(__('Some programs are not accepted yet: :programs.', ['programs' => implode(', ', array_column($waiting, 'code'))]));
+                throw ApiException::invalidState(__('Some programs have not handed in their schedule yet: :programs.', ['programs' => implode(', ', array_column($waiting, 'code'))]));
             }
-            $accepted = $submissions->where('status', SubmissionStatus::ACCEPTED);
-            if ($accepted->isEmpty()) {
-                throw ApiException::invalidState(__('No program schedule has been accepted yet.'));
+            $submitted = $submissions->where('status', SubmissionStatus::SUBMITTED);
+            if ($submitted->isEmpty()) {
+                throw ApiException::invalidState(__('No program has handed in a schedule yet.'));
             }
 
-            foreach ($accepted as $submission) {
+            foreach ($submitted as $submission) {
                 $submission->schedulingRun->update(['published_by' => $actor->id, 'published_at' => now()]);
                 $submission->update(['status' => SubmissionStatus::PUBLISHED]);
             }
@@ -104,7 +104,7 @@ readonly class SchedulePublicationService
                 ->get();
             SchedulingRun::query()->whereIn('id', $submissions->pluck('scheduling_run_id'))->get()
                 ->each(fn (SchedulingRun $run) => $run->update(['published_by' => null, 'published_at' => null]));
-            $submissions->each(fn (ProgramScheduleSubmission $s) => $s->update(['status' => SubmissionStatus::ACCEPTED]));
+            $submissions->each(fn (ProgramScheduleSubmission $s) => $s->update(['status' => SubmissionStatus::SUBMITTED]));
             $publication->delete();
         });
 
@@ -116,11 +116,11 @@ readonly class SchedulePublicationService
     }
 
     /**
-     * Programs with a course to schedule in the period whose schedule is not accepted.
+     * Programs with a course to schedule in the period that have not handed in their schedule.
      *
      * @return list<array{id: int, code: string, name: string, status: string}>
      */
-    private function unaccepted(Faculty $faculty, string $period): array
+    private function unsubmitted(Faculty $faculty, string $period): array
     {
         $programs = StudyProgram::query()->where('faculty_id', $faculty->id)
             ->whereIn('id', Course::query()->select('study_program_id')
@@ -131,7 +131,7 @@ readonly class SchedulePublicationService
             ->pluck('status', 'study_program_id');
 
         return $programs
-            ->filter(fn (StudyProgram $p) => ! in_array($statuses[$p->id] ?? SubmissionStatus::DRAFT, [SubmissionStatus::ACCEPTED, SubmissionStatus::PUBLISHED], true))
+            ->filter(fn (StudyProgram $p) => ! in_array($statuses[$p->id] ?? SubmissionStatus::DRAFT, [SubmissionStatus::SUBMITTED, SubmissionStatus::PUBLISHED], true))
             ->map(fn (StudyProgram $p) => ['id' => $p->id, 'code' => $p->code, 'name' => $p->name, 'status' => ($statuses[$p->id] ?? SubmissionStatus::DRAFT)->value])
             ->values()->all();
     }
@@ -139,12 +139,12 @@ readonly class SchedulePublicationService
     /**
      * @return list<int>
      */
-    private function accepted(Faculty $faculty, string $period): array
+    private function submitted(Faculty $faculty, string $period): array
     {
         return ProgramScheduleSubmission::query()
             ->whereIn('study_program_id', StudyProgram::query()->select('id')->where('faculty_id', $faculty->id))
             ->where('period', $period)
-            ->where('status', SubmissionStatus::ACCEPTED)
+            ->where('status', SubmissionStatus::SUBMITTED)
             ->pluck('id')->all();
     }
 }

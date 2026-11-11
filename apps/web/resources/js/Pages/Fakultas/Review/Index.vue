@@ -14,12 +14,12 @@ import { formatDateTime } from '@/lib/labels';
 import { queryParam } from '@/lib/query';
 import type { Collection, FacultySubmissionRow, RunScheduleDetail, SchedulePublicationState, SubmissionStatus, TimeSlot } from '@/types/models';
 import { Head, usePage } from '@inertiajs/vue3';
-import { CheckCircle2 } from 'lucide-vue-next';
 import { computed, nextTick, ref, watch } from 'vue';
 
 /**
- * POS 040/IT10.1/OT.07/2026 steps 9 and 10: the faculty reviews the schedule each program handed
- * in, accepts it or returns it with a note, then publishes every program at once. Final.
+ * POS 040/IT10.1/OT.07/2026 steps 8 to 10: each program hands its final schedule to the faculty, who
+ * publishes every program at once. Final. The faculty has no acceptance step; it may only return a
+ * schedule with a note when something is wrong.
  */
 const facultyId = computed(() => usePage().props.auth.user.faculty_id);
 const { periods, period, error: periodError } = usePeriodPicker();
@@ -41,23 +41,21 @@ const publishOpen = ref(false);
 const publishing = ref(false);
 const publishError = ref<string | null>(null);
 
-const STATUS: Record<SubmissionStatus, { label: string; dot: string; pill: string }> = {
-    draft: { label: 'Draf', dot: 'bg-gray-300', pill: 'bg-gray-50 text-gray-600' },
-    submitted: { label: 'Perlu ditinjau', dot: 'bg-amber-400', pill: 'bg-amber-50 text-amber-800' },
-    accepted: { label: 'Diterima', dot: 'bg-primary', pill: 'bg-primary/10 text-primary' },
-    returned: { label: 'Dikembalikan', dot: 'bg-sky-400', pill: 'bg-sky-50 text-sky-800' },
-    published: { label: 'Dipublikasikan', dot: 'bg-primary', pill: 'bg-primary/10 text-primary' },
+const STATUS: Record<SubmissionStatus, { label: string; dot: string; text: string }> = {
+    draft: { label: 'Draf', dot: 'bg-gray-400', text: 'text-gray-500' },
+    submitted: { label: 'Diserahkan', dot: 'bg-green-600', text: 'text-green-700' },
+    returned: { label: 'Dikembalikan', dot: 'bg-amber-500', text: 'text-amber-700' },
+    published: { label: 'Dipublikasikan', dot: 'bg-primary', text: 'text-primary' },
 };
 const countOf = (status: SubmissionStatus) => rows.value.filter((row) => row.status === status).length;
-const completedCount = computed(() => countOf('accepted') + countOf('published'));
+const completedCount = computed(() => countOf('submitted') + countOf('published'));
 const selectedRow = computed(() => rows.value.find((row) => row.study_program.id === selectedId.value) ?? null);
 const { submission, processing, step } = useProgramSubmission(selectedId, period);
 const days = computed(() => [...new Set(timeSlots.value.map((slot) => slot.day))].sort((a, b) => a - b));
-const violationCount = computed(() => details.value.reduce((sum, detail) => sum + detail.violations_count, 0));
-const canReview = computed(() => !publication.value?.published
+const canReturn = computed(() => !publication.value?.published
     && submission.value?.study_program.id === selectedId.value
     && submission.value?.period === period.value
-    && ['submitted', 'accepted'].includes(submission.value.status));
+    && submission.value.status === 'submitted');
 
 async function selectProgram(id: number): Promise<void> {
     selectedId.value = id;
@@ -99,14 +97,6 @@ async function loadDetails(): Promise<void> {
     }
 }
 
-async function accept(): Promise<void> {
-    actionError.value = null;
-    const failure = await step('accept');
-    if (failure) actionError.value = failure.message;
-    else flash.value = `Jadwal ${selectedRow.value?.study_program.code} diterima.`;
-    await load();
-}
-
 async function sendBack(): Promise<void> {
     actionError.value = null;
     const failure = await step('return', returnNote.value.trim());
@@ -143,15 +133,15 @@ onResourcesChanged(['schedule_details'], () => void loadDetails());
 </script>
 
 <template>
-    <Head title="Review & Publikasi" />
+    <Head title="Jadwal Prodi & Publikasi" />
     <AppLayout>
-        <div class="mx-auto w-full max-w-[1400px] space-y-6 p-6 md:p-8">
+        <div class="space-y-6">
             <header class="flex flex-wrap items-end justify-between gap-4">
                 <div>
-                    <h1 class="text-2xl font-bold tracking-tight text-gray-900">Review &amp; Publikasi</h1>
+                    <h1 class="text-2xl font-bold tracking-tight text-gray-900">Jadwal Prodi &amp; Publikasi</h1>
                     <p class="mt-1 max-w-3xl text-sm text-gray-600">
-                        Tinjau jadwal yang dikirim setiap program studi. Terima bila sudah sesuai, atau kembalikan dengan catatan.
-                        Setelah semua diterima, publikasikan jadwal fakultas.
+                        Jadwal final yang diserahkan setiap program studi. Setelah semua program menyerahkan jadwal, publikasikan jadwal fakultas.
+                        Kembalikan satu jadwal dengan catatan bila ada yang salah.
                     </p>
                 </div>
                 <label class="text-sm font-medium text-gray-700">
@@ -172,14 +162,10 @@ onResourcesChanged(['schedule_details'], () => void loadDetails());
                 <div class="flex flex-wrap items-start justify-between gap-4">
                     <div class="space-y-1 text-sm">
                         <h2 class="text-base font-semibold text-gray-900">Publikasi jadwal fakultas</h2>
-                        <p class="text-gray-600"><strong class="text-base font-semibold tabular-nums text-gray-900">{{ completedCount }}</strong> dari {{ rows.length }} program studi {{ publication.published ? 'dipublikasikan atau diterima' : 'diterima' }}</p>
+                        <p class="text-gray-600"><strong class="text-base font-semibold tabular-nums text-gray-900">{{ completedCount }}</strong> dari {{ rows.length }} program studi menyerahkan jadwal</p>
                         <template v-if="publication.published">
                             <p class="text-primary">
                                 Dipublikasikan {{ formatDateTime(publication.published_at) }} oleh {{ publication.published_by?.name ?? '-' }}. Jadwal bersifat final.
-                            </p>
-                            <p class="text-gray-600">
-                                Sistem kampus lain dapat membaca jadwal ini melalui
-                                <code class="rounded bg-white px-1 font-mono text-xs">GET /api/v1/published-schedules?faculty_code={{ publication.faculty.code }}</code>.
                             </p>
                         </template>
                     </div>
@@ -192,7 +178,7 @@ onResourcesChanged(['schedule_details'], () => void loadDetails());
                         <dd class="font-semibold tabular-nums text-gray-900">{{ countOf(status) }}</dd>
                     </div>
                 </dl>
-                <p v-if="!publication.published && !publication.can_publish" class="mt-3 text-sm text-gray-600">Publikasi tersedia setelah semua persyaratan terpenuhi dan semua program studi diterima.</p>
+                <p v-if="!publication.published && !publication.can_publish" class="mt-3 text-sm text-gray-600">Publikasi tersedia setelah semua program studi menyerahkan jadwal.</p>
             </section>
 
             <div class="space-y-6">
@@ -203,8 +189,8 @@ onResourcesChanged(['schedule_details'], () => void loadDetails());
                             <thead>
                                 <tr class="border-b border-gray-200 bg-primary/5 text-xs text-gray-600">
                                     <th scope="col" class="py-3 pl-5 pr-3 text-left font-medium">Program studi</th>
-                                    <th scope="col" class="px-3 py-3 text-right font-medium">Slot ruangan</th>
-                                    <th scope="col" class="px-3 py-3 text-left font-medium">Status</th>
+                                    <th scope="col" class="px-3 py-3 text-center font-medium">Slot ruangan</th>
+                                    <th scope="col" class="px-3 py-3 text-center font-medium">Status</th>
                                     <th scope="col" class="py-3 pl-3 pr-5"><span class="sr-only">Aksi</span></th>
                                 </tr>
                             </thead>
@@ -214,17 +200,17 @@ onResourcesChanged(['schedule_details'], () => void loadDetails());
                                     <td class="py-3 pl-5 pr-3">
                                         <span class="font-semibold text-gray-900">{{ row.study_program.code }}</span>
                                         <span class="ml-3 text-gray-700">{{ row.study_program.name }}</span>
-                                        <span v-if="row.submitted_at" class="mt-1 block text-xs text-gray-500">Dikirim {{ formatDateTime(row.submitted_at) }}</span>
+                                        <span v-if="row.submitted_at" class="mt-1 block text-xs text-gray-500">Diserahkan {{ formatDateTime(row.submitted_at) }}</span>
                                         <span v-if="row.has_pending_slot_request" class="mt-1 block text-xs text-amber-700">Ada permintaan tambahan slot</span>
                                     </td>
-                                    <td class="px-3 py-3 text-right tabular-nums text-gray-600">{{ row.cells_count }}</td>
-                                    <td class="px-3 py-3">
-                                        <span class="inline-flex items-center gap-2 rounded-full px-2.5 py-1 text-xs font-medium" :class="STATUS[row.status].pill">
-                                            <span class="size-1.5 rounded-full" :class="STATUS[row.status].dot" aria-hidden="true" />{{ STATUS[row.status].label }}
+                                    <td class="px-3 py-3 text-center tabular-nums text-gray-600">{{ row.cells_count }}</td>
+                                    <td class="whitespace-nowrap px-3 py-3 text-center font-medium">
+                                        <span class="inline-flex items-center gap-2" :class="STATUS[row.status].text">
+                                            <span class="h-2 w-2 rounded-full" :class="STATUS[row.status].dot" aria-hidden="true"></span>{{ STATUS[row.status].label }}
                                         </span>
                                     </td>
                                     <td class="py-3 pl-3 pr-5 text-right">
-                                        <button type="button" class="font-medium text-primary hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary" :aria-label="`Tinjau ${row.study_program.code} ${row.study_program.name}`" aria-controls="detail-review-prodi" :aria-pressed="row.study_program.id === selectedId" @click.stop="selectProgram(row.study_program.id)">Tinjau</button>
+                                        <button type="button" class="font-medium text-primary hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-primary" :aria-label="`Lihat jadwal ${row.study_program.code} ${row.study_program.name}`" aria-controls="detail-review-prodi" :aria-pressed="row.study_program.id === selectedId" @click.stop="selectProgram(row.study_program.id)">Lihat</button>
                                     </td>
                                 </tr>
                             </tbody>
@@ -241,26 +227,22 @@ onResourcesChanged(['schedule_details'], () => void loadDetails());
                                 <template v-else>Belum ada run yang ditetapkan.</template>
                             </p>
                         </div>
-                        <div v-if="canReview" class="flex gap-2">
+                        <div v-if="canReturn" class="flex gap-2">
                             <Button variant="secondary" :disabled="processing !== null" @click="returnOpen = true; actionError = null">Kembalikan</Button>
-                            <Button v-if="submission?.status === 'submitted'" :loading="processing === 'accept'" @click="accept">Terima</Button>
                         </div>
                     </div>
 
                     <Alert v-if="actionError && !returnOpen" :title="actionError" />
                     <Alert v-if="selectedRow.status === 'returned' && selectedRow.return_note" variant="warning" title="Dikembalikan ke program studi">{{ selectedRow.return_note }}</Alert>
                     <p v-if="selectedRow.status === 'draft' || selectedRow.status === 'returned'" class="rounded-xl border border-gray-200 bg-white px-4 py-8 text-center text-sm text-gray-500">
-                        Program studi belum mengirim jadwal. Jadwal tampil di sini setelah dikirim.
+                        Program studi belum menyerahkan jadwal. Jadwal tampil di sini setelah diserahkan.
                     </p>
                     <template v-else>
                         <Alert v-if="detailsError" :title="detailsError.message" />
                         <p v-if="detailsLoading" class="py-8 text-center text-sm text-gray-500">Memuat jadwal…</p>
                         <template v-else>
                             <div v-if="!detailsError && selectedRow.scheduling_run_id" class="flex flex-wrap items-center gap-x-6 gap-y-2 text-sm text-gray-600">
-                                <span>Fitness <strong class="font-semibold tabular-nums text-gray-900">{{ selectedRow.best_fitness?.toFixed(3) ?? '-' }}</strong></span>
                                 <span><strong class="font-semibold tabular-nums text-gray-900">{{ details.length }}</strong> pertemuan</span>
-                                <span v-if="violationCount === 0" class="inline-flex items-center gap-1.5 font-medium text-primary"><CheckCircle2 class="size-4" aria-hidden="true" />Tanpa pelanggaran tercatat dari GA</span>
-                                <span v-else class="rounded-md bg-amber-50 px-2 py-0.5 font-medium text-amber-800">{{ violationCount }} pelanggaran tercatat dari GA</span>
                             </div>
                             <FacultyScheduleGrid v-if="!detailsError && selectedRow.scheduling_run_id" :details="details" :time-slots="timeSlots" :days="days" :fallback-program="selectedRow.study_program" />
                         </template>

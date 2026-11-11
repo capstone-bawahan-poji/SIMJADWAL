@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
+import PageContainer from '@/Components/shared/PageContainer.vue';
 import DashboardSummary from '@/Components/dashboard/DashboardSummary.vue';
 import Card from '@/Components/ui/Card.vue';
 import DashboardChart from '@/Components/dashboard/DashboardChart.vue';
@@ -16,8 +17,8 @@ const DAYS: Record<number, string> = { 1: 'Senin', 2: 'Selasa', 3: 'Rabu', 4: 'K
 
 const programs = computed(() => props.dashboard.schedules.programs);
 const cellChartItems = computed(() => programs.value.map((row) => ({ label: row.study_program.code, value: row.cells_count })));
-const accepted = computed(() => (props.dashboard.schedules.by_status.accepted ?? 0) + (props.dashboard.schedules.by_status.published ?? 0));
-const waitingReview = computed(() => props.dashboard.schedules.by_status.submitted ?? 0);
+const handedIn = computed(() => (props.dashboard.schedules.by_status.submitted ?? 0) + (props.dashboard.schedules.by_status.published ?? 0));
+const notHandedIn = computed(() => programs.value.length - handedIn.value);
 const publicationDetail = computed(() => {
     if (props.dashboard.schedules.published) return `Dipublikasikan ${formatDateTime(props.dashboard.schedules.published_at)}`;
     return props.dashboard.schedules.can_publish ? 'Siap dipublikasikan' : 'Belum dipublikasikan';
@@ -30,8 +31,9 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'room_slot_allocation
 
 <template>
     <Head title="Dashboard Fakultas" />
-    <AppLayout>
-        <div class="dashboard-page w-full space-y-6 p-6 md:p-8">
+    <AppLayout bare>
+        <div class="dashboard-page">
+            <PageContainer class="space-y-6">
             <header class="flex flex-wrap items-end justify-between gap-4">
                 <div>
                     <h1 class="text-3xl font-bold tracking-tight text-[#112D4E]">Dashboard</h1>
@@ -46,14 +48,14 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'room_slot_allocation
                         Slot Prodi
                     </Link>
                     <Link href="/fakultas/review" class="inline-flex h-10 items-center gap-2 rounded-lg bg-primary px-4 text-sm font-semibold text-white transition-colors hover:bg-primary-hover focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2">
-                        Review &amp; Publikasi
+                        Jadwal Prodi &amp; Publikasi
                     </Link>
                 </div>
             </header>
 
             <DashboardSummary label="Ringkasan fakultas" :figures="[
-                { label: 'Jadwal prodi diterima', value: `${accepted}/${programs.length}`, detail: publicationDetail },
-                { label: 'Menunggu tinjauan', value: waitingReview, detail: `${dashboard.schedules.pending_slot_requests} permintaan slot menunggu` },
+                { label: 'Jadwal prodi diserahkan', value: `${handedIn}/${programs.length}`, detail: publicationDetail },
+                { label: 'Belum menyerahkan', value: notHandedIn, detail: `${dashboard.schedules.pending_slot_requests} permintaan slot menunggu` },
                 { label: 'Masalah ruangan', value: dashboard.rooms.unassigned_count + dashboard.rooms.over_capacity_count, detail: `${dashboard.rooms.unassigned_count} tanpa ruang, ${dashboard.rooms.over_capacity_count} kapasitas kurang` },
             ]" />
 
@@ -70,7 +72,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'room_slot_allocation
                             <h2 class="text-lg font-bold text-[#112D4E]">Status Jadwal Prodi</h2>
                             <p class="mt-1 text-sm text-gray-500">Jadwal yang dikirim program studi ke fakultas.</p>
                         </div>
-                        <Link href="/fakultas/review" class="text-xs font-semibold text-primary hover:underline">Tinjau</Link>
+                        <Link href="/fakultas/review" class="text-xs font-semibold text-primary hover:underline">Lihat</Link>
                     </div>
                     <ul class="mt-5 space-y-3">
                         <li v-if="programs.length === 0" class="text-sm text-gray-500">Belum ada program studi.</li>
@@ -108,6 +110,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'room_slot_allocation
                     </table>
                 </div>
             </Card>
+            </PageContainer>
         </div>
     </AppLayout>
 </template>

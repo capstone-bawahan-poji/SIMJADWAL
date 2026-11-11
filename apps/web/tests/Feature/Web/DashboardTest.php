@@ -104,7 +104,8 @@ class DashboardTest extends TestCase
                 ->where('dashboard.schedules.by_status.submitted', 1)
                 ->where('dashboard.schedules.by_status.draft', 1)
                 ->where('dashboard.schedules.published', false)
-                ->where('dashboard.schedules.can_publish', false)
+                // The submitted program is the only one with courses to schedule, so nothing is waiting.
+                ->where('dashboard.schedules.can_publish', true)
                 ->where('dashboard.rooms.unassigned_count', 1)
                 ->where('dashboard.rooms.over_capacity_count', 1)
                 ->has('dashboard.rooms.issues', 2)

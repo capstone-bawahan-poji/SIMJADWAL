@@ -3,11 +3,11 @@ import { api, toApiError, type ApiError } from '@/lib/api';
 import type { ProgramScheduleSubmission } from '@/types/models';
 import { computed, ref, watch, type Ref } from 'vue';
 
-export type SubmissionStep = 'submit' | 'withdraw' | 'accept' | 'return';
+export type SubmissionStep = 'submit' | 'withdraw' | 'return';
 
 /**
- * Where one study program's schedule stands in the review by its faculty (POS steps 8-9), and the
- * steps that move it: submit and withdraw by the program, accept and return by the faculty.
+ * Where one study program's schedule stands on its way to publication (POS steps 8-9), and the
+ * steps that move it: submit and withdraw by the program, return by the faculty.
  * Reloads when the period or program changes, and when anyone changes a submission or a run.
  */
 export function useProgramSubmission(studyProgramId: Ref<number | null>, period: Ref<string>) {

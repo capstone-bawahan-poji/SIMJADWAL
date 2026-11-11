@@ -27,7 +27,7 @@ use Tests\TestCase;
 
 /**
  * POS 040/IT10.1/OT.07/2026 steps 8-10: a program hands its schedule to the faculty, the faculty
- * accepts or returns it, then publishes the whole faculty. A publication is final.
+ * can return it with a note, then publishes the whole faculty. A publication is final.
  */
 class ProgramScheduleFlowTest extends TestCase
 {
@@ -100,7 +100,6 @@ class ProgramScheduleFlowTest extends TestCase
         Sanctum::actingAs($admin);
         $this->step($program, 'submit')->assertOk();
         Sanctum::actingAs($this->facultyAdmin);
-        $this->step($program, 'accept')->assertOk();
     }
 
     public function test_program_hands_in_and_takes_back_its_schedule(): void
@@ -116,7 +115,8 @@ class ProgramScheduleFlowTest extends TestCase
         $this->step($this->informatics, 'submit')->assertOk()->assertJsonPath('data.status', 'submitted');
         $this->step($this->informatics, 'submit')->assertStatus(409);
         $this->step($this->informatics, 'withdraw')->assertOk()->assertJsonPath('data.status', 'draft');
-        $this->step($this->informatics, 'accept')->assertForbidden();
+        // There is no acceptance step: handing in is the last move before publication.
+        $this->step($this->informatics, 'accept')->assertNotFound();
         $this->assertDatabaseHas('activity_logs', ['event' => 'program_schedule.withdrawn']);
     }
 
@@ -152,9 +152,6 @@ class ProgramScheduleFlowTest extends TestCase
         // Returned = editable again: the program may move meetings and hand it in again.
         Sanctum::actingAs($this->informaticsAdmin);
         $this->step($this->informatics, 'submit')->assertOk();
-        Sanctum::actingAs($this->facultyAdmin);
-        $this->step($this->informatics, 'accept')->assertOk()->assertJsonPath('data.status', 'accepted');
-
         Sanctum::actingAs(User::factory()->facultyAdmin(Faculty::factory()->create())->create());
         $this->step($this->informatics, 'return', ['note' => 'x'])->assertForbidden();
     }
@@ -204,7 +201,7 @@ class ProgramScheduleFlowTest extends TestCase
         $this->publication('delete', ['note' => 'Salah input ruang'])->assertOk()->assertJsonPath('data.published', false);
         $this->assertFalse(SchedulePublication::query()->exists());
         $this->assertNull($this->runs[$this->informatics->id]->fresh()->published_at);
-        $this->assertSame(2, ProgramScheduleSubmission::query()->where('status', SubmissionStatus::ACCEPTED)->count());
+        $this->assertSame(2, ProgramScheduleSubmission::query()->where('status', SubmissionStatus::SUBMITTED)->count());
         $this->assertDatabaseHas('activity_logs', ['event' => 'schedule_publication.withdrawn']);
     }
 

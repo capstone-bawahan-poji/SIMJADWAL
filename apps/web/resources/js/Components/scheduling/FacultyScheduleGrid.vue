@@ -76,7 +76,6 @@ watch(() => props.details, () => { opened.value = null; });
                                 <span class="block text-xs font-semibold leading-snug text-gray-900">{{ detail.course.name }}</span>
                                 <span class="block text-[11px] text-gray-600">{{ detail.course.code }} · Kelas {{ classLabel(detail.class_number) }}<template v-if="detail.meeting_number > 1"> · Pertemuan {{ detail.meeting_number }}</template></span>
                                 <span class="mt-0.5 block text-[11px] text-gray-600">{{ programOf(detail)?.code ?? (detail.course.is_tpb ? 'TPB' : 'Prodi tidak tersedia') }} · {{ detail.room?.code ?? 'Belum mendapat ruang' }}</span>
-                                <span v-if="detail.violations_count" class="mt-0.5 block text-[11px] font-medium text-amber-800">{{ detail.violations_count }} pelanggaran tercatat</span>
                                 <span v-if="detail.is_overridden" class="mt-0.5 block text-[11px] text-gray-600">Diubah manual</span>
                             </button>
                         </div>
@@ -91,7 +90,7 @@ watch(() => props.details, () => { opened.value = null; });
         </li>
     </ul>
 
-    <Modal :show="opened !== null" max-width="lg" close-button centered @close="opened = null">
+    <Modal :show="opened !== null" max-width="lg" close-button @close="opened = null">
         <template v-if="opened">
             <div class="border-b border-gray-100 bg-gray-50 py-6 pl-6 pr-14">
                 <p class="text-xs text-gray-500">{{ opened.course.code }} · {{ programOf(opened)?.code ?? (opened.course.is_tpb ? 'TPB' : 'Prodi tidak tersedia') }}</p>
@@ -105,7 +104,6 @@ watch(() => props.details, () => { opened.value = null; });
                 <div><dt class="text-gray-500">Ruangan</dt><dd class="font-semibold text-gray-900">{{ opened.room?.code ?? 'Belum mendapat ruang' }}</dd></div>
                 <div v-if="opened.course.semester !== null"><dt class="text-gray-500">Semester</dt><dd class="font-semibold text-gray-900">{{ opened.course.semester }}</dd></div>
                 <div v-if="opened.tpb_group"><dt class="text-gray-500">Grup TPB</dt><dd class="font-semibold text-gray-900">{{ opened.tpb_group.code }}</dd></div>
-                <div v-if="opened.violations_count"><dt class="text-gray-500">Pelanggaran tercatat</dt><dd class="font-semibold text-amber-800">{{ opened.violations_count }}</dd></div>
                 <div v-if="opened.is_overridden"><dt class="text-gray-500">Perubahan</dt><dd class="font-semibold text-gray-900">Diubah manual</dd></div>
             </dl>
             <div class="flex justify-end border-t border-gray-100 px-6 py-4"><Button variant="secondary" @click="opened = null">Tutup</Button></div>

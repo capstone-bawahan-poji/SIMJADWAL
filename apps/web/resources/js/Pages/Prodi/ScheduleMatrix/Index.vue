@@ -264,12 +264,12 @@ onResourcesChanged(['scheduling_runs', 'schedule_details'], () => void loadSched
     <Head :title="isLecturer ? 'Jadwal Mengajar' : 'Jadwal Kuliah'" />
 
     <AppLayout>
-        <div class="mx-auto w-full max-w-[1600px] space-y-6 p-6 md:p-8">
+        <div class="space-y-6">
             <div class="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
                 <div>
                     <h1 class="text-2xl font-bold tracking-tight text-gray-900">{{ isLecturer ? 'Jadwal Mengajar' : 'Jadwal Kuliah' }}</h1>
                     <p v-if="isLecturer" class="mt-1 text-sm text-gray-500">Jadwal mengajar Anda sesuai periode dan filter yang dipilih.</p>
-                    <p v-if="isProgramAdmin && submission && submission.status !== 'accepted'" class="mt-2 flex flex-wrap items-center gap-2 text-sm text-gray-600">
+                    <p v-if="isProgramAdmin && submission" class="mt-2 flex flex-wrap items-center gap-2 text-sm text-gray-600">
                         Status jadwal program studi <SubmissionStatusBadge :status="submission.status" />
                         <span v-if="canOverride">Klik pertemuan untuk memindahkan atau menukarnya.</span>
                     </p>

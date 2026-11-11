@@ -81,21 +81,19 @@ export function classLabel(classNumber: number): string {
 
 export const DAY_LABELS: Record<number, string> = { 1: 'Senin', 2: 'Selasa', 3: 'Rabu', 4: 'Kamis', 5: 'Jumat', 6: 'Sabtu', 7: 'Minggu' };
 
-/** Where a study program's schedule stands in the review by its faculty. */
+/** Where a study program's schedule stands on its way to publication by the faculty. */
 export const SUBMISSION_STATUS_LABELS: Record<SubmissionStatus, string> = {
     draft: 'Draf',
-    submitted: 'Dikirim ke fakultas',
+    submitted: 'Diserahkan ke fakultas',
     returned: 'Dikembalikan',
-    accepted: 'Diterima fakultas',
     published: 'Dipublikasikan',
 };
 
-/** Badge colors per submission status: gray draft, amber returned, blue waiting, green accepted or final. */
+/** Badge colors per submission status: gray draft, amber returned, green handed in, solid green final. */
 export const SUBMISSION_STATUS_TONES: Record<SubmissionStatus, string> = {
     draft: 'bg-gray-100 text-gray-700',
-    submitted: 'bg-blue-50 text-blue-700',
+    submitted: 'bg-emerald-50 text-emerald-700',
     returned: 'bg-amber-50 text-amber-800',
-    accepted: 'bg-emerald-50 text-emerald-700',
     published: 'bg-emerald-600 text-white',
 };
 

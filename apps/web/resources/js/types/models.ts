@@ -312,7 +312,7 @@ export type ScheduleScope = 'faculty' | 'study_program' | 'tpb';
 /** Owner of a run: TPB, one study program, or a whole faculty (runs from before the GA moved to the programs). */
 export type RunScope = 'tpb' | 'study_program' | 'faculty';
 export type RunSource = 'ga' | 'import';
-export type SubmissionStatus = 'draft' | 'submitted' | 'returned' | 'accepted' | 'published';
+export type SubmissionStatus = 'draft' | 'submitted' | 'returned' | 'published';
 export type SlotRequestStatus = 'pending' | 'fulfilled' | 'partially_fulfilled' | 'rejected';
 
 /** SchedulingRunQueryService summary. Draft = !is_active && !published_at, archived = !is_active && published_at. */
@@ -534,6 +534,8 @@ export interface RoomSlotGrid {
         cells_count: number;
         submission_status: SubmissionStatus;
         required_meetings: number;
+        /** Meetings needed per slot type (2 or 3): 2 and 4 SKS use type 2, 3 SKS uses type 3. */
+        required_by_type: Record<2 | 3, number>;
         sufficient: boolean;
     }[];
     rooms: GridRoom[];
@@ -572,8 +574,11 @@ export interface CellChange {
 export interface SlotSufficiency {
     allocated_cells: number;
     required_meetings: number;
+    required_by_type: Record<2 | 3, number>;
     sufficient: boolean;
     type_mismatches: number;
+    /** Cells in slots where no class of the program can run (its lecturers teach TPB or another program then). */
+    unusable_cells: number;
     shortages: { course_id: number; code: string; name: string; meetings: number; min_capacity: number; slot_type: number }[];
 }
 
@@ -588,6 +593,9 @@ export interface SlotNeed {
     course_id: number;
     code: string | null;
     name: string | null;
+    /** SKS of the course. 3 SKS needs a 150 minute slot (type 3), 2 and 4 SKS a 100 minute slot (type 2). */
+    sks: number | null;
+    slot_type: 2 | 3 | null;
     meetings: number;
     min_capacity: number;
 }
@@ -676,6 +684,19 @@ export interface ImportRowMessage {
  * POST tpb-occupancy/import (rows, skipped) and POST tpb-schedule/import (run_id, meetings).
  * data = what the group columns of the file created, null when the file only has a schedule.
  */
+export interface TpbImportScheduleRow {
+    row: number;
+    code: string;
+    course: string;
+    class: string;
+    group: string | null;
+    meeting: number;
+    day: string | null;
+    session: string | null;
+    room: string;
+    lecturer: string | null;
+}
+
 export interface TpbImportResult {
     committed: boolean;
     errors: ImportRowMessage[];
@@ -684,6 +705,7 @@ export interface TpbImportResult {
     skipped?: number;
     run_id?: number | null;
     meetings?: number;
+    schedule?: TpbImportScheduleRow[];
     data?: { offerings: number; groups: number; classes: number; replaced: number } | null;
 }
 

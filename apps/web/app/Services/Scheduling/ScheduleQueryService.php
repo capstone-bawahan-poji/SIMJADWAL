@@ -101,7 +101,7 @@ readonly class ScheduleQueryService
                     ->selectRaw('1')
                     ->from('program_schedule_submissions')
                     ->whereColumn('program_schedule_submissions.scheduling_run_id', 'scheduling_runs.id')
-                    ->whereIn('program_schedule_submissions.status', [SubmissionStatus::SUBMITTED->value, SubmissionStatus::ACCEPTED->value]))),
+                    ->whereIn('program_schedule_submissions.status', [SubmissionStatus::SUBMITTED->value]))),
             default => $query->whereNotNull('published_at'),
         };
     }

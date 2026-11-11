@@ -73,10 +73,10 @@ export const NAV_BY_ROLE: Partial<Record<Role, NavItem[]>> = {
     ],
     admin_fakultas: [
         dashboard,
-        // POS 040/IT10.1/OT.07/2026 order: TPB data, cells per program, review and publication.
+        // POS 040/IT10.1/OT.07/2026 order: TPB data, cells per program, hand-in and publication.
         { label: 'Import Jadwal TPB', routeName: 'fakultas.tpb-import.index', icon: icons.upload },
         { label: 'Slot Prodi', routeName: 'fakultas.program-slot-allocation.index', icon: icons.grid },
-        { label: 'Review & Publikasi', routeName: 'fakultas.review.index', icon: icons.check },
+        { label: 'Jadwal Prodi & Publikasi', routeName: 'fakultas.review.index', icon: icons.check },
         { label: 'Jadwal', routeName: 'fakultas.schedule.index', icon: icons.matrix },
         { label: 'Ruangan', routeName: 'fakultas.rooms.index', icon: icons.room },
     ],

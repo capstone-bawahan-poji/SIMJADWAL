@@ -10,7 +10,6 @@ enum SubmissionStatus: string
     case DRAFT = 'draft';
     case SUBMITTED = 'submitted';
     case RETURNED = 'returned';
-    case ACCEPTED = 'accepted';
     case PUBLISHED = 'published';
 
     public function label(): string
@@ -19,7 +18,6 @@ enum SubmissionStatus: string
             self::DRAFT => __('Draft'),
             self::SUBMITTED => __('Submitted'),
             self::RETURNED => __('Returned'),
-            self::ACCEPTED => __('Accepted'),
             self::PUBLISHED => __('Published'),
         };
     }

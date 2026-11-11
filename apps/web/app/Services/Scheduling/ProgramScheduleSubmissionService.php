@@ -14,12 +14,13 @@ use App\Models\User;
 use Illuminate\Database\DatabaseManager;
 
 /**
- * POS steps 8-9. The program hands its active run to the faculty (submitted), may take it back
- * before review (draft), and the faculty accepts it or returns it with a note (returned). Accepted
- * programs are published together by SchedulePublicationService.
+ * POS steps 8-9. The program hands its active run to the faculty (submitted): the handover is final
+ * for the faculty, there is no acceptance step. The program may take it back (draft) and the faculty
+ * may return it with a note (returned) when something is wrong. Submitted programs are published
+ * together by SchedulePublicationService.
  *
- *   draft/returned --submit--> submitted --accept--> accepted --publish--> published
- *   submitted --withdraw--> draft, submitted/accepted --return--> returned
+ *   draft/returned --submit--> submitted --publish--> published
+ *   submitted --withdraw--> draft, submitted --return--> returned
  */
 readonly class ProgramScheduleSubmissionService
 {
@@ -125,21 +126,9 @@ readonly class ProgramScheduleSubmissionService
         return $this->logged($actor, $studyProgram, $period, 'withdrawn', __('Took back the schedule of :program', ['program' => $studyProgram->code]));
     }
 
-    public function accept(User $actor, StudyProgram $studyProgram, string $period): array
-    {
-        $this->transition($studyProgram, $period, [SubmissionStatus::SUBMITTED], [
-            'status' => SubmissionStatus::ACCEPTED,
-            'reviewed_by' => $actor->id,
-            'reviewed_at' => now(),
-            'return_note' => null,
-        ]);
-
-        return $this->logged($actor, $studyProgram, $period, 'accepted', __('Accepted the schedule of :program', ['program' => $studyProgram->code]));
-    }
-
     public function return(User $actor, StudyProgram $studyProgram, string $period, string $note): array
     {
-        $this->transition($studyProgram, $period, [SubmissionStatus::SUBMITTED, SubmissionStatus::ACCEPTED], [
+        $this->transition($studyProgram, $period, [SubmissionStatus::SUBMITTED], [
             'status' => SubmissionStatus::RETURNED,
             'reviewed_by' => $actor->id,
             'reviewed_at' => now(),
