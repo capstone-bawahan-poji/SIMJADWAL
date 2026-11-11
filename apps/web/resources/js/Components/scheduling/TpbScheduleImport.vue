@@ -23,8 +23,8 @@ const dragging = ref(false);
 const input = ref<HTMLInputElement | null>(null);
 
 const columns = computed(() => (props.target === 'tpb'
-    ? 'Kode MK, Kelas, Hari, Sesi, dan Ruang wajib diisi. Nama Mata Kuliah, SKS, Jumlah Peserta, dan Dosen boleh diisi untuk catatan.'
-    : 'Hari, Sesi, dan Ruang wajib diisi. Kode MK, Nama Mata Kuliah, Kelas, SKS, Jumlah Peserta, dan Dosen boleh diisi.'));
+    ? 'Kolom Kode MK, Grup, Peserta, Prodi, Semester, Kelas, Kapasitas, dan Dosen Pengampu membuat grup dan kelas, kolom Ruangan, Hari, Sesi, dan Pertemuan membuat jadwal. MK 4 SKS memakai dua baris per kelas (Pertemuan 1 dan 2). Kolom jadwal boleh kosong untuk impor data saja.'
+    : 'Ruangan, Hari, dan Sesi wajib diisi. Kode MK, Mata Kuliah, Kelas, SKS, Kapasitas, dan Dosen Pengampu boleh diisi. Grup, Peserta, Prodi, dan Semester dibaca tetapi belum dipakai.'));
 const readyToSave = computed(() => preview.value !== null && preview.value.errors.length === 0 && !busy.value);
 
 async function send(dryRun: boolean): Promise<TpbImportResult | null> {
@@ -95,10 +95,20 @@ watch(() => props.period, () => {
                 <h2 class="text-base font-semibold text-gray-900">Unggah file jadwal TPB</h2>
                 <p class="mt-1 max-w-2xl text-sm text-gray-600">Satu baris untuk satu pertemuan kelas. {{ columns }}</p>
             </div>
-            <a href="/api/internal/tpb-schedule/import/template" class="inline-flex h-10 items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50">
-                <FileSpreadsheet class="size-4" aria-hidden="true" />
-                Unduh template
-            </a>
+            <div class="flex flex-wrap gap-2">
+                <a href="/api/internal/tpb-schedule/import/template" class="inline-flex h-10 items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50">
+                    <FileSpreadsheet class="size-4" aria-hidden="true" />
+                    Unduh template
+                </a>
+                <a
+                    v-if="target === 'tpb'"
+                    :href="`/api/internal/tpb-offerings/import/template?prefill=1&period=${encodeURIComponent(period)}`"
+                    class="inline-flex h-10 items-center gap-2 rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-gray-700 hover:bg-gray-50"
+                >
+                    <FileSpreadsheet class="size-4" aria-hidden="true" />
+                    Unduh data dan jadwal saat ini
+                </a>
+            </div>
         </div>
 
         <label
@@ -118,8 +128,11 @@ watch(() => props.period, () => {
 
         <template v-if="preview">
             <Alert v-if="preview.errors.length" :title="`${preview.errors.length} baris perlu diperbaiki`">Perbaiki file lalu unggah ulang. Tidak ada data yang disimpan.</Alert>
-            <Alert v-else variant="success" :title="target === 'tpb' ? `${preview.meetings ?? 0} pertemuan siap disimpan` : `${preview.rows ?? 0} baris siap disimpan`">
-                <template v-if="target === 'tpb'">Hasilnya menjadi run TPB baru yang belum aktif. Aktifkan dan publikasikan dari halaman Proses GA.</template>
+            <Alert v-else variant="success" :title="target === 'tpb' ? (preview.meetings ? `${preview.meetings} pertemuan siap disimpan` : 'Data TPB siap disimpan, tanpa jadwal') : `${preview.rows ?? 0} baris siap disimpan`">
+                <template v-if="target === 'tpb'">
+                    <template v-if="preview.data">Data: {{ preview.data.offerings }} mata kuliah, {{ preview.data.groups }} grup, {{ preview.data.classes }} kelas<template v-if="preview.data.replaced">, {{ preview.data.replaced }} mata kuliah diganti</template>. </template>
+                    <template v-if="preview.meetings">Jadwalnya menjadi run TPB baru yang belum aktif. Aktifkan dan publikasikan dari halaman Proses GA.</template>
+                </template>
                 <template v-else>Import ini menggantikan import sebelumnya untuk periode yang sama.</template>
             </Alert>
             <div v-if="preview.errors.length || preview.warnings.length" class="max-h-72 overflow-y-auto rounded-lg border border-gray-200">

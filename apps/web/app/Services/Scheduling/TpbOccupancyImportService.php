@@ -12,8 +12,10 @@ use Illuminate\Database\DatabaseManager;
 
 /**
  * POS 1.2.b: a faculty imports the TPB schedule file it got from TPB, when TPB has no published
- * schedule in the system. Only Hari, Sesi and Ruang are required: they tell which cells TPB holds.
+ * schedule in the system. Only Hari, Sesi and Ruangan are required: they tell which cells TPB holds.
  * Dosen, when found, also keeps the faculty's programs off that lecturer's TPB slots.
+ * The file is the shared TPB format (docs/plans/konvensi-file-tpb.md): Grup, Peserta, Prodi and
+ * Semester are read but not used yet, so the faculty gets rooms and lecturers, not program blocks.
  *
  * Rows in a room the faculty cannot use are skipped with a warning (they do not concern it).
  * A new import replaces the previous one of the faculty and period.
@@ -38,6 +40,12 @@ readonly class TpbOccupancyImportService
         $warnings = [];
         $rows = [];
         foreach ($sheet->read($path, ['day', 'session', 'room']) as ['row' => $line, 'values' => $v]) {
+            // The shared TPB file may list classes TPB has not scheduled yet: nothing to block there.
+            if ($v['day'] === null && $v['session'] === null && $v['room'] === null) {
+                $warnings[] = ['row' => $line, 'message' => __('The row has no Hari, Sesi, and Ruangan, it is skipped.')];
+
+                continue;
+            }
             $slotId = $sheet->timeSlotId($v['day'], $v['session']);
             if ($slotId === null) {
                 $errors[] = ['row' => $line, 'message' => __('Hari and Sesi do not match a time slot.')];
@@ -61,7 +69,7 @@ readonly class TpbOccupancyImportService
                 'course_code' => $v['code'] !== null ? mb_substr($v['code'], 0, 20) : null,
                 'course_name' => $v['name'] !== null ? mb_substr($v['name'], 0, 150) : null,
                 'class_label' => $v['class'] !== null ? mb_substr($v['class'], 0, 10) : null,
-                'participants' => $v['participants'] !== null && ctype_digit($v['participants']) ? min((int) $v['participants'], 32767) : null,
+                'participants' => $v['capacity'] !== null && ctype_digit($v['capacity']) ? min((int) $v['capacity'], 32767) : null,
             ];
         }
 

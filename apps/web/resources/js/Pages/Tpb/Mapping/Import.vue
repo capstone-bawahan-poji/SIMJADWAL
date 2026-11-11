@@ -28,6 +28,7 @@ const RULES = [
     'Semester yang kosong diisi otomatis: Maba di semester pertama periode, Non Maba dua semester setelahnya. Kosongkan untuk Mengulang dan Pilihan.',
     'Kelas diisi huruf kelas (A, B, dan seterusnya). Jika kosong, kelas dibuat berurutan.',
     'Dosen Pengampu diisi nama dosen, dengan atau tanpa gelar. Boleh kosong dan bisa dipilih nanti di langkah Dosen pengampu.',
+    'Kolom Ruangan, Hari, Sesi, dan Pertemuan (jadwal) dibaca halaman Import Jadwal TPB. Di sini kolom itu diabaikan, dan baris Pertemuan 2 tidak dihitung sebagai kelas baru.',
 ];
 const controlClass = 'h-10 w-full rounded-lg border-gray-200 bg-white text-sm text-gray-700 focus:border-primary focus:ring-primary';
 

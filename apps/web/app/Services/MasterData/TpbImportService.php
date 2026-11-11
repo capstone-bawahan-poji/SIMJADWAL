@@ -11,9 +11,11 @@ use App\Models\MasterData\CourseLecturer;
 use App\Models\MasterData\Lecturer;
 use App\Models\MasterData\StudyProgram;
 use App\Models\MasterData\TpbOffering;
+use App\Models\Scheduling\ScheduleDetail;
+use App\Services\Scheduling\Import\TpbScheduleSheet;
 use App\Services\Scheduling\Period;
+use App\Services\Scheduling\TpbRunResolver;
 use Illuminate\Database\DatabaseManager;
-use PhpOffice\PhpSpreadsheet\IOFactory;
 use PhpOffice\PhpSpreadsheet\Spreadsheet;
 use Throwable;
 
@@ -21,6 +23,7 @@ use Throwable;
  * Imports the TPB offerings of one period from an .xlsx. One row = one class.
  *
  *   No | Kode MK | Mata Kuliah | SKS | Grup | Peserta | Prodi | Semester | Kelas | Kapasitas | Dosen Pengampu
+ *      (+ Ruangan | Hari | Sesi | Pertemuan, read by TpbScheduleImportService, ignored here)
  *
  * Rows with the same Kode MK + Grup form one group. Peserta, Prodi and Semester are read from the
  * first row of the group. Dosen Pengampu is the lecturer name (with or without title); a NIP still works.
@@ -32,15 +35,7 @@ readonly class TpbImportService
 {
     public const MAX_ROWS = 2000;
 
-    public const HEADERS = ['No', 'Kode MK', 'Mata Kuliah', 'SKS', 'Grup', 'Peserta', 'Prodi', 'Semester', 'Kelas', 'Kapasitas', 'Dosen Pengampu'];
-
-    private const ALIASES = [
-        'no' => 'no', 'kode mk' => 'code', 'kode' => 'code', 'mata kuliah' => 'name', 'sks' => 'sks',
-        'grup' => 'group', 'gruping' => 'group', 'peserta' => 'cohort', 'prodi' => 'programs',
-        'kode prodi' => 'programs', 'semester' => 'semester', 'kelas' => 'class', 'kapasitas' => 'capacity',
-        'kapasitas kelas' => 'capacity', 'dosen pengampu' => 'lecturer', 'dosen' => 'lecturer', 'nama dosen' => 'lecturer',
-        'nip dosen' => 'lecturer', 'nip' => 'lecturer',
-    ];
+    public const HEADERS = TpbScheduleSheet::HEADERS;
 
     private const COHORTS = [
         'maba' => TpbCohort::MABA, 'mahasiswa baru' => TpbCohort::MABA,
@@ -53,6 +48,7 @@ readonly class TpbImportService
         private DatabaseManager $db,
         private TpbOfferingService $offerings,
         private TpbGroupService $groups,
+        private TpbRunResolver $tpbRuns,
     ) {}
 
     /**
@@ -64,28 +60,20 @@ readonly class TpbImportService
         $sheet = $book->getActiveSheet()->setTitle('TPB');
         $sheet->fromArray(self::HEADERS, null, 'A1');
         $sheet->fromArray($prefill ? $this->currentRows($period) : [
-            [1, 'KU2512015', 'Matematika 1', 3, 'G1', 'Maba', '01,02,16,17', 1, 'A', 40, ''],
-            [2, 'KU2512015', 'Matematika 1', 3, 'G1', '', '', '', 'B', 40, ''],
-            [3, 'KU2512015', 'Matematika 1', 3, 'G2', 'Mengulang', '01,02,03', '', 'C', 40, ''],
+            [1, 'KU2512015', 'Matematika 1', 3, 'G1', 'Maba', '01,02,16,17', 1, 'A', 40, '', '', '', '', ''],
+            [2, 'KU2512015', 'Matematika 1', 3, 'G1', '', '', '', 'B', 40, '', '', '', '', ''],
+            [3, 'KU2512015', 'Matematika 1', 3, 'G2', 'Mengulang', '01,02,03', '', 'C', 40, '', '', '', '', ''],
         ], null, 'A2');
-        $sheet->getStyle('A1:K1')->getFont()->setBold(true);
-        $book->createSheet()->setTitle('Petunjuk')->fromArray([
-            ['Periode impor', $period],
-            ['Satu baris = satu kelas.'],
-            ['Grup', 'Baris dengan Kode MK dan Grup yang sama membentuk satu grup.'],
-            ['Peserta', 'Maba, Non Maba, Campuran, Mengulang, atau Pilihan. Cukup di baris pertama grup.'],
-            ['Prodi', 'Kode prodi dipisah koma. Kosongkan untuk Pilihan. Cukup di baris pertama grup.'],
-            ['Semester', 'Semester sasaran. Kosong = otomatis (maba semester pertama periode, non maba dua semester setelahnya). Kosongkan untuk Mengulang dan Pilihan.'],
-            ['Kelas', 'Huruf kelas (A, B, ...). Kosong = berurutan.'],
-            ['Dosen Pengampu', 'Nama dosen seperti di daftar dosen, dengan atau tanpa gelar. Boleh kosong; dosen bisa dipilih di langkah Dosen pengampu.'],
-            ['Mata kuliah yang sudah punya grup', 'Diganti oleh isi file. Mata kuliah yang tidak ada di file tidak diubah.'],
-        ], null, 'A1');
+        $sheet->getStyle('A1:O1')->getFont()->setBold(true);
+        $book->createSheet()->setTitle('Petunjuk')->fromArray(TpbScheduleSheet::instructions($period), null, 'A1');
 
         return $book;
     }
 
     /**
-     * One row per class of every grouped offering of the period, in the import layout.
+     * One row per meeting of every class of every grouped offering of the period, in the import
+     * layout. The place of each meeting comes from the active TPB run, published or not; a class
+     * the run does not hold keeps one row with an empty place. This is also the TPB schedule export.
      *
      * @return list<list<int|string|null>>
      */
@@ -95,6 +83,14 @@ readonly class TpbImportService
             TpbCohort::MABA->value => 'Maba', TpbCohort::NON_MABA->value => 'Non Maba', TpbCohort::CAMPURAN->value => 'Campuran',
             TpbCohort::MENGULANG->value => 'Mengulang', TpbCohort::PILIHAN->value => 'Pilihan',
         ];
+        $run = $this->tpbRuns->activeAny($period);
+        $meetings = $run === null ? collect() : ScheduleDetail::query()
+            ->with(['timeSlot', 'room:id,code'])
+            ->where('scheduling_run_id', $run->id)
+            ->orderBy('meeting_number')
+            ->get()
+            ->groupBy(fn (ScheduleDetail $d) => "{$d->course_id}:{$d->class_number}");
+
         $rows = [];
         $offerings = TpbOffering::query()->where('period', $period)
             ->with(['course', 'groups' => fn ($q) => $q->orderBy('code'), 'groups.studyPrograms', 'groups.courseLecturers.lecturer'])
@@ -102,20 +98,29 @@ readonly class TpbImportService
 
         foreach ($offerings as $offering) {
             foreach ($offering->groups as $group) {
-                foreach ($group->courseLecturers->sortBy('class_number')->values() as $i => $class) {
-                    $first = $i === 0;
+                $first = true;
+                foreach ($group->courseLecturers->sortBy('class_number')->values() as $class) {
                     // The file holds one semester per group; a group with mixed semesters keeps the first.
-                    $semester = $first && $group->cohort->isRegular() ? $group->studyPrograms->first()?->pivot->target_semester : null;
-                    $rows[] = [
-                        count($rows) + 1, $offering->course->code, $offering->course->name, $offering->course->sks,
-                        $group->code,
-                        $first ? $cohortNames[$group->cohort->value] : '',
-                        $first ? $group->studyPrograms->sortBy('code')->pluck('code')->implode(',') : '',
-                        $semester ?? '',
-                        CourseLecturer::labelFor($class->class_number),
-                        $offering->class_capacity,
-                        $class->lecturer ? ($class->lecturer->title ? "{$class->lecturer->name}, {$class->lecturer->title}" : $class->lecturer->name) : '',
-                    ];
+                    $semester = $group->cohort->isRegular() ? $group->studyPrograms->first()?->pivot->target_semester : null;
+                    $lecturer = $class->lecturer ? ($class->lecturer->title ? "{$class->lecturer->name}, {$class->lecturer->title}" : $class->lecturer->name) : '';
+                    $placed = $meetings->get("{$offering->course_id}:{$class->class_number}") ?? collect([null]);
+                    foreach ($placed as $detail) {
+                        $rows[] = [
+                            count($rows) + 1, $offering->course->code, $offering->course->name, $offering->course->sks,
+                            $group->code,
+                            $first ? $cohortNames[$group->cohort->value] : '',
+                            $first ? $group->studyPrograms->sortBy('code')->pluck('code')->implode(',') : '',
+                            $first ? ($semester ?? '') : '',
+                            CourseLecturer::labelFor($class->class_number),
+                            $offering->class_capacity,
+                            $lecturer,
+                            $detail?->room?->code ?? '',
+                            $detail?->timeSlot->day->label() ?? '',
+                            $detail?->timeSlot->session ?? '',
+                            $detail?->meeting_number ?? '',
+                        ];
+                        $first = false;
+                    }
                 }
             }
         }
@@ -175,6 +180,10 @@ readonly class TpbImportService
         }
 
         $numbers = $this->classNumbers($courseRows);
+        $repeated = array_keys(array_filter(array_count_values($numbers), fn (int $count) => $count > 1));
+        if ($repeated !== []) {
+            throw ApiException::validation(['file' => [__('Class :class appears more than once. Use Pertemuan 2 for the second meeting of a class.', ['class' => CourseLecturer::labelFor($repeated[0])])]]);
+        }
         $capacity = (int) collect($courseRows)->max(fn (array $r) => (int) ($r['values']['capacity'] ?? 0));
         $offering = TpbOffering::query()->where('course_id', $course->id)->where('period', $period)->first();
         if ($offering !== null) {
@@ -195,7 +204,7 @@ readonly class TpbImportService
             $byGroup[(string) ($row['values']['group'] ?? 'G1')][] = [...$row, 'number' => $numbers[$i]];
         }
         foreach ($byGroup as $label => $groupRows) {
-            $v = $groupRows[0]['values'];
+            $v = $this->groupValues($label, $groupRows);
             $cohort = self::COHORTS[mb_strtolower(trim((string) $v['cohort']))] ?? throw ApiException::validation(['file' => [__('Peserta must be Maba, Non Maba, Campuran, Mengulang, or Pilihan.')]]);
             $participants = $this->participants($cohort, (string) $v['programs'], $v['semester'], $period);
             $group = $this->groups->createGroup(new TpbGroupFormData($offering->id, $label, $cohort, $participants, array_column($groupRows, 'number')));
@@ -322,45 +331,55 @@ readonly class TpbImportService
     }
 
     /**
+     * Peserta, Prodi and Semester of a group: the first filled cell of its rows. Filled cells that
+     * disagree are an error, so one group cannot get two kinds or two program lists.
+     *
+     * @param  list<array{row: int, values: array<string, mixed>}>  $groupRows
+     * @return array<string, mixed>
+     */
+    private function groupValues(string $label, array $groupRows): array
+    {
+        $values = $groupRows[0]['values'];
+        foreach (['cohort', 'programs', 'semester'] as $field) {
+            $filled = collect($groupRows)->pluck("values.{$field}")->filter(fn ($v) => $v !== null)->values();
+            if ($filled->map(fn ($v) => mb_strtolower(preg_replace('/\s+/u', '', (string) $v)))->unique()->count() > 1) {
+                throw ApiException::validation(['file' => [__('Peserta, Prodi, and Semester must be the same on every row of group :group.', ['group' => $label])]]);
+            }
+            $values[$field] = $filled->first();
+        }
+
+        return $values;
+    }
+
+    /**
+     * A class that appears on more rows (MK 4 SKS: Pertemuan 2) is one class for the data: the
+     * repeated rows carry another place, so they are dropped here and read by the schedule import.
+     * A repeated row without Pertemuan, Ruangan, Hari or Sesi stays and fails as a duplicate class.
+     *
      * @return list<array{row: int, values: array<string, mixed>}>
      */
     private function read(string $path): array
     {
-        try {
-            $reader = IOFactory::createReader('Xlsx');
-            $reader->setReadDataOnly(true);
-            $sheet = $reader->load($path)->getSheet(0);
-        } catch (Throwable) {
-            throw ApiException::validation(['file' => [__('The file cannot be read. Upload the .xlsx template from the system.')]]);
-        }
-        $cells = $sheet->rangeToArray('A1:'.$sheet->getHighestDataColumn().$sheet->getHighestDataRow(), null, true, false, false);
-        if (count($cells) - 1 > self::MAX_ROWS) {
-            throw ApiException::validation(['file' => [__('The file has more than :max data rows.', ['max' => self::MAX_ROWS])]]);
-        }
-
-        $columns = [];
-        foreach ($cells[0] ?? [] as $index => $text) {
-            $field = self::ALIASES[mb_strtolower(trim((string) preg_replace('/\s+/u', ' ', (string) $text)))] ?? null;
-            if ($field !== null && ! isset($columns[$field])) {
-                $columns[$field] = $index;
-            }
-        }
-        if (! isset($columns['code'])) {
-            throw ApiException::validation(['file' => [__('Required columns are missing: :columns.', ['columns' => 'Kode MK'])]]);
-        }
-
         $rows = [];
-        foreach (array_slice($cells, 1) as $i => $cellRow) {
-            $values = [];
-            foreach (['code', 'name', 'sks', 'group', 'cohort', 'programs', 'semester', 'class', 'capacity', 'lecturer'] as $field) {
-                $raw = isset($columns[$field]) ? ($cellRow[$columns[$field]] ?? null) : null;
-                $text = $raw === null ? '' : trim((string) $raw);
-                $values[$field] = $text === '' ? null : (is_float($raw) && floor($raw) === $raw ? (string) (int) $raw : $text);
-            }
-            if ($values['code'] === null) {
+        $seen = [];
+        foreach ((new TpbScheduleSheet)->read($path, ['code']) as $row) {
+            $v = $row['values'];
+            if ($v['code'] === null) {
                 continue;
             }
-            $rows[] = ['row' => $i + 2, 'values' => $values];
+            $meeting = TpbScheduleSheet::meetingNumber($v['meeting']);
+            $hasPlace = $meeting !== null || $v['room'] !== null || $v['day'] !== null || $v['session'] !== null;
+            if ($v['class'] !== null) {
+                $key = mb_strtoupper($v['code']).'|'.mb_strtoupper($v['group'] ?? 'G1').'|'.mb_strtoupper($v['class']);
+                if (isset($seen[$key]) && $hasPlace) {
+                    continue;
+                }
+                $seen[$key] = true;
+            }
+            if (($meeting ?? 1) > 1) {
+                continue;
+            }
+            $rows[] = $row;
         }
 
         if ($rows === []) {
