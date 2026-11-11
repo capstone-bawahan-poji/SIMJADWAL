@@ -16,7 +16,10 @@ use App\Models\MasterData\Room;
 use App\Models\MasterData\StudyProgram;
 use App\Models\MasterData\TimeSlot;
 use App\Models\MasterData\TpbOffering;
+use App\Models\Scheduling\ProgramScheduleSubmission;
+use App\Models\Scheduling\RoomSlotAllocation;
 use App\Models\Scheduling\ScheduleDetail;
+use App\Models\Scheduling\SchedulePublication;
 use App\Models\Scheduling\SchedulingRun;
 use App\Models\User;
 use App\Services\Scheduling\TpbBlockService;
@@ -151,7 +154,7 @@ class DatabaseSeederTest extends TestCase
         $this->assertSame($counts, [Lecturer::count(), Course::count(), CourseLecturer::count(), LecturerPreference::count(), User::count()]);
     }
 
-    public function test_demo_runs_have_one_active_schedule_per_faculty_without_clashes(): void
+    public function test_demo_runs_follow_the_program_flow_without_clashes(): void
     {
         $this->seed(DatabaseSeeder::class);
         // Not part of DatabaseSeeder any more; run by hand when the review pages need sample runs.
@@ -159,9 +162,14 @@ class DatabaseSeederTest extends TestCase
 
         $fsti = Faculty::where('code', 'FSTI')->value('id');
         $fpb = Faculty::where('code', 'FPB')->value('id');
-        $this->assertSame(3, SchedulingRun::where('faculty_id', $fsti)->count());
-        $this->assertNotNull(SchedulingRun::active()->where('faculty_id', $fsti)->value('published_at'));
-        $this->assertNull(SchedulingRun::active()->where('faculty_id', $fpb)->value('published_at'));
+        $programs = fn (int $facultyId) => SchedulingRun::active()->where('faculty_id', $facultyId)->whereNotNull('study_program_id');
+        $this->assertGreaterThan(0, $programs($fsti)->count());
+        $this->assertSame(0, $programs($fsti)->whereNull('published_at')->count());
+        $this->assertSame(0, $programs($fpb)->whereNotNull('published_at')->count());
+        $this->assertSame(2 * $programs($fsti)->count(), SchedulingRun::where('faculty_id', $fsti)->count());
+        $this->assertTrue(SchedulePublication::where('faculty_id', $fsti)->exists());
+        $this->assertFalse(SchedulePublication::where('faculty_id', $fpb)->exists());
+        $this->assertSame($programs($fpb)->count(), ProgramScheduleSubmission::where('status', 'submitted')->count());
         $this->assertSame(1, ScheduleDetail::where('is_overridden', true)->count());
 
         $active = ScheduleDetail::whereRelation('schedulingRun', 'is_active', true);
@@ -170,18 +178,26 @@ class DatabaseSeederTest extends TestCase
         $this->assertSame(0, $duplicates(['time_slot_id', 'lecturer_id']));
         $this->assertSame(0, (clone $active)->whereNotNull('room_id')->select(['time_slot_id', 'room_id'])->groupBy(['time_slot_id', 'room_id'])->havingRaw('count(*) > 1')->get()->count());
 
-        // TPB first: one published TPB run, and every faculty run built against it.
+        // Every program meeting sits in a cell its faculty gave it.
+        $outside = ScheduleDetail::query()->with('schedulingRun')->whereRelation('schedulingRun', fn ($q) => $q->active()->whereNotNull('study_program_id'))->get()
+            ->reject(fn (ScheduleDetail $d) => RoomSlotAllocation::where('study_program_id', $d->schedulingRun->study_program_id)
+                ->where('time_slot_id', $d->time_slot_id)->where('room_id', $d->room_id)->exists());
+        $this->assertCount(0, $outside);
+
+        // TPB first: one published TPB run, and every program run built against it.
         $tpbRun = SchedulingRun::whereNull('faculty_id')->sole();
         $this->assertNotNull($tpbRun->published_at);
         $this->assertSame(0, SchedulingRun::whereNotNull('faculty_id')->where('tpb_run_id', '!=', $tpbRun->id)->count());
-        // Faculty genes keep out of the slots TPB takes from their program semester.
+        // Program genes keep out of the slots TPB takes from their program semester.
         $blocks = app(TpbBlockService::class)->blocks('2026/2027-GANJIL');
         $clash = ScheduleDetail::query()->with('course')->whereRelation('schedulingRun', fn ($q) => $q->active()->whereNotNull('faculty_id'))->get()
             ->filter(fn (ScheduleDetail $d) => in_array($d->time_slot_id, $blocks['programs'][$d->course->study_program_id][$d->course->semester] ?? [], true));
         $this->assertCount(0, $clash);
 
+        $count = SchedulingRun::count();
         $this->seed(DatabaseSeeder::class);
-        $this->assertSame(5, SchedulingRun::count());
+        $this->seed(SchedulingRunSeeder::class);
+        $this->assertSame($count, SchedulingRun::count());
     }
 
     public function test_tpb_demo_offerings_follow_the_institute_schedule(): void

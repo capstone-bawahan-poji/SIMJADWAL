@@ -98,7 +98,7 @@ readonly class TpbDashboardService
     }
 
     /**
-     * Faculties whose active run was built against another TPB run.
+     * Faculties with an active program run built against another TPB run.
      *
      * @return list<array{id: int, code: string, name: string}>
      */
@@ -111,7 +111,7 @@ readonly class TpbDashboardService
             ->where(fn ($query) => $query->whereNull('tpb_run_id')->when($active, fn ($q) => $q->orWhere('tpb_run_id', '!=', $active->id)))
             ->get()
             ->map(fn (SchedulingRun $run) => ['id' => $run->faculty->id, 'code' => $run->faculty->code, 'name' => $run->faculty->name])
-            ->sortBy('code')->values()->all();
+            ->unique('id')->sortBy('code')->values()->all();
     }
 
     /**
