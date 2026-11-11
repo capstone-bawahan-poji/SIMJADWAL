@@ -3,12 +3,12 @@
 namespace Database\Seeders\Reference;
 
 use App\Enums\Scheduling\SelectionOperator;
-use App\Models\MasterData\Faculty;
+use App\Models\MasterData\StudyProgram;
 use App\Models\Scheduling\GaParameterPreset;
 use Illuminate\Database\Seeder;
 
 /**
- * Two presets per faculty, and two for TPB (faculty null), with the best combinations from Laporan TA kak amrina
+ * Two presets per study program, and two for TPB (no program), with the best combinations from Laporan TA kak amrina
  */
 class GaPresetSeeder extends Seeder
 {
@@ -31,10 +31,14 @@ class GaPresetSeeder extends Seeder
             'Preset 2 (TSR)' => ['crossover_rate' => 0.4, 'mutation_rate' => 0.3, 'selection_operator' => SelectionOperator::TSR],
         ];
 
-        foreach ([...Faculty::query()->pluck('id')->all(), null] as $facultyId) {
+        $owners = StudyProgram::query()->get(['id', 'faculty_id'])
+            ->map(fn (StudyProgram $program) => ['faculty_id' => $program->faculty_id, 'study_program_id' => $program->id])
+            ->push(['faculty_id' => null, 'study_program_id' => null]);
+
+        foreach ($owners as $owner) {
             foreach ($presets as $name => $values) {
                 GaParameterPreset::query()->firstOrCreate(
-                    ['faculty_id' => $facultyId, 'name' => $name],
+                    [...$owner, 'name' => $name],
                     [...$base, ...$values],
                 );
             }

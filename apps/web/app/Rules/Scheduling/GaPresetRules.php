@@ -15,11 +15,14 @@ final class GaPresetRules
     /**
      * @return array<string, list<mixed>>
      */
-    public static function attributes(?int $facultyId, ?GaParameterPreset $ignore = null): array
+    public static function attributes(?StudyProgram $studyProgram, ?GaParameterPreset $ignore = null): array
     {
         return [
             'name' => ['required', 'string', 'max:100',
-                Rule::unique(GaParameterPreset::class, 'name')->where('faculty_id', $facultyId)->ignore($ignore)],
+                Rule::unique(GaParameterPreset::class, 'name')
+                    ->where('faculty_id', $studyProgram?->faculty_id)
+                    ->where('study_program_id', $studyProgram?->id)
+                    ->ignore($ignore)],
             'population_size' => ['required', 'integer', 'between:2,10000'],
             'min_generations' => ['required', 'integer', 'min:1'],
             'max_generations' => ['required', 'integer', 'gte:min_generations', 'max:100000'],
@@ -37,18 +40,18 @@ final class GaPresetRules
     }
 
     /**
-     * sc_overrides keys must be study programs of the faculty, inner keys soft constraint codes,
-     * values above 0. Hard constraints are never overridden per program.
+     * sc_overrides keys must be the preset's own study program, inner keys soft constraint codes,
+     * values above 0. Hard constraints are never overridden per program. TPB presets take none.
      */
-    public static function validateScOverrides(Validator $validator, ?int $facultyId): void
+    public static function validateScOverrides(Validator $validator, ?StudyProgram $studyProgram): void
     {
         $overrides = $validator->getData()['sc_overrides'] ?? null;
 
-        if (! is_array($overrides) || $overrides === [] || $facultyId === null) {
+        if (! is_array($overrides) || $overrides === [] || $studyProgram === null) {
             return;
         }
 
-        $programIds = StudyProgram::query()->where('faculty_id', $facultyId)->pluck('id')->map(fn ($id) => (string) $id)->all();
+        $programIds = [(string) $studyProgram->id];
         $softCodes = ConstraintType::query()->where('category', ConstraintCategory::SOFT)->pluck('code')->map(fn ($code) => $code->value)->all();
         $hardCodes = ConstraintType::query()->where('category', ConstraintCategory::HARD)->pluck('code')->map(fn ($code) => $code->value)->all();
 
@@ -56,7 +59,7 @@ final class GaPresetRules
             $key = "sc_overrides.{$programId}";
 
             if (! in_array((string) $programId, $programIds, true)) {
-                $validator->errors()->add($key, __('The study program does not belong to this faculty.'));
+                $validator->errors()->add($key, __('The override must target the preset\'s own study program.'));
 
                 continue;
             }

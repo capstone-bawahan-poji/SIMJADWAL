@@ -11,6 +11,7 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
+ * Owned by a study program, or TPB when study_program_id is null.
  * sc_overrides: {"<study_program_id>": {"<SC code>": weight}}. Missing entries use the global weight.
  */
 #[TypeScript]
@@ -23,6 +24,7 @@ class GaPresetData extends BaseData
     public function __construct(
         public int $id,
         public ?int $facultyId,
+        public ?int $studyProgramId,
         public string $name,
         public int $populationSize,
         public int $minGenerations,
