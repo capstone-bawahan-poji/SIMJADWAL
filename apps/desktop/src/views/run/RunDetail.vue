@@ -12,13 +12,15 @@ import { gaGetResult } from '@/lib/tauri';
 import type { RunRecord } from '@/types/run';
 import FitnessChart from '@/views/run/FitnessChart.vue';
 import ScheduleMatrix from '@/views/run/ScheduleMatrix.vue';
+import TpbRunTable from '@/views/run/TpbRunTable.vue';
 
 const props = defineProps<{ runId: string; recommended: boolean; hasCleanRun: boolean; serverRunId: number | null }>();
 
 const { dataset } = useDataset();
 const record = ref<RunRecord | null>(null);
 const error = ref('');
-const tab = ref<'matrix' | 'violations' | 'chart'>('matrix');
+const tab = ref<'matrix' | 'courses' | 'violations' | 'chart'>('matrix');
+const isTpb = computed(() => dataset.value?.scope === 'tpb');
 const violationFilter = ref<'all' | 'HC' | 'SC'>('all');
 
 watch(() => props.runId, async (id) => {
@@ -39,6 +41,7 @@ const violationOptions = computed(() => [
 
 const tabs = computed(() => [
   { key: 'matrix' as const, label: 'Jadwal' },
+  ...(isTpb.value ? [{ key: 'courses' as const, label: 'Per mata kuliah' }] : []),
   { key: 'violations' as const, label: `Pelanggaran (${allViolations.value.length})` },
   { key: 'chart' as const, label: 'Grafik fitness' },
 ]);
@@ -64,10 +67,21 @@ const tabs = computed(() => [
         </dl>
       </div>
 
+      <div v-if="record.result.study_program_id && record.result.summary.unassigned_rooms > 0" class="mt-4 px-6">
+        <Alert variant="warning" title="Sebagian pertemuan tidak mendapat slot ruangan">
+          {{ record.result.summary.unassigned_rooms }} pertemuan tidak muat di slot ruangan program studi, sehingga hasil ini akan ditolak server.
+          Ajukan tambahan slot ruangan ke fakultas melalui aplikasi web, lalu jalankan GA lagi.
+        </Alert>
+      </div>
+
       <div class="mt-4 px-6"><Tabs v-model="tab" :tabs="tabs" /></div>
 
       <div v-if="tab === 'matrix'" class="p-6">
         <ScheduleMatrix :result="record.result" :dataset="dataset" />
+      </div>
+
+      <div v-else-if="tab === 'courses'" class="p-6">
+        <TpbRunTable :result="record.result" :dataset="dataset" />
       </div>
 
       <div v-else-if="tab === 'violations'" class="flex flex-col gap-4 p-6">

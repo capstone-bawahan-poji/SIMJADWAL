@@ -4,16 +4,22 @@ import { onChanges } from '@/lib/echo';
 import type { GaPreset, GaPresetPayload } from '@/types/ga';
 
 const presets = ref<GaPreset[]>([]);
-const loadedFor = ref<number | null>(null);
+const loadedFor = ref<number | null | undefined>(undefined);
 const loading = ref(false);
 const error = ref('');
 
-async function fetchPresets(facultyId: number) {
+export function resetGaPresets() {
+  presets.value = [];
+  loadedFor.value = undefined;
+  error.value = '';
+}
+
+async function fetchPresets(studyProgramId: number | null) {
   loading.value = true;
   error.value = '';
   try {
-    presets.value = await listPresets(facultyId);
-    loadedFor.value = facultyId;
+    presets.value = await listPresets(studyProgramId);
+    loadedFor.value = studyProgramId;
   } catch (e) {
     error.value = (e as Error).message;
   } finally {
@@ -22,13 +28,13 @@ async function fetchPresets(facultyId: number) {
 }
 
 onChanges(['ga_parameter_presets'], () => {
-  if (loadedFor.value !== null) void fetchPresets(loadedFor.value);
+  if (loadedFor.value !== undefined) void fetchPresets(loadedFor.value);
 });
 
 export function useGaPresets() {
-  async function load(facultyId: number, force = false) {
-    if (!force && loadedFor.value === facultyId) return;
-    await fetchPresets(facultyId);
+  async function load(studyProgramId: number | null, force = false) {
+    if (!force && loadedFor.value === studyProgramId) return;
+    await fetchPresets(studyProgramId);
   }
 
   async function create(payload: GaPresetPayload) {

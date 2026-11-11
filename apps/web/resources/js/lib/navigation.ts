@@ -36,12 +36,15 @@ const icons = {
     sliders: `<path d="M10.5 6h9.75M10.5 6a1.5 1.5 0 11-3 0m3 0a1.5 1.5 0 10-3 0M3.75 6H7.5m3 12h9.75m-9.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-3.75 0H7.5m9-6h3.75m-3.75 0a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m-9.75 0h9.75" stroke-linecap="round" stroke-linejoin="round"/>`,
     matrix: `<path d="M3.75 5.25h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5m-16.5 4.5h16.5M7.5 5.25v13.5m9-13.5v13.5" stroke-linecap="round" stroke-linejoin="round"/>`,
     download: `<path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" stroke-linecap="round" stroke-linejoin="round"/>`,
+    upload: `<path d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5" stroke-linecap="round" stroke-linejoin="round"/>`,
+    check: `<path d="M9 12.75L11.25 15 15 9.75M21 12a9 9 0 11-18 0 9 9 0 0118 0z" stroke-linecap="round" stroke-linejoin="round"/>`,
+    grid: `<path d="M3.75 6A2.25 2.25 0 016 3.75h2.25A2.25 2.25 0 0110.5 6v2.25a2.25 2.25 0 01-2.25 2.25H6a2.25 2.25 0 01-2.25-2.25V6zM3.75 15.75A2.25 2.25 0 016 13.5h2.25a2.25 2.25 0 012.25 2.25V18a2.25 2.25 0 01-2.25 2.25H6A2.25 2.25 0 013.75 18v-2.25zM13.5 6a2.25 2.25 0 012.25-2.25H18A2.25 2.25 0 0120.25 6v2.25A2.25 2.25 0 0118 10.5h-2.25a2.25 2.25 0 01-2.25-2.25V6zM13.5 15.75a2.25 2.25 0 012.25-2.25H18a2.25 2.25 0 012.25 2.25V18A2.25 2.25 0 0118 20.25h-2.25A2.25 2.25 0 0113.5 18v-2.25z" stroke-linecap="round" stroke-linejoin="round"/>`,
     bolt: `<path d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z" stroke-linecap="round" stroke-linejoin="round"/>`,
 };
 
 const dashboard: NavItem = { label: 'Dashboard', routeName: 'dashboard', icon: icons.dashboard };
 const schedule: RouteNavItem = { label: 'Jadwal Kuliah', routeName: 'schedule.index', icon: icons.matrix };
-const downloadApp: ExternalNavItem = { label: 'Unduh Aplikasi', href: APP_RELEASES_URL, external: true, icon: icons.download };
+export const DOWNLOAD_APP_ITEM: ExternalNavItem = { label: 'Unduh Aplikasi', href: APP_RELEASES_URL, external: true, icon: icons.download };
 
 /**
  * Sidebar entries per role. Roles without a management area still get the shared schedule.
@@ -50,43 +53,47 @@ const downloadApp: ExternalNavItem = { label: 'Unduh Aplikasi', href: APP_RELEAS
 export const NAV_BY_ROLE: Partial<Record<Role, NavItem[]>> = {
     superadmin: [
         dashboard,
-        { ...schedule, label: 'Jadwal Semua Fakultas' },
-        { label: 'Kelola Akun & Role', routeName: 'superadmin.accounts.index', icon: icons.accounts },
-        { label: 'Data Fakultas & Prodi', routeName: 'superadmin.faculty-program.index', icon: icons.institution },
-        { label: 'Data Ruangan', routeName: 'superadmin.rooms.index', icon: icons.room },
-        { label: 'Data Jadwal', routeName: 'superadmin.slots.index', icon: icons.clock },
-        downloadApp,
+        { label: 'Fakultas & Prodi', routeName: 'superadmin.faculty-program.index', icon: icons.institution },
+        { label: 'Akun & Role', routeName: 'superadmin.accounts.index', icon: icons.accounts },
+        { label: 'Ruangan', routeName: 'superadmin.rooms.index', icon: icons.room },
+        { label: 'Slot Waktu', routeName: 'superadmin.slots.index', icon: icons.clock },
+        { ...schedule, label: 'Jadwal' },
+        DOWNLOAD_APP_ITEM,
     ],
     admin_prodi: [
         dashboard,
-        { label: 'Matriks Jadwal Prodi', routeName: 'prodi.schedule-matrix.index', icon: icons.matrix },
-        { label: 'Data Mata Kuliah', routeName: 'prodi.courses.index', icon: icons.book },
-        { label: 'Data Dosen', routeName: 'prodi.lecturers.index', icon: icons.person },
-        { label: 'Mapping Dosen ke Matkul', routeName: 'prodi.mappings.index', icon: icons.mapping },
-        { label: 'Constraint & Preferensi', routeName: 'prodi.constraints.index', icon: icons.sliders },
+        { label: 'Mata Kuliah', routeName: 'prodi.courses.index', icon: icons.book },
+        { label: 'Dosen', routeName: 'prodi.lecturers.index', icon: icons.person },
+        { label: 'Mapping Dosen', routeName: 'prodi.mappings.index', icon: icons.mapping },
+        { label: 'Constraint', routeName: 'prodi.constraints.index', icon: icons.sliders },
+        { label: 'Slot Ruangan', routeName: 'prodi.rooms.index', icon: icons.grid },
+        { label: 'Proses GA', routeName: 'prodi.ga.index', icon: icons.bolt },
+        { label: 'Jadwal', routeName: 'prodi.schedule-matrix.index', icon: icons.matrix },
+        DOWNLOAD_APP_ITEM,
     ],
     admin_fakultas: [
         dashboard,
-        { label: 'Jadwal Fakultas', routeName: 'fakultas.schedule.index', icon: icons.matrix },
-        { label: 'Kelola Constraint', routeName: 'fakultas.constraints.index', icon: icons.sliders },
-        { label: 'Penjadwalan GA', routeName: 'fakultas.ga.index', icon: icons.bolt },
-        { label: 'Alokasi Ruangan', routeName: 'fakultas.rooms.index', icon: icons.room },
-        downloadApp,
+        // POS 040/IT10.1/OT.07/2026 order: TPB data, cells per program, review and publication.
+        { label: 'Import Jadwal TPB', routeName: 'fakultas.tpb-import.index', icon: icons.upload },
+        { label: 'Slot Prodi', routeName: 'fakultas.program-slot-allocation.index', icon: icons.grid },
+        { label: 'Review & Publikasi', routeName: 'fakultas.review.index', icon: icons.check },
+        { label: 'Jadwal', routeName: 'fakultas.schedule.index', icon: icons.matrix },
+        { label: 'Ruangan', routeName: 'fakultas.rooms.index', icon: icons.room },
     ],
     admin_tpb: [
         dashboard,
-        { ...schedule, label: 'Jadwal Semua Fakultas' },
-        { label: 'Kelola Data TPB', routeName: 'tpb.index', icon: icons.book },
+        { label: 'Mata Kuliah', routeName: 'tpb.courses.index', icon: icons.book },
+        { label: 'Dosen', routeName: 'tpb.lecturers.index', icon: icons.person },
+        { label: 'Mapping Dosen', routeName: 'tpb.mappings.index', icon: icons.mapping },
+        { label: 'Proses GA', routeName: 'tpb.ga.index', icon: icons.bolt },
+        { label: 'Import Jadwal TPB', routeName: 'tpb.schedule-import.index', icon: icons.upload },
+        { label: 'Jadwal TPB', routeName: 'tpb.schedule.index', icon: icons.matrix },
+        { label: 'Alokasi Ruang', routeName: 'tpb.rooms.index', icon: icons.room },
+        DOWNLOAD_APP_ITEM,
     ],
     dosen: [
-        { label: 'Dashboard Dosen', routeName: 'dashboard', icon: icons.dashboard },
-        { label: 'Jadwal Mengajar', routeName: 'schedule.index', icon: icons.matrix },
-        { label: 'Preferensi Jadwal', routeName: 'schedule.index', href: '/schedule?view=preferences', icon: icons.sliders },
-    ],
-    mahasiswa: [
-        dashboard,
-        { label: 'Jadwal Fakultas', routeName: 'mahasiswa.faculty-schedule.index', icon: icons.matrix },
-        { label: 'Jadwal Pribadi', routeName: 'mahasiswa.schedule.index', icon: icons.matrix },
+        { label: 'Dashboard', routeName: 'dashboard', icon: icons.dashboard },
+        { label: 'Jadwal', routeName: 'schedule.index', icon: icons.matrix },
     ],
 };
 

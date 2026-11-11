@@ -3,6 +3,7 @@
 use App\Exceptions\Shared\ApiExceptionRenderer;
 use App\Http\Middleware\EnsureUserIsActive;
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\RejectIntegrationTokens;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -32,6 +33,7 @@ return Application::configure(basePath: dirname(__DIR__))
 
         $middleware->alias([
             'active' => EnsureUserIsActive::class,
+            'no-integration-token' => RejectIntegrationTokens::class,
             'role' => RoleMiddleware::class,
         ]);
     })

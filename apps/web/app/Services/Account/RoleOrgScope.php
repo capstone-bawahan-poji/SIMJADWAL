@@ -14,7 +14,7 @@ readonly class RoleOrgScope implements ResolvesOrgScope
     {
         return match ($user->role) {
             Role::FACULTY_ADMIN => $user->faculty_id,
-            Role::STUDY_PROGRAM_ADMIN, Role::STUDENT => $user->studyProgram?->faculty_id,
+            Role::STUDY_PROGRAM_ADMIN => $user->studyProgram?->faculty_id,
             Role::LECTURER => $user->lecturer?->studyProgram?->faculty_id,
             default => null,
         };
@@ -23,7 +23,7 @@ readonly class RoleOrgScope implements ResolvesOrgScope
     public function studyProgramId(User $user): ?int
     {
         return match ($user->role) {
-            Role::STUDY_PROGRAM_ADMIN, Role::STUDENT => $user->study_program_id,
+            Role::STUDY_PROGRAM_ADMIN => $user->study_program_id,
             Role::LECTURER => $user->lecturer?->study_program_id,
             default => null,
         };
@@ -39,11 +39,6 @@ readonly class RoleOrgScope implements ResolvesOrgScope
         return $this->readsAllFaculties($user) || $user->role === Role::LECTURER;
     }
 
-    public function canBypassSubmissionLock(User $user): bool
-    {
-        return in_array($user->role, [Role::SUPER_ADMIN, Role::FACULTY_ADMIN], true);
-    }
-
     public function canAccessFaculty(User $user, ?int $facultyId): bool
     {
         if ($user->role === Role::SUPER_ADMIN) {
@@ -53,6 +48,24 @@ readonly class RoleOrgScope implements ResolvesOrgScope
         $ownFacultyId = $this->facultyId($user);
 
         return $ownFacultyId !== null && $ownFacultyId === $facultyId;
+    }
+
+    public function canAccessScheduleScope(User $user, ?int $facultyId, ?int $studyProgramId = null): bool
+    {
+        if ($facultyId === null) {
+            return in_array($user->role, [Role::SUPER_ADMIN, Role::TPB_ADMIN], true);
+        }
+
+        if ($studyProgramId === null) {
+            return $this->canAccessFaculty($user, $facultyId);
+        }
+
+        return match ($user->role) {
+            Role::SUPER_ADMIN => true,
+            Role::FACULTY_ADMIN => $user->faculty_id === $facultyId,
+            Role::STUDY_PROGRAM_ADMIN => $user->study_program_id === $studyProgramId,
+            default => false,
+        };
     }
 
     public function canAccessStudyProgram(User $user, StudyProgram $studyProgram): bool

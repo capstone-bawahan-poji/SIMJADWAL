@@ -22,10 +22,10 @@ class FacultyAndStudyProgramApiTest extends TestCase
         $this->seedAccessControl();
     }
 
-    public function test_lists_are_not_paginated_and_readable_by_students(): void
+    public function test_lists_are_not_paginated_and_readable_by_lecturers(): void
     {
         StudyProgram::factory()->count(3)->create();
-        Sanctum::actingAs(User::factory()->student()->create());
+        Sanctum::actingAs(User::factory()->lecturer()->create());
 
         $this->getJson('/api/v1/faculties')->assertOk()->assertJsonCount(4, 'data')->assertJsonMissingPath('meta');
         $this->getJson('/api/v1/study-programs')->assertOk()->assertJsonCount(4, 'data');

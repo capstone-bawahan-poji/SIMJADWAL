@@ -1,7 +1,7 @@
 use reqwest::Method;
 use serde_json::{json, Value};
 
-use super::types::{FacultySummary, GaPreset, GaPresetInput, UploadedRun};
+use super::types::{FacultySummary, GaPreset, GaPresetInput, StudyProgramSummary, UploadedRun};
 use super::{ApiClient, ApiError};
 use crate::services::ga::model::RunResult;
 
@@ -11,29 +11,35 @@ impl ApiClient {
         faculty_id: Option<i64>,
         page: u32,
     ) -> Result<Value, ApiError> {
-        let mut query = vec![("page", page.max(1).to_string()), ("per_page", "20".to_string())];
+        let mut query = vec![
+            ("page", page.max(1).to_string()),
+            ("per_page", "20".to_string()),
+        ];
         if let Some(faculty_id) = faculty_id {
             query.push(("faculty_id", faculty_id.to_string()));
         }
 
-        self.data(
-            self.request(Method::GET, "/scheduling-runs")?
-                .query(&query),
-        )
-        .await
+        self.data(self.request(Method::GET, "/scheduling-runs")?.query(&query))
+            .await
     }
 
+    /// study_program_id: superadmin picks the program; admin_prodi always gets their own and
+    /// admin_tpb the TPB dataset, so they send none.
     pub async fn dataset(
         &self,
         period: Option<&str>,
-        faculty_id: Option<i64>,
+        study_program_id: Option<i64>,
+        revise_group_ids: &[i64],
     ) -> Result<Value, ApiError> {
         let mut query: Vec<(&str, String)> = Vec::new();
+        for id in revise_group_ids {
+            query.push(("revise_group_ids[]", id.to_string()));
+        }
         if let Some(period) = period {
             query.push(("period", period.to_string()));
         }
-        if let Some(id) = faculty_id {
-            query.push(("faculty_id", id.to_string()));
+        if let Some(id) = study_program_id {
+            query.push(("study_program_id", id.to_string()));
         }
         self.data(
             self.request(Method::GET, "/scheduling/dataset")?
@@ -50,12 +56,25 @@ impl ApiClient {
         .await
     }
 
-    pub async fn ga_presets(&self, faculty_id: i64) -> Result<Vec<GaPreset>, ApiError> {
+    pub async fn study_programs(&self) -> Result<Vec<StudyProgramSummary>, ApiError> {
         self.data(
-            self.request(Method::GET, "/ga-presets")?
-                .query(&[("faculty_id", faculty_id)]),
+            self.request(Method::GET, "/study-programs")?
+                .query(&[("per_page", "100")]),
         )
         .await
+    }
+
+    /// None = the caller's own scope: TPB for admin_tpb, their program for admin_prodi.
+    pub async fn ga_presets(
+        &self,
+        study_program_id: Option<i64>,
+    ) -> Result<Vec<GaPreset>, ApiError> {
+        let query = match study_program_id {
+            Some(id) => vec![("study_program_id", id.to_string())],
+            None => vec![("scope", "tpb".to_string())],
+        };
+        self.data(self.request(Method::GET, "/ga-presets")?.query(&query))
+            .await
     }
 
     pub async fn create_ga_preset(&self, input: &GaPresetInput) -> Result<GaPreset, ApiError> {
@@ -93,7 +112,9 @@ fn run_body(result: &RunResult) -> Value {
     json!({
         "client_run_id": result.run_id,
         "batch_id": result.batch_id,
-        "faculty_id": result.faculty_id,
+        "study_program_id": result.study_program_id,
+        "revise_group_ids": result.revise_group_ids,
+        "scope": if result.study_program_id.is_some() { "study_program" } else { "tpb" },
         "period": result.period,
         "dataset_fingerprint": result.dataset_fingerprint,
         "preset_id": result.preset_id,

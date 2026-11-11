@@ -1,11 +1,11 @@
 import { onResourcesChanged } from '@/composables/useResourceChanges';
 import { api, toApiError, type ApiError } from '@/lib/api';
 import type { ConstraintSubmission, Paginated } from '@/types/models';
-import { computed, onMounted, ref } from 'vue';
+import { onMounted, ref } from 'vue';
 
 /**
  * Constraint status of the signed-in prodi admin's program. The API scopes the list to
- * that one program, so per_page 1 is enough. A locked program (is_locked) refuses writes with 409 CONSTRAINTS_LOCKED.
+ * that one program, so per_page 1 is enough.
  */
 export function useOwnSubmission() {
     const submission = ref<ConstraintSubmission | null>(null);
@@ -21,10 +21,8 @@ export function useOwnSubmission() {
         }
     }
 
-    const locked = computed(() => submission.value?.is_locked ?? false);
-
     onMounted(reload);
     onResourcesChanged(['study_programs'], () => void reload());
 
-    return { submission, locked, error, reload };
+    return { submission, error, reload };
 }

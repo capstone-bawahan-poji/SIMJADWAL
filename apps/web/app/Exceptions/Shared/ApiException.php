@@ -70,9 +70,4 @@ class ApiException extends RuntimeException
     {
         return new self(__('The PDF service is not available right now. Try again later.'), 'PDF_UNAVAILABLE', 503);
     }
-
-    public static function constraintsLocked(): self
-    {
-        return new self(__('Study program constraints are submitted and locked.'), 'CONSTRAINTS_LOCKED', 409);
-    }
 }

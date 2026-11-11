@@ -6,6 +6,7 @@ use App\Contracts\Account\ResolvesOrgScope;
 use App\Enums\Account\Role;
 use App\Models\User;
 use App\Services\Account\RoleOrgScope;
+use App\Services\Scheduling\TpbRunResolver;
 use App\Services\Shared\ChangeRecorder;
 use Illuminate\Cache\RateLimiting\Limit;
 use Illuminate\Http\Request;
@@ -26,6 +27,7 @@ class AppServiceProvider extends ServiceProvider
     {
         $this->app->bind(ResolvesOrgScope::class, RoleOrgScope::class);
         $this->app->scoped(ChangeRecorder::class);
+        $this->app->scoped(TpbRunResolver::class);
     }
 
     /**
@@ -42,6 +44,12 @@ class AppServiceProvider extends ServiceProvider
         RateLimiter::for('login', fn (Request $request) => Limit::perMinute(5)->by(
             Str::transliterate(Str::lower($request->string('email')).'|'.$request->ip()),
         ));
+
+        RateLimiter::for('public', fn (Request $request) => Limit::perMinute(60)->by($request->ip()));
+        RateLimiter::for('schedule-email', fn (Request $request) => [
+            Limit::perHour(5)->by('ip:'.$request->ip()),
+            Limit::perHour(3)->by('email:'.Str::lower($request->string('email'))),
+        ]);
 
         $this->app->terminating(fn () => $this->app->make(ChangeRecorder::class)->flush());
         Queue::after(fn () => $this->app->make(ChangeRecorder::class)->flush());

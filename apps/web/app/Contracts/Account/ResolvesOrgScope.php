@@ -32,12 +32,13 @@ interface ResolvesOrgScope
      */
     public function readsAllFacultySchedules(User $user): bool;
 
-    /**
-     * May still change a study program's data after it was submitted and locked.
-     */
-    public function canBypassSubmissionLock(User $user): bool;
-
     public function canAccessFaculty(User $user, ?int $facultyId): bool;
+
+    /**
+     * Reaches the schedule of one study program, the faculty-level data of one faculty
+     * ($studyProgramId null), or the TPB schedule (both null).
+     */
+    public function canAccessScheduleScope(User $user, ?int $facultyId, ?int $studyProgramId = null): bool;
 
     public function canAccessStudyProgram(User $user, StudyProgram $studyProgram): bool;
 

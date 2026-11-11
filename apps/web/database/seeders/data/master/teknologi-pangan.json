@@ -4,37 +4,32 @@
         {
             "nip": "199001012020000216",
             "name": "Amalia Nur Kumalaningrum, S.Si., M.AgrSc.",
-            "email": "dosen_AmaliaNur@dosen.itk.ac.id"
+            "email": "dosen_AmaliaNur@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000217",
             "name": "Anggela, S.TP., M.Sc.",
-            "email": "dosen_Anggela@dosen.itk.ac.id"
+            "email": "dosen_Anggela@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000218",
             "name": "Fadeli Muhammad Habibie, S.TP., MP., M.Sc",
-            "email": "dosen_Fadeli@dosen.itk.ac.id"
+            "email": "dosen_Fadeli@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000219",
             "name": "Gevbry Ranti Ramadhani Simamora, S.Pi., M.Si",
-            "email": "dosen_Gevbry@dosen.itk.ac.id"
+            "email": "dosen_Gevbry@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000220",
             "name": "Michael Alexander Hutabarat, S.T.P, M.Si",
-            "email": "dosen_Michael@dosen.itk.ac.id"
+            "email": "dosen_Michael@lecturer.itk.ac.id"
         },
         {
             "nip": "199001012020000221",
             "name": "Ni'matus Sholihah, S.TP.,M.T.P",
             "email": "nimatus.sholihah@lecturer.itk.ac.id"
-        },
-        {
-            "nip": "199001012020000222",
-            "name": "Nimatus Sholihah S.TP., M.T.P.",
-            "email": "dosen_Nimatus@dosen.itk.ac.id"
         },
         {
             "nip": "199001012020000223",
@@ -47,14 +42,9 @@
             "email": "siti.munfarida@lecturer.itk.ac.id"
         },
         {
-            "nip": "199001012020000225",
-            "name": "Siti Munfarida. S.T., M.T.",
-            "email": "dosen_Siti@dosen.itk.ac.id"
-        },
-        {
             "nip": "199001012020000226",
             "name": "Yuvita Lira Vesti Arista, S.T.P., M.Si",
-            "email": "dosen_Yuvita@dosen.itk.ac.id"
+            "email": "dosen_Yuvita@lecturer.itk.ac.id"
         }
     ],
     "courses": [
@@ -150,7 +140,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000225"
+                    "lecturer_nip": "199001012020000224"
                 }
             ]
         },
@@ -210,7 +200,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000225"
+                    "lecturer_nip": "199001012020000224"
                 }
             ]
         },
@@ -282,7 +272,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000225"
+                    "lecturer_nip": "199001012020000224"
                 }
             ]
         },
@@ -294,7 +284,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000222"
+                    "lecturer_nip": "199001012020000221"
                 }
             ]
         },
@@ -354,7 +344,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000222"
+                    "lecturer_nip": "199001012020000221"
                 }
             ]
         },
@@ -378,7 +368,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000222"
+                    "lecturer_nip": "199001012020000221"
                 }
             ]
         },
@@ -402,7 +392,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000222"
+                    "lecturer_nip": "199001012020000221"
                 }
             ]
         },
@@ -426,7 +416,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000225"
+                    "lecturer_nip": "199001012020000224"
                 }
             ]
         },
@@ -438,7 +428,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000222"
+                    "lecturer_nip": "199001012020000223"
                 }
             ]
         },
@@ -534,7 +524,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000225"
+                    "lecturer_nip": "199001012020000224"
                 }
             ]
         },

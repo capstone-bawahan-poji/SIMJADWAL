@@ -2,7 +2,7 @@
 
 namespace App\Services\Scheduling;
 
-use App\Contracts\Account\ResolvesOrgScope;
+use App\Enums\Account\Role;
 use App\Enums\Constraint\ConstraintCategory;
 use App\Models\Scheduling\ScheduleDetail;
 use App\Models\Scheduling\SchedulingRun;
@@ -13,16 +13,31 @@ use Illuminate\Database\Eloquent\Builder;
 
 readonly class SchedulingRunQueryService
 {
-    public function __construct(private ResolvesOrgScope $orgScope) {}
+    public function __construct(
+        private RunStaleness $staleness,
+    ) {}
 
     /**
+     * $tpb lists the TPB runs (faculty null). admin_tpb only ever sees those, a program admin only
+     * the runs of their program, a faculty admin the runs of its programs.
+     *
      * @return LengthAwarePaginator<int, array<string, mixed>>
      */
-    public function getRuns(User $actor, ?int $facultyId, ?string $period, ?string $batchId, int $perPage, ?bool $isActive = null): LengthAwarePaginator
+    public function getRuns(User $actor, ?int $facultyId, ?string $period, ?string $batchId, int $perPage, ?bool $isActive = null, bool $tpb = false, ?int $studyProgramId = null): LengthAwarePaginator
     {
+        $tpb = $tpb || $actor->role === Role::TPB_ADMIN;
+        $this->staleness->forget();
+
         return $this->summaryQuery()
-            ->tap(fn (Builder $query) => $this->orgScope->applyFacultyScope($query, $actor))
-            ->when($facultyId, fn (Builder $query) => $query->where('faculty_id', $facultyId))
+            ->tap(fn (Builder $query) => match ($actor->role) {
+                Role::SUPER_ADMIN, Role::TPB_ADMIN => $query,
+                Role::FACULTY_ADMIN => $query->where('faculty_id', $actor->faculty_id),
+                Role::STUDY_PROGRAM_ADMIN => $query->where('study_program_id', $actor->study_program_id),
+                default => $query->whereRaw('false'),
+            })
+            ->when($tpb, fn (Builder $query) => $query->whereNull('faculty_id'))
+            ->when(! $tpb && $facultyId, fn (Builder $query) => $query->where('faculty_id', $facultyId))
+            ->when(! $tpb && $studyProgramId, fn (Builder $query) => $query->where('study_program_id', $studyProgramId))
             ->when($period, fn (Builder $query) => $query->where('period', $period))
             ->when($batchId, fn (Builder $query) => $query->where('batch_id', $batchId))
             ->when($isActive !== null, fn (Builder $query) => $query->where('is_active', $isActive))
@@ -37,6 +52,7 @@ readonly class SchedulingRunQueryService
      */
     public function getRun(SchedulingRun $run): array
     {
+        $this->staleness->forget();
         $run = $this->summaryQuery()->findOrFail($run->id);
 
         return [
@@ -53,7 +69,7 @@ readonly class SchedulingRunQueryService
      */
     public function getScheduleDetails(SchedulingRun $run, ?int $studyProgramId, ?int $day): array
     {
-        return $run->scheduleDetails()
+        return ScheduleDetailTransformer::withTpb($run->scheduleDetails()
             ->with(ScheduleDetailTransformer::relations())
             ->withCount('violationLogs')
             ->when($studyProgramId, fn (Builder $query) => $query->whereHas('course', fn (Builder $q) => $q->where('study_program_id', $studyProgramId)))
@@ -64,7 +80,7 @@ readonly class SchedulingRunQueryService
             ->map(fn (ScheduleDetail $d) => [
                 ...ScheduleDetailTransformer::toArray($d),
                 'violations_count' => $d->violation_logs_count,
-            ])->values()->all();
+            ])->values()->all(), $run->period);
     }
 
     /**
@@ -91,7 +107,7 @@ readonly class SchedulingRunQueryService
     private function summaryQuery(): Builder
     {
         return SchedulingRun::query()
-            ->with(['triggeredBy:id,name', 'preset:id,name', 'faculty:id,code,name'])
+            ->with(['triggeredBy:id,name', 'preset:id,name', 'faculty:id,code,name', 'studyProgram:id,code,name'])
             ->withCount([
                 'violationLogs as hc_violations_count' => fn (Builder $q) => $q->whereHas('constraintType', fn (Builder $t) => $t->where('category', ConstraintCategory::HARD)),
                 'violationLogs as sc_unmet_count' => fn (Builder $q) => $q->whereHas('constraintType', fn (Builder $t) => $t->where('category', ConstraintCategory::SOFT)),
@@ -111,6 +127,11 @@ readonly class SchedulingRunQueryService
             'id' => $run->id,
             'batch_id' => $run->batch_id,
             'faculty' => $run->faculty ? ['id' => $run->faculty->id, 'code' => $run->faculty->code, 'name' => $run->faculty->name] : null,
+            'study_program' => $run->studyProgram ? ['id' => $run->studyProgram->id, 'code' => $run->studyProgram->code, 'name' => $run->studyProgram->name] : null,
+            'scope' => $run->faculty_id === null ? 'tpb' : ($run->study_program_id === null ? 'faculty' : 'study_program'),
+            'source' => $run->source->value,
+            'tpb_run_id' => $run->tpb_run_id,
+            'is_stale' => $this->staleness->isStale($run),
             'period' => $run->period,
             'preset' => $run->preset ? ['id' => $run->preset->id, 'name' => $run->preset->name] : null,
             'status' => $run->status->value,

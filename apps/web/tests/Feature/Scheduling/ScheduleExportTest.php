@@ -13,6 +13,7 @@ use App\Models\MasterData\TimeSlot;
 use App\Models\Scheduling\ScheduleDetail;
 use App\Models\Scheduling\SchedulingRun;
 use App\Models\User;
+use App\Services\Scheduling\Export\ScheduleExportService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\Client\Request;
 use Illuminate\Support\Facades\Http;
@@ -54,7 +55,7 @@ class ScheduleExportTest extends TestCase
 
         $faculty = Faculty::factory()->create();
         $this->program = StudyProgram::factory()->accepted()->create(['faculty_id' => $faculty->id, 'name' => 'Informatika']);
-        $this->admin = User::factory()->facultyAdmin($faculty)->create();
+        $this->admin = User::factory()->studyProgramAdmin($this->program)->create();
         $this->lecturer = Lecturer::factory()->create(['study_program_id' => $this->program->id, 'name' => 'Budi Santoso']);
         $this->otherLecturer = Lecturer::factory()->create(['study_program_id' => $this->program->id]);
         $this->algo = Course::factory()->create(['study_program_id' => $this->program->id, 'code' => 'IF201', 'name' => 'Algoritma, Struktur Data', 'sks' => 3, 'semester' => 3, 'parallel_class_count' => 2]);
@@ -63,6 +64,7 @@ class ScheduleExportTest extends TestCase
         $this->run = SchedulingRun::query()->create([
             'batch_id' => (string) Str::uuid(),
             'faculty_id' => $faculty->id,
+            'study_program_id' => $this->program->id,
             'period' => self::PERIOD,
             'parameter_snapshot' => [],
             'status' => RunStatus::DONE,
@@ -115,7 +117,8 @@ class ScheduleExportTest extends TestCase
         $this->assertSame('DRAF — belum dipublikasikan', $list->getCell('A4')->getValue());
         $this->assertSame('Hari', $list->getCell('A6')->getValue());
         $this->assertSame(9, $list->getHighestDataRow());
-        $this->assertStringContainsString('IF201 Algoritma, Struktur Data (A)', $book->getSheetByName('Matriks')->getCell('B7')->getValue());
+        $this->assertStringContainsString('IF201 Algoritma, Struktur Data', $book->getSheetByName('Matriks')->getCell('B7')->getValue());
+        $this->assertStringContainsString('Kelas A', $book->getSheetByName('Matriks')->getCell('B7')->getValue());
     }
 
     public function test_lecturer_filter_narrows_and_names_the_file(): void
@@ -155,8 +158,18 @@ class ScheduleExportTest extends TestCase
 
         Http::assertSent(fn (Request $request) => str_contains($request->body(), 'Basis Data')
             && str_contains($request->body(), 'DRAF')
-            && str_contains($request->body(), __('Orange border = changed manually by the faculty admin.'))
+            && ! str_contains($request->body(), __('Yellow background = changed manually by the study program admin.'))
             && str_contains($request->body(), 'name="paperWidth"'));
+    }
+
+    public function test_pdf_explains_the_yellow_mark_only_when_a_class_was_changed_manually(): void
+    {
+        Http::fake(['*/forms/chromium/convert/html' => Http::response('%PDF-1.7 fake', 200, ['Content-Type' => 'application/pdf'])]);
+        ScheduleDetail::query()->where('course_id', $this->basis->id)->update(['is_overridden' => true]);
+
+        $this->export('format=pdf')->assertOk();
+
+        Http::assertSent(fn (Request $request) => str_contains($request->body(), __('Yellow background = changed manually by the study program admin.')));
     }
 
     public function test_student_pdf_hides_manual_override_indicators(): void
@@ -165,13 +178,13 @@ class ScheduleExportTest extends TestCase
         $this->run->update(['published_at' => now()]);
         $detail = ScheduleDetail::query()->where('course_id', $this->algo->id)->firstOrFail();
         $detail->update(['is_overridden' => true, 'overridden_at' => now(), 'overridden_by' => $this->admin->id]);
-        Sanctum::actingAs(User::factory()->student($this->program)->create());
 
-        $this->export("format=pdf&classes[]={$this->algo->id}:1")->assertOk()
-            ->assertHeader('Content-Type', 'application/pdf');
+        $file = app(ScheduleExportService::class)->exportPublished(self::PERIOD, ['classes' => [['course_id' => $this->algo->id, 'class_number' => 1]]], 'pdf');
+
+        $this->assertSame('application/pdf', $file['content_type']);
 
         Http::assertSent(fn (Request $request) => str_contains($request->body(), 'Algoritma, Struktur Data')
-            && ! str_contains($request->body(), __('Orange border = changed manually by the faculty admin.'))
+            && ! str_contains($request->body(), __('Yellow background = changed manually by the study program admin.'))
             && ! str_contains($request->body(), 'entry overridden'));
     }
 
@@ -193,9 +206,9 @@ class ScheduleExportTest extends TestCase
         $this->export('format=ics&classes[]=abc')->assertUnprocessable()->assertJsonValidationErrors('classes.0');
     }
 
-    public function test_student_cannot_export_an_unpublished_schedule(): void
+    public function test_lecturer_cannot_export_an_unpublished_schedule(): void
     {
-        Sanctum::actingAs(User::factory()->student($this->program)->create());
+        Sanctum::actingAs(User::factory()->lecturer($this->lecturer)->create());
         $this->export('format=xlsx')->assertStatus(409);
 
         $this->run->update(['published_at' => now()]);

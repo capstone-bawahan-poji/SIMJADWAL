@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Internal\MasterData;
 
 use App\Data\MasterData\TpbGroupFormData;
+use App\Enums\MasterData\TpbCohort;
 use App\Http\Controllers\Api\ApiController;
 use App\Http\Queries\Query;
 use App\Http\Requests\MasterData\TpbGroup\ListTpbGroupRequest;
@@ -35,9 +36,10 @@ class TpbGroupController extends ApiController implements HasMiddleware
         $v = $request->validated();
 
         return $this->response($this->tpbGroupService->getGroups(
-            courseId: isset($v['course_id']) ? (int) $v['course_id'] : null,
+            offeringId: isset($v['tpb_offering_id']) ? (int) $v['tpb_offering_id'] : null,
+            period: $v['period'] ?? null,
             studyProgramId: isset($v['study_program_id']) ? (int) $v['study_program_id'] : null,
-            timeSlotId: isset($v['time_slot_id']) ? (int) $v['time_slot_id'] : null,
+            cohort: TpbCohort::tryFrom($v['cohort'] ?? ''),
             perPage: (int) ($v['per_page'] ?? Query::DEFAULT_PER_PAGE),
         ));
     }

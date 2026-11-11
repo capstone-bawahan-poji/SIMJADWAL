@@ -76,7 +76,7 @@ class ConstraintApiTest extends TestCase
     public function test_weights_are_listed_and_only_soft_ones_can_change(): void
     {
         $this->actingAs($this->prodiAdmin)->getJson('/api/internal/constraint-types')
-            ->assertOk()->assertJsonCount(7, 'data');
+            ->assertOk()->assertJsonCount(8, 'data');
 
         $soft = ConstraintType::query()->where('code', 'SC_SKS')->firstOrFail();
         $hard = ConstraintType::query()->where('code', 'HC1')->firstOrFail();
@@ -135,7 +135,7 @@ class ConstraintApiTest extends TestCase
         ]])->assertUnprocessable();
     }
 
-    public function test_preferences_are_refused_for_other_programs_roles_and_locked_programs(): void
+    public function test_preferences_remain_editable_for_own_program_regardless_of_legacy_status(): void
     {
         $slot = $this->slots(1)[0];
         $body = ['preferences' => [['time_slot_id' => $slot->id, 'type' => 'want']]];
@@ -144,105 +144,27 @@ class ConstraintApiTest extends TestCase
 
         $this->actingAs($this->prodiAdmin)->putJson("/api/internal/lecturers/{$foreign->id}/preferences", $body)->assertForbidden();
         $this->actingAs($this->facultyAdmin)->putJson("/api/internal/lecturers/{$own->id}/preferences", $body)->assertForbidden();
-        $this->actingAs(User::factory()->student()->create())->getJson("/api/internal/lecturers/{$own->id}/preferences")->assertForbidden();
+        $this->actingAs(User::factory()->tpbAdmin()->create())->getJson("/api/internal/lecturers/{$own->id}/preferences")->assertForbidden();
 
         $this->program->update(['constraint_status' => ConstraintStatus::SUBMITTED]);
         $this->actingAs($this->prodiAdmin)->putJson("/api/internal/lecturers/{$own->id}/preferences", $body)
-            ->assertStatus(409)->assertJsonPath('code', 'CONSTRAINTS_LOCKED');
+            ->assertOk();
 
         $this->program->update(['constraint_status' => ConstraintStatus::ACCEPTED]);
-        $this->putJson("/api/internal/lecturers/{$own->id}/preferences", $body)->assertStatus(409);
+        $this->putJson("/api/internal/lecturers/{$own->id}/preferences", $body)->assertOk();
+        $this->getJson('/api/internal/constraint-submissions')->assertOk()
+            ->assertJsonPath('data.0.is_locked', false)
+            ->assertJsonPath('data.0.can_submit', false)
+            ->assertJsonPath('data.0.can_review', false);
     }
 
-    // submit
-
-    public function test_submit_needs_every_class_to_have_a_lecturer(): void
+    public function test_constraint_submission_and_review_endpoints_are_removed(): void
     {
         $this->actingAs($this->prodiAdmin);
 
-        $this->postJson("/api/internal/constraint-submissions/{$this->program->id}/submit")
-            ->assertUnprocessable()->assertJsonPath('errors.courses.0', 'Program studi belum memiliki mata kuliah.');
-
-        $this->completeCourse($this->program);
-        $missing = Course::factory()->create(['study_program_id' => $this->program->id, 'parallel_class_count' => 2, 'code' => 'XX9999']);
-
-        $this->postJson("/api/internal/constraint-submissions/{$this->program->id}/submit")
-            ->assertUnprocessable()->assertJsonFragment(['Mata kuliah XX9999 baru memiliki dosen di 0 dari 2 kelas.']);
-        $this->assertSame(ConstraintStatus::DRAFT, $this->program->fresh()->constraint_status);
-
-        $missing->delete();
-        $this->postJson("/api/internal/constraint-submissions/{$this->program->id}/submit")
-            ->assertOk()->assertJsonPath('data.constraint_status', 'submitted')->assertJsonPath('data.is_locked', true);
-
-        $program = $this->program->fresh();
-        $this->assertNotNull($program->constraint_submitted_at);
-        $this->assertTrue($program->isLocked());
-        $this->assertDatabaseHas('activity_logs', ['event' => 'constraint.submitted']);
-
-        $this->postJson("/api/internal/constraint-submissions/{$this->program->id}/submit")
-            ->assertStatus(409)->assertJsonPath('code', 'CONSTRAINTS_LOCKED');
-    }
-
-    public function test_only_the_own_prodi_admin_submits(): void
-    {
-        $this->completeCourse($this->program);
-        $other = User::factory()->studyProgramAdmin()->create();
-
-        $this->actingAs($other)->postJson("/api/internal/constraint-submissions/{$this->program->id}/submit")->assertForbidden();
-        $this->actingAs($this->facultyAdmin)->postJson("/api/internal/constraint-submissions/{$this->program->id}/submit")->assertForbidden();
-    }
-
-    // review
-
-    public function test_faculty_admin_accepts_a_submitted_program(): void
-    {
-        $program = $this->submittedProgram();
-
-        $this->actingAs($this->facultyAdmin)->postJson("/api/internal/constraint-submissions/{$program->id}/accept")
-            ->assertOk()->assertJsonPath('data.constraint_status', 'accepted');
-
-        $program->refresh();
-        $this->assertSame($this->facultyAdmin->id, (int) $program->constraint_reviewed_by);
-        $this->assertNotNull($program->constraint_reviewed_at);
-        $this->assertTrue($program->isLocked());
-
-        $this->postJson("/api/internal/constraint-submissions/{$program->id}/accept")
-            ->assertStatus(409)->assertJsonPath('code', 'INVALID_STATE');
-        $this->assertDatabaseHas('activity_logs', ['event' => 'constraint.accepted']);
-    }
-
-    public function test_faculty_admin_returns_a_program_with_a_note(): void
-    {
-        $program = $this->submittedProgram();
-        $this->actingAs($this->facultyAdmin);
-
-        $this->postJson("/api/internal/constraint-submissions/{$program->id}/return", [])->assertUnprocessable();
-        $this->postJson("/api/internal/constraint-submissions/{$program->id}/return", ['note' => 'Lengkapi dosen IF2101'])
-            ->assertOk()
-            ->assertJsonPath('data.constraint_status', 'draft')
-            ->assertJsonPath('data.constraint_return_note', 'Lengkapi dosen IF2101');
-
-        $program->refresh();
-        $this->assertNull($program->constraint_submitted_at);
-        $this->assertFalse($program->isLocked());
-        $this->postJson("/api/internal/constraint-submissions/{$program->id}/return", ['note' => 'x'])->assertStatus(409);
-
-        $accepted = StudyProgram::factory()->create(['faculty_id' => $this->faculty->id, 'constraint_status' => ConstraintStatus::ACCEPTED]);
-        $this->postJson("/api/internal/constraint-submissions/{$accepted->id}/return", ['note' => 'Revisi'])
-            ->assertOk()->assertJsonPath('data.constraint_status', 'draft')->assertJsonPath('data.is_locked', false);
-        $this->assertDatabaseHas('activity_logs', ['event' => 'constraint.returned']);
-    }
-
-    public function test_review_is_refused_for_prodi_admins_and_other_faculties(): void
-    {
-        $program = $this->submittedProgram();
-        $otherFacultyAdmin = User::factory()->facultyAdmin()->create();
-
-        $this->actingAs($this->prodiAdmin)->postJson("/api/internal/constraint-submissions/{$program->id}/accept")->assertForbidden();
-        $this->actingAs($otherFacultyAdmin)->postJson("/api/internal/constraint-submissions/{$program->id}/accept")->assertForbidden();
-        $this->actingAs($otherFacultyAdmin)->postJson("/api/internal/constraint-submissions/{$program->id}/return", ['note' => 'x'])->assertForbidden();
-        $this->actingAs($this->facultyAdmin)->postJson("/api/internal/constraint-submissions/{$this->program->id}/accept")
-            ->assertStatus(409);
+        foreach (['submit', 'accept', 'return'] as $action) {
+            $this->postJson("/api/internal/constraint-submissions/{$this->program->id}/{$action}")->assertNotFound();
+        }
     }
 
     // list and detail
@@ -289,8 +211,18 @@ class ConstraintApiTest extends TestCase
             ->assertJsonPath('data.0.lecturers_with_preferences_count', 1)
             ->assertJsonPath('data.0.courses_count', 2)
             ->assertJsonPath('data.0.incomplete_courses_count', 1)
-            ->assertJsonPath('data.0.can_submit', true)
+            ->assertJsonPath('data.0.can_submit', false)
             ->assertJsonPath('data.0.can_review', false);
+    }
+
+    public function test_inactive_courses_are_not_counted_as_incomplete(): void
+    {
+        $this->completeCourse($this->program);
+        Course::factory()->create(['study_program_id' => $this->program->id, 'parallel_class_count' => 2, 'is_active' => false]);
+
+        $this->actingAs($this->prodiAdmin)->getJson('/api/internal/constraint-submissions')
+            ->assertOk()
+            ->assertJsonPath('data.0.incomplete_courses_count', 0);
     }
 
     public function test_detail_lists_incomplete_courses_and_lecturer_preferences(): void
@@ -317,7 +249,7 @@ class ConstraintApiTest extends TestCase
 
     public function test_other_roles_are_refused_everywhere(): void
     {
-        $this->actingAs(User::factory()->student($this->program)->create());
+        $this->actingAs(User::factory()->lecturer()->create());
 
         $this->getJson('/api/internal/constraint-submissions')->assertForbidden();
         $this->getJson('/api/internal/constraint-types')->assertForbidden();

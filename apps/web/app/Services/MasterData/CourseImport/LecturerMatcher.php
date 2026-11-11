@@ -9,6 +9,7 @@ use Illuminate\Support\Collection;
 final class LecturerMatcher
 {
     private const SUGGESTION_MIN_PERCENT = 80;
+
     private const SUGGESTION_LIMIT = 3;
 
     /** @var Collection<int, array{lecturer: Lecturer, key: string}> */

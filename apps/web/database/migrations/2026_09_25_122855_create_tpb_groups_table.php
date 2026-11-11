@@ -7,19 +7,19 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * One group of one TPB course: a fixed set of study programs whose classes all run in one slot.
-     * The TPB admin places groups by hand; the slot is then blocked for the participating programs.
+     * One group of one TPB offering: classes that always share a slot, attended by a set of programs.
+     * The slot comes from the active TPB scheduling run, never from this table.
      */
     public function up(): void
     {
         Schema::create('tpb_groups', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('course_id')->index()->constrained()->restrictOnDelete();
+            $table->foreignId('tpb_offering_id')->constrained()->restrictOnDelete();
             $table->string('code', 20);
-            $table->foreignId('time_slot_id')->nullable()->index()->constrained()->restrictOnDelete();
+            $table->string('cohort', 12);
             $table->timestamps();
 
-            $table->unique(['course_id', 'code']);
+            $table->unique(['tpb_offering_id', 'code']);
         });
     }
 

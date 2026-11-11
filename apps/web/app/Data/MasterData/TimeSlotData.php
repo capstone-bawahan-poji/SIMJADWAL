@@ -27,6 +27,8 @@ class TimeSlotData extends BaseData
         public string $startTime,
         public string $endTime,
         public int $type,
+        /** Preferences, schedules or TPB groups use the slot: day, session and type are locked. */
+        public bool $inUse = false,
         #[FromPolicy('update')]
         public bool $canUpdate = false,
         #[FromPolicy('delete')]

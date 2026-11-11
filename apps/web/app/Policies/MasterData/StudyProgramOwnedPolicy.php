@@ -9,8 +9,7 @@ use Illuminate\Auth\Access\Response;
 
 /**
  * Shared checks for data owned by one study program (lecturers, courses, teaching assignments):
- * the user must reach the program, and writes are refused with 409 CONSTRAINTS_LOCKED
- * while the program is submitted. Faculty admins (and superadmin) may still step in.
+ * the user must have the permission and be able to access the program.
  */
 abstract class StudyProgramOwnedPolicy
 {
@@ -20,10 +19,6 @@ abstract class StudyProgramOwnedPolicy
     {
         if (! $user->can($permission) || ! $this->orgScope->canAccessStudyProgram($user, $studyProgram)) {
             return Response::deny();
-        }
-
-        if ($studyProgram->isLocked() && ! $this->orgScope->canBypassSubmissionLock($user)) {
-            return Response::denyWithStatus(409, __('Study program constraints are submitted and locked.'), 'CONSTRAINTS_LOCKED');
         }
 
         return Response::allow();

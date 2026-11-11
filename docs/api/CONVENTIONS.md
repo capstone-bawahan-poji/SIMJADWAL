@@ -329,9 +329,9 @@ Semua endpoint selain `auth/login`, `auth/forgot-password`, dan `auth/reset-pass
 |---|---|---|---|---|
 | GET | `/constraint-types` | — | Koleksi `ConstraintTypeData` | W |
 | GET | `/constraint-submissions` | `q`, `status`, `page`, `per_page` | Daftar `ConstraintSubmissionData` | W |
-| GET | `/constraint-submissions/{studyProgram}` | — | Detail pengajuan | W |
+| GET | `/constraint-submissions/{studyProgram}` | — | Ringkasan constraint | W |
 
-Hanya di `/api/internal` (belum ada di v1): `PATCH constraint-types/{id}`, `GET/PUT lecturers/{id}/preferences`, `POST constraint-submissions/{id}/submit|accept|return`.
+Hanya di `/api/internal` (belum ada di v1): `PATCH constraint-types/{id}`, `GET/PUT lecturers/{id}/preferences`. Constraint dikelola langsung oleh koor prodi tanpa submit, review fakultas, atau penguncian berdasarkan status constraint. Status constraint lama tetap tersedia untuk kompatibilitas dan tidak menentukan hak mengubah data.
 
 ### Penjadwalan
 

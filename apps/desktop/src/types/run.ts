@@ -38,7 +38,10 @@ export interface Violation {
 export interface RunResult {
   run_id: string;
   batch_id: string;
-  faculty_id: number;
+  faculty_id: number | null;
+  /** Program runs; null for TPB and for results stored before the GA moved to the programs. */
+  study_program_id?: number | null;
+  revise_group_ids?: number[];
   period: string;
   dataset_fingerprint: string;
   preset_id: number | null;

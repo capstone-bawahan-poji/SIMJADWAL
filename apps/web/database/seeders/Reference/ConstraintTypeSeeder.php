@@ -21,6 +21,7 @@ class ConstraintTypeSeeder extends Seeder
             [ConstraintCode::SC_INGIN, 'Dosen dijadwalkan pada slot yang diinginkan', 1],
             [ConstraintCode::SC_HINDARI, 'Dosen tidak dijadwalkan pada slot yang dihindari', 1],
             [ConstraintCode::SC_SKS, 'Mata kuliah 3 SKS pada slot tipe 3; mata kuliah 2 dan 4 SKS pada slot tipe 2', 2],
+            [ConstraintCode::SC_ULANG, 'Minimal satu kelas paralel tiap mata kuliah prodi berada di luar slot kelas mengulang TPB yang diikuti prodi itu', 3],
         ];
 
         foreach ($rows as [$code, $description, $weight]) {

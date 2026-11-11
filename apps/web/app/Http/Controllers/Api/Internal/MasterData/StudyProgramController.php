@@ -8,9 +8,11 @@ use App\Http\Requests\MasterData\StudyProgram\ListStudyProgramRequest;
 use App\Http\Requests\MasterData\StudyProgram\StoreStudyProgramRequest;
 use App\Http\Requests\MasterData\StudyProgram\UpdateStudyProgramRequest;
 use App\Models\MasterData\StudyProgram;
+use App\Rules\Scheduling\PeriodRule;
 use App\Services\MasterData\StudyProgramService;
-use App\Services\MasterData\TpbGroupService;
+use App\Services\Scheduling\TpbBlockService;
 use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
@@ -30,7 +32,7 @@ class StudyProgramController extends ApiController implements HasMiddleware
 
     public function __construct(
         private readonly StudyProgramService $studyProgramService,
-        private readonly TpbGroupService $tpbGroupService,
+        private readonly TpbBlockService $tpbBlocks,
     ) {}
 
     public function index(ListStudyProgramRequest $request): JsonResponse
@@ -69,8 +71,13 @@ class StudyProgramController extends ApiController implements HasMiddleware
         return $this->noContent();
     }
 
-    public function tpbBlockedSlots(StudyProgram $studyProgram): JsonResponse
+    /**
+     * TPB groups the program attends in the active TPB run of ?period (default: current period).
+     */
+    public function tpbBlockedSlots(Request $request, StudyProgram $studyProgram): JsonResponse
     {
-        return $this->response($this->tpbGroupService->getPlacedGroupsFor($studyProgram));
+        $period = $request->validate(['period' => ['nullable', new PeriodRule]])['period'] ?? config('scheduling.current_period');
+
+        return $this->response($this->tpbBlocks->placedGroupsFor($studyProgram, $period));
     }
 }

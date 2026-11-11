@@ -2,9 +2,7 @@
 
 namespace App\Http\Requests\Scheduling;
 
-use App\Enums\Account\Role;
 use App\Enums\Constraint\ConstraintCode;
-use App\Models\MasterData\Faculty;
 use App\Permissions\Scheduling\SchedulingPermissions;
 use App\Rules\Scheduling\PeriodRule;
 use Illuminate\Foundation\Http\FormRequest;
@@ -12,6 +10,8 @@ use Illuminate\Validation\Rule;
 
 class StoreSchedulingRunRequest extends FormRequest
 {
+    use ResolvesScheduleScope;
+
     public function authorize(): bool
     {
         return $this->user()->can(SchedulingPermissions::UPLOAD_RUN);
@@ -22,15 +22,15 @@ class StoreSchedulingRunRequest extends FormRequest
         return [
             'client_run_id' => ['required', 'uuid'],
             'batch_id' => ['required', 'uuid'],
-            'faculty_id' => [
-                Rule::requiredIf(fn () => $this->user()->role === Role::SUPER_ADMIN),
-                'nullable', 'integer', Rule::exists(Faculty::class, 'id')->withoutTrashed(),
-            ],
+            ...$this->scheduleScopeRules(),
             'period' => ['required', new PeriodRule],
             'dataset_fingerprint' => ['required', 'string', 'max:80'],
+            'revise_group_ids' => ['nullable', 'array'],
+            'revise_group_ids.*' => ['integer'],
             'preset_id' => ['nullable', 'integer'],
             'parameter_snapshot' => ['required', 'array'],
-            'parameter_snapshot.parallel_class_limit' => ['required', 'integer', 'min:1'],
+            // HC4 is gone: a program's cells cap its classes per slot. Kept for older desktop builds.
+            'parameter_snapshot.parallel_class_limit' => ['nullable', 'integer', 'min:1'],
             'parameter_snapshot.weights' => ['required', 'array'],
             'best_fitness' => ['required', 'numeric'],
             'max_fitness' => ['required', 'numeric', 'gt:0'],
@@ -53,12 +53,5 @@ class StoreSchedulingRunRequest extends FormRequest
             'violations.*.penalty' => ['required', 'numeric', 'min:0'],
             'violations.*.message' => ['nullable', 'string', 'max:500'],
         ];
-    }
-
-    public function facultyId(): int
-    {
-        return $this->user()->role === Role::SUPER_ADMIN
-            ? (int) $this->validated('faculty_id')
-            : (int) $this->user()->faculty_id;
     }
 }

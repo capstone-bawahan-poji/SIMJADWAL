@@ -1,11 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { Search } from 'lucide-vue-next';
-import Badge from '@/components/ui/Badge.vue';
 import UiInput from '@/components/ui/Input.vue';
 import { colorOf, type ProgramColor } from '@/lib/programColors';
 import type { DatasetStudyProgram } from '@/types/scheduling';
-import { CONSTRAINT_STATUS } from '@/views/data/constraintStatus';
 
 const props = defineProps<{
   programs: DatasetStudyProgram[];
@@ -22,7 +20,6 @@ const shown = computed(() => {
 });
 </script>
 
-<!-- Master list of study programs with their identity color and constraint status. -->
 <template>
   <div class="flex max-h-[calc(100vh-72px-64px)] flex-col overflow-hidden rounded-panel border border-line bg-white">
     <div class="border-b border-line p-4">
@@ -52,7 +49,6 @@ const shown = computed(() => {
             <span class="tabular mt-1 block text-xs text-ink-muted">{{ program.lecturers_count }} dosen, {{ program.courses_count }} mata kuliah</span>
             <span v-if="!program.included" class="mt-1 block text-xs text-ink-faint">Tidak termasuk dataset</span>
           </span>
-          <Badge :tone="CONSTRAINT_STATUS[program.constraint_status].tone">{{ CONSTRAINT_STATUS[program.constraint_status].label }}</Badge>
         </button>
       </li>
       <li v-if="!shown.length" class="px-3 py-8 text-center text-sm text-ink-muted">Tidak ditemukan program studi yang sesuai.</li>

@@ -4,24 +4,23 @@ namespace Tests\Feature\MasterData;
 
 use App\Enums\Scheduling\RunStatus;
 use App\Models\MasterData\Course;
-use App\Models\MasterData\CourseLecturer;
 use App\Models\MasterData\Faculty;
 use App\Models\MasterData\Lecturer;
 use App\Models\MasterData\Room;
 use App\Models\MasterData\TimeSlot;
-use App\Models\MasterData\TpbGroup;
 use App\Models\Scheduling\ScheduleDetail;
 use App\Models\Scheduling\SchedulingRun;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
+use Tests\Concerns\CreatesTpbRun;
 use Tests\Concerns\SeedsAccessControl;
 use Tests\TestCase;
 
 class RoomApiTest extends TestCase
 {
-    use RefreshDatabase, SeedsAccessControl;
+    use CreatesTpbRun, RefreshDatabase, SeedsAccessControl;
 
     private Faculty $faculty;
 
@@ -67,11 +66,13 @@ class RoomApiTest extends TestCase
         $this->getJson('/api/v1/rooms?shared=1')->assertOk()->assertJsonCount(1, 'data');
     }
 
-    public function test_room_with_tpb_classes_stays_shared_and_cannot_be_deleted(): void
+    public function test_room_of_the_active_tpb_schedule_stays_shared_and_cannot_be_deleted(): void
     {
         $room = Room::factory()->shared()->create();
-        $group = TpbGroup::factory()->create();
-        CourseLecturer::factory()->create(['course_id' => $group->course_id, 'tpb_group_id' => $group->id, 'room_id' => $room->id]);
+        $this->activeTpbRun('2026/2027-GANJIL', [[
+            'course_id' => Course::factory()->tpb()->create()->id, 'class_number' => 1, 'lecturer_id' => Lecturer::factory()->create()->id,
+            'time_slot_id' => TimeSlot::factory()->create()->id, 'room_id' => $room->id,
+        ]]);
         Sanctum::actingAs(User::factory()->superAdmin()->create());
 
         $this->patchJson("/api/v1/rooms/{$room->id}", ['faculty_id' => $this->faculty->id])
@@ -80,7 +81,7 @@ class RoomApiTest extends TestCase
 
         $this->deleteJson("/api/v1/rooms/{$room->id}")
             ->assertStatus(409)
-            ->assertJsonPath('errors.references.teaching_assignments', 1);
+            ->assertJsonPath('errors.references.schedules', 1);
     }
 
     public function test_delete_is_soft(): void

@@ -15,9 +15,14 @@ use App\Models\MasterData\Lecturer;
 use App\Models\MasterData\Room;
 use App\Models\MasterData\StudyProgram;
 use App\Models\MasterData\TimeSlot;
+use App\Models\MasterData\TpbOffering;
+use App\Models\Scheduling\ProgramScheduleSubmission;
+use App\Models\Scheduling\RoomSlotAllocation;
 use App\Models\Scheduling\ScheduleDetail;
+use App\Models\Scheduling\SchedulePublication;
 use App\Models\Scheduling\SchedulingRun;
 use App\Models\User;
+use App\Services\Scheduling\TpbBlockService;
 use Database\Seeders\DatabaseSeeder;
 use Database\Seeders\Demo\SchedulingRunSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -35,7 +40,7 @@ class DatabaseSeederTest extends TestCase
         $this->assertSame(25, StudyProgram::count());
         $this->assertSame(20, TimeSlot::count());
         $this->assertSame(54, Room::count());
-        $this->assertSame(7, ConstraintType::count());
+        $this->assertSame(8, ConstraintType::count());
         $this->assertTrue(User::where('email', 'superadmin@example.test')->first()->hasRole('superadmin'));
     }
 
@@ -57,7 +62,7 @@ class DatabaseSeederTest extends TestCase
         );
         $this->assertSame(0, StudyProgram::whereNull('department_id')->count());
         $this->assertSame(
-            [['07:30', '10:00'], ['10:20', '12:00'], ['13:00', '15:30'], ['15:50', '17:30']],
+            [['07:30', '10:00'], ['10:20', '12:00'], ['13:00', '15:30'], ['16:00', '17:40']],
             TimeSlot::where('day', 1)->orderBy('session')->get()->map(fn (TimeSlot $slot) => [$slot->start_time, $slot->end_time])->all(),
         );
     }
@@ -84,7 +89,7 @@ class DatabaseSeederTest extends TestCase
         $this->assertSame(25, Course::where('study_program_id', $informatics->id)->count());
         $this->assertSame(44, CourseLecturer::whereRelation('course', 'study_program_id', $informatics->id)->count());
 
-        $teaching = ['Ilmu Aktuaria' => 9, 'Bisnis Digital' => 9, 'Fisika' => 11, 'Informatika' => 15,
+        $teaching = ['Ilmu Aktuaria' => 9, 'Bisnis Digital' => 9, 'Fisika' => 11, 'Informatika' => 16,
             'Matematika' => 8, 'Sistem Informasi' => 13, 'Statistika' => 9, 'Teknik Elektro' => 13];
 
         foreach ($teaching as $program => $count) {
@@ -92,9 +97,9 @@ class DatabaseSeederTest extends TestCase
         }
 
         // FPB, FRTI and Informatika carry real lecturers and courses; the other FSTI programs are still anonymized.
-        $this->assertSame(329, Lecturer::count());
+        $this->assertSame(286, Lecturer::count());
         $this->assertSame(80, Lecturer::where('name', 'like', 'Dosen % __')->count());
-        $this->assertSame([1, 2, 3, 4, 5, 6, 7, 8], Course::distinct()->orderBy('semester')->pluck('semester')->all());
+        $this->assertSame([1, 2, 3, 4, 5, 6, 7, 8], Course::where('is_tpb', false)->distinct()->orderBy('semester')->pluck('semester')->all());
         $this->assertGreaterThan(0, LecturerPreference::count());
     }
 
@@ -103,7 +108,7 @@ class DatabaseSeederTest extends TestCase
         $this->seed(DatabaseSeeder::class);
 
         $shipbuilding = StudyProgram::where('name', 'Teknik Perkapalan')->first();
-        $this->assertSame(22, Lecturer::where('study_program_id', $shipbuilding->id)->count());
+        $this->assertSame(18, Lecturer::where('study_program_id', $shipbuilding->id)->count());
 
         // Teknik Sistem Perkapalan and Teknik Transportasi Laut are taught by Teknik Perkapalan lecturers.
         foreach (['Teknik Sistem Perkapalan', 'Teknik Transportasi Laut'] as $program) {
@@ -122,10 +127,10 @@ class DatabaseSeederTest extends TestCase
 
         $lecturer = Lecturer::where('name', 'like', 'Amanda Dwi Wantira%')->firstOrFail();
 
-        $this->assertSame('dosen_Amanda@dosen.itk.ac.id', $lecturer->user->email);
+        $this->assertSame('dosen_Amanda@lecturer.itk.ac.id', $lecturer->user->email);
         $this->assertTrue($lecturer->user->hasRole(Role::LECTURER->value));
-        // Every lecturer with an email in data/master (249), except the first Informatika lecturer, who uses dosen.if01 instead.
-        $this->assertSame(249, Lecturer::whereNotNull('user_id')->count());
+        // Every lecturer with an email in data/master.
+        $this->assertSame(206, Lecturer::whereNotNull('user_id')->count());
     }
 
     public function test_demo_accounts_exist_for_every_faculty_and_study_program(): void
@@ -135,7 +140,7 @@ class DatabaseSeederTest extends TestCase
         $this->assertSame(3, User::query()->role(Role::FACULTY_ADMIN->value)->whereNotNull('faculty_id')->count());
         $this->assertSame(25, User::query()->role(Role::STUDY_PROGRAM_ADMIN->value)->distinct()->count('study_program_id'));
         $this->assertSame('Informatika', User::where('email', 'admin.if@example.test')->first()->studyProgram->name);
-        $this->assertSame('Nur Fajri Azhar S.Kom., M.Kom.', User::where('email', 'dosen.if01@example.test')->first()->lecturer->name);
+        $this->assertSame('Miftahul Fauzi', User::where('email', 'dosen.if01@lecturer.itk.ac.id')->first()->lecturer->name);
         $this->assertTrue(User::where('email', 'admin.tpb@example.test')->first()->hasRole(Role::TPB_ADMIN->value));
     }
 
@@ -149,7 +154,7 @@ class DatabaseSeederTest extends TestCase
         $this->assertSame($counts, [Lecturer::count(), Course::count(), CourseLecturer::count(), LecturerPreference::count(), User::count()]);
     }
 
-    public function test_demo_runs_have_one_active_schedule_per_faculty_without_clashes(): void
+    public function test_demo_runs_follow_the_program_flow_without_clashes(): void
     {
         $this->seed(DatabaseSeeder::class);
         // Not part of DatabaseSeeder any more; run by hand when the review pages need sample runs.
@@ -157,9 +162,14 @@ class DatabaseSeederTest extends TestCase
 
         $fsti = Faculty::where('code', 'FSTI')->value('id');
         $fpb = Faculty::where('code', 'FPB')->value('id');
-        $this->assertSame(3, SchedulingRun::where('faculty_id', $fsti)->count());
-        $this->assertNotNull(SchedulingRun::active()->where('faculty_id', $fsti)->value('published_at'));
-        $this->assertNull(SchedulingRun::active()->where('faculty_id', $fpb)->value('published_at'));
+        $programs = fn (int $facultyId) => SchedulingRun::active()->where('faculty_id', $facultyId)->whereNotNull('study_program_id');
+        $this->assertGreaterThan(0, $programs($fsti)->count());
+        $this->assertSame(0, $programs($fsti)->whereNull('published_at')->count());
+        $this->assertSame(0, $programs($fpb)->whereNotNull('published_at')->count());
+        $this->assertSame(2 * $programs($fsti)->count(), SchedulingRun::where('faculty_id', $fsti)->count());
+        $this->assertTrue(SchedulePublication::where('faculty_id', $fsti)->exists());
+        $this->assertFalse(SchedulePublication::where('faculty_id', $fpb)->exists());
+        $this->assertSame($programs($fpb)->count(), ProgramScheduleSubmission::where('status', 'submitted')->count());
         $this->assertSame(1, ScheduleDetail::where('is_overridden', true)->count());
 
         $active = ScheduleDetail::whereRelation('schedulingRun', 'is_active', true);
@@ -168,7 +178,41 @@ class DatabaseSeederTest extends TestCase
         $this->assertSame(0, $duplicates(['time_slot_id', 'lecturer_id']));
         $this->assertSame(0, (clone $active)->whereNotNull('room_id')->select(['time_slot_id', 'room_id'])->groupBy(['time_slot_id', 'room_id'])->havingRaw('count(*) > 1')->get()->count());
 
+        // Every program meeting sits in a cell its faculty gave it.
+        $outside = ScheduleDetail::query()->with('schedulingRun')->whereRelation('schedulingRun', fn ($q) => $q->active()->whereNotNull('study_program_id'))->get()
+            ->reject(fn (ScheduleDetail $d) => RoomSlotAllocation::where('study_program_id', $d->schedulingRun->study_program_id)
+                ->where('time_slot_id', $d->time_slot_id)->where('room_id', $d->room_id)->exists());
+        $this->assertCount(0, $outside);
+
+        // TPB first: one published TPB run, and every program run built against it.
+        $tpbRun = SchedulingRun::whereNull('faculty_id')->sole();
+        $this->assertNotNull($tpbRun->published_at);
+        $this->assertSame(0, SchedulingRun::whereNotNull('faculty_id')->where('tpb_run_id', '!=', $tpbRun->id)->count());
+        // Program genes keep out of the slots TPB takes from their program semester.
+        $blocks = app(TpbBlockService::class)->blocks('2026/2027-GANJIL');
+        $clash = ScheduleDetail::query()->with('course')->whereRelation('schedulingRun', fn ($q) => $q->active()->whereNotNull('faculty_id'))->get()
+            ->filter(fn (ScheduleDetail $d) => in_array($d->time_slot_id, $blocks['programs'][$d->course->study_program_id][$d->course->semester] ?? [], true));
+        $this->assertCount(0, $clash);
+
+        $count = SchedulingRun::count();
         $this->seed(DatabaseSeeder::class);
-        $this->assertSame(4, SchedulingRun::count());
+        $this->seed(SchedulingRunSeeder::class);
+        $this->assertSame($count, SchedulingRun::count());
+    }
+
+    public function test_tpb_demo_offerings_follow_the_institute_schedule(): void
+    {
+        $this->seed(DatabaseSeeder::class);
+
+        $math = TpbOffering::query()->whereRelation('course', 'code', 'KU2512015')->where('period', '2026/2027-GANJIL')->sole();
+        $this->assertSame(29, $math->parallel_class_count);
+        $groups = $math->groups()->with('studyPrograms', 'courseLecturers')->orderBy('code')->get();
+        $this->assertSame(['maba', 'maba', 'maba', 'maba', 'mengulang', 'campuran'], $groups->pluck('cohort.value')->all());
+        $this->assertSame([1, 2, 3], $groups[0]->class_numbers);
+        // Attending programs are dummy: as many as the source lists, at most six.
+        $this->assertSame(4, $groups[0]->studyPrograms->count());
+        $this->assertSame(6, $groups[4]->studyPrograms->count());
+        $this->assertNull($groups[4]->studyPrograms->first()->pivot->target_semester);
+        $this->assertSame(0, CourseLecturer::whereNotNull('tpb_offering_id')->whereNull('lecturer_id')->count());
     }
 }

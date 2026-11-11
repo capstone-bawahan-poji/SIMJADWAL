@@ -7,6 +7,7 @@ use App\Models\MasterData\StudyProgram;
 use App\Models\Scheduling\ScheduleDetail;
 use App\Models\Scheduling\SchedulingRun;
 use App\Services\Constraint\ConstraintSubmissionService;
+use App\Services\Scheduling\ProgramScheduleState;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -15,7 +16,10 @@ use Illuminate\Database\Eloquent\Builder;
  */
 readonly class StudyProgramDashboardService
 {
-    public function __construct(private ConstraintSubmissionService $submissions) {}
+    public function __construct(
+        private ConstraintSubmissionService $submissions,
+        private ProgramScheduleState $state,
+    ) {}
 
     /**
      * @return array<string, mixed>
@@ -30,7 +34,7 @@ readonly class StudyProgramDashboardService
             $summary->coursesCount > 0 ? ($summary->coursesCount - $summary->incompleteCoursesCount) / $summary->coursesCount : 0,
         ];
 
-        $run = SchedulingRun::query()->active()->where('faculty_id', $program->faculty_id)->where('period', $period)->first();
+        $run = SchedulingRun::query()->active()->where('study_program_id', $program->id)->where('period', $period)->first();
 
         return [
             'period' => $period,
@@ -42,7 +46,10 @@ readonly class StudyProgramDashboardService
                 'incomplete_courses_count' => $summary->incompleteCoursesCount,
                 'completeness_percent' => (int) round(array_sum($ratios) / count($ratios) * 100),
             ],
-            'schedule' => $this->schedule($run, $program),
+            'schedule' => [
+                ...$this->schedule($run, $program),
+                'submission_status' => $this->state->status($program->id, $period)->value,
+            ],
         ];
     }
 

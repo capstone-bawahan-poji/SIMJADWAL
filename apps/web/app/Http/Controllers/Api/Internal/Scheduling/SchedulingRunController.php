@@ -43,6 +43,8 @@ class SchedulingRunController extends ApiController implements HasMiddleware
             batchId: $v['batch_id'] ?? null,
             isActive: isset($v['is_active']) ? $request->boolean('is_active') : null,
             perPage: (int) ($v['per_page'] ?? Query::DEFAULT_PER_PAGE),
+            tpb: ($v['scope'] ?? null) === 'tpb',
+            studyProgramId: isset($v['study_program_id']) ? (int) $v['study_program_id'] : null,
         ));
     }
 

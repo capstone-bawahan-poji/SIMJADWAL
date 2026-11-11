@@ -6,6 +6,7 @@ use App\Permissions\Scheduling\SchedulingPermissions;
 use App\Rules\Scheduling\PeriodRule;
 use App\Services\Scheduling\ScheduleQueryService;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class ListScheduleRequest extends FormRequest
 {
@@ -19,6 +20,7 @@ class ListScheduleRequest extends FormRequest
         return [
             'period' => ['nullable', new PeriodRule],
             'faculty_id' => ['nullable', 'integer'],
+            'scope' => ['nullable', Rule::in(['faculty', 'study_program', 'tpb'])],
             'study_program_id' => ['nullable', 'integer'],
             'semester' => ['nullable', 'integer', 'between:1,14'],
             'class_number' => ['nullable', 'integer', 'min:1'],
@@ -28,7 +30,6 @@ class ListScheduleRequest extends FormRequest
             'day' => ['nullable', 'integer', 'between:1,7'],
             'unassigned' => ['nullable', 'boolean'],
             'over_capacity' => ['nullable', 'boolean'],
-            // Picked classes: "12" = every class of course 12, "12:1" = class A of course 12.
             'classes' => ['nullable', 'array', 'max:100'],
             'classes.*' => ['string', 'regex:/^\d+(:\d+)?$/'],
         ];
@@ -47,6 +48,7 @@ class ListScheduleRequest extends FormRequest
         return collect(ScheduleQueryService::FILTERS)
             ->mapWithKeys(fn (string $key) => [$key => $this->validated($key) !== null ? (int) $this->validated($key) : null])
             ->merge(collect(ScheduleQueryService::FLAGS)->mapWithKeys(fn (string $key) => [$key => $this->boolean($key)]))
+            ->put('scope', $this->validated('scope'))
             ->put('classes', collect($this->validated('classes') ?? [])
                 ->map(function (string $class) {
                     [$courseId, $classNumber] = array_pad(explode(':', $class, 2), 2, null);

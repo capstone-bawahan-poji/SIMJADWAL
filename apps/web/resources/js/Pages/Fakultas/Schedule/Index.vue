@@ -1,16 +1,14 @@
 <script setup lang="ts">
+import FacultyScheduleGrid from '@/Components/scheduling/FacultyScheduleGrid.vue';
 import Alert from '@/Components/ui/Alert.vue';
 import Card from '@/Components/ui/Card.vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import { onResourcesChanged } from '@/composables/useResourceChanges';
 import { useSemesterOptions } from '@/composables/useSemesterOptions';
 import { api, toApiError, type ApiError } from '@/lib/api';
-import { formatTime } from '@/lib/labels';
 import type { AcademicPeriod, Collection, Schedule, StudyProgramSummary, TimeSlot } from '@/types/models';
 import { Head, usePage } from '@inertiajs/vue3';
 import { computed, onMounted, reactive, ref, toRef, watch } from 'vue';
-
-type ScheduleRow = Schedule['schedule_details'][number];
 
 const DAYS: Record<number, string> = {
     1: 'Senin',
@@ -51,34 +49,10 @@ const semesterOptions = useSemesterOptions(
 
 const days = computed(() => [...new Set(timeSlots.value.map((slot) => slot.day))].sort((a, b) => a - b));
 const visibleDays = computed(() => filters.day ? [Number(filters.day)] : days.value);
-const sessions = computed(() => [...new Set(timeSlots.value.map((slot) => slot.session))].sort((a, b) => a - b));
-const rowsByCell = computed(() => {
-    const result = new Map<string, ScheduleRow[]>();
-    for (const row of schedule.value?.schedule_details ?? []) {
-        const key = `${row.time_slot.day}-${row.time_slot.session}`;
-        result.set(key, [...(result.get(key) ?? []), row]);
-    }
-
-    for (const rows of result.values()) {
-        rows.sort((a, b) => a.course.code.localeCompare(b.course.code) || a.class_number - b.class_number);
-    }
-
-    return result;
-});
 const hasUnpublishedRun = computed(() => schedule.value?.runs.some((run) => run.published_at === null) ?? false);
-
-function classLabel(number: number): string {
-    return number > 0 && number <= 26 ? String.fromCharCode(64 + number) : String(number);
-}
 
 function dayLabel(day: number): string {
     return timeSlots.value.find((slot) => slot.day === day)?.day_label ?? DAYS[day] ?? String(day);
-}
-
-function sessionTime(session: number): string {
-    const slot = timeSlots.value.find((item) => item.session === session);
-
-    return slot ? `${formatTime(slot.start_time)}–${formatTime(slot.end_time)}` : '';
 }
 
 function updateAddress(): void {
@@ -162,7 +136,6 @@ onResourcesChanged(['scheduling_runs', 'schedule_details'], () => {
         <div class="mx-auto w-full max-w-[1600px] space-y-6 p-6 md:p-8">
             <div>
                 <h1 class="text-2xl font-bold tracking-tight text-gray-900">Jadwal Fakultas</h1>
-                <p class="mt-1 text-sm text-gray-500">Lihat jadwal aktif fakultas berdasarkan periode, program studi, semester, dan hari.</p>
             </div>
 
             <Alert v-if="referencesFailure" :title="referencesFailure.message" />
@@ -213,53 +186,13 @@ onResourcesChanged(['scheduling_runs', 'schedule_details'], () => {
             <Card v-else-if="schedule" class="!p-0 overflow-hidden border border-gray-100 shadow-sm">
                 <div class="flex flex-wrap items-center justify-between gap-2 border-b border-gray-100 px-5 py-4">
                     <p class="text-sm font-semibold text-gray-900">
-                        {{ schedule.runs[0]?.faculty.name ?? 'Fakultas' }}
+                        {{ schedule.runs.find((run) => run.faculty)?.faculty?.name ?? 'Fakultas' }}
                         <span class="font-normal text-gray-500">· {{ schedule.period }}</span>
                     </p>
                     <p class="text-xs text-gray-500">{{ schedule.schedule_details.length }} jadwal</p>
                 </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full min-w-[1000px] border-collapse text-sm">
-                        <thead>
-                            <tr class="border-b border-gray-200 bg-gray-50/60 text-xs text-gray-500">
-                                <th class="sticky left-0 z-10 w-36 bg-gray-50 px-5 py-4 text-left font-medium">Sesi</th>
-                                <th v-for="day in visibleDays" :key="day" class="min-w-60 border-l border-gray-200 px-5 py-4 text-left font-medium">
-                                    {{ dayLabel(day) }}
-                                </th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y-2 divide-gray-300">
-                            <tr v-for="session in sessions" :key="session" class="align-top">
-                                <th class="sticky left-0 z-10 whitespace-nowrap bg-white px-5 py-5 text-left font-medium text-gray-900">
-                                    Sesi {{ session }}
-                                    <span class="mt-1 block text-xs font-normal text-gray-500">{{ sessionTime(session) }}</span>
-                                </th>
-                                <td v-for="day in visibleDays" :key="day" class="min-w-60 border-l border-gray-200 px-5 py-5">
-                                    <p v-if="!rowsByCell.get(`${day}-${session}`)?.length" class="text-gray-300" aria-label="Kosong">—</p>
-                                    <ul v-else class="divide-y divide-gray-300">
-                                        <li
-                                            v-for="row in rowsByCell.get(`${day}-${session}`)"
-                                            :key="row.id"
-                                            class="py-5 first:pt-0 last:pb-0"
-                                        >
-                                            <div class="border-l-2 border-transparent pl-3">
-                                                <p class="font-medium leading-snug text-gray-900">{{ row.course.name }}</p>
-                                                <p class="mt-1 text-xs text-gray-500">
-                                                    {{ row.course.code }} · Kelas {{ classLabel(row.class_number) }} · Semester {{ row.course.semester }}
-                                                </p>
-                                                <p class="mt-2 text-xs leading-relaxed text-gray-600">
-                                                    {{ row.lecturer.name }}<span v-if="row.lecturer.title">, {{ row.lecturer.title }}</span>
-                                                    <span class="text-gray-300"> / </span>
-                                                    {{ row.room?.code ?? 'Belum mendapat ruang' }}
-                                                </p>
-                                                <p v-if="row.is_overridden" class="mt-1 text-xs text-amber-700">Diubah manual</p>
-                                            </div>
-                                        </li>
-                                    </ul>
-                                </td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <div class="space-y-4 p-4">
+                    <FacultyScheduleGrid :details="schedule.schedule_details" :time-slots="timeSlots" :days="visibleDays" />
                 </div>
             </Card>
         </div>

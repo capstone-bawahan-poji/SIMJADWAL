@@ -26,6 +26,7 @@ pub fn run() {
             commands::api::api_dataset,
             commands::api::api_scheduling_runs,
             commands::api::api_faculties,
+            commands::api::api_study_programs,
             commands::api::api_ga_presets,
             commands::api::api_create_ga_preset,
             commands::api::api_update_ga_preset,

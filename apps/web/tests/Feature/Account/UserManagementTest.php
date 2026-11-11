@@ -170,9 +170,9 @@ class UserManagementTest extends TestCase
         $studyProgram = StudyProgram::factory()->create();
 
         $id = $this->postJson('/api/v1/users', [
-            'name' => 'Mahasiswa Baru',
+            'name' => 'Admin Prodi Baru',
             'email' => 'baru@example.test',
-            'role' => 'mahasiswa',
+            'role' => 'admin_prodi',
             'study_program_id' => $studyProgram->id,
         ])->assertCreated()->json('data.id');
 
@@ -185,14 +185,14 @@ class UserManagementTest extends TestCase
         Sanctum::actingAs($this->superAdmin);
         $studyProgram = StudyProgram::factory()->create();
 
-        $this->postJson('/api/v1/users', $this->payload(['role' => 'mahasiswa', 'study_program_id' => $studyProgram->id, 'identity_number' => '11221001']))
+        $this->postJson('/api/v1/users', $this->payload(['role' => 'admin_prodi', 'study_program_id' => $studyProgram->id, 'identity_number' => '11221001']))
             ->assertUnprocessable()
             ->assertJsonPath('errors.identity_number.0', 'Nomor identitas sudah digunakan.');
 
-        $this->postJson('/api/v1/users', $this->payload(['role' => 'mahasiswa', 'study_program_id' => $studyProgram->id, 'identity_number' => 'NIM-1']))
+        $this->postJson('/api/v1/users', $this->payload(['role' => 'admin_prodi', 'study_program_id' => $studyProgram->id, 'identity_number' => 'NIM-1']))
             ->assertJsonValidationErrors('identity_number');
 
-        $this->postJson('/api/v1/users', $this->payload(['role' => 'mahasiswa', 'study_program_id' => $studyProgram->id, 'identity_number' => '11221002']))
+        $this->postJson('/api/v1/users', $this->payload(['role' => 'admin_prodi', 'study_program_id' => $studyProgram->id, 'identity_number' => '11221002']))
             ->assertCreated()
             ->assertJsonPath('data.identity_number', '11221002')
             ->assertJsonPath('data.study_program.code', $studyProgram->code);
@@ -218,32 +218,32 @@ class UserManagementTest extends TestCase
         $otherProgram = StudyProgram::factory()->create(['faculty_id' => $program->faculty_id]);
         $facultyAdmin = User::factory()->facultyAdmin($program->faculty)->create();
         $programAdmin = User::factory()->studyProgramAdmin($program)->create();
-        $student = User::factory()->student($otherProgram)->create();
+        $otherAdmin = User::factory()->studyProgramAdmin($otherProgram)->create();
         $lecturerAccount = User::factory()->lecturer(Lecturer::factory()->create(['study_program_id' => $program->id]))->create();
-        User::factory()->student()->create();
+        User::factory()->studyProgramAdmin()->create();
         User::factory()->tpbAdmin()->create();
         Sanctum::actingAs($this->superAdmin);
 
         $byFaculty = $this->getJson("/api/v1/users?faculty_id={$program->faculty_id}")->assertOk()->json('data.*.id');
-        $this->assertEqualsCanonicalizing([$facultyAdmin->id, $programAdmin->id, $student->id, $lecturerAccount->id], $byFaculty);
+        $this->assertEqualsCanonicalizing([$facultyAdmin->id, $programAdmin->id, $otherAdmin->id, $lecturerAccount->id], $byFaculty);
 
         $byProgram = $this->getJson("/api/v1/users?study_program_id={$program->id}")->assertOk()->json('data.*.id');
         $this->assertEqualsCanonicalizing([$programAdmin->id, $lecturerAccount->id], $byProgram);
 
         $this->getJson("/api/v1/users?faculty_id={$program->faculty_id}&study_program_id={$otherProgram->id}")
             ->assertOk()
-            ->assertJsonPath('data.*.id', [$student->id]);
+            ->assertJsonPath('data.*.id', [$otherAdmin->id]);
 
         $this->getJson('/api/v1/users?faculty_id='.Faculty::factory()->create()->id)->assertOk()->assertJsonCount(0, 'data');
     }
 
     public function test_search_matches_identity_number_and_lecturer_nip(): void
     {
-        $student = User::factory()->student()->create(['identity_number' => '11229999']);
+        $otherAdmin = User::factory()->studyProgramAdmin()->create(['identity_number' => '11229999']);
         $lecturerAccount = User::factory()->lecturer(Lecturer::factory()->create(['nip' => '197001012000011999']))->create();
         Sanctum::actingAs($this->superAdmin);
 
-        $this->getJson('/api/v1/users?q=11229999')->assertOk()->assertJsonPath('data.*.id', [$student->id]);
+        $this->getJson('/api/v1/users?q=11229999')->assertOk()->assertJsonPath('data.*.id', [$otherAdmin->id]);
         $this->getJson('/api/v1/users?q=197001012000011999')->assertOk()->assertJsonPath('data.*.id', [$lecturerAccount->id]);
     }
 

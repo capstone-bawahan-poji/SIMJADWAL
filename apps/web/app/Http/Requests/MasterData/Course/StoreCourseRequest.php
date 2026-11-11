@@ -9,7 +9,8 @@ use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
 /**
- * A regular course needs study_program_id. A TPB course (is_tpb = true) has none.
+ * A regular course needs study_program_id, semester, class count and capacity.
+ * A TPB course (is_tpb = true) has none of them: TPB offerings hold them per period.
  */
 class StoreCourseRequest extends FormRequest
 {
@@ -21,7 +22,7 @@ class StoreCourseRequest extends FormRequest
                 ? ['prohibited']
                 : ['required', 'integer', Rule::exists(StudyProgram::class, 'id')->withoutTrashed()],
             'code' => ['required', 'string', 'max:20', Rule::unique(Course::class, 'code')->withoutTrashed()],
-            ...CourseRules::attributes(presence: ['required']),
+            ...CourseRules::attributes(presence: ['required'], isTpb: $this->boolean('is_tpb')),
         ];
     }
 }

@@ -34,9 +34,10 @@ class GaPresetController extends ApiController implements HasMiddleware
 
     public function index(ListGaPresetRequest $request): JsonResponse
     {
-        $this->authorize('viewFaculty', [GaParameterPreset::class, $request->facultyId()]);
+        $studyProgram = $request->studyProgram();
+        $this->authorize('viewScope', [GaParameterPreset::class, $studyProgram]);
 
-        return $this->response($this->presetService->getPresets($request->facultyId()));
+        return $this->response($this->presetService->getPresets($studyProgram));
     }
 
     public function show(GaParameterPreset $gaPreset): JsonResponse
@@ -46,11 +47,11 @@ class GaPresetController extends ApiController implements HasMiddleware
 
     public function store(StoreGaPresetRequest $request): JsonResponse
     {
-        $facultyId = $request->facultyId();
-        $this->authorize('create', [GaParameterPreset::class, $facultyId]);
+        $studyProgram = $request->studyProgram();
+        $this->authorize('create', [GaParameterPreset::class, $studyProgram]);
 
         return $this->response($this->presetService->createPreset(
-            GaPresetFormData::fromInput($request->validated(), $facultyId),
+            GaPresetFormData::fromInput($request->validated(), $studyProgram),
             $this->request->user(),
         ), 201);
     }
@@ -59,7 +60,7 @@ class GaPresetController extends ApiController implements HasMiddleware
     {
         return $this->response($this->presetService->updatePreset(
             $gaPreset,
-            GaPresetFormData::fromInput($request->validated(), $gaPreset->faculty_id),
+            GaPresetFormData::fromInput($request->validated(), $gaPreset->studyProgram),
         ));
     }
 

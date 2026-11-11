@@ -96,7 +96,6 @@ class DepartmentApiTest extends TestCase
     {
         $program = StudyProgram::factory()->create();
         $coordinator = User::factory()->studyProgramAdmin($program)->create(['identity_number' => '198301012010011001']);
-        User::factory()->student($program)->create();
         Sanctum::actingAs(User::factory()->superAdmin()->create());
 
         $this->getJson("/api/v1/study-programs/{$program->id}")

@@ -18,12 +18,14 @@ use Database\Seeders\Reference\ConstraintTypeSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
+use Tests\Concerns\BuildsProgramSchedules;
+use Tests\Concerns\CreatesTpbRun;
 use Tests\Concerns\SeedsAccessControl;
 use Tests\TestCase;
 
 class SchedulingRunApiTest extends TestCase
 {
-    use RefreshDatabase, SeedsAccessControl;
+    use BuildsProgramSchedules, CreatesTpbRun, RefreshDatabase, SeedsAccessControl;
 
     private const PERIOD = '2026/2027-GANJIL';
 
@@ -50,12 +52,14 @@ class SchedulingRunApiTest extends TestCase
 
         $this->seedAccessControl();
         $this->seed(ConstraintTypeSeeder::class);
+        $this->activeTpbRun(self::PERIOD);
 
         $this->faculty = Faculty::factory()->create();
-        $this->program = StudyProgram::factory()->accepted()->create(['faculty_id' => $this->faculty->id]);
-        $this->admin = User::factory()->facultyAdmin($this->faculty)->create();
+        $this->program = StudyProgram::factory()->create(['faculty_id' => $this->faculty->id]);
+        $this->admin = User::factory()->studyProgramAdmin($this->program)->create();
         $this->slots = array_map(fn (int $session) => TimeSlot::factory()->create(['day' => 1, 'session' => $session]), [1, 2, 3, 4]);
         $this->room = Room::factory()->create(['faculty_id' => null, 'capacity' => 50]);
+        $this->giveCells($this->program, self::PERIOD, array_map(fn (TimeSlot $slot) => [$slot, $this->room], $this->slots));
         $this->lecturer = Lecturer::factory()->create(['study_program_id' => $this->program->id]);
 
         $this->threeSks = Course::factory()->create(['study_program_id' => $this->program->id, 'sks' => 3, 'semester' => 3, 'class_capacity' => 50]);
@@ -95,15 +99,15 @@ class SchedulingRunApiTest extends TestCase
             'finished_at' => '2026-10-19T10:00:01+08:00',
             'schedule_details' => [
                 $this->gene($this->threeSks, 1, 0, $this->room->id),
-                $this->gene($this->fourSks, 1, 1, null),
-                $this->gene($this->fourSks, 2, 3, null),
+                $this->gene($this->fourSks, 1, 1, $this->room->id),
+                $this->gene($this->fourSks, 2, 3, $this->room->id),
             ],
             'violations' => [],
             ...$overrides,
         ];
     }
 
-    private function gene(Course $course, int $meeting, int $slot, ?int $roomId): array
+    private function gene(Course $course, int $meeting, int $slot, int $roomId): array
     {
         return [
             'course_id' => $course->id,
@@ -127,13 +131,17 @@ class SchedulingRunApiTest extends TestCase
             ->assertJsonPath('data.schedule_details_count', 3)
             ->assertJsonPath('data.sc_unmet', 1)
             ->assertJsonPath('data.hc_violations', 0)
-            ->assertJsonPath('data.unassigned_rooms', 2)
+            ->assertJsonPath('data.unassigned_rooms', 0)
+            ->assertJsonPath('data.scope', 'study_program')
+            ->assertJsonPath('data.study_program.id', $this->program->id)
+            ->assertJsonPath('data.is_stale', false)
             ->assertJsonPath('data.selection_operator', 'TS')
             ->assertJsonPath('data.is_active', false)
             ->json('data.id');
 
         $run = SchedulingRun::query()->findOrFail($id);
         $this->assertSame($payload['client_run_id'], $run->client_run_id);
+        $this->assertSame($this->faculty->id, $run->faculty_id);
         $this->assertSame(594, $run->current_generation);
         $this->assertSame($this->admin->id, $run->triggered_by);
         $this->assertDatabaseHas('violation_logs', ['scheduling_run_id' => $id, 'message' => 'Bukan slot yang diinginkan']);
@@ -160,7 +168,7 @@ class SchedulingRunApiTest extends TestCase
         $this->postJson('/api/v1/scheduling-runs', $payload)->assertCreated();
         $this->postJson('/api/v1/scheduling-runs', $payload)->assertOk();
 
-        $this->assertSame(1, SchedulingRun::query()->count());
+        $this->assertSame(1, SchedulingRun::query()->whereNotNull('study_program_id')->count());
     }
 
     public function test_run_from_stale_data_is_refused(): void
@@ -173,7 +181,7 @@ class SchedulingRunApiTest extends TestCase
         ]);
 
         $this->postJson('/api/v1/scheduling-runs', $payload)->assertStatus(409)->assertJsonPath('code', 'DATASET_CHANGED');
-        $this->assertSame(0, SchedulingRun::query()->count());
+        $this->assertSame(0, SchedulingRun::query()->whereNotNull('study_program_id')->count());
     }
 
     public function test_schedule_must_cover_exactly_the_dataset_classes(): void
@@ -191,24 +199,52 @@ class SchedulingRunApiTest extends TestCase
         $this->postJson('/api/v1/scheduling-runs', $wrongLecturer)->assertUnprocessable()->assertJsonValidationErrors('schedule_details.0.lecturer_id');
     }
 
-    public function test_rooms_must_fit_and_be_free(): void
+    public function test_every_meeting_sits_in_one_of_the_program_cells(): void
     {
         $small = Room::factory()->create(['faculty_id' => null, 'capacity' => 20]);
+        $this->giveCells($this->program, self::PERIOD, [[$this->slots[1], $small]]);
         $payload = $this->payload();
         $payload['schedule_details'][1]['room_id'] = $small->id;
         $this->postJson('/api/v1/scheduling-runs', $payload)->assertUnprocessable()->assertJsonValidationErrors('schedule_details.1.room_id');
 
-        $foreign = Room::factory()->create(['faculty_id' => Faculty::factory()->create()->id, 'capacity' => 50]);
+        // A room the program was not given in that slot.
+        $foreign = Room::factory()->create(['faculty_id' => null, 'capacity' => 50]);
         $payload = $this->payload();
         $payload['schedule_details'][1]['room_id'] = $foreign->id;
         $this->postJson('/api/v1/scheduling-runs', $payload)->assertUnprocessable()->assertJsonValidationErrors('schedule_details.1.room_id');
+
+        $payload = $this->payload();
+        $payload['schedule_details'][1]['room_id'] = null;
+        $this->postJson('/api/v1/scheduling-runs', $payload)->assertUnprocessable()->assertJsonValidationErrors('schedule_details.1.room_id');
+
+        // One cell, one meeting.
+        $payload = $this->payload();
+        $payload['schedule_details'][1]['time_slot_id'] = $this->slots[0]->id;
+        $this->postJson('/api/v1/scheduling-runs', $payload)->assertUnprocessable()->assertJsonValidationErrors('schedule_details.1.room_id');
+    }
+
+    public function test_slots_the_lecturer_teaches_in_another_program_are_refused(): void
+    {
+        $other = StudyProgram::factory()->create();
+        $otherCourse = Course::factory()->create(['study_program_id' => $other->id, 'semester' => 3]);
+        $payload = $this->payload();
+        $this->programRun($other, self::PERIOD, [[
+            'course_id' => $otherCourse->id, 'class_number' => 1, 'lecturer_id' => $this->lecturer->id,
+            'time_slot_id' => $this->slots[0]->id, 'room_id' => null,
+        ]]);
+
+        $this->postJson('/api/v1/scheduling-runs', $payload)->assertStatus(409)->assertJsonPath('code', 'DATASET_CHANGED');
+        $this->postJson('/api/v1/scheduling-runs', $this->payload())->assertUnprocessable()->assertJsonValidationErrors('schedule_details.0.time_slot_id');
     }
 
     public function test_hard_constraint_counts_must_match_the_server(): void
     {
         // Both meetings of the 4 SKS course in the same slot: one HC2 and one HC3.
+        $second = Room::factory()->create(['faculty_id' => null, 'capacity' => 50]);
+        $this->giveCells($this->program, self::PERIOD, [[$this->slots[1], $second]]);
         $clash = $this->payload();
         $clash['schedule_details'][2]['time_slot_id'] = $this->slots[1]->id;
+        $clash['schedule_details'][2]['room_id'] = $second->id;
 
         $this->postJson('/api/v1/scheduling-runs', $clash)
             ->assertUnprocessable()->assertJsonValidationErrors(['violations.HC2', 'violations.HC3']);
@@ -220,10 +256,11 @@ class SchedulingRunApiTest extends TestCase
         $this->postJson('/api/v1/scheduling-runs', $clash)->assertCreated()->assertJsonPath('data.hc_violations', 2);
     }
 
-    public function test_preset_of_another_faculty_is_refused(): void
+    public function test_preset_of_another_program_is_refused(): void
     {
+        $other = StudyProgram::factory()->create(['faculty_id' => $this->faculty->id]);
         $preset = GaParameterPreset::query()->create([
-            'faculty_id' => Faculty::factory()->create()->id, 'name' => 'Lain', 'crossover_rate' => 0.9,
+            'faculty_id' => $this->faculty->id, 'study_program_id' => $other->id, 'name' => 'Lain', 'crossover_rate' => 0.9,
             'mutation_rate' => 0.5, 'selection_operator' => 'TS',
         ]);
 
@@ -231,26 +268,31 @@ class SchedulingRunApiTest extends TestCase
             ->assertUnprocessable()->assertJsonValidationErrors('preset_id');
     }
 
-    public function test_other_faculties_and_roles_cannot_read_or_upload(): void
+    public function test_faculty_reads_but_other_programs_and_roles_cannot(): void
     {
         $id = $this->postJson('/api/v1/scheduling-runs', $this->payload())->assertCreated()->json('data.id');
 
-        Sanctum::actingAs(User::factory()->facultyAdmin(Faculty::factory()->create())->create());
+        Sanctum::actingAs(User::factory()->facultyAdmin($this->faculty)->create());
+        $this->getJson("/api/v1/scheduling-runs/{$id}")->assertOk();
+        $this->getJson('/api/v1/scheduling-runs')->assertOk()->assertJsonCount(1, 'data');
+        $this->postJson('/api/v1/scheduling-runs', [])->assertForbidden();
+
+        Sanctum::actingAs(User::factory()->studyProgramAdmin(StudyProgram::factory()->create(['faculty_id' => $this->faculty->id]))->create());
         $this->getJson("/api/v1/scheduling-runs/{$id}")->assertForbidden();
         $this->getJson('/api/v1/scheduling-runs')->assertOk()->assertJsonCount(0, 'data');
 
-        Sanctum::actingAs(User::factory()->studyProgramAdmin($this->program)->create());
+        Sanctum::actingAs(User::factory()->lecturer()->create());
         $this->getJson('/api/v1/scheduling-runs')->assertForbidden();
         $this->postJson('/api/v1/scheduling-runs', [])->assertForbidden();
     }
 
-    public function test_superadmin_uploads_for_a_chosen_faculty(): void
+    public function test_superadmin_uploads_for_a_chosen_program(): void
     {
         $payload = $this->payload();
         Sanctum::actingAs(User::factory()->superAdmin()->create());
 
-        $this->postJson('/api/v1/scheduling-runs', $payload)->assertUnprocessable()->assertJsonValidationErrors('faculty_id');
-        $this->postJson('/api/v1/scheduling-runs', [...$payload, 'faculty_id' => $this->faculty->id])
-            ->assertCreated()->assertJsonPath('data.faculty.id', $this->faculty->id);
+        $this->postJson('/api/v1/scheduling-runs', $payload)->assertUnprocessable()->assertJsonValidationErrors('study_program_id');
+        $this->postJson('/api/v1/scheduling-runs', [...$payload, 'study_program_id' => $this->program->id])
+            ->assertCreated()->assertJsonPath('data.study_program.id', $this->program->id)->assertJsonPath('data.faculty.id', $this->faculty->id);
     }
 }

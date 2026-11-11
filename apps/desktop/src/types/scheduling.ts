@@ -32,11 +32,11 @@ export interface DatasetRoom {
 
 export interface DatasetCourse {
   id: number;
-  study_program_id: number;
+  study_program_id: number | null;
   code: string;
   name: string;
   sks: 2 | 3 | 4;
-  semester: number;
+  semester: number | null;
   parallel_class_count: number;
   class_capacity: number;
   is_tpb: boolean;
@@ -46,7 +46,26 @@ export interface DatasetClass {
   course_id: number;
   class_number: number;
   lecturer_id: number;
-  fixed_room_id: number | null;
+  fixed_room_id?: number | null;
+  fixed_time_slot_ids?: number[];
+  fixed_room_ids?: (number | null)[];
+  tpb_group_id?: number | null;
+}
+
+export type TpbCohort = 'maba' | 'non_maba' | 'campuran' | 'mengulang' | 'pilihan';
+
+export interface DatasetTpbGroup {
+  id: number;
+  course_id: number;
+  code: string;
+  cohort: TpbCohort;
+  study_programs: { id: number; target_semester: number | null }[];
+}
+
+export interface DatasetTpbBlocks {
+  study_programs: { study_program_id: number; semester: number; time_slot_ids: number[] }[];
+  retake: { study_program_id: number; time_slot_ids: number[] }[];
+  lecturers: { lecturer_id: number; time_slot_ids: number[] }[];
 }
 
 export interface DatasetPreference {
@@ -70,11 +89,23 @@ export interface DatasetConstraintType {
   weight: number;
 }
 
+export interface DatasetCell {
+  time_slot_id: number;
+  room_id: number;
+}
+
 export interface SchedulingDataset {
   fingerprint: string;
   generated_at: string;
   period: string;
-  faculty: { id: number; code: string; name: string };
+  /** study_program: one program, scheduled only in the cells its faculty gave it. */
+  scope: 'study_program' | 'tpb';
+  faculty: { id: number; code: string; name: string } | null;
+  study_program?: { id: number; code: string; name: string };
+  /** study_program: the (slot, room) cells every meeting must sit in, one meeting per cell. */
+  cells?: DatasetCell[];
+  /** study_program: slots the program's lecturers teach in other programs' active schedules. */
+  lecturer_busy?: { lecturer_id: number; time_slot_ids: number[] }[];
   study_programs: DatasetStudyProgram[];
   time_slots: DatasetTimeSlot[];
   rooms: DatasetRoom[];
@@ -83,10 +114,21 @@ export interface SchedulingDataset {
   lecturers: DatasetLecturer[];
   constraint_types: DatasetConstraintType[];
   occupied_rooms: { time_slot_id: number; room_id: number }[];
+  tpb_groups?: DatasetTpbGroup[];
+  revision?: { required: boolean; published_run_id: number | null; revise_group_ids: number[] };
+  tpb_blocks?: DatasetTpbBlocks;
+  tpb_run_id?: number;
 }
 
 export interface FacultyOption {
   id: number;
   code: string;
   name: string;
+}
+
+export interface StudyProgramOption {
+  id: number;
+  code: string;
+  name: string;
+  faculty: FacultyOption | null;
 }

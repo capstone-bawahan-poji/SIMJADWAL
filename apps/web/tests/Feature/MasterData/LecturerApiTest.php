@@ -67,15 +67,15 @@ class LecturerApiTest extends TestCase
         $this->getJson('/api/v1/lecturers?faculty_id='.$this->program->faculty_id)->assertOk()->assertJsonCount(2, 'data');
     }
 
-    public function test_submitted_program_is_locked_for_program_admin_but_not_faculty_admin(): void
+    public function test_submitted_program_remains_editable_for_program_and_faculty_admin(): void
     {
         $program = StudyProgram::factory()->submitted()->create();
         $lecturer = Lecturer::factory()->create(['study_program_id' => $program->id]);
 
         Sanctum::actingAs(User::factory()->studyProgramAdmin($program)->create());
         $this->patchJson("/api/v1/lecturers/{$lecturer->id}", ['name' => 'Ubah'])
-            ->assertStatus(409)
-            ->assertJsonPath('code', 'CONSTRAINTS_LOCKED');
+            ->assertOk()
+            ->assertJsonPath('data.name', 'Ubah');
 
         Sanctum::actingAs(User::factory()->facultyAdmin($program->faculty)->create());
         $this->patchJson("/api/v1/lecturers/{$lecturer->id}", ['name' => 'Ubah'])

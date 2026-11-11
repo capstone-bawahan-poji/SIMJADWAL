@@ -14,7 +14,7 @@ use Tests\Concerns\SeedsAccessControl;
 use Tests\TestCase;
 
 /**
- * Scope and lock rules module 2 controllers rely on through Gate::authorize().
+ * Scope rules module 2 controllers rely on through Gate::authorize().
  */
 class MasterDataPolicyTest extends TestCase
 {
@@ -53,17 +53,15 @@ class MasterDataPolicyTest extends TestCase
         $this->assertFalse(Gate::forUser($admin)->allows('view', Course::factory()->create()));
     }
 
-    public function test_submitted_program_is_locked_with_409(): void
+    public function test_program_admin_can_edit_submitted_and_accepted_programs(): void
     {
         $studyProgram = StudyProgram::factory()->submitted()->create();
         $admin = User::factory()->studyProgramAdmin($studyProgram)->create();
         $course = Course::factory()->create(['study_program_id' => $studyProgram->id]);
 
-        $response = Gate::forUser($admin)->inspect('update', $course);
-
-        $this->assertTrue($response->denied());
-        $this->assertSame(409, $response->status());
-        $this->assertSame('CONSTRAINTS_LOCKED', $response->code());
+        $this->assertTrue(Gate::forUser($admin)->allows('update', $course));
+        $studyProgram->update(['constraint_status' => 'accepted']);
+        $this->assertTrue(Gate::forUser($admin)->allows('update', $course->fresh()));
     }
 
     public function test_faculty_admin_may_change_submitted_programs_of_own_faculty(): void

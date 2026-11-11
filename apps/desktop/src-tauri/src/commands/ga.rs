@@ -6,6 +6,7 @@ use serde::Serialize;
 use tauri::{AppHandle, Emitter, Manager, State};
 use uuid::Uuid;
 
+use crate::api::ApiClient;
 use crate::error::AppError;
 use crate::services::ga::batch;
 use crate::services::ga::model::{BatchRequest, RunSpec, RunSummary};
@@ -48,20 +49,24 @@ pub struct BatchStarted {
     runs: Vec<RunSpec>,
 }
 
-fn storage(app: &AppHandle) -> Result<Storage, AppError> {
-    Ok(Storage::new(&app.path().app_data_dir()?))
+fn storage(app: &AppHandle, api: &ApiClient) -> Result<Storage, AppError> {
+    let user_id = api
+        .user_id()
+        .ok_or_else(|| AppError::Invalid("Anda belum masuk.".into()))?;
+    Ok(Storage::new(&app.path().app_data_dir()?, user_id))
 }
 
 #[tauri::command]
 pub async fn ga_start_batch(
     app: AppHandle,
     registry: State<'_, RunRegistry>,
+    api: State<'_, ApiClient>,
     request: BatchRequest,
 ) -> Result<BatchStarted, AppError> {
     batch::validate(&request)?;
     let specs = batch::expand(&request)?;
     crate::services::ga::problem::Problem::build(&request.dataset, &request.config)?;
-    let storage = storage(&app)?;
+    let storage = storage(&app, &api)?;
 
     let batch_id = Uuid::new_v4().to_string();
     let cancel = registry.register(&batch_id);
@@ -151,16 +156,27 @@ pub fn ga_running_batches(registry: State<'_, RunRegistry>) -> Result<Vec<String
 }
 
 #[tauri::command]
-pub async fn ga_list_results(app: AppHandle) -> Result<Vec<RunListItem>, AppError> {
-    storage(&app)?.list()
+pub async fn ga_list_results(
+    app: AppHandle,
+    api: State<'_, ApiClient>,
+) -> Result<Vec<RunListItem>, AppError> {
+    storage(&app, &api)?.list()
 }
 
 #[tauri::command]
-pub async fn ga_get_result(app: AppHandle, run_id: String) -> Result<RunRecord, AppError> {
-    storage(&app)?.load(&run_id)
+pub async fn ga_get_result(
+    app: AppHandle,
+    api: State<'_, ApiClient>,
+    run_id: String,
+) -> Result<RunRecord, AppError> {
+    storage(&app, &api)?.load(&run_id)
 }
 
 #[tauri::command]
-pub async fn ga_delete_result(app: AppHandle, run_id: String) -> Result<(), AppError> {
-    storage(&app)?.delete(&run_id)
+pub async fn ga_delete_result(
+    app: AppHandle,
+    api: State<'_, ApiClient>,
+    run_id: String,
+) -> Result<(), AppError> {
+    storage(&app, &api)?.delete(&run_id)
 }

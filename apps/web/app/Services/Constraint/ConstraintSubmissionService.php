@@ -6,29 +6,23 @@ use App\Contracts\Account\ResolvesOrgScope;
 use App\Data\Constraint\ConstraintSubmissionData;
 use App\Enums\Constraint\ConstraintCode;
 use App\Enums\Constraint\ConstraintStatus;
-use App\Exceptions\Shared\ApiException;
 use App\Models\Constraint\LecturerPreference;
 use App\Models\MasterData\Course;
 use App\Models\MasterData\Lecturer;
 use App\Models\MasterData\StudyProgram;
 use App\Models\User;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
-use Illuminate\Database\DatabaseManager;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
 
 /**
- * Prodi admins submit the constraints of their program. A submit needs every class of every
- * course to have a lecturer. A faculty admin then accepts it or returns it to draft with a note.
- * Submitted and accepted programs are locked (StudyProgram::isLocked()).
+ * Summarizes the courses and lecturer preferences of each study program.
  */
 readonly class ConstraintSubmissionService
 {
     public function __construct(
         private StudyProgram $studyProgram,
         private ResolvesOrgScope $orgScope,
-        private ConstraintActivityLogService $activityLog,
-        private DatabaseManager $db,
     ) {}
 
     /**
@@ -49,7 +43,7 @@ readonly class ConstraintSubmissionService
     }
 
     /**
-     * The summary row plus what the faculty admin reviews: courses still missing lecturers and
+     * The summary row, courses still missing lecturers and
      * the preference matrix of every lecturer.
      *
      * @return array{
@@ -88,76 +82,6 @@ readonly class ConstraintSubmissionService
         return ['summary' => $summary->toArray(), 'incomplete_courses' => $incomplete, 'lecturers' => $lecturers];
     }
 
-    public function submit(StudyProgram $studyProgram): ConstraintSubmissionData
-    {
-        $this->db->transaction(function () use ($studyProgram) {
-            $locked = $this->lockRow($studyProgram);
-
-            if ($locked->isLocked()) {
-                throw ApiException::constraintsLocked();
-            }
-
-            $this->ensureComplete($locked);
-
-            $locked->update([
-                'constraint_status' => ConstraintStatus::SUBMITTED,
-                'constraint_submitted_at' => now(),
-                'constraint_reviewed_by' => null,
-                'constraint_reviewed_at' => null,
-                'constraint_return_note' => null,
-            ]);
-            $this->activityLog->constraintsSubmitted($locked);
-        });
-
-        return $this->summary($studyProgram);
-    }
-
-    public function accept(StudyProgram $studyProgram, User $reviewer): ConstraintSubmissionData
-    {
-        $this->db->transaction(function () use ($studyProgram, $reviewer) {
-            $locked = $this->lockRow($studyProgram);
-            $this->ensureStatus($locked, [ConstraintStatus::SUBMITTED], __('Only a submitted program can be accepted.'));
-
-            $locked->update([
-                'constraint_status' => ConstraintStatus::ACCEPTED,
-                'constraint_reviewed_by' => $reviewer->id,
-                'constraint_reviewed_at' => now(),
-                'constraint_return_note' => null,
-            ]);
-            $this->activityLog->constraintsAccepted($locked);
-        });
-
-        return $this->summary($studyProgram);
-    }
-
-    public function return(StudyProgram $studyProgram, User $reviewer, string $note): ConstraintSubmissionData
-    {
-        $this->db->transaction(function () use ($studyProgram, $reviewer, $note) {
-            $locked = $this->lockRow($studyProgram);
-            $this->ensureStatus($locked, [ConstraintStatus::SUBMITTED, ConstraintStatus::ACCEPTED], __('Only a submitted or accepted program can be returned.'));
-
-            $locked->update([
-                'constraint_status' => ConstraintStatus::DRAFT,
-                'constraint_submitted_at' => null,
-                'constraint_reviewed_by' => $reviewer->id,
-                'constraint_reviewed_at' => now(),
-                'constraint_return_note' => $note,
-            ]);
-            $this->activityLog->constraintsReturned($locked);
-        });
-
-        return $this->summary($studyProgram);
-    }
-
-    /**
-     * Fresh copy of the program, row-locked until the surrounding transaction ends, so two
-     * concurrent submit / review calls cannot both pass the status check.
-     */
-    private function lockRow(StudyProgram $studyProgram): StudyProgram
-    {
-        return $this->studyProgram->newQuery()->lockForUpdate()->findOrFail($studyProgram->id);
-    }
-
     /**
      * @return Builder<StudyProgram>
      */
@@ -188,45 +112,14 @@ readonly class ConstraintSubmissionService
     }
 
     /**
-     * @param  list<ConstraintStatus>  $allowed
-     */
-    private function ensureStatus(StudyProgram $studyProgram, array $allowed, string $message): void
-    {
-        if (! in_array($studyProgram->constraint_status, $allowed, true)) {
-            throw ApiException::invalidState($message);
-        }
-    }
-
-    private function ensureComplete(StudyProgram $studyProgram): void
-    {
-        $errors = [];
-
-        if (! $studyProgram->courses()->exists()) {
-            $errors['courses'][] = __('The study program has no courses yet.');
-        }
-
-        foreach ($this->incompleteCourses($studyProgram) as $course) {
-            $errors['courses'][] = __('Course :code has :assigned of :total classes with a lecturer.', [
-                'code' => $course->code,
-                'assigned' => $course->course_lecturers_count,
-                'total' => $course->parallel_class_count,
-            ]);
-        }
-
-        if ($errors !== []) {
-            throw ApiException::validation($errors);
-        }
-    }
-
-    /**
-     * Single definition of an incomplete course: fewer lecturers than parallel classes.
+     * Single definition of an incomplete course: an active course with fewer lecturers than parallel classes.
      *
      * @param  Builder<Course>  $query
      * @return Builder<Course>
      */
     private function incompleteScope(Builder $query): Builder
     {
-        return $query->whereRaw('(select count(*) from course_lecturers where course_lecturers.course_id = courses.id) < courses.parallel_class_count');
+        return $query->where('courses.is_active', true)->whereRaw('(select count(*) from course_lecturers where course_lecturers.course_id = courses.id) < courses.parallel_class_count');
     }
 
     /**

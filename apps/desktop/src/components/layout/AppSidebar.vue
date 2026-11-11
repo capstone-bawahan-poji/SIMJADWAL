@@ -84,7 +84,7 @@ const itemClass = (key: string) => [
           @click="$emit('update:activeView', 'admin-history')"
         >
           <History class="size-4 shrink-0" aria-hidden="true" />
-          <span class="truncate">Riwayat run fakultas</span>
+          <span class="truncate">Riwayat run server</span>
         </button>
       </div>
     </nav>

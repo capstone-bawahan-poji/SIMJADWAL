@@ -3,6 +3,7 @@
 namespace App\Data\MasterData;
 
 use App\Data\BaseData;
+use App\Enums\MasterData\TpbCohort;
 use App\Extensions\Data\FromPolicy;
 use Spatie\LaravelData\Attributes\DataCollectionOf;
 use Spatie\LaravelData\Attributes\MapName;
@@ -10,25 +11,25 @@ use Spatie\LaravelData\Mappers\SnakeCaseMapper;
 use Spatie\TypeScriptTransformer\Attributes\TypeScript;
 
 /**
- * course_lecturers_count = classes placed in this group. time_slot is null until the TPB admin places the group.
+ * class_numbers = classes of the offering in this group (1 = A). The slot is not stored here:
+ * it comes from the active TPB scheduling run.
  */
 #[TypeScript]
 #[MapName(SnakeCaseMapper::class)]
 class TpbGroupData extends BaseData
 {
     /**
-     * @param  list<StudyProgramSummaryData>  $studyPrograms
+     * @param  list<TpbParticipantData>  $participants
+     * @param  list<int>  $classNumbers
      */
     public function __construct(
         public int $id,
-        public int $courseId,
+        public int $tpbOfferingId,
         public string $code,
-        public ?int $timeSlotId,
-        public CourseSummaryData $course,
-        public ?TimeSlotSummaryData $timeSlot,
-        #[DataCollectionOf(StudyProgramSummaryData::class)]
-        public array $studyPrograms,
-        public int $courseLecturersCount,
+        public TpbCohort $cohort,
+        #[DataCollectionOf(TpbParticipantData::class)]
+        public array $participants,
+        public array $classNumbers,
         #[FromPolicy('update')]
         public bool $canUpdate = false,
         #[FromPolicy('delete')]
@@ -37,11 +38,6 @@ class TpbGroupData extends BaseData
 
     public static function relations(): array
     {
-        return ['course', 'timeSlot', 'studyPrograms'];
-    }
-
-    public static function countRelations(): array
-    {
-        return ['courseLecturers'];
+        return ['studyPrograms', 'courseLecturers:id,tpb_group_id,class_number'];
     }
 }

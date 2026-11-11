@@ -1,31 +1,32 @@
 <script setup lang="ts">
+import RoomMatrix from '@/Components/scheduling/RoomMatrix.vue';
+import RoomGridExportButton from '@/Components/scheduling/RoomGridExportButton.vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
 import Alert from '@/Components/ui/Alert.vue';
-import Button from '@/Components/ui/Button.vue';
 import Panel from '@/Components/ui/Panel.vue';
 import Pagination from '@/Components/ui/Pagination.vue';
-import ScheduleOverrideModal from '@/Components/scheduling/ScheduleOverrideModal.vue';
 import { usePaginatedList } from '@/composables/useApiList';
 import { onResourcesChanged } from '@/composables/useResourceChanges';
 import { api, toApiError, type ApiError } from '@/lib/api';
 import { queryParam } from '@/lib/query';
-import type { Schedule, ScheduleDetailBase, ScheduleFilters, Room } from '@/types/models';
-import { Head } from '@inertiajs/vue3';
-import { computed, ref } from 'vue';
+import type { Schedule, ScheduleFilters, ScheduleScope, Room } from '@/types/models';
+import { Head, Link } from '@inertiajs/vue3';
+import { computed, ref, watch } from 'vue';
 
 type RoomIssue = Schedule['schedule_details'][number];
 
-const { filters: roomFilters, items: rooms, pagination, page, loading: roomsLoading, error: roomError } = usePaginatedList<Room, { q: string }>(
+const props = withDefaults(defineProps<{ scope?: ScheduleScope }>(), { scope: 'faculty' });
+const readonly = computed(() => props.scope === 'tpb');
+
+const { filters: roomFilters, items: rooms, pagination, page, loading: roomsLoading, error: roomError } = usePaginatedList<Room, { q: string; shared: string }>(
     'rooms',
-    { q: queryParam('q') },
+    { q: queryParam('q'), shared: '' },
 );
 const DAYS: Record<number, string> = { 1: 'Senin', 2: 'Selasa', 3: 'Rabu', 4: 'Kamis', 5: 'Jumat', 6: 'Sabtu', 7: 'Minggu' };
 const overCapacity = ref<RoomIssue[]>([]);
 const unassigned = ref<RoomIssue[]>([]);
 const loadingIssues = ref(false);
 const issuesError = ref<ApiError | null>(null);
-const overrideTarget = ref<RoomIssue | null>(null);
-const flash = ref<string | null>(null);
 const currentPeriod = ref('');
 let issueRequestId = 0;
 
@@ -40,8 +41,8 @@ async function loadIssues(): Promise<void> {
 
     try {
         const [capacityResponse, unassignedResponse] = await Promise.all([
-            api.get<{ data: Schedule }>('schedules', { params: { period: currentPeriod.value, over_capacity: 1 } satisfies ScheduleFilters }),
-            api.get<{ data: Schedule }>('schedules', { params: { period: currentPeriod.value, unassigned: 1 } satisfies ScheduleFilters }),
+            api.get<{ data: Schedule }>('schedules', { params: { period: currentPeriod.value, over_capacity: 1, scope: props.scope } satisfies ScheduleFilters }),
+            api.get<{ data: Schedule }>('schedules', { params: { period: currentPeriod.value, unassigned: 1, scope: props.scope } satisfies ScheduleFilters }),
         ]);
         if (requestId !== issueRequestId) return;
 
@@ -71,31 +72,57 @@ function locationOf(room: Room): string {
     return [room.building, room.floor != null ? `Lt ${room.floor}` : null].filter(Boolean).join(' · ') || '-';
 }
 
-function openOverride(detail: RoomIssue): void {
-    overrideTarget.value = detail;
-}
-
-function overrideSaved(updated: ScheduleDetailBase): void {
-    if (updated.room) flash.value = `Ruang kelas ${updated.course.code} berhasil diperbarui.`;
-    else flash.value = `Perubahan jadwal ${updated.course.code} berhasil disimpan.`;
-    overrideTarget.value = null;
-    void loadIssues();
+/** Rooms are moved by the program; the faculty returns the schedule with a note. */
+function reviewUrl(detail: RoomIssue): string {
+    return `/fakultas/review${detail.course.study_program ? `?program=${detail.course.study_program.id}` : ''}`;
 }
 
 onResourcesChanged(['scheduling_runs', 'schedule_details'], () => void loadIssues());
 void loadIssues();
+const VIEWS = [
+    { id: 'summary', label: 'Ringkasan ruangan' },
+    { id: 'matrix', label: 'Seluruh jadwal' },
+] as const;
+const view = ref<(typeof VIEWS)[number]['id']>(queryParam('view') === 'matrix' ? 'matrix' : 'summary');
+watch(view, (value) => {
+    const url = new URL(window.location.href);
+    if (value === 'matrix') url.searchParams.set('view', 'matrix');
+    else url.searchParams.delete('view');
+    window.history.replaceState(window.history.state, '', url);
+});
 </script>
 
 <template>
     <Head title="Alokasi Ruangan" />
     <AppLayout>
         <div class="w-full space-y-6 p-6 md:p-8">
-            <div>
-                <h1 class="text-2xl font-bold tracking-tight text-gray-900">Alokasi Ruangan</h1>
-                <p class="mt-1 text-sm text-gray-500">Jadwal aktif periode {{ currentPeriod || 'berjalan' }}.</p>
+            <div class="flex flex-wrap items-start justify-between gap-4">
+                <div>
+                    <h1 class="text-2xl font-bold tracking-tight text-gray-900">Alokasi Ruangan</h1>
+                    <p class="mt-1 text-sm text-gray-500">
+                        {{ readonly ? 'Jadwal TPB aktif' : 'Jadwal program studi yang sudah dikirim ke fakultas,' }} periode {{ currentPeriod || 'berjalan' }}.
+                        <template v-if="readonly">Ruang kelas TPB ditentukan GA; jalankan ulang GA untuk mengubahnya.</template>
+                    </p>
+                </div>
+                <RoomGridExportButton :period="currentPeriod || undefined" :scope="props.scope" />
             </div>
 
-            <Alert v-if="flash" variant="success" :title="flash" dismissible @dismiss="flash = null" />
+
+            <div class="inline-flex rounded-lg bg-gray-100 p-1" role="tablist" aria-label="Tampilan halaman">
+                <button
+                    v-for="item in VIEWS"
+                    :key="item.id"
+                    type="button"
+                    role="tab"
+                    :aria-selected="view === item.id"
+                    class="rounded-md px-4 py-1.5 text-sm font-semibold transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+                    :class="view === item.id ? 'bg-white text-gray-900 shadow-sm' : 'text-gray-600 hover:text-gray-900'"
+                    @click="view = item.id"
+                >{{ item.label }}</button>
+            </div>
+
+            <RoomMatrix v-if="view === 'matrix'" :period="currentPeriod || undefined" :scope="props.scope" />
+            <template v-else>
             <Alert v-if="roomError" :title="roomError.message" />
             <Alert v-if="issuesError" :title="issuesError.message" />
 
@@ -119,7 +146,7 @@ void loadIssues();
             <Panel v-if="unassigned.length > 0">
                 <div class="border-b border-gray-200 px-6 py-4">
                     <h2 class="text-sm font-semibold text-gray-900">Kelas tanpa ruang <span class="ml-1 font-normal text-gray-400">{{ unassigned.length }}</span></h2>
-                    <p class="mt-0.5 text-sm text-gray-500">Pilih ruang yang tersedia untuk kelas berikut.</p>
+                    <p class="mt-0.5 text-sm text-gray-500">{{ readonly ? 'GA tidak menemukan ruang bersama yang kosong untuk kelas berikut.' : 'Ruang diatur oleh program studi. Kembalikan jadwalnya dengan catatan bila perlu diperbaiki.' }}</p>
                 </div>
                 <div class="overflow-x-auto">
                     <table class="w-full border-collapse text-left text-sm">
@@ -129,7 +156,7 @@ void loadIssues();
                                 <th class="px-6 py-3">Mata kuliah</th>
                                 <th class="px-6 py-3">Dosen</th>
                                 <th class="whitespace-nowrap px-6 py-3 text-right">Butuh</th>
-                                <th class="whitespace-nowrap px-6 py-3 text-right">Aksi</th>
+                                <th v-if="!readonly" class="whitespace-nowrap px-6 py-3 text-right">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100" :class="{ 'opacity-60': loadingIssues }">
@@ -144,8 +171,8 @@ void loadIssues();
                                 </td>
                                 <td class="px-6 py-3.5 text-gray-700">{{ detail.lecturer.name }}</td>
                                 <td class="whitespace-nowrap px-6 py-3.5 text-right tabular-nums text-gray-700">{{ detail.course.class_capacity }} kursi</td>
-                                <td class="whitespace-nowrap px-6 py-3.5 text-right">
-                                    <Button class="h-8 px-3 text-xs" @click="openOverride(detail)">Pilih ruang</Button>
+                                <td v-if="!readonly" class="whitespace-nowrap px-6 py-3.5 text-right">
+                                    <Link :href="reviewUrl(detail)" class="text-xs font-semibold text-primary hover:underline">Tinjau</Link>
                                 </td>
                             </tr>
                         </tbody>
@@ -166,7 +193,7 @@ void loadIssues();
                                 <th class="px-6 py-3">Mata kuliah</th>
                                 <th class="px-6 py-3">Dosen</th>
                                 <th class="whitespace-nowrap px-6 py-3 text-right">Ruang / kelas</th>
-                                <th class="whitespace-nowrap px-6 py-3 text-right">Aksi</th>
+                                <th v-if="!readonly" class="whitespace-nowrap px-6 py-3 text-right">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100" :class="{ 'opacity-60': loadingIssues }">
@@ -185,8 +212,8 @@ void loadIssues();
                                     <span class="text-gray-500"> / {{ detail.course.class_capacity }} kursi</span>
                                     <p v-if="detail.room" class="text-xs text-gray-500">{{ detail.room.code }}</p>
                                 </td>
-                                <td class="whitespace-nowrap px-6 py-3.5 text-right">
-                                    <Button class="h-8 px-3 text-xs" @click="openOverride(detail)">Pilih ruang</Button>
+                                <td v-if="!readonly" class="whitespace-nowrap px-6 py-3.5 text-right">
+                                    <Link :href="reviewUrl(detail)" class="text-xs font-semibold text-primary hover:underline">Tinjau</Link>
                                 </td>
                             </tr>
                         </tbody>
@@ -196,6 +223,11 @@ void loadIssues();
 
             <Panel>
                 <div class="flex flex-col gap-3 border-b border-gray-200 p-4 md:flex-row md:items-center">
+                    <select v-if="readonly" v-model="roomFilters.shared" :class="[controlClass, 'md:w-56']" aria-label="Filter jenis ruangan">
+                        <option value="">Semua ruangan</option>
+                        <option value="1">Ruang bersama (dipakai TPB)</option>
+                        <option value="0">Ruang milik fakultas</option>
+                    </select>
                     <input
                         v-model="roomFilters.q"
                         type="search"
@@ -204,7 +236,7 @@ void loadIssues();
                         :class="[controlClass, 'w-full placeholder-gray-400 md:w-72']"
                     />
                     <p class="text-sm text-gray-500 md:ml-auto">
-                        <span class="font-semibold tabular-nums text-gray-900">{{ pagination.total }}</span> ruangan fakultas
+                        <span class="font-semibold tabular-nums text-gray-900">{{ pagination.total }}</span> {{ readonly ? 'ruangan ITK' : 'ruangan fakultas' }}
                     </p>
                 </div>
 
@@ -243,14 +275,8 @@ void loadIssues();
                 </div>
                 <Pagination v-model:page="page" :pagination="pagination" label="ruangan" />
             </Panel>
+            </template>
         </div>
 
-        <ScheduleOverrideModal
-            v-if="overrideTarget"
-            :schedule-detail="overrideTarget"
-            :show="true"
-            @close="overrideTarget = null"
-            @updated="overrideSaved"
-        />
     </AppLayout>
 </template>

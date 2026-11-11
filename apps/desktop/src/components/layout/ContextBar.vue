@@ -3,24 +3,26 @@ import { computed, onMounted, ref } from 'vue';
 import Select from '@/components/ui/Select.vue';
 import StatusDot from '@/components/ui/StatusDot.vue';
 import { useDataset } from '@/composables/useDataset';
-import { fetchFaculties } from '@/lib/api/scheduling';
+import { fetchStudyPrograms } from '@/lib/api/scheduling';
 import { periodLabel } from '@/lib/format';
-import type { FacultyOption } from '@/types/scheduling';
+import type { StudyProgramOption } from '@/types/scheduling';
 
-const props = defineProps<{ superAdmin: boolean; facultyName: string | null; workflow: boolean }>();
+const props = defineProps<{ superAdmin: boolean; scopeName: string | null; workflow: boolean }>();
 
-const { dataset, period, facultyId, loading, error, stale, periodOptions, setPeriod, setFaculty } = useDataset();
+const { dataset, period, studyProgramId, loading, error, stale, periodOptions, setPeriod, setStudyProgram } = useDataset();
 
-const faculties = ref<FacultyOption[]>([]);
+const programs = ref<StudyProgramOption[]>([]);
 
 onMounted(async () => {
   if (!props.superAdmin) return;
-  try { faculties.value = await fetchFaculties(); } catch { /* the dataset error explains it */ }
+  try {
+    programs.value = (await fetchStudyPrograms()).sort((a, b) => a.code.localeCompare(b.code));
+  } catch { /* the dataset error explains it */ }
 });
 
-const facultyModel = computed({
-  get: () => facultyId.value,
-  set: (value: number | null) => { void setFaculty(value); },
+const programModel = computed({
+  get: () => studyProgramId.value,
+  set: (value: number | null) => { void setStudyProgram(value); },
 });
 
 const periodModel = computed({
@@ -41,17 +43,17 @@ const status = computed<{ tone: 'neutral' | 'success' | 'warning' | 'danger'; te
 });
 </script>
 
-<!-- Context only: which faculty and period the pages work on. Page actions never live here. -->
+<!-- Context only: which study program (or TPB) and period the pages work on. Page actions never live here. -->
 <template>
   <header class="flex h-[72px] shrink-0 items-center gap-6 border-b border-line bg-white px-8">
     <template v-if="workflow">
       <div class="flex items-center gap-3">
-        <span class="text-xs font-semibold text-ink-muted">Fakultas</span>
-        <Select v-if="superAdmin" v-model="facultyModel" class="w-72" aria-label="Fakultas">
-          <option :value="null" disabled>Pilih fakultas</option>
-          <option v-for="f in faculties" :key="f.id" :value="f.id">{{ f.code }} {{ f.name }}</option>
+        <span class="text-xs font-semibold text-ink-muted">Program studi</span>
+        <Select v-if="superAdmin" v-model="programModel" class="w-80" aria-label="Program studi">
+          <option :value="null" disabled>Pilih program studi</option>
+          <option v-for="p in programs" :key="p.id" :value="p.id">{{ p.code }} {{ p.name }}{{ p.faculty ? ` (${p.faculty.code})` : '' }}</option>
         </Select>
-        <span v-else class="text-sm font-semibold text-ink">{{ facultyName ?? '-' }}</span>
+        <span v-else class="text-sm font-semibold text-ink">{{ scopeName ?? '-' }}</span>
       </div>
 
       <div class="flex items-center gap-3">

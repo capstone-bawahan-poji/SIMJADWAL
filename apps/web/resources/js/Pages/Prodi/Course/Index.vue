@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
-import ProgramLockBanner from '@/Components/constraint/ProgramLockBanner.vue';
 import Modal from '@/Components/Modal.vue';
 import Alert from '@/Components/ui/Alert.vue';
 import Button from '@/Components/ui/Button.vue';
@@ -9,17 +8,14 @@ import Panel from '@/Components/ui/Panel.vue';
 import Pagination from '@/Components/ui/Pagination.vue';
 import { useApiForm } from '@/composables/useApiForm';
 import { usePaginatedList } from '@/composables/useApiList';
-import { useOwnSubmission } from '@/composables/useOwnSubmission';
 import { destroy } from '@/lib/api';
 import { queryParam } from '@/lib/query';
 import type { Course } from '@/types/models';
-import { Head, Link, usePage } from '@inertiajs/vue3';
+import { Head, usePage } from '@inertiajs/vue3';
 import { computed, ref } from 'vue';
 
 const fieldClass = 'w-full rounded-xl border-gray-200 bg-gray-50 text-gray-900 text-sm focus:border-primary focus:ring-primary';
 const studyProgramId = computed(() => usePage().props.auth.user.study_program_id);
-const { submission, locked } = useOwnSubmission();
-
 const { filters, items: courses, pagination, page, loading, error, reload } = usePaginatedList<
     Course,
     { q: string; semester: number | ''; study_program_id: number | null; is_tpb: boolean }
@@ -27,7 +23,6 @@ const { filters, items: courses, pagination, page, loading, error, reload } = us
 
 const semesters = [1, 2, 3, 4, 5, 6, 7, 8];
 const controlClass = 'rounded-lg border-gray-200 bg-white text-sm text-gray-700 focus:border-primary focus:ring-primary';
-const hasActions = computed(() => courses.value.some((course) => course.can_update || course.can_delete));
 const flash = ref<string | null>(null);
 
 function refresh(message: string): void {
@@ -35,7 +30,6 @@ function refresh(message: string): void {
     void reload();
 }
 
-// Create / edit modal.
 const isModalOpen = ref(false);
 const editing = ref<Course | null>(null);
 const form = useApiForm(() => ({
@@ -45,6 +39,7 @@ const form = useApiForm(() => ({
     semester: 1 as number,
     parallel_class_count: 1 as number,
     class_capacity: 50 as number,
+    is_active: true as boolean,
 }));
 
 function openCreate(): void {
@@ -59,25 +54,32 @@ function openEdit(course: Course): void {
         code: course.code,
         name: course.name,
         sks: course.sks,
-        semester: course.semester,
-        parallel_class_count: course.parallel_class_count,
-        class_capacity: course.class_capacity,
+        semester: course.semester ?? 1,
+        parallel_class_count: course.parallel_class_count ?? 1,
+        class_capacity: course.class_capacity ?? 50,
+        is_active: course.is_active,
     });
     isModalOpen.value = true;
 }
 
 async function save(): Promise<void> {
-    const saved = editing.value
-        ? await form.submit<Course>('patch', `courses/${editing.value.id}`)
+    const courseBeingEdited = editing.value;
+    const saved = courseBeingEdited
+        ? await form.submit<Course>('patch', `courses/${courseBeingEdited.id}`, {
+              code: form.data.code,
+              name: form.data.name,
+              sks: form.data.sks,
+              semester: form.data.semester,
+              is_active: form.data.is_active,
+          })
         : await form.submit<Course>('post', 'courses', { ...form.data, study_program_id: studyProgramId.value });
 
     if (saved) {
         isModalOpen.value = false;
-        refresh(`Mata kuliah ${saved.code} ${editing.value ? 'diperbarui' : 'ditambahkan'}.`);
+        refresh(`Mata kuliah ${saved.code} ${courseBeingEdited ? 'diperbarui' : 'ditambahkan'}.`);
     }
 }
 
-// Delete; refused with 409 while classes are mapped or scheduled.
 const deleteTarget = ref<Course | null>(null);
 const deleteProcessing = ref(false);
 const deleteError = ref<string | null>(null);
@@ -112,18 +114,16 @@ async function confirmDelete(): Promise<void> {
 
     <AppLayout>
         <div class="w-full space-y-6 p-6 md:p-8">
-            <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <header class="flex flex-wrap items-start justify-between gap-4">
                 <div>
                     <h1 class="text-2xl font-bold tracking-tight text-gray-900">Data Mata Kuliah</h1>
-                    <p class="mt-1 text-sm text-gray-500">Mata kuliah prodi beserta kelas paralel dan dosen pengampunya.</p>
+                    <p class="mt-1 text-sm text-gray-600">Kelola daftar mata kuliah program studi.</p>
                 </div>
-                <div class="flex gap-3">
-                    <Link :href="route('prodi.courses.import')" class="inline-flex h-10 items-center rounded-lg border border-gray-200 bg-white px-4 text-sm font-medium text-gray-700 hover:bg-gray-50">Import XLSX</Link>
-                    <Button type="button" :disabled="locked" @click="openCreate">Tambah Mata Kuliah</Button>
+                <div class="flex flex-wrap items-center gap-4">
+                    <Button type="button" @click="openCreate">Tambah Mata Kuliah</Button>
                 </div>
-            </div>
+            </header>
 
-            <ProgramLockBanner :submission="submission" />
             <Alert v-if="flash" variant="success" :title="flash" dismissible @dismiss="flash = null" />
 
             <Panel>
@@ -143,7 +143,7 @@ async function confirmDelete(): Promise<void> {
                 </div>
 
                 <Alert v-if="error" :title="error.message" class="m-4" />
-
+                
                 <div class="w-full overflow-x-auto">
                     <table class="w-full border-collapse text-left text-sm">
                         <thead>
@@ -152,33 +152,33 @@ async function confirmDelete(): Promise<void> {
                                 <th class="px-6 py-3">Mata Kuliah</th>
                                 <th class="whitespace-nowrap px-6 py-3 text-right">SKS</th>
                                 <th class="whitespace-nowrap px-6 py-3 text-right">Semester</th>
-                                <th class="whitespace-nowrap px-6 py-3 text-right">Kapasitas / kelas</th>
-                                <th class="whitespace-nowrap px-6 py-3 text-right">Kelas berdosen</th>
-                                <th v-if="hasActions" class="whitespace-nowrap px-6 py-3 text-right">Aksi</th>
+                                <th class="whitespace-nowrap px-6 py-3 text-center">Status</th>
+                                <th class="whitespace-nowrap px-6 py-3 text-center">Aksi</th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-gray-100" :class="{ 'opacity-60': loading }">
                             <tr v-if="!loading && courses.length === 0">
-                                <td :colspan="hasActions ? 7 : 6" class="px-6 py-10 text-center text-gray-500">Tidak ada mata kuliah yang cocok dengan filter.</td>
+                                <td colspan="6" class="px-6 py-10 text-center text-gray-500">Tidak ada mata kuliah yang cocok dengan filter.</td>
                             </tr>
                             <tr v-for="course in courses" :key="course.id" class="hover:bg-gray-50">
                                 <td class="whitespace-nowrap px-6 py-3.5 font-semibold tabular-nums text-gray-900">{{ course.code }}</td>
                                 <td class="px-6 py-3.5 text-gray-900">{{ course.name }}</td>
                                 <td class="px-6 py-3.5 text-right tabular-nums text-gray-700">{{ course.sks }}</td>
                                 <td class="px-6 py-3.5 text-right tabular-nums text-gray-700">{{ course.semester }}</td>
-                                <td class="px-6 py-3.5 text-right tabular-nums text-gray-700">{{ course.class_capacity }}</td>
-                                <td class="whitespace-nowrap px-6 py-3.5 text-right tabular-nums">
-                                    <span :class="course.course_lecturers_count < course.parallel_class_count ? 'font-semibold text-red-600' : 'text-gray-700'">
-                                        {{ course.course_lecturers_count }} / {{ course.parallel_class_count }}
+                                <td class="whitespace-nowrap px-6 py-3.5 text-center">
+                                    <span v-if="course.is_active" class="inline-flex items-center gap-1.5 text-xs font-medium text-green-700">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-green-600"></span>
+                                        Aktif
                                     </span>
-                                    <span v-if="course.course_lecturers_count < course.parallel_class_count" class="ml-1.5 text-xs text-red-600">
-                                        kurang {{ course.parallel_class_count - course.course_lecturers_count }}
+                                    <span v-else class="inline-flex items-center gap-1.5 text-xs font-medium text-gray-500">
+                                        <span class="h-1.5 w-1.5 rounded-full bg-gray-400"></span>
+                                        Nonaktif
                                     </span>
                                 </td>
-                                <td v-if="hasActions" class="whitespace-nowrap px-6 py-3.5 text-right">
-                                    <div class="flex justify-end gap-4">
-                                        <Button v-if="course.can_update" variant="secondary" size="sm" @click="openEdit(course)">Edit</Button>
-                                        <Button v-if="course.can_delete" variant="danger" size="sm" @click="askDelete(course)">Hapus</Button>
+                                <td class="whitespace-nowrap px-6 py-3.5 text-center">
+                                    <div class="flex justify-center gap-2">
+                                        <Button variant="secondary" size="sm" @click="openEdit(course)">Edit</Button>
+                                        <Button variant="primary" size="sm" @click="askDelete(course)">Hapus</Button>
                                     </div>
                                 </td>
                             </tr>
@@ -209,7 +209,7 @@ async function confirmDelete(): Promise<void> {
                         <p v-if="form.errors.value.name" class="mt-1 text-xs text-red-600">{{ form.errors.value.name }}</p>
                     </div>
                 </div>
-                <div class="grid grid-cols-2 gap-6 md:grid-cols-4">
+                <div class="grid grid-cols-1 gap-6 md:grid-cols-3">
                     <div>
                         <label for="course-sks" class="mb-1.5 block text-sm font-semibold text-gray-900">SKS</label>
                         <select id="course-sks" v-model.number="form.data.sks" :class="fieldClass">
@@ -226,15 +226,12 @@ async function confirmDelete(): Promise<void> {
                         </select>
                         <p v-if="form.errors.value.semester" class="mt-1 text-xs text-red-600">{{ form.errors.value.semester }}</p>
                     </div>
-                    <div>
-                        <label for="course-classes" class="mb-1.5 block text-sm font-semibold text-gray-900">Kelas Paralel</label>
-                        <input id="course-classes" v-model.number="form.data.parallel_class_count" type="number" min="1" :class="fieldClass" required />
-                        <p v-if="form.errors.value.parallel_class_count" class="mt-1 text-xs text-red-600">{{ form.errors.value.parallel_class_count }}</p>
-                    </div>
-                    <div>
-                        <label for="course-capacity" class="mb-1.5 block text-sm font-semibold text-gray-900">Kapasitas Kelas</label>
-                        <input id="course-capacity" v-model.number="form.data.class_capacity" type="number" min="1" :class="fieldClass" required />
-                        <p v-if="form.errors.value.class_capacity" class="mt-1 text-xs text-red-600">{{ form.errors.value.class_capacity }}</p>
+                    <div v-if="editing">
+                        <label for="course-status" class="mb-1.5 block text-sm font-semibold text-gray-900">Status</label>
+                        <select id="course-status" v-model="form.data.is_active" :class="fieldClass">
+                            <option :value="true">Aktif</option>
+                            <option :value="false">Nonaktif</option>
+                        </select>
                     </div>
                 </div>
                 <div class="flex justify-end gap-3 border-t border-gray-100 pt-4">

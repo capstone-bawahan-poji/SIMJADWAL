@@ -25,6 +25,9 @@ class TimeSlot extends Model
     /** @use HasFactory<TimeSlotFactory> */
     use BroadcastsChanges, HasFactory;
 
+    /** Minutes per SKS. A slot of type 2 or 3 spans 2 or 3 of these. */
+    public const MINUTES_PER_SKS = 50;
+
     protected function casts(): array
     {
         return [
@@ -51,15 +54,14 @@ class TimeSlot extends Model
     }
 
     /** @return HasMany<LecturerPreference, $this> */
+    public static function rangeMatchesType(string $startTime, string $endTime, int $type): bool
+    {
+        return (strtotime($endTime) - strtotime($startTime)) / 60 === $type * self::MINUTES_PER_SKS;
+    }
+
     public function lecturerPreferences(): HasMany
     {
         return $this->hasMany(LecturerPreference::class);
-    }
-
-    /** @return HasMany<TpbGroup, $this> */
-    public function tpbGroups(): HasMany
-    {
-        return $this->hasMany(TpbGroup::class);
     }
 
     /** @return HasMany<ScheduleDetail, $this> */

@@ -45,8 +45,14 @@ class UpdateTimeSlotRequest extends FormRequest
                 $validator->errors()->add('session', __('Another time slot already uses this day and session.'));
             }
 
-            if ($this->input('end_time', $timeSlot->end_time) <= $this->input('start_time', $timeSlot->start_time)) {
+            $startTime = $this->input('start_time', $timeSlot->start_time);
+            $endTime = $this->input('end_time', $timeSlot->end_time);
+            $type = $this->integer('type', $timeSlot->type);
+
+            if ($endTime <= $startTime) {
                 $validator->errors()->add('end_time', __('The end time must be after the start time.'));
+            } elseif (! TimeSlot::rangeMatchesType($startTime, $endTime, $type)) {
+                $validator->errors()->add('end_time', __('The time range must be :minutes minutes for :sks SKS.', ['minutes' => $type * TimeSlot::MINUTES_PER_SKS, 'sks' => $type]));
             }
         }];
     }

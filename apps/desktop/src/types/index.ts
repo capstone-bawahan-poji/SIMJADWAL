@@ -7,5 +7,7 @@ export interface AuthUser {
   role: Role | null;
   faculty_id: number | null;
   faculty: { id: number; code: string; name: string } | null;
+  study_program_id?: number | null;
+  study_program?: { id: number; code: string; name: string } | null;
   is_active: boolean;
 }

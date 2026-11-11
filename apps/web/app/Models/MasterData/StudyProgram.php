@@ -38,14 +38,6 @@ class StudyProgram extends Model
         ];
     }
 
-    /**
-     * Submitted and accepted programs are read-only for their master data and lecturer preferences.
-     */
-    public function isLocked(): bool
-    {
-        return $this->constraint_status->locks();
-    }
-
     /** @return BelongsTo<Faculty, $this> */
     public function faculty(): BelongsTo
     {
@@ -89,6 +81,6 @@ class StudyProgram extends Model
     /** @return BelongsToMany<TpbGroup, $this> */
     public function tpbGroups(): BelongsToMany
     {
-        return $this->belongsToMany(TpbGroup::class, 'tpb_group_study_programs')->withTimestamps();
+        return $this->belongsToMany(TpbGroup::class, 'tpb_group_study_programs')->withPivot('target_semester')->withTimestamps();
     }
 }

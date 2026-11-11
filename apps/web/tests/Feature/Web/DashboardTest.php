@@ -3,6 +3,7 @@
 namespace Tests\Feature\Web;
 
 use App\Enums\Scheduling\RunStatus;
+use App\Enums\Scheduling\SubmissionStatus;
 use App\Models\MasterData\Course;
 use App\Models\MasterData\CourseLecturer;
 use App\Models\MasterData\Faculty;
@@ -10,6 +11,7 @@ use App\Models\MasterData\Lecturer;
 use App\Models\MasterData\Room;
 use App\Models\MasterData\StudyProgram;
 use App\Models\MasterData\TimeSlot;
+use App\Models\Scheduling\ProgramScheduleSubmission;
 use App\Models\Scheduling\ScheduleDetail;
 use App\Models\Scheduling\SchedulingRun;
 use App\Models\User;
@@ -57,6 +59,7 @@ class DashboardTest extends TestCase
         $run = SchedulingRun::query()->create([
             'batch_id' => (string) Str::uuid(),
             'faculty_id' => $this->faculty->id,
+            'study_program_id' => $this->program->id,
             'period' => '2026/2027-GANJIL',
             'parameter_snapshot' => ['parallel_class_limit' => 5],
             'status' => RunStatus::DONE,
@@ -83,9 +86,13 @@ class DashboardTest extends TestCase
         return $run;
     }
 
-    public function test_faculty_dashboard_reports_constraints_active_run_and_room_issues(): void
+    public function test_faculty_dashboard_reports_constraints_program_schedules_and_room_issues(): void
     {
         $run = $this->activeRun(published: false);
+        ProgramScheduleSubmission::query()->create([
+            'period' => '2026/2027-GANJIL', 'study_program_id' => $this->program->id,
+            'scheduling_run_id' => $run->id, 'status' => SubmissionStatus::SUBMITTED,
+        ]);
 
         $this->actingAs($this->facultyAdmin)->get('/dashboard')
             ->assertInertia(fn (Assert $page) => $page
@@ -93,9 +100,11 @@ class DashboardTest extends TestCase
                 ->where('dashboard.period', '2026/2027-GANJIL')
                 ->where('dashboard.constraints.total', 2)
                 ->where('dashboard.constraints.accepted', 1)
-                ->where('dashboard.active_run.id', $run->id)
-                ->where('dashboard.active_run.published_at', null)
-                ->where('dashboard.active_run.schedule_details_count', 2)
+                ->has('dashboard.schedules.programs', 2)
+                ->where('dashboard.schedules.by_status.submitted', 1)
+                ->where('dashboard.schedules.by_status.draft', 1)
+                ->where('dashboard.schedules.published', false)
+                ->where('dashboard.schedules.can_publish', false)
                 ->where('dashboard.rooms.unassigned_count', 1)
                 ->where('dashboard.rooms.over_capacity_count', 1)
                 ->has('dashboard.rooms.issues', 2)
@@ -107,7 +116,7 @@ class DashboardTest extends TestCase
     {
         $this->actingAs($this->facultyAdmin)->get('/dashboard')
             ->assertInertia(fn (Assert $page) => $page
-                ->where('dashboard.active_run', null)
+                ->where('dashboard.schedules.by_status.draft', 2)
                 ->where('dashboard.rooms.issues', []));
     }
 
@@ -125,6 +134,7 @@ class DashboardTest extends TestCase
         $this->actingAs($this->programAdmin)->get('/dashboard')
             ->assertInertia(fn (Assert $page) => $page
                 ->where('dashboard.schedule.status', 'active')
+                ->where('dashboard.schedule.submission_status', 'draft')
                 ->where('dashboard.schedule.classes_count', null));
 
         $run->update(['published_at' => now()]);

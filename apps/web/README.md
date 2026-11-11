@@ -278,7 +278,7 @@ Akun ini dibuat oleh seeder.
 | Admin Fakultas | `admin.fsti@`, `admin.fpb@`, `admin.frti@penjadwalan.test` | `password` |
 | Admin Prodi | `admin.<kode-prodi>@penjadwalan.test`, mis. `admin.if@`, `admin.si@` | `password` |
 | Mahasiswa | `mahasiswa.if@penjadwalan.test` | `password` |
-| Dosen | `dosen.if01@penjadwalan.test` (terhubung ke dosen `IF01`) | `password` |
+| Dosen | `dosen.if01@lecturer.itk.ac.id` (Miftahul Fauzi, Informatika). Dosen lain login dengan email di `data/master` | `password` |
 
 Catatan:
 

@@ -130,6 +130,8 @@ export interface TimeSlot {
     start_time: string;
     end_time: string;
     type: 2 | 3;
+    /** Day, session and type are locked; start and end time stay editable. */
+    in_use: boolean;
     can_update: boolean;
     can_delete: boolean;
 }
@@ -177,13 +179,15 @@ export interface CourseSummary {
     code: string;
     name: string;
     sks: number;
-    semester: number;
+    /** null for TPB courses: see TpbOffering and TpbParticipant. */
+    semester: number | null;
 }
 
-/** App\Data\MasterData\CourseData. course_lecturers_count = classes that already have a lecturer. */
+/** App\Data\MasterData\CourseData. course_lecturers_count = classes that already have a lecturer. TPB courses have no class count or capacity. */
 export interface Course extends CourseSummary {
-    parallel_class_count: number;
-    class_capacity: number;
+    parallel_class_count: number | null;
+    class_capacity: number | null;
+    is_active: boolean;
     study_program: StudyProgramSummary | null;
     course_lecturers_count: number;
     can_update: boolean;
@@ -196,34 +200,70 @@ export interface TeachingAssignment {
     course_id: number;
     class_number: number;
     class_label: string;
-    lecturer_id: number;
+    /** null only for a TPB class whose lecturer is not chosen yet. */
+    lecturer_id: number | null;
+    tpb_offering_id: number | null;
     tpb_group_id: number | null;
-    room_id: number | null;
     course: CourseSummary;
-    lecturer: LecturerSummary;
-    room: { id: number; faculty_id: number | null; code: string; name: string | null; capacity: number } | null;
+    lecturer: LecturerSummary | null;
     can_update: boolean;
     can_delete: boolean;
 }
 
-/** App\Data\MasterData\TpbGroupData */
-export interface TpbGroup {
+/** App\Enums\MasterData\TpbCohort. maba, non_maba and campuran block programs hard; mengulang is soft (SC_ULANG). */
+export type TpbCohort = 'maba' | 'non_maba' | 'campuran' | 'mengulang' | 'pilihan';
+
+/** App\Data\MasterData\TpbOfferingData. A TPB course opened in one period. */
+export interface TpbOffering {
     id: number;
     course_id: number;
-    code: string;
-    time_slot_id: number | null;
+    period: string;
+    parallel_class_count: number;
+    class_capacity: number;
     course: CourseSummary;
-    time_slot: Pick<TimeSlot, 'id' | 'day' | 'session' | 'start_time' | 'end_time'> | null;
-    study_programs: StudyProgramSummary[];
+    groups_count: number;
+    /** Classes placed in a group. */
     course_lecturers_count: number;
+    /** Classes with a lecturer. */
+    assigned_classes_count: number;
     can_update: boolean;
     can_delete: boolean;
+}
+
+/** App\Data\MasterData\TpbParticipantData. target_semester null for mengulang groups. */
+export interface TpbParticipant {
+    study_program_id: number;
+    code: string;
+    name: string;
+    target_semester: number | null;
+}
+
+/** App\Data\MasterData\TpbGroupData. The slot comes from the active TPB run, not from the group. */
+export interface TpbGroup {
+    id: number;
+    tpb_offering_id: number;
+    code: string;
+    cohort: TpbCohort;
+    participants: TpbParticipant[];
+    class_numbers: number[];
+    can_update: boolean;
+    can_delete: boolean;
+}
+
+/** TpbBlockService::placedGroupsFor (GET /study-programs/{id}/tpb-blocked-slots). */
+export interface TpbPlacedGroup {
+    course_code: string;
+    course_name: string;
+    group_code: string;
+    cohort: TpbCohort;
+    target_semester: number | null;
+    time_slot_ids: number[];
 }
 
 /** App\Data\Constraint\ConstraintTypeData. Weights are global. Only soft constraints can change. */
 export interface ConstraintType {
     id: number;
-    code: 'HC1' | 'HC2' | 'HC3' | 'HC4' | 'SC_INGIN' | 'SC_HINDARI' | 'SC_SKS';
+    code: 'HC1' | 'HC2' | 'HC3' | 'HC4' | 'SC_INGIN' | 'SC_HINDARI' | 'SC_SKS' | 'SC_ULANG';
     category: 'HC' | 'SC';
     description: string;
     weight: number;
@@ -267,12 +307,29 @@ export interface ConstraintSubmissionDetail {
 /* Scheduling */
 
 export type RunStatus = 'queued' | 'running' | 'done' | 'failed';
+/** Filter scope of GET /schedules and the room grid. */
+export type ScheduleScope = 'faculty' | 'study_program' | 'tpb';
+/** Owner of a run: TPB, one study program, or a whole faculty (runs from before the GA moved to the programs). */
+export type RunScope = 'tpb' | 'study_program' | 'faculty';
+export type RunSource = 'ga' | 'import';
+export type SubmissionStatus = 'draft' | 'submitted' | 'returned' | 'accepted' | 'published';
+export type SlotRequestStatus = 'pending' | 'fulfilled' | 'partially_fulfilled' | 'rejected';
 
 /** SchedulingRunQueryService summary. Draft = !is_active && !published_at, archived = !is_active && published_at. */
 export interface SchedulingRunSummary {
     id: number;
     batch_id: string;
+    /** null for a TPB run. */
     faculty: { id: number; code: string; name: string } | null;
+    /** null for a TPB run. */
+    study_program: { id: number; code: string; name: string } | null;
+    scope: RunScope;
+    /** import = a TPB schedule entered from a file, not from the GA. */
+    source: RunSource;
+    /** Program runs: the TPB run their dataset was built against. */
+    tpb_run_id: number | null;
+    /** The data changed after the run was computed. A warning: activation re-checks what matters. */
+    is_stale: boolean;
     period: string;
     preset: { id: number; name: string } | null;
     status: RunStatus;
@@ -312,8 +369,9 @@ export interface ScheduleDetailBase {
         code: string;
         name: string;
         sks: number;
-        semester: number;
-        class_capacity: number;
+        semester: number | null;
+        class_capacity: number | null;
+        is_tpb: boolean;
         study_program: { id: number; code: string; name: string } | null;
     };
     class_number: number;
@@ -323,6 +381,13 @@ export interface ScheduleDetailBase {
     room: { id: number; code: string; name: string | null; capacity: number } | null;
     is_overridden: boolean;
     overridden_at: string | null;
+    /** TPB genes: the group of the class and the programs attending it. */
+    tpb_group: {
+        id: number;
+        code: string;
+        cohort: TpbCohort;
+        study_programs: { id: number; code: string; name: string; target_semester: number | null }[];
+    } | null;
 }
 
 /** GET /scheduling-runs/{id}/schedule-details */
@@ -343,7 +408,8 @@ export interface Violation {
 /** GET /schedules. runs[].published_at null = active but not published (faculty admin only). */
 export interface Schedule {
     period: string;
-    runs: { id: number; faculty: { id: number; code: string; name: string }; published_at: string | null }[];
+    /** faculty null + scope tpb = the institute-wide TPB schedule. */
+    runs: { id: number; faculty: { id: number; code: string; name: string } | null; scope: 'faculty' | 'tpb'; published_at: string | null }[];
     schedule_details: (ScheduleDetailBase & { scheduling_run_id: number })[];
 }
 
@@ -360,6 +426,8 @@ export interface ScheduleFilters {
     day?: number;
     unassigned?: 0 | 1;
     over_capacity?: 0 | 1;
+    /** Scope for faculty, study-program, or TPB schedules. */
+    scope?: ScheduleScope;
     /** Picked classes: "12" = every class of course 12, "12:1" = class A of course 12. axios sends classes[]=… */
     classes?: string[];
 }
@@ -378,10 +446,8 @@ export interface OptionRoom {
     capacity: number;
 }
 
-/** GET /schedule-details/{id}/options. rooms is empty when the slot is not available. */
+/** GET /schedule-details/{id}/options. rooms = the program's free cells in the slot, empty when the slot is not available. */
 export interface ScheduleOptions {
-    /** The run is published: lecturers and students already see it, and PATCH needs a reason. */
-    published: boolean;
     current: { time_slot_id: number; room_id: number | null };
     time_slots: {
         id: number;
@@ -393,12 +459,232 @@ export interface ScheduleOptions {
         reasons: string[];
         rooms: OptionRoom[];
     }[];
+    /** Meetings of the same run this one may swap cells with. */
+    swap_candidates: {
+        schedule_detail_id: number;
+        course: { id: number; name: string };
+        class_number: number;
+        meeting_number: number;
+        time_slot_id: number;
+        room_id: number;
+        room_code: string | null;
+    }[];
 }
 
-/** Body of PATCH /schedule-details/{id}. Both keys are required; room_id null = no room. */
+/** One meeting of one TPB group: its classes always share a slot. */
+export interface TpbBlockSummary {
+    schedule_detail_id: number;
+    course: { id: number; code: string; name: string };
+    group_code: string | null;
+    meeting_number: number;
+    classes: { schedule_detail_id: number; class_number: number; room_id: number | null; room_code: string | null }[];
+}
+
+/** GET /tpb-blocks/{scheduleDetail}/options. rooms = the shared room each class would get, empty when the slot is not available. */
+export interface TpbBlockOptions {
+    block: TpbBlockSummary;
+    current: { time_slot_id: number };
+    time_slots: {
+        id: number;
+        day: number;
+        session: number;
+        start_time: string;
+        end_time: string;
+        type: number;
+        available: boolean;
+        reasons: string[];
+        /** Soft: the move is allowed but the slot length differs from the SKS of the meeting. */
+        warnings: string[];
+        rooms: { schedule_detail_id: number; class_number: number; room_id: number; room_code: string; capacity: number }[];
+    }[];
+    /** Blocks of other groups this one may swap slots with. */
+    swap_candidates: (TpbBlockSummary & { time_slot_id: number })[];
+}
+
+/** Body of PATCH /schedule-details/{id}: the full new cell, one of the program's room slots. */
 export interface ScheduleOverridePayload {
     time_slot_id: number;
-    room_id: number | null;
+    room_id: number;
+    reason?: string | null;
+}
+
+/* Room slots, slot requests, review and publication (POS 040/IT10.1/OT.07/2026) */
+
+export type CellStatus = 'allocated' | 'other_faculty' | 'tpb' | 'conflict';
+
+export interface GridRoom {
+    id: number;
+    code: string;
+    name: string | null;
+    building: string | null;
+    capacity: number;
+    faculty_id: number | null;
+}
+
+/** GET room-slot-allocations. cells lists only the cells that are not free. */
+export interface RoomSlotGrid {
+    period: string;
+    faculty: { id: number; code: string; name: string };
+    tpb_source: { type: 'run' | 'import' | null; run_id: number | null; import_id: number | null };
+    published: boolean;
+    study_programs: {
+        id: number;
+        code: string;
+        name: string;
+        cells_count: number;
+        submission_status: SubmissionStatus;
+        required_meetings: number;
+        sufficient: boolean;
+    }[];
+    rooms: GridRoom[];
+    time_slots: TimeSlot[];
+    cells: {
+        time_slot_id: number;
+        room_id: number;
+        status: CellStatus;
+        study_program_id: number | null;
+        faculty: { id: number; code: string } | null;
+        slot_request_id: number | null;
+        /** The holder handed its schedule in: the cell cannot move. */
+        locked: boolean;
+    }[];
+}
+
+/** How one cell (room × slot) of CellGrid looks. The page decides; the grid only lays them out. */
+export interface CellView {
+    label: string;
+    /** Tailwind classes for the cell body. */
+    tone: string;
+    title?: string;
+    disabled?: boolean;
+    /** A change not saved yet, outlined with a dashed line. */
+    pending?: boolean;
+}
+
+/** One item of PUT room-slot-allocations. study_program_id null = take the cell back. */
+export interface CellChange {
+    time_slot_id: number;
+    room_id: number;
+    study_program_id: number | null;
+}
+
+/** POS step 3: do the program's cells hold all its class meetings. */
+export interface SlotSufficiency {
+    allocated_cells: number;
+    required_meetings: number;
+    sufficient: boolean;
+    type_mismatches: number;
+    shortages: { course_id: number; code: string; name: string; meetings: number; min_capacity: number; slot_type: number }[];
+}
+
+/** GET study-programs/{id}/room-slots */
+export interface ProgramRoomSlots {
+    period: string;
+    cells: { time_slot_id: number; room_id: number; room_code: string; capacity: number; slot_type: number; day: number; session: number }[];
+    sufficiency: SlotSufficiency;
+}
+
+export interface SlotNeed {
+    course_id: number;
+    code: string | null;
+    name: string | null;
+    meetings: number;
+    min_capacity: number;
+}
+
+/** GET slot-requests */
+export interface SlotRequest {
+    id: number;
+    period: string;
+    study_program: { id: number; code: string; name: string };
+    status: SlotRequestStatus;
+    needs: SlotNeed[];
+    note: string | null;
+    response_note: string | null;
+    allocations_count: number;
+    requested_by: { id: number; name: string } | null;
+    reviewed_by: { id: number; name: string } | null;
+    reviewed_at: string | null;
+    created_at: string | null;
+}
+
+export type SubmissionProblem = 'cell' | 'capacity' | 'tpb' | 'lecturer' | 'class';
+
+/** GET study-programs/{id}/schedule-submission */
+export interface ProgramScheduleSubmission {
+    period: string;
+    study_program: { id: number; code: string; name: string };
+    status: SubmissionStatus;
+    faculty_published: boolean;
+    scheduling_run: { id: number; is_active: boolean; best_fitness: number | null; max_fitness: number | null; finished_at: string | null } | null;
+    /** What would stop a submit now. Empty once handed in. */
+    problems: Partial<Record<SubmissionProblem, number>>;
+    cells_count: number;
+    submitted_at: string | null;
+    reviewed_at: string | null;
+    return_note: string | null;
+}
+
+/** GET faculties/{id}/schedule-submissions */
+export interface FacultySubmissionRow {
+    study_program: { id: number; code: string; name: string };
+    status: SubmissionStatus;
+    scheduling_run_id: number | null;
+    best_fitness: number | null;
+    max_fitness: number | null;
+    cells_count: number;
+    has_pending_slot_request: boolean;
+    submitted_at: string | null;
+    reviewed_at: string | null;
+    return_note: string | null;
+}
+
+/** GET faculties/{id}/schedule-publication */
+export interface SchedulePublicationState {
+    period: string;
+    faculty: { id: number; code: string; name: string };
+    published: boolean;
+    published_at: string | null;
+    published_by: { id: number; name: string } | null;
+    checksum: string | null;
+    can_publish: boolean;
+    waiting_programs: { id: number; code: string; name: string; status: SubmissionStatus }[];
+}
+
+/** GET tpb-occupancy */
+export interface TpbOccupancy {
+    period: string;
+    source: { type: 'run' | 'import' | null; run_id: number | null; import_id: number | null };
+    cells: { time_slot_id: number; room_id: number }[];
+    import: {
+        id: number;
+        period: string;
+        file_name: string | null;
+        imported_by: { id: number; name: string } | null;
+        imported_at: string | null;
+        rows: unknown[];
+    } | null;
+}
+
+export interface ImportRowMessage {
+    /** 0 = about the whole file. */
+    row: number;
+    message: string;
+}
+
+/**
+ * POST tpb-occupancy/import (rows, skipped) and POST tpb-schedule/import (run_id, meetings).
+ * data = what the group columns of the file created, null when the file only has a schedule.
+ */
+export interface TpbImportResult {
+    committed: boolean;
+    errors: ImportRowMessage[];
+    warnings: ImportRowMessage[];
+    rows?: number;
+    skipped?: number;
+    run_id?: number | null;
+    meetings?: number;
+    data?: { offerings: number; groups: number; classes: number; replaced: number } | null;
 }
 
 /*  Dashboards */
@@ -406,10 +692,14 @@ export interface ScheduleOverridePayload {
 export interface FacultyDashboard {
     period: string;
     constraints: { total: number } & Record<ConstraintStatus, number>;
-    active_run: Pick<
-        SchedulingRunSummary,
-        'id' | 'published_at' | 'best_fitness' | 'fitness_percent' | 'final_generation' | 'schedule_details_count' | 'hc_violations' | 'sc_unmet'
-    > | null;
+    schedules: {
+        programs: FacultySubmissionRow[];
+        by_status: Partial<Record<SubmissionStatus, number>>;
+        pending_slot_requests: number;
+        published: boolean;
+        published_at: string | null;
+        can_publish: boolean;
+    };
     rooms: {
         unassigned_count: number;
         over_capacity_count: number;
@@ -444,5 +734,51 @@ export interface StudyProgramDashboard {
         hc_violations: number | null;
         unassigned_rooms: number | null;
         published_at: string | null;
+        submission_status: SubmissionStatus;
     };
+}
+/** App\Services\Dashboard\TpbDashboardService (Inertia prop of Tpb/Dashboard). */
+export interface TpbDashboard {
+    period: string;
+    schedule: {
+        status: 'none' | 'draft' | 'active' | 'published';
+        runs_count: number;
+        active_run: {
+            id: number;
+            published_at: string | null;
+            finished_at: string | null;
+            fitness_percent: number | null;
+            hc_violations: number;
+            sc_unmet: number;
+            unassigned_rooms: number;
+            schedule_details_count: number;
+        } | null;
+    };
+    offerings: { count: number; groups: number; classes: number; seats: number };
+    classes: { total: number; ungrouped: number; without_lecturer: number };
+    stale_faculties: { id: number; code: string; name: string }[];
+    lecturers: { count: number; limit: number; over_limit: number; top: { name: string; sks: number } | null };
+    rooms: { shared: number; peak: { day: number; session: number; used: number } | null };
+    retake_programs: number;
+    cohorts: Record<TpbCohort, number>;
+}
+
+/** GET /schedules/room-grid: the published schedule as a room grid, same data as the "Seluruh jadwal" export. */
+export interface RoomGridData {
+    title: string;
+    subtitle: string;
+    mode: 'superadmin' | 'tpb' | 'fakultas' | 'prodi';
+    clash_count: number;
+    without_room: number;
+    legend: { label: string; color: string; left_border: string | null }[];
+    buildings: { name: string; label: string; rooms: { id: number; code: string }[] }[];
+    time_slots: { id: number; day: number; day_label: string; session: number; time: string }[];
+    cells: {
+        time_slot_id: number;
+        room_id: number;
+        color: string;
+        left_border: string | null;
+        clash: boolean;
+        classes: { course: string; course_code: string; class_label: string; lecturer: string; group: string | null }[];
+    }[];
 }

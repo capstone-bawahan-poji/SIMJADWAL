@@ -70,6 +70,16 @@
             "nip": "199001012020000240",
             "name": "Tegar Palyus Fiqar, S.T., M.Kom., Ph.D.",
             "email": "tegar@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000250",
+            "name": "Muchammad Chandra Cahyo Utomo, S. Kom., M. Kom.",
+            "email": "dosen_Muchammad@lecturer.itk.ac.id"
+        },
+        {
+            "nip": "199001012020000263",
+            "name": "Miftahul Fauzi",
+            "email": "dosen.if01@lecturer.itk.ac.id"
         }
     ],
     "courses": [
@@ -81,7 +91,7 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000236"
+                    "lecturer_nip": "199001012020000263"
                 },
                 {
                     "class_number": 2,
@@ -205,11 +215,11 @@
             "classes": [
                 {
                     "class_number": 1,
-                    "lecturer_nip": "199001012020000067"
+                    "lecturer_nip": "199001012020000250"
                 },
                 {
                     "class_number": 2,
-                    "lecturer_nip": "199001012020000067"
+                    "lecturer_nip": "199001012020000250"
                 }
             ]
         },

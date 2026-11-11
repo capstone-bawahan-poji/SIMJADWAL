@@ -8,7 +8,9 @@ use App\Models\User;
 use App\Permissions\Scheduling\SchedulingPermissions;
 
 /**
- * A faculty admin overrides genes of their own faculty's runs. superadmin passes through Gate::before.
+ * A study program admin moves the meetings of their own program's run. admin_tpb moves the
+ * meetings of the TPB run (TpbOverrideService refuses it once published). superadmin passes
+ * through Gate::before.
  */
 class ScheduleDetailPolicy
 {
@@ -16,7 +18,10 @@ class ScheduleDetailPolicy
 
     public function override(User $user, ScheduleDetail $detail): bool
     {
+        $run = $detail->schedulingRun;
+
         return $user->can(SchedulingPermissions::OVERRIDE_SCHEDULE)
-            && $this->orgScope->canAccessFaculty($user, $detail->schedulingRun->faculty_id);
+            && ($run->isTpb() || $run->study_program_id !== null)
+            && $this->orgScope->canAccessScheduleScope($user, $run->faculty_id, $run->study_program_id);
     }
 }

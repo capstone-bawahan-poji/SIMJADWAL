@@ -5,15 +5,17 @@ import { computed, onMounted, onUnmounted, ref, watch } from 'vue';
 const props = withDefaults(
     defineProps<{
         show?: boolean;
-        maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl';
+        maxWidth?: 'sm' | 'md' | 'lg' | 'xl' | '2xl' | '3xl' | '4xl' | '5xl' | '6xl';
         closeable?: boolean;
         closeButton?: boolean;
+        centered?: boolean;
     }>(),
     {
         show: false,
         maxWidth: '2xl',
         closeable: true,
         closeButton: false,
+        centered: false,
     },
 );
 
@@ -74,14 +76,15 @@ onUnmounted(() => {
 
 const maxWidthClass = computed(() => {
     return {
-        sm: 'sm:max-w-sm',
-        md: 'sm:max-w-md',
-        lg: 'sm:max-w-lg',
-        xl: 'sm:max-w-xl',
-        '2xl': 'sm:max-w-2xl',
-        '3xl': 'sm:max-w-3xl',
-        '4xl': 'sm:max-w-4xl',
-        '5xl': 'sm:max-w-5xl',
+        sm: 'sm:max-w-md',
+        md: 'sm:max-w-lg',
+        lg: 'sm:max-w-xl',
+        xl: 'sm:max-w-2xl',
+        '2xl': 'sm:max-w-3xl',
+        '3xl': 'sm:max-w-4xl',
+        '4xl': 'sm:max-w-5xl',
+        '5xl': 'sm:max-w-6xl',
+        '6xl': 'sm:max-w-6xl',
     }[props.maxWidth];
 });
 </script>
@@ -93,6 +96,7 @@ const maxWidthClass = computed(() => {
     >
         <div
             class="fixed inset-0 z-50 overflow-y-auto px-4 py-6 sm:px-0"
+            :class="centered ? 'flex items-center justify-center' : ''"
             scroll-region
         >
             <Transition
@@ -125,7 +129,7 @@ const maxWidthClass = computed(() => {
                 <div
                     v-show="show"
                     class="relative mb-6 transform overflow-hidden rounded-lg bg-white shadow-xl transition-all sm:mx-auto sm:w-full"
-                    :class="maxWidthClass"
+                    :class="[maxWidthClass, centered ? 'w-full' : '']"
                 >
                     <button
                         v-if="closeButton && closeable"

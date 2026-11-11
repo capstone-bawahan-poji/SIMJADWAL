@@ -8,6 +8,13 @@ const loading = ref(false);
 const uploading = ref<Set<string>>(new Set());
 const error = ref('');
 
+/** Run results are stored per account: forget the list when the account changes. */
+export function resetRunSync() {
+  items.value = [];
+  uploading.value = new Set();
+  error.value = '';
+}
+
 export function useRunSync() {
   async function load() {
     loading.value = true;

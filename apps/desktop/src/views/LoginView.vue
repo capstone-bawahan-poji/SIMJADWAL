@@ -63,7 +63,7 @@ async function submit() {
         <div class="flex flex-col items-center text-center">
           <AppLogo variant="full" class="h-14" />
           <h1 class="mt-6 font-serif text-xl font-semibold text-ink">Sistem Penjadwalan Perkuliahan</h1>
-          <p class="mt-1 text-sm text-ink-muted">Masuk menggunakan akun admin fakultas atau super admin.</p>
+          <p class="mt-1 text-sm text-ink-muted">Masuk menggunakan akun admin program studi, admin TPB, atau super admin.</p>
         </div>
 
         <div v-if="loginError" class="mt-6">

@@ -8,32 +8,29 @@ use App\Models\Scheduling\ScheduleDetail;
 use Illuminate\Support\Collection;
 
 /**
- * Hard constraints for moving one gene of an active run, checked in memory. Built by
- * ScheduleSlotCheckerFactory; PATCH and the options endpoint share it.
+ * Hard constraints for moving one gene of an active study program run, checked in memory. Built by
+ * ScheduleSlotCheckerFactory; the options, move and swap endpoints share it.
  *
- *   - slot: HC2 lecturer free (all faculties + TPB), HC3 class free, HC4 parallel limit, TPB program block,
- *   - room: usable by the faculty, big enough, free in every active schedule, not used by TPB.
+ *   - slot: lecturer free (every active run of the period + TPB), class free, TPB program block,
+ *   - room: one of the program's cells in that slot, big enough, free in every active run, not TPB's.
  */
 readonly class ScheduleSlotChecker
 {
     /**
-     * @param  array<int, int>  $programCount  slot => genes of the same program in the run
      * @param  array<int, ScheduleDetail>  $cohortAt  slot => gene of the same program, semester and class
      * @param  list<int>  $blockedForProgram
      * @param  list<int>  $blockedForLecturer
      * @param  array<int, list<int>>  $blockedRooms  room_id => slots
-     * @param  Collection<int, Room>  $candidateRooms  usable and big enough, smallest first
+     * @param  array<int, Collection<int, Room>>  $cellRooms  slot => the program's rooms in it, smallest first
      */
     public function __construct(
         private ScheduleDetail $detail,
         private ActiveScheduleOccupancy $occupancy,
-        private array $programCount,
         private array $cohortAt,
         private array $blockedForProgram,
         private array $blockedForLecturer,
         private array $blockedRooms,
-        private Collection $candidateRooms,
-        private int $parallelLimit,
+        private array $cellRooms,
     ) {}
 
     /**
@@ -50,15 +47,9 @@ readonly class ScheduleSlotChecker
         } elseif (in_array($slotId, $this->blockedForLecturer, true)) {
             $errors[] = __('The lecturer teaches a TPB class in this slot.');
         }
-
         if ($clash = $this->cohortAt[$slotId] ?? null) {
             $errors[] = __('The class already has :course :class in this slot.', self::describe($clash));
         }
-
-        if (($this->programCount[$slotId] ?? 0) + 1 > $this->parallelLimit) {
-            $errors[] = __('The study program already has :limit classes in this slot.', ['limit' => $this->parallelLimit]);
-        }
-
         if (in_array($slotId, $this->blockedForProgram, true)) {
             $errors[] = __('The slot is reserved for a TPB class of this semester.');
         }
@@ -67,14 +58,14 @@ readonly class ScheduleSlotChecker
     }
 
     /**
-     * Why the room cannot be used in the slot. Empty = the room fits and is free.
+     * Why the room cannot be used in the slot. Empty = the room is the program's, fits and is free.
      *
      * @return list<string>
      */
     public function roomErrors(int $slotId, Room $room): array
     {
-        if ($room->faculty_id !== null && $room->faculty_id !== $this->detail->schedulingRun->faculty_id) {
-            return [__('The room cannot be used by this faculty.')];
+        if (! ($this->cellRooms[$slotId] ?? collect())->contains('id', $room->id)) {
+            return [__('The room is not one of the program\'s room slots at this time.')];
         }
         if ($room->capacity < $this->detail->course->class_capacity) {
             return [__('The room is too small for the class.')];
@@ -90,13 +81,23 @@ readonly class ScheduleSlotChecker
     }
 
     /**
-     * Rooms the gene may use in the slot, smallest fitting room first.
+     * slotErrors and roomErrors together, for one target place.
+     *
+     * @return list<string>
+     */
+    public function placeErrors(int $slotId, Room $room): array
+    {
+        return [...$this->slotErrors($slotId), ...$this->roomErrors($slotId, $room)];
+    }
+
+    /**
+     * The program's rooms the gene may use in the slot, smallest fitting room first.
      *
      * @return Collection<int, Room>
      */
     public function freeRooms(int $slotId): Collection
     {
-        return $this->candidateRooms->filter(fn (Room $room) => $this->roomErrors($slotId, $room) === [])->values();
+        return ($this->cellRooms[$slotId] ?? collect())->filter(fn (Room $room) => $this->roomErrors($slotId, $room) === [])->values();
     }
 
     /**

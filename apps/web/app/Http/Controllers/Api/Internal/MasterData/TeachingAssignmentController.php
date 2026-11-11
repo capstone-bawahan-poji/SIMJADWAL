@@ -46,7 +46,9 @@ class TeachingAssignmentController extends ApiController implements HasMiddlewar
             courseId: isset($v['course_id']) ? (int) $v['course_id'] : null,
             lecturerId: isset($v['lecturer_id']) ? (int) $v['lecturer_id'] : null,
             studyProgramId: isset($v['study_program_id']) ? (int) $v['study_program_id'] : null,
+            tpbOfferingId: isset($v['tpb_offering_id']) ? (int) $v['tpb_offering_id'] : null,
             tpbGroupId: isset($v['tpb_group_id']) ? (int) $v['tpb_group_id'] : null,
+            tpbPeriod: $v['tpb_period'] ?? null,
             perPage: (int) ($v['per_page'] ?? Query::DEFAULT_PER_PAGE),
         ));
     }

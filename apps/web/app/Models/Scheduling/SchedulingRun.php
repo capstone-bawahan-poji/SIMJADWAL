@@ -2,9 +2,11 @@
 
 namespace App\Models\Scheduling;
 
+use App\Enums\Scheduling\RunSource;
 use App\Enums\Scheduling\RunStatus;
 use App\Extensions\Models\Traits\BroadcastsChanges;
 use App\Models\MasterData\Faculty;
+use App\Models\MasterData\StudyProgram;
 use App\Models\User;
 use App\Policies\Scheduling\SchedulingRunPolicy;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
@@ -16,9 +18,15 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * Scope: TPB (faculty_id and study_program_id null) or one study program (both set,
+ * faculty_id = the program's faculty). Program runs are published by their faculty.
+ */
 #[Fillable([
     'batch_id',
     'faculty_id',
+    'study_program_id',
+    'source',
     'period',
     'preset_id',
     'parameter_snapshot',
@@ -38,6 +46,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'published_at',
     'client_run_id',
     'dataset_fingerprint',
+    'tpb_run_id',
 ])]
 #[UsePolicy(SchedulingRunPolicy::class)]
 class SchedulingRun extends Model
@@ -46,6 +55,7 @@ class SchedulingRun extends Model
 
     protected $attributes = [
         'status' => 'queued',
+        'source' => 'ga',
         'current_generation' => 0,
         'is_active' => false,
     ];
@@ -56,6 +66,7 @@ class SchedulingRun extends Model
             'parameter_snapshot' => 'array',
             'fitness_history' => 'array',
             'status' => RunStatus::class,
+            'source' => RunSource::class,
             'current_generation' => 'integer',
             'current_fitness' => 'decimal:4',
             'best_fitness' => 'decimal:4',
@@ -106,6 +117,17 @@ class SchedulingRun extends Model
     public function faculty(): BelongsTo
     {
         return $this->belongsTo(Faculty::class);
+    }
+
+    public function isTpb(): bool
+    {
+        return $this->study_program_id === null && $this->faculty_id === null;
+    }
+
+    /** @return BelongsTo<StudyProgram, $this> */
+    public function studyProgram(): BelongsTo
+    {
+        return $this->belongsTo(StudyProgram::class);
     }
 
     /** @return BelongsTo<GaParameterPreset, $this> */

@@ -15,9 +15,10 @@ import { dateTime } from '@/lib/format';
 import { programColorMap } from '@/lib/programColors';
 import StudyProgramDetail from '@/views/data/StudyProgramDetail.vue';
 import StudyProgramTable from '@/views/data/StudyProgramTable.vue';
+import TpbData from '@/views/data/TpbData.vue';
 
 const { user } = useAuth();
-const { dataset, facultyId, loading, error, load } = useDataset();
+const { dataset, studyProgramId, loading, error, load } = useDataset();
 
 const isSuperAdmin = computed(() => user.value?.role === 'superadmin');
 const selectedProgramId = ref<number | null>(null);
@@ -27,7 +28,7 @@ const selectedProgram = computed(() =>
   dataset.value?.study_programs.find((p) => p.id === selectedProgramId.value) ?? null,
 );
 
-watch(() => dataset.value?.faculty.id, () => {
+watch(() => dataset.value?.fingerprint, () => {
   const programs = dataset.value?.study_programs ?? [];
   if (!programs.some((p) => p.id === selectedProgramId.value)) {
     selectedProgramId.value = (programs.find((p) => p.included) ?? programs[0])?.id ?? null;
@@ -42,7 +43,7 @@ const stats = computed(() => {
     { label: 'Mata kuliah', value: d.courses.length },
     { label: 'Kelas', value: d.classes.length },
     { label: 'Dosen', value: d.lecturers.length },
-    { label: 'Ruangan', value: d.rooms.length },
+    d.cells ? { label: 'Slot ruangan', value: d.cells.length } : { label: 'Ruangan', value: d.rooms.length },
   ];
 });
 </script>
@@ -51,10 +52,10 @@ const stats = computed(() => {
   <div class="flex flex-col gap-6 p-8">
     <PageHeader
       title="Data dan constraint"
-      :description="dataset ? `Dataset ${dataset.faculty.name}, diperbarui ${dateTime(dataset.generated_at)}.` : 'Dataset penjadwalan yang digunakan oleh algoritma genetika.'"
+      :description="dataset ? `Dataset ${dataset.study_program?.name ?? dataset.faculty?.name ?? 'TPB institut'}, diperbarui ${dateTime(dataset.generated_at)}.` : 'Dataset penjadwalan yang digunakan oleh algoritma genetika.'"
     >
       <template #actions>
-        <Button :loading="loading" :disabled="isSuperAdmin && !facultyId" @click="load">
+        <Button :loading="loading" :disabled="isSuperAdmin && !studyProgramId" @click="load">
           <RefreshCw v-if="!loading" class="size-4" aria-hidden="true" />
           Muat ulang data
         </Button>
@@ -63,9 +64,11 @@ const stats = computed(() => {
 
     <Alert v-if="error" title="Gagal memuat data">{{ error }}</Alert>
 
-    <Card v-if="isSuperAdmin && !facultyId" no-padding>
-      <EmptyState title="Fakultas belum dipilih">Pilih fakultas pada bilah atas untuk memuat dataset penjadwalan.</EmptyState>
+    <Card v-if="isSuperAdmin && !studyProgramId" no-padding>
+      <EmptyState title="Program studi belum dipilih">Pilih program studi pada bilah atas untuk memuat dataset penjadwalan.</EmptyState>
     </Card>
+
+    <TpbData v-else-if="dataset && dataset.scope === 'tpb'" :dataset="dataset" />
 
     <template v-else-if="dataset">
       <StatStrip>

@@ -5,6 +5,7 @@ namespace App\Services\Scheduling;
 use App\Data\Scheduling\GaPresetData;
 use App\Data\Scheduling\GaPresetFormData;
 use App\Enums\MasterData\ReferenceType;
+use App\Models\MasterData\StudyProgram;
 use App\Models\Scheduling\GaParameterPreset;
 use App\Models\User;
 use App\Services\MasterData\ReferenceGuard;
@@ -19,12 +20,15 @@ readonly class GaPresetService
     ) {}
 
     /**
+     * $studyProgram null = TPB presets.
+     *
      * @return Collection<int, GaPresetData>
      */
-    public function getPresets(int $facultyId): Collection
+    public function getPresets(?StudyProgram $studyProgram): Collection
     {
         return $this->preset->newQuery()
-            ->where('faculty_id', $facultyId)
+            ->where('faculty_id', $studyProgram?->faculty_id)
+            ->where('study_program_id', $studyProgram?->id)
             ->orderBy('name')
             ->get()
             ->map(fn (GaParameterPreset $preset) => GaPresetData::from($preset));
@@ -68,6 +72,7 @@ readonly class GaPresetService
     {
         return [
             'faculty_id' => $data->facultyId,
+            'study_program_id' => $data->studyProgramId,
             'name' => $data->name,
             'population_size' => $data->populationSize,
             'min_generations' => $data->minGenerations,

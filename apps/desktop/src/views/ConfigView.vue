@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { tpbConstraintTypes } from '@/lib/tpb';
 import { computed, ref, watch } from 'vue';
 import PageHeader from '@/components/layout/PageHeader.vue';
 import Alert from '@/components/ui/Alert.vue';
@@ -18,7 +19,7 @@ import PresetBar from '@/views/config/PresetBar.vue';
 import StartRunDialog from '@/views/config/StartRunDialog.vue';
 
 const { user } = useAuth();
-const { dataset, period, facultyId, error } = useDataset();
+const { dataset, period, studyProgramId, error } = useDataset();
 const { params, errors, runMode, multiOperators, presetId, applyPreset, resetDefault } = useGaConfig();
 const { presets, load: loadPresets } = useGaPresets();
 const { running } = useGaRunner();
@@ -60,9 +61,9 @@ const dataSummary = computed(() => {
   ];
 });
 
-watch(() => dataset.value?.faculty.id, async (id) => {
-  if (!id) return;
-  await loadPresets(id);
+watch(() => (dataset.value ? `${dataset.value.scope}:${dataset.value.study_program?.id ?? ''}` : null), async (key) => {
+  if (!key || !dataset.value) return;
+  await loadPresets(dataset.value.study_program?.id ?? null);
   if (!presets.value.some((p) => p.id === presetId.value)) {
     const operator = period.value?.endsWith('-GENAP') ? 'TSR' : 'TS';
     const preset = presets.value.find((p) => p.selection_operator === operator) ?? presets.value[0];
@@ -78,8 +79,8 @@ watch(() => dataset.value?.faculty.id, async (id) => {
 
     <Alert v-if="error" title="Gagal memuat data">{{ error }}</Alert>
 
-    <Card v-if="isSuperAdmin && !facultyId" no-padding>
-      <EmptyState title="Fakultas belum dipilih">Pilih fakultas pada bilah atas untuk memuat dataset dan preset.</EmptyState>
+    <Card v-if="isSuperAdmin && !studyProgramId" no-padding>
+      <EmptyState title="Program studi belum dipilih">Pilih program studi pada bilah atas untuk memuat dataset dan preset.</EmptyState>
     </Card>
 
     <Card v-else-if="!dataset">
@@ -87,12 +88,16 @@ watch(() => dataset.value?.faculty.id, async (id) => {
     </Card>
 
     <template v-else>
-      <PresetBar :faculty-id="dataset.faculty.id" :super-admin="isSuperAdmin" />
+      <PresetBar :study-program-id="dataset.study_program?.id ?? null" :super-admin="isSuperAdmin" />
 
       <div class="grid grid-cols-[minmax(0,1fr)_320px] items-start gap-6">
         <div class="flex min-w-0 flex-col gap-6">
           <ParameterForm />
-          <ConstraintWeights :constraint-types="dataset.constraint_types" :programs="dataset.study_programs" />
+          <ConstraintWeights
+            :constraint-types="dataset.scope === 'tpb' ? tpbConstraintTypes(dataset) : dataset.constraint_types"
+            :programs="dataset.scope === 'tpb' ? [] : dataset.study_programs"
+            :tpb="dataset.scope === 'tpb'"
+          />
         </div>
 
         <aside class="sticky top-8">
