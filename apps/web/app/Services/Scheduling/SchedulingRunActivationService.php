@@ -4,23 +4,27 @@ namespace App\Services\Scheduling;
 
 use App\Enums\Scheduling\RunStatus;
 use App\Exceptions\Shared\ApiException;
-use App\Models\Scheduling\ScheduleDetail;
+use App\Models\Scheduling\ProgramScheduleSubmission;
 use App\Models\Scheduling\SchedulingRun;
 use App\Models\User;
 use Illuminate\Database\DatabaseManager;
 
 /**
- * Activate and publish are two steps. Activating makes a run the official schedule of its
- * faculty (or of TPB) and period, still hidden from lecturers and students. Publishing then shows it to them.
- * A faculty run built against an older TPB run can still be activated; it is flagged stale.
- * A run that loses its active flag keeps published_at, which the archived scope relies on.
+ * Activating picks the run that is the schedule of its study program (or of TPB) in the period.
+ *
+ *   - Program run: activated by the program while its schedule is still a draft, and only when it
+ *     still fits the current data (ProgramRunValidator). It becomes the run of the program's
+ *     submission. The faculty publishes program runs (SchedulePublicationService), never this service.
+ *   - TPB run: activated and then published by the TPB admin, as before. A run that loses its
+ *     active flag keeps published_at, which the archived scope relies on.
  */
 readonly class SchedulingRunActivationService
 {
     public function __construct(
         private DatabaseManager $db,
-        private ScheduleSlotCheckerFactory $checkers,
         private TpbRunResolver $tpbRuns,
+        private ProgramRunValidator $validator,
+        private ProgramScheduleState $state,
     ) {}
 
     public function activate(User $actor, SchedulingRun $run): SchedulingRun
@@ -31,22 +35,34 @@ readonly class SchedulingRunActivationService
         if ($run->status !== RunStatus::DONE) {
             throw ApiException::invalidState(__('Only a finished run can be activated.'));
         }
+        if (! $run->isTpb() && $run->study_program_id === null) {
+            throw ApiException::invalidState(__('Faculty-wide runs are no longer used. Each study program runs its own GA.'));
+        }
+        if (! $run->isTpb()) {
+            $this->state->assertEditable($run->studyProgram, $run->period);
+        }
 
         $this->db->transaction(function () use ($run) {
-            // Serialises activations of one faculty (or TPB) and period, and covers the checks below.
+            // Serialises activations in the period: two programs sharing a lecturer must not both pass the check.
             $current = SchedulingRun::query()->active()
-                ->where('faculty_id', $run->faculty_id)
                 ->where('period', $run->period)
                 ->lockForUpdate()
-                ->get();
+                ->get()
+                ->filter(fn (SchedulingRun $active) => $active->faculty_id === $run->faculty_id && $active->study_program_id === $run->study_program_id);
 
-            // A faculty run built on an older TPB schedule is only flagged stale, never refused.
-            if ($run->faculty_id !== null) {
-                $this->assertNoClashWithOtherFaculties($run);
+            if (! $run->isTpb()) {
+                $this->validator->assertValid($run);
             }
 
             $current->each(fn (SchedulingRun $old) => $old->update(['is_active' => false]));
             $run->update(['is_active' => true]);
+
+            if (! $run->isTpb()) {
+                ProgramScheduleSubmission::query()->updateOrCreate(
+                    ['study_program_id' => $run->study_program_id, 'period' => $run->period],
+                    ['scheduling_run_id' => $run->id],
+                );
+            }
         });
         $this->tpbRuns->forget();
 
@@ -56,8 +72,14 @@ readonly class SchedulingRunActivationService
         return $run;
     }
 
+    /**
+     * TPB only. A program schedule is published with the rest of its faculty.
+     */
     public function publish(User $actor, SchedulingRun $run): SchedulingRun
     {
+        if (! $run->isTpb()) {
+            throw ApiException::invalidState(__('A study program schedule is published by its faculty, together with the other programs.'));
+        }
         if (! $run->is_active) {
             throw ApiException::invalidState(__('Only the active schedule can be published.'));
         }
@@ -66,31 +88,11 @@ readonly class SchedulingRunActivationService
         }
 
         $run->update(['published_by' => $actor->id, 'published_at' => now()]);
-
         $this->tpbRuns->forget();
+
         activity('scheduling')->causedBy($actor)->performedOn($run)->event('scheduling_run.published')
             ->log(__('Published scheduling run :id', ['id' => $run->id]));
 
         return $run;
-    }
-
-    /**
-     * Another faculty may have activated a schedule after this run was computed. Shared rooms and
-     * lecturers who teach in several faculties must not be double-booked across the two.
-     */
-    private function assertNoClashWithOtherFaculties(SchedulingRun $run): void
-    {
-        $others = $this->checkers->otherFacultiesOccupancy($run);
-        $genes = $run->scheduleDetails()->get(['time_slot_id', 'lecturer_id', 'room_id']);
-
-        $roomClashes = $genes->filter(fn (ScheduleDetail $g) => $others->roomClash($g->time_slot_id, $g->room_id) !== null)->count();
-        $lecturerClashes = $genes->filter(fn (ScheduleDetail $g) => $others->lecturerClash($g->time_slot_id, $g->lecturer_id) !== null)->count();
-
-        if ($roomClashes > 0 || $lecturerClashes > 0) {
-            throw ApiException::invalidState(__('This run clashes with the active schedule of another faculty (:rooms room and :lecturers lecturer clashes). Reload the data and run again.', [
-                'rooms' => $roomClashes,
-                'lecturers' => $lecturerClashes,
-            ]));
-        }
     }
 }

@@ -3,6 +3,8 @@
 namespace Tests\Feature\Scheduling;
 
 use App\Enums\MasterData\TpbCohort;
+use App\Models\Constraint\ConstraintType;
+use App\Models\Constraint\LecturerPreference;
 use App\Models\MasterData\Course;
 use App\Models\MasterData\CourseLecturer;
 use App\Models\MasterData\Faculty;
@@ -20,18 +22,19 @@ use Database\Seeders\Reference\ConstraintTypeSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Str;
 use Laravel\Sanctum\Sanctum;
+use Tests\Concerns\BuildsProgramSchedules;
 use Tests\Concerns\CreatesTpbRun;
 use Tests\Concerns\SeedsAccessControl;
 use Tests\TestCase;
 
 /**
  * TPB is scheduled first by its own GA run. The active TPB run then blocks slots of programs
- * (regular groups, hard), lecturers and rooms for every faculty, and asks the faculty GA to keep
+ * (regular groups, hard), lecturers and rooms for every faculty, and asks the program GA to keep
  * one class of each course out of the retake slots (soft).
  */
 class TpbSchedulingTest extends TestCase
 {
-    use CreatesTpbRun, RefreshDatabase, SeedsAccessControl;
+    use BuildsProgramSchedules, CreatesTpbRun, RefreshDatabase, SeedsAccessControl;
 
     private const PERIOD = '2026/2027-GANJIL';
 
@@ -90,21 +93,24 @@ class TpbSchedulingTest extends TestCase
         $this->assertSame([], app(TpbBlockService::class)->blocks('2026/2027-GENAP')['programs']);
     }
 
-    public function test_faculty_dataset_carries_the_blocks_and_tpb_rooms(): void
+    public function test_program_dataset_carries_the_blocks_of_its_program_and_lecturers(): void
     {
         $tpb = $this->activeTpbRun(self::PERIOD, [
             ['course_id' => $this->math->course_id, 'class_number' => 1, 'lecturer_id' => $this->lecturer->id, 'time_slot_id' => $this->slots[0]->id, 'room_id' => $this->room->id],
+            ['course_id' => $this->math->course_id, 'class_number' => 3, 'lecturer_id' => $this->classOf(3)->lecturer_id, 'time_slot_id' => $this->slots[2]->id, 'room_id' => null],
         ]);
         $course = Course::factory()->create(['study_program_id' => $this->informatics->id, 'semester' => 1]);
         CourseLecturer::factory()->create(['course_id' => $course->id, 'lecturer_id' => $this->lecturer->id]);
-        Sanctum::actingAs(User::factory()->facultyAdmin($this->faculty)->create());
+        $this->giveCells($this->informatics, self::PERIOD, [[$this->slots[1], Room::factory()->create(['faculty_id' => $this->faculty->id])]]);
+        Sanctum::actingAs(User::factory()->studyProgramAdmin($this->informatics)->create());
 
         $this->getJson('/api/v1/scheduling/dataset?period='.urlencode(self::PERIOD))
             ->assertOk()
             ->assertJsonPath('data.tpb_run_id', $tpb->id)
-            ->assertJsonPath('data.tpb_blocks.study_programs.0', ['study_program_id' => $this->informatics->id, 'semester' => 1, 'time_slot_ids' => [$this->slots[0]->id]])
-            ->assertJsonPath('data.tpb_blocks.lecturers.0.lecturer_id', $this->lecturer->id)
-            ->assertJsonPath('data.occupied_rooms.0', ['time_slot_id' => $this->slots[0]->id, 'room_id' => $this->room->id]);
+            ->assertJsonPath('data.tpb_blocks.study_programs', [['study_program_id' => $this->informatics->id, 'semester' => 1, 'time_slot_ids' => [$this->slots[0]->id]]])
+            ->assertJsonPath('data.tpb_blocks.retake', [['study_program_id' => $this->informatics->id, 'time_slot_ids' => [$this->slots[2]->id]]])
+            ->assertJsonPath('data.tpb_blocks.lecturers', [['lecturer_id' => $this->lecturer->id, 'time_slot_ids' => [$this->slots[0]->id]]])
+            ->assertJsonPath('data.occupied_rooms', []);
     }
 
     public function test_tpb_dataset_needs_every_class_to_have_a_lecturer(): void
@@ -145,31 +151,39 @@ class TpbSchedulingTest extends TestCase
         $this->assertNotNull($other);
     }
 
-    public function test_a_newer_published_tpb_run_only_flags_faculty_runs_as_stale(): void
+    public function test_a_newer_published_tpb_run_only_flags_program_runs_as_stale(): void
     {
         $first = $this->activeTpbRun(self::PERIOD);
-        $facultyRun = SchedulingRun::query()->create([
-            'client_run_id' => (string) Str::uuid(), 'batch_id' => (string) Str::uuid(), 'faculty_id' => $this->faculty->id,
-            'period' => self::PERIOD, 'parameter_snapshot' => ['parallel_class_limit' => 5], 'status' => 'done',
-            'triggered_by' => User::factory()->create()->id, 'tpb_run_id' => $first->id,
-        ]);
+        $course = Course::factory()->create(['study_program_id' => $this->informatics->id, 'semester' => 3, 'sks' => 3]);
+        CourseLecturer::factory()->create(['course_id' => $course->id, 'lecturer_id' => $this->lecturer->id]);
+        $cell = Room::factory()->create(['faculty_id' => $this->faculty->id, 'capacity' => 99]);
+        $this->giveCells($this->informatics, self::PERIOD, [[$this->slots[3], $cell]]);
+        $programAdmin = User::factory()->studyProgramAdmin($this->informatics)->create();
+        Sanctum::actingAs($programAdmin);
+        $fingerprint = $this->getJson('/api/v1/scheduling/dataset?period='.urlencode(self::PERIOD))->assertOk()->json('data.fingerprint');
+        $programRun = $this->programRun($this->informatics, self::PERIOD, [
+            ['course_id' => $course->id, 'class_number' => 1, 'lecturer_id' => $this->lecturer->id, 'time_slot_id' => $this->slots[3]->id, 'room_id' => $cell->id],
+        ], active: false);
+        $programRun->update(['dataset_fingerprint' => $fingerprint, 'tpb_run_id' => $first->id]);
+        $this->getJson("/api/v1/scheduling-runs/{$programRun->id}")->assertJsonPath('data.is_stale', false);
+
         $second = $first->replicate()->fill(['client_run_id' => (string) Str::uuid(), 'is_active' => false, 'published_at' => null]);
         $second->save();
-
         Sanctum::actingAs(User::factory()->tpbAdmin()->create());
         $this->postJson("/api/v1/scheduling-runs/{$second->id}/activate")->assertOk();
         $this->postJson("/api/v1/scheduling-runs/{$second->id}/publish")->assertOk();
         $this->assertFalse($first->fresh()->is_active);
 
-        Sanctum::actingAs(User::factory()->facultyAdmin($this->faculty)->create());
-        $this->getJson("/api/v1/scheduling-runs/{$facultyRun->id}")->assertJsonPath('data.is_stale', true);
-        $this->postJson("/api/v1/scheduling-runs/{$facultyRun->id}/activate")->assertOk();
+        // Stale is a warning: the run still fits, so it can be activated.
+        Sanctum::actingAs($programAdmin);
+        $this->getJson("/api/v1/scheduling-runs/{$programRun->id}")->assertJsonPath('data.is_stale', true);
+        $this->postJson("/api/v1/scheduling-runs/{$programRun->id}/activate")->assertOk();
     }
 
-    public function test_faculties_wait_for_the_tpb_schedule_to_be_published(): void
+    public function test_programs_wait_for_the_tpb_schedule_to_be_published(): void
     {
         $this->activeTpbRun(self::PERIOD, [], published: false);
-        Sanctum::actingAs(User::factory()->facultyAdmin($this->faculty)->create());
+        Sanctum::actingAs(User::factory()->studyProgramAdmin($this->informatics)->create());
 
         $this->getJson('/api/v1/scheduling/dataset?period='.urlencode(self::PERIOD))->assertStatus(409);
         $this->assertSame([], app(TpbBlockService::class)->blocks(self::PERIOD)['programs']);
@@ -178,9 +192,9 @@ class TpbSchedulingTest extends TestCase
     public function test_tpb_dataset_has_no_lecturer_preferences(): void
     {
         $slot = $this->slots[0]->id;
-        \App\Models\Constraint\LecturerPreference::query()->create([
+        LecturerPreference::query()->create([
             'lecturer_id' => $this->lecturer->id,
-            'constraint_type_id' => \App\Models\Constraint\ConstraintType::query()->where('code', 'SC_INGIN')->value('id'),
+            'constraint_type_id' => ConstraintType::query()->where('code', 'SC_INGIN')->value('id'),
             'time_slot_id' => $slot,
         ]);
         Sanctum::actingAs(User::factory()->tpbAdmin()->create());
@@ -199,6 +213,7 @@ class TpbSchedulingTest extends TestCase
         $facultyCourse = Course::factory()->create(['study_program_id' => $this->informatics->id, 'semester' => 1]);
         $facultyRun = SchedulingRun::query()->create([
             'client_run_id' => (string) Str::uuid(), 'batch_id' => (string) Str::uuid(), 'faculty_id' => $this->faculty->id,
+            'study_program_id' => $this->informatics->id,
             'period' => self::PERIOD, 'parameter_snapshot' => ['parallel_class_limit' => 5], 'status' => 'done', 'is_active' => true,
             'triggered_by' => User::factory()->create()->id,
         ]);

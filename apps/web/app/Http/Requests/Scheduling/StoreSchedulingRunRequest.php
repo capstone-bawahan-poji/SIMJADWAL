@@ -29,7 +29,8 @@ class StoreSchedulingRunRequest extends FormRequest
             'revise_group_ids.*' => ['integer'],
             'preset_id' => ['nullable', 'integer'],
             'parameter_snapshot' => ['required', 'array'],
-            'parameter_snapshot.parallel_class_limit' => ['required', 'integer', 'min:1'],
+            // HC4 is gone: a program's cells cap its classes per slot. Kept for older desktop builds.
+            'parameter_snapshot.parallel_class_limit' => ['nullable', 'integer', 'min:1'],
             'parameter_snapshot.weights' => ['required', 'array'],
             'best_fitness' => ['required', 'numeric'],
             'max_fitness' => ['required', 'numeric', 'gt:0'],
