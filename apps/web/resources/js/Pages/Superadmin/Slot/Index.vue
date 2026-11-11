@@ -22,7 +22,7 @@ const DAYS = [
     { value: 5, label: 'Jumat' },
 ];
 
-const fieldClass = 'w-full rounded-xl border-gray-200 bg-gray-50 text-gray-900 text-sm focus:border-primary focus:ring-primary';
+const fieldClass = 'w-full rounded-xl border-gray-200 bg-gray-50 text-gray-900 text-sm focus:border-primary focus:ring-primary disabled:opacity-60 disabled:cursor-not-allowed';
 
 const viewMode = ref<'table' | 'grid'>('table');
 const { items: slots, loading, error: listError, reload } = useCollection<TimeSlot>('time-slots');
@@ -66,6 +66,8 @@ function refresh(message: string): void {
 // Create / edit modal.
 const isModalOpen = ref(false);
 const editing = ref<TimeSlot | null>(null);
+const slotLocked = computed(() => editing.value?.in_use ?? false);
+const sksChanged = computed(() => editing.value !== null && editing.value.type !== form.data.type);
 const form = useApiForm(() => ({ day: 1, session: 1, start_time: '07:30', end_time: '10:00', type: 3 as 2 | 3 }));
 
 function openCreate(day?: number, session?: number): void {
@@ -260,7 +262,9 @@ async function confirmDelete(): Promise<void> {
             <div class="flex justify-between items-center py-6 pl-6 pr-14 border-b border-gray-100 bg-gray-50 rounded-t-lg">
                 <div>
                     <h2 class="text-lg font-bold text-gray-900">{{ editing ? `Ubah Slot ${slotCode(editing)}` : 'Tambah Slot Waktu' }}</h2>
-                    <p class="text-sm text-gray-500">Slot yang sudah dipakai preferensi, grup TPB, atau jadwal tidak dapat diubah</p>
+                    <p class="text-sm text-gray-500">
+                        {{ slotLocked ? 'Slot sudah dipakai. Hari dan sesi dikunci' : 'Atur hari, sesi, jam, dan panjang sesi' }}
+                    </p>
                 </div>
             </div>
             <form @submit.prevent="save" class="p-6 space-y-6">
@@ -269,14 +273,14 @@ async function confirmDelete(): Promise<void> {
                 <div class="grid grid-cols-2 gap-6">
                     <div>
                         <label for="slot-day" class="block text-sm font-semibold text-gray-900 mb-1.5">Hari</label>
-                        <select id="slot-day" v-model.number="form.data.day" :class="fieldClass">
+                        <select id="slot-day" v-model.number="form.data.day" :class="fieldClass" :disabled="slotLocked">
                             <option v-for="day in DAYS" :key="day.value" :value="day.value">{{ day.label }}</option>
                         </select>
                         <p v-if="form.errors.value.day" class="mt-1 text-xs text-red-600">{{ form.errors.value.day }}</p>
                     </div>
                     <div>
                         <label for="slot-session" class="block text-sm font-semibold text-gray-900 mb-1.5">Sesi ke-</label>
-                        <input id="slot-session" v-model.number="form.data.session" type="number" min="1" max="10" :class="fieldClass" required />
+                        <input id="slot-session" v-model.number="form.data.session" type="number" min="1" max="10" :class="fieldClass" :disabled="slotLocked" required />
                         <p v-if="form.errors.value.session" class="mt-1 text-xs text-red-600">{{ form.errors.value.session }}</p>
                     </div>
                 </div>
@@ -299,6 +303,9 @@ async function confirmDelete(): Promise<void> {
                         <option :value="3">{{ sksLabel(3) }}</option>
                     </select>
                     <p v-if="form.errors.value.type" class="mt-1 text-xs text-red-600">{{ form.errors.value.type }}</p>
+                    <p v-if="slotLocked && sksChanged" class="mt-1.5 text-xs text-amber-700">
+                        Panjang sesi berubah untuk semua preferensi dan jadwal yang memakai slot ini. Jadwal perlu dijadwalkan ulang.
+                    </p>
                 </div>
                 <div class="flex justify-end gap-3 pt-4 border-t border-gray-100">
                     <Button type="button" @click="isModalOpen = false" variant="secondary">Batal</Button>

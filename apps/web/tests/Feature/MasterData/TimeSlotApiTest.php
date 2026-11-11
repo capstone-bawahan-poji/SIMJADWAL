@@ -46,7 +46,8 @@ class TimeSlotApiTest extends TestCase
 
         $this->patchJson("/api/v1/time-slots/{$slot->id}", ['session' => 2])->assertUnprocessable()->assertJsonValidationErrors('session');
         $this->patchJson("/api/v1/time-slots/{$slot->id}", ['end_time' => '07:00'])->assertUnprocessable()->assertJsonValidationErrors('end_time');
-        $this->patchJson("/api/v1/time-slots/{$slot->id}", ['end_time' => '10:10'])->assertOk()->assertJsonPath('data.end_time', '10:10');
+        $this->patchJson("/api/v1/time-slots/{$slot->id}", ['end_time' => '10:10'])->assertUnprocessable()->assertJsonValidationErrors('end_time');
+        $this->patchJson("/api/v1/time-slots/{$slot->id}", ['end_time' => '09:10', 'type' => 2])->assertOk()->assertJsonPath('data.end_time', '09:10');
     }
 
     public function test_used_slot_cannot_change_or_be_deleted(): void
@@ -57,10 +58,53 @@ class TimeSlotApiTest extends TestCase
             'lecturer_id' => Lecturer::factory()->create()->id, 'time_slot_id' => $slot->id, 'room_id' => null,
         ]]);
 
-        $this->patchJson("/api/v1/time-slots/{$slot->id}", ['type' => 2])
+        $this->patchJson("/api/v1/time-slots/{$slot->id}", ['session' => 2])
             ->assertStatus(409)
             ->assertJsonPath('errors.references.schedules', 1);
         $this->deleteJson("/api/v1/time-slots/{$slot->id}")->assertStatus(409);
+    }
+
+    public function test_used_slot_type_change_needs_matching_time_range(): void
+    {
+        $slot = TimeSlot::factory()->create(); // 08:00-10:30, 3 SKS
+        $this->activeTpbRun('2026/2027-GANJIL', [[
+            'course_id' => Course::factory()->tpb()->create()->id, 'class_number' => 1,
+            'lecturer_id' => Lecturer::factory()->create()->id, 'time_slot_id' => $slot->id, 'room_id' => null,
+        ]]);
+
+        $this->patchJson("/api/v1/time-slots/{$slot->id}", ['type' => 2])->assertUnprocessable()->assertJsonValidationErrors('end_time');
+        $this->patchJson("/api/v1/time-slots/{$slot->id}", ['type' => 2, 'end_time' => '09:40'])
+            ->assertOk()
+            ->assertJsonPath('data.type', 2)
+            ->assertJsonPath('data.in_use', true);
+    }
+
+    public function test_store_and_patch_check_time_range_against_type(): void
+    {
+        $this->postJson('/api/v1/time-slots', ['day' => 2, 'session' => 1, 'start_time' => '07:30', 'end_time' => '09:00', 'type' => 3])
+            ->assertUnprocessable()
+            ->assertJsonValidationErrors('end_time');
+
+        $slot = TimeSlot::factory()->create();
+        $this->patchJson("/api/v1/time-slots/{$slot->id}", ['end_time' => '09:00'])->assertUnprocessable()->assertJsonValidationErrors('end_time');
+    }
+
+    public function test_used_slot_time_stays_editable_but_day_session_type_locked(): void
+    {
+        $slot = TimeSlot::factory()->create(['day' => Day::FRIDAY, 'session' => 3, 'start_time' => '13:30', 'end_time' => '15:30', 'type' => 3]);
+        $this->activeTpbRun('2026/2027-GANJIL', [[
+            'course_id' => Course::factory()->tpb()->create()->id, 'class_number' => 1,
+            'lecturer_id' => Lecturer::factory()->create()->id, 'time_slot_id' => $slot->id, 'room_id' => null,
+        ]]);
+
+        $this->getJson('/api/v1/time-slots')->assertOk()->assertJsonPath('data.0.in_use', true);
+
+        $this->patchJson("/api/v1/time-slots/{$slot->id}", ['start_time' => '13:00', 'end_time' => '15:30'])
+            ->assertOk()
+            ->assertJsonPath('data.start_time', '13:00')
+            ->assertJsonPath('data.end_time', '15:30');
+
+        $this->patchJson("/api/v1/time-slots/{$slot->id}", ['session' => 4])->assertStatus(409);
     }
 
     public function test_everyone_reads_slots_but_only_superadmin_writes(): void

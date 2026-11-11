@@ -11,8 +11,9 @@ use Illuminate\Support\Collection;
 
 /**
  * Slots follow the campus rule (sessions 1-4 per weekday) and rarely change.
- * A slot in use can be neither edited nor deleted: preferences, schedules and TPB
- * groups all read its day, time and type.
+ * A slot in use keeps its day and session: preferences, schedules and TPB groups read them.
+ * Its start time, end time and type (SKS length) stay editable; the type change applies to
+ * every preference and schedule that uses the slot, so those need a new GA run. A slot in use cannot be deleted.
  */
 readonly class TimeSlotService
 {
@@ -32,12 +33,12 @@ readonly class TimeSlotService
             ->orderBy('day')
             ->orderBy('session')
             ->get()
-            ->map(fn (TimeSlot $timeSlot) => TimeSlotData::from($timeSlot));
+            ->map(fn (TimeSlot $timeSlot) => $this->toData($timeSlot));
     }
 
     public function getTimeSlot(TimeSlot $timeSlot): TimeSlotData
     {
-        return TimeSlotData::from($timeSlot);
+        return $this->toData($timeSlot);
     }
 
     public function createTimeSlot(TimeSlotFormData $data): TimeSlotData
@@ -49,7 +50,9 @@ readonly class TimeSlotService
 
     public function updateTimeSlot(TimeSlot $timeSlot, TimeSlotFormData $data): TimeSlotData
     {
-        $this->ensureUnused($timeSlot);
+        if ($data->day !== $timeSlot->day || $data->session !== $timeSlot->session) {
+            $this->ensureUnused($timeSlot);
+        }
 
         $timeSlot->update($this->attributes($data));
 
@@ -70,6 +73,14 @@ readonly class TimeSlotService
         $this->ensureUnused($timeSlot);
 
         $timeSlot->delete();
+    }
+
+    private function toData(TimeSlot $timeSlot): TimeSlotData
+    {
+        $data = TimeSlotData::from($timeSlot);
+        $data->inUse = $timeSlot->lecturerPreferences()->exists() || $timeSlot->scheduleDetails()->exists();
+
+        return $data;
     }
 
     private function ensureUnused(TimeSlot $timeSlot): void
