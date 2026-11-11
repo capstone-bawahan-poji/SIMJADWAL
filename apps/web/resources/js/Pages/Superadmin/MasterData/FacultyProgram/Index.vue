@@ -172,7 +172,7 @@ async function confirmDelete(): Promise<void> {
     <Head title="Master Data Fakultas & Prodi" />
 
     <AppLayout>
-        <div class="p-6 md:p-8 space-y-8">
+        <div class="space-y-8">
             <!-- Header section -->
             <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>

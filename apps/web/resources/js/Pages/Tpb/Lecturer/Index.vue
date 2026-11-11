@@ -30,7 +30,7 @@ function fullName(lecturer: Lecturer): string {
 <template>
     <Head title="Kelola Dosen" />
     <AppLayout>
-        <div class="mx-auto w-full max-w-7xl space-y-6 p-6 md:p-8">
+        <div class="space-y-6">
             <header>
                 <h1 class="text-2xl font-bold tracking-tight text-gray-900">Kelola Dosen</h1>
                 <p class="mt-1 text-sm text-gray-500">Daftar seluruh dosen institut, hanya untuk dilihat. Data dosen diubah oleh masing-masing program studi.</p>

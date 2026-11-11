@@ -113,7 +113,7 @@ async function confirmDelete(): Promise<void> {
     <Head title="Data Mata Kuliah" />
 
     <AppLayout>
-        <div class="w-full space-y-6 p-6 md:p-8">
+        <div class="space-y-6">
             <header class="flex flex-wrap items-start justify-between gap-4">
                 <div>
                     <h1 class="text-2xl font-bold tracking-tight text-gray-900">Data Mata Kuliah</h1>

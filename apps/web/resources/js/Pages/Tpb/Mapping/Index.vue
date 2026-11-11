@@ -442,7 +442,7 @@ async function confirmDelete(): Promise<void> {
 <template>
     <Head title="Mapping Dosen Pengampu" />
     <AppLayout>
-        <div class="mx-auto w-full max-w-7xl space-y-6 p-6 md:p-8">
+        <div class="space-y-6">
             <header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                     <h1 class="text-2xl font-bold tracking-tight text-gray-900">Mapping Dosen Pengampu</h1>
@@ -707,7 +707,7 @@ async function confirmDelete(): Promise<void> {
             </div>
         </div>
 
-        <Modal :show="groupModalOpen" max-width="3xl" close-button centered @close="groupModalOpen = false">
+        <Modal :show="groupModalOpen" max-width="3xl" close-button @close="groupModalOpen = false">
             <div class="rounded-t-lg border-b border-gray-100 bg-gray-50 py-5 pl-6 pr-14">
                 <h2 class="text-lg font-bold text-gray-900">{{ editingGroup ? `Ubah grup ${editingGroup.code}` : 'Tambah grup' }}</h2>
                 <p v-if="selected" class="mt-0.5 text-sm text-gray-500">{{ selected.course.code }} · {{ selected.course.name }}</p>
@@ -794,7 +794,7 @@ async function confirmDelete(): Promise<void> {
             </form>
         </Modal>
 
-        <Modal :show="copyOpen" max-width="lg" close-button centered @close="copyOpen = false">
+        <Modal :show="copyOpen" max-width="lg" close-button @close="copyOpen = false">
             <div class="rounded-t-lg border-b border-gray-100 bg-gray-50 py-5 pl-6 pr-14">
                 <h2 class="text-lg font-bold text-gray-900">Salin dari periode lain</h2>
                 <p class="mt-0.5 text-sm text-gray-500">Jumlah kelas dan kapasitas disalin ke {{ periods.find((p) => p.code === period)?.label ?? period }}.</p>

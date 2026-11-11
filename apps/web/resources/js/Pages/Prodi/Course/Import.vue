@@ -270,7 +270,7 @@ function unresolve(match: LecturerMatch): void {
     <Head title="Import Mata Kuliah" />
 
     <AppLayout>
-        <div class="mx-auto w-full max-w-7xl space-y-6 p-6 md:p-8">
+        <div class="space-y-6">
             <header class="flex flex-wrap items-start justify-between gap-4">
                 <div>
                     <Link :href="route('prodi.mappings.index')" class="-ml-1 inline-flex items-center gap-1.5 rounded px-1 text-sm font-medium text-gray-600 transition-colors hover:text-primary focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">

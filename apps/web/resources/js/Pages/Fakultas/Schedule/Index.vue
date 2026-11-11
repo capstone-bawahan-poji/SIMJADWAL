@@ -133,7 +133,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details'], () => {
     <Head title="Jadwal Fakultas" />
 
     <AppLayout>
-        <div class="mx-auto w-full max-w-[1600px] space-y-6 p-6 md:p-8">
+        <div class="space-y-6">
             <div>
                 <h1 class="text-2xl font-bold tracking-tight text-gray-900">Jadwal Fakultas</h1>
             </div>

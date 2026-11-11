@@ -19,7 +19,7 @@ defineEmits<{ confirm: []; close: [] }>();
 </script>
 
 <template>
-    <Modal :show="show" max-width="md" centered @close="$emit('close')">
+    <Modal :show="show" max-width="md" @close="$emit('close')">
         <div class="space-y-4 p-6">
             <h2 class="text-lg font-bold text-gray-900">{{ title }}</h2>
             <div class="text-sm text-gray-600"><slot /></div>

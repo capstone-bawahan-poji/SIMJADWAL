@@ -127,7 +127,7 @@ async function confirmDelete(): Promise<void> {
     <Head title="Data Jadwal" />
 
     <AppLayout>
-        <div class="p-6 md:p-8 space-y-7 max-w-7xl w-full mx-auto">
+        <div class="space-y-7">
             <!-- Page Header -->
             <div class="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
                 <div>

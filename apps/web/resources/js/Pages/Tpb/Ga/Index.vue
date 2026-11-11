@@ -319,7 +319,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
 <template>
     <Head title="Penjadwalan GA TPB" />
     <AppLayout>
-        <div class="mx-auto w-full max-w-7xl space-y-6 p-6 md:p-8">
+        <div class="space-y-6">
             <header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                     <h1 class="text-2xl font-bold tracking-tight text-gray-900">Penjadwalan GA TPB</h1>
@@ -614,7 +614,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details', 'violation_logs'], ()
             </section>
         </div>
 
-        <Modal :show="openedBlock !== null" max-width="2xl" close-button centered @close="openedBlock = null">
+        <Modal :show="openedBlock !== null" max-width="2xl" close-button @close="openedBlock = null">
             <template v-if="openedBlock">
                 <div class="rounded-t-lg border-b border-gray-100 bg-gray-50 py-5 pl-6 pr-14">
                     <p class="text-xs text-gray-500"><span class="tabular-nums">{{ openedBlock.courseCode }}</span><template v-if="openedBlock.groupCode"> · Grup {{ openedBlock.groupCode }}</template><template v-if="openedBlock.meeting > 1"> · Pertemuan {{ openedBlock.meeting }}</template></p>

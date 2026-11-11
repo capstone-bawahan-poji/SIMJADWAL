@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import AppLogo from '@/Components/shared/AppLogo.vue';
+import PageContainer from '@/Components/shared/PageContainer.vue';
 import GlobalSearch from '@/Components/shared/GlobalSearch.vue';
 import { Link, usePage } from '@inertiajs/vue3';
 import { initials, ROLE_LABELS } from '@/lib/labels';
 import { DOWNLOAD_APP_ITEM, navFor, type NavItem, PORTAL_LABELS } from '@/lib/navigation';
+
+/** bare: the page paints its own full-width background and places PageContainer itself. */
+defineProps<{ bare?: boolean }>();
 
 const page = usePage();
 const user = computed(() => page.props.auth.user);
@@ -215,7 +219,10 @@ function isActive(item: NavItem) {
             </header>
 
             <main class="flex-1">
-                <slot />
+                <slot v-if="bare" />
+                <PageContainer v-else>
+                    <slot />
+                </PageContainer>
             </main>
         </div>
     </div>

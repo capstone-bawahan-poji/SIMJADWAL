@@ -106,7 +106,7 @@ async function send(dryRun: boolean): Promise<void> {
 <template>
     <Head title="Import Data TPB" />
     <AppLayout>
-        <div class="mx-auto w-full max-w-7xl space-y-6 p-6 md:p-8">
+        <div class="space-y-6">
             <header class="space-y-4">
                 <Link :href="mappingUrl" class="inline-flex h-10 items-center justify-center gap-2 rounded-lg border border-gray-200 bg-white px-4 text-sm font-semibold text-slate-700 hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary">
                     <ArrowLeft class="size-4" aria-hidden="true" />

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
+import PageContainer from '@/Components/shared/PageContainer.vue';
 import DashboardChart from '@/Components/dashboard/DashboardChart.vue';
 import DashboardSummary from '@/Components/dashboard/DashboardSummary.vue';
 import Card from '@/Components/ui/Card.vue';
@@ -88,8 +89,9 @@ onResourcesChanged(['scheduling_runs', 'tpb_offerings', 'tpb_groups', 'course_le
 
 <template>
     <Head title="Dashboard TPB" />
-    <AppLayout>
-        <div class="dashboard-page w-full space-y-6 p-6 md:p-8">
+    <AppLayout bare>
+        <div class="dashboard-page">
+            <PageContainer class="space-y-6">
             <header class="flex flex-wrap items-end justify-between gap-4">
                 <div>
                     <h1 class="text-3xl font-bold tracking-tight text-[#112D4E]">Dashboard</h1>
@@ -232,6 +234,7 @@ onResourcesChanged(['scheduling_runs', 'tpb_offerings', 'tpb_groups', 'course_le
 
                 </div>
             </Card>
+            </PageContainer>
         </div>
     </AppLayout>
 </template>

@@ -84,7 +84,7 @@ onResourcesChanged(['tpb_occupancy_imports', 'scheduling_runs', 'schedule_public
 <template>
     <Head title="Import Jadwal TPB" />
     <AppLayout>
-        <div class="mx-auto w-full max-w-7xl space-y-6 p-6 md:p-8">
+        <div class="space-y-6">
             <header class="flex flex-wrap items-end justify-between gap-4">
                 <div>
                     <h1 class="text-2xl font-bold tracking-tight text-gray-900">Import Jadwal TPB</h1>

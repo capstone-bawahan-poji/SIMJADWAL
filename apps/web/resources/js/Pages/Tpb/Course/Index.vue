@@ -75,7 +75,7 @@ async function confirmDelete(): Promise<void> {
 <template>
     <Head title="Kelola Mata Kuliah TPB" />
     <AppLayout>
-        <div class="mx-auto w-full max-w-7xl space-y-6 p-6 md:p-8">
+        <div class="space-y-6">
             <header class="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
                 <div>
                     <h1 class="text-2xl font-bold tracking-tight text-gray-900">Kelola Mata Kuliah</h1>
@@ -124,7 +124,7 @@ async function confirmDelete(): Promise<void> {
             </Panel>
         </div>
 
-        <Modal :show="modalOpen" max-width="xl" close-button centered @close="modalOpen = false">
+        <Modal :show="modalOpen" max-width="xl" close-button @close="modalOpen = false">
             <div class="rounded-t-lg border-b border-gray-100 bg-gray-50 py-6 pl-6 pr-14">
                 <h2 class="text-lg font-bold text-gray-900">{{ editing ? 'Ubah mata kuliah' : 'Tambah mata kuliah TPB' }}</h2>
             </div>

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import AppLayout from '@/Layouts/AppLayout.vue';
+import PageContainer from '@/Components/shared/PageContainer.vue';
 import type { DashboardStats } from '@/types/models';
 import { Head, Link } from '@inertiajs/vue3';
 import { ArrowRight, Building2, Clock, GraduationCap, Users } from 'lucide-vue-next';
@@ -112,17 +113,16 @@ const card = {
 <template>
     <Head title="Dashboard Superadmin" />
 
-    <AppLayout>
-        <div v-if="!stats" class="w-full p-6 md:p-8" :style="{ backgroundColor: C.paper, minHeight: 'calc(100vh - 4rem)' }">
+    <AppLayout bare>
+        <div v-if="!stats" :style="{ backgroundColor: C.paper, minHeight: 'calc(100vh - 4rem)' }">
+            <PageContainer>
             <h1 class="text-3xl font-bold tracking-tight" :style="{ color: C.navy }">Dashboard</h1>
             <p class="mt-2 text-sm" :style="{ color: C.muted }">Ringkasan untuk role Anda belum tersedia.</p>
+            </PageContainer>
         </div>
 
-        <div
-            v-else
-            class="flex w-full flex-col gap-6 p-6 md:p-8"
-            :style="{ backgroundColor: C.paper, minHeight: 'calc(100vh - 4rem)' }"
-        >
+        <div v-else :style="{ backgroundColor: C.paper, minHeight: 'calc(100vh - 4rem)' }">
+            <PageContainer class="flex flex-col gap-6">
             <div>
                 <h1 class="text-3xl font-bold tracking-tight" :style="{ color: C.navy }">Dashboard</h1>
                 <p class="mt-1 text-sm" :style="{ color: C.muted }">Super Admin · Ringkasan data seluruh sistem</p>
@@ -351,6 +351,7 @@ const card = {
                     </li>
                 </ol>
             </section>
+            </PageContainer>
         </div>
     </AppLayout>
 </template>

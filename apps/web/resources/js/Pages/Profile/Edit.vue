@@ -13,7 +13,7 @@ defineProps<{
     <Head title="Profil Saya" />
 
     <AppLayout>
-        <div class="p-6 md:p-8 max-w-4xl w-full mx-auto space-y-6">
+        <div class="max-w-4xl space-y-6">
             <h2 class="text-2xl font-bold text-gray-900 tracking-tight">Profil Saya</h2>
 
             <div class="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm sm:p-8">

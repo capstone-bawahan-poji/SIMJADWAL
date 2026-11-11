@@ -88,7 +88,7 @@ async function download(): Promise<void> {
         Unduh seluruh jadwal
     </Button>
 
-    <Modal :show="open" max-width="lg" close-button centered @close="open = false">
+    <Modal :show="open" max-width="lg" close-button @close="open = false">
         <div class="rounded-t-lg border-b border-gray-100 bg-gray-50 py-5 pl-6 pr-14">
             <h2 class="text-lg font-bold text-gray-900">Unduh seluruh jadwal</h2>
             <p class="mt-0.5 text-sm text-gray-500">Jadwal terpublikasi: slot waktu ke bawah, gedung dan ruang ke samping. Sel yang bentrok diberi bingkai merah.</p>

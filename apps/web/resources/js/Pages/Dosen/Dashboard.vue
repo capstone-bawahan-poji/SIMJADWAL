@@ -2,6 +2,7 @@
 import Alert from '@/Components/ui/Alert.vue';
 import Card from '@/Components/ui/Card.vue';
 import AppLayout from '@/Layouts/AppLayout.vue';
+import PageContainer from '@/Components/shared/PageContainer.vue';
 import DashboardChart from '@/Components/dashboard/DashboardChart.vue';
 import DashboardSummary from '@/Components/dashboard/DashboardSummary.vue';
 import { onResourcesChanged } from '@/composables/useResourceChanges';
@@ -108,8 +109,9 @@ onResourcesChanged(['scheduling_runs', 'schedule_details'], () => void loadSched
 <template>
     <Head title="Dashboard Dosen" />
 
-    <AppLayout>
-        <div class="dashboard-page w-full space-y-6 p-6 md:p-8">
+    <AppLayout bare>
+        <div class="dashboard-page">
+            <PageContainer class="space-y-6">
             <header>
                 <h1 class="text-3xl font-bold tracking-tight text-[#112D4E]">Dashboard</h1>
                 <p class="mt-1 text-sm text-[#112D4E]/70">
@@ -184,6 +186,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details'], () => void loadSched
                 </Card>
             </template>
 
+            </PageContainer>
         </div>
     </AppLayout>
 </template>

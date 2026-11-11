@@ -95,7 +95,7 @@ watch(view, (value) => {
 <template>
     <Head title="Alokasi Ruangan" />
     <AppLayout>
-        <div class="w-full space-y-6 p-6 md:p-8">
+        <div class="space-y-6">
             <div class="flex flex-wrap items-start justify-between gap-4">
                 <div>
                     <h1 class="text-2xl font-bold tracking-tight text-gray-900">Alokasi Ruangan</h1>
@@ -172,7 +172,7 @@ watch(view, (value) => {
                                 <td class="px-6 py-3.5 text-gray-700">{{ detail.lecturer.name }}</td>
                                 <td class="whitespace-nowrap px-6 py-3.5 text-right tabular-nums text-gray-700">{{ detail.course.class_capacity }} kursi</td>
                                 <td v-if="!readonly" class="whitespace-nowrap px-6 py-3.5 text-right">
-                                    <Link :href="reviewUrl(detail)" class="text-xs font-semibold text-primary hover:underline">Tinjau</Link>
+                                    <Link :href="reviewUrl(detail)" class="text-xs font-semibold text-primary hover:underline">Lihat</Link>
                                 </td>
                             </tr>
                         </tbody>
@@ -213,7 +213,7 @@ watch(view, (value) => {
                                     <p v-if="detail.room" class="text-xs text-gray-500">{{ detail.room.code }}</p>
                                 </td>
                                 <td v-if="!readonly" class="whitespace-nowrap px-6 py-3.5 text-right">
-                                    <Link :href="reviewUrl(detail)" class="text-xs font-semibold text-primary hover:underline">Tinjau</Link>
+                                    <Link :href="reviewUrl(detail)" class="text-xs font-semibold text-primary hover:underline">Lihat</Link>
                                 </td>
                             </tr>
                         </tbody>

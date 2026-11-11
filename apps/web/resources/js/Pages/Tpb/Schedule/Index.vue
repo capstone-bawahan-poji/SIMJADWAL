@@ -138,7 +138,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details'], () => void load());
 <template>
     <Head title="Jadwal TPB" />
     <AppLayout>
-        <div class="w-full space-y-6 p-6 md:p-8">
+        <div class="space-y-6">
             <header class="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
                 <div>
                     <h1 class="text-2xl font-bold tracking-tight text-gray-900">Jadwal TPB</h1>
@@ -223,7 +223,7 @@ onResourcesChanged(['scheduling_runs', 'schedule_details'], () => void load());
             </ul>
         </div>
 
-        <Modal :show="opened !== null" max-width="2xl" close-button centered @close="opened = null">
+        <Modal :show="opened !== null" max-width="2xl" close-button @close="opened = null">
             <template v-if="opened && openedSlot">
                 <div class="rounded-t-lg border-b border-gray-100 bg-gray-50 py-6 pl-6 pr-14">
                     <p class="text-xs text-gray-500"><span class="font-mono">{{ opened.courseCode }}</span> · Grup {{ opened.groupCode }} · {{ COHORT_LABELS[opened.cohort] }}</p>
