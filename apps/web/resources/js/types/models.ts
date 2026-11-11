@@ -130,6 +130,8 @@ export interface TimeSlot {
     start_time: string;
     end_time: string;
     type: 2 | 3;
+    /** Day, session and type are locked; start and end time stay editable. */
+    in_use: boolean;
     can_update: boolean;
     can_delete: boolean;
 }
@@ -469,6 +471,36 @@ export interface ScheduleOptions {
     }[];
 }
 
+/** One meeting of one TPB group: its classes always share a slot. */
+export interface TpbBlockSummary {
+    schedule_detail_id: number;
+    course: { id: number; code: string; name: string };
+    group_code: string | null;
+    meeting_number: number;
+    classes: { schedule_detail_id: number; class_number: number; room_id: number | null; room_code: string | null }[];
+}
+
+/** GET /tpb-blocks/{scheduleDetail}/options. rooms = the shared room each class would get, empty when the slot is not available. */
+export interface TpbBlockOptions {
+    block: TpbBlockSummary;
+    current: { time_slot_id: number };
+    time_slots: {
+        id: number;
+        day: number;
+        session: number;
+        start_time: string;
+        end_time: string;
+        type: number;
+        available: boolean;
+        reasons: string[];
+        /** Soft: the move is allowed but the slot length differs from the SKS of the meeting. */
+        warnings: string[];
+        rooms: { schedule_detail_id: number; class_number: number; room_id: number; room_code: string; capacity: number }[];
+    }[];
+    /** Blocks of other groups this one may swap slots with. */
+    swap_candidates: (TpbBlockSummary & { time_slot_id: number })[];
+}
+
 /** Body of PATCH /schedule-details/{id}: the full new cell, one of the program's room slots. */
 export interface ScheduleOverridePayload {
     time_slot_id: number;
@@ -640,7 +672,10 @@ export interface ImportRowMessage {
     message: string;
 }
 
-/** POST tpb-occupancy/import (rows, skipped) and POST tpb-schedule/import (run_id, meetings). */
+/**
+ * POST tpb-occupancy/import (rows, skipped) and POST tpb-schedule/import (run_id, meetings).
+ * data = what the group columns of the file created, null when the file only has a schedule.
+ */
 export interface TpbImportResult {
     committed: boolean;
     errors: ImportRowMessage[];
@@ -649,6 +684,7 @@ export interface TpbImportResult {
     skipped?: number;
     run_id?: number | null;
     meetings?: number;
+    data?: { offerings: number; groups: number; classes: number; replaced: number } | null;
 }
 
 /*  Dashboards */
