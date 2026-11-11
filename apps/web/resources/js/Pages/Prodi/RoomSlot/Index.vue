@@ -139,7 +139,7 @@ onResourcesChanged(['room_slot_allocations', 'slot_requests', 'courses', 'course
 <template>
     <Head title="Slot Ruangan" />
     <AppLayout>
-        <div class="mx-auto w-full max-w-7xl space-y-6 p-6 md:p-8">
+        <div class="space-y-6">
             <header class="flex flex-wrap items-end justify-between gap-4">
                 <div>
                     <h1 class="text-2xl font-bold tracking-tight text-gray-900">Slot Ruangan</h1>
@@ -176,6 +176,7 @@ onResourcesChanged(['room_slot_allocations', 'slot_requests', 'courses', 'course
                 <div class="rounded-xl border p-5" :class="sufficiency.sufficient ? 'border-emerald-200 bg-emerald-50' : 'border-amber-200 bg-amber-50'">
                     <p class="text-sm" :class="sufficiency.sufficient ? 'text-emerald-800' : 'text-amber-800'">Kecukupan slot</p>
                     <p class="mt-1 text-2xl font-bold" :class="sufficiency.sufficient ? 'text-emerald-800' : 'text-amber-800'">{{ sufficiency.sufficient ? 'Cukup' : 'Kurang' }}</p>
+                    <p v-if="sufficiency.unusable_cells" class="mt-1 text-xs text-gray-600">{{ sufficiency.unusable_cells }} slot ruangan tidak terpakai: dosen prodi sibuk mengajar TPB atau prodi lain di jam itu.</p>
                     <p v-if="sufficiency.type_mismatches" class="mt-1 text-xs text-gray-600">{{ sufficiency.type_mismatches }} pertemuan memakai slot dengan panjang sesi berbeda dari SKS-nya.</p>
                 </div>
             </section>

@@ -7,6 +7,7 @@ use App\Http\Requests\Scheduling\FacultyPeriodRequest;
 use App\Http\Requests\Scheduling\PeriodRequest;
 use App\Http\Requests\Scheduling\SyncRoomSlotsRequest;
 use App\Models\MasterData\StudyProgram;
+use App\Services\Scheduling\DemoSlotFillService;
 use App\Services\Scheduling\RoomSlotAllocationService;
 use App\Services\Scheduling\SlotSufficiencyService;
 use Illuminate\Http\JsonResponse;
@@ -20,6 +21,7 @@ class RoomSlotAllocationController extends ApiController
     public function __construct(
         protected readonly RoomSlotAllocationService $allocations,
         protected readonly SlotSufficiencyService $sufficiency,
+        protected readonly DemoSlotFillService $demoFill,
     ) {}
 
     public function index(FacultyPeriodRequest $request): JsonResponse
@@ -43,6 +45,22 @@ class RoomSlotAllocationController extends ApiController
     }
 
     /**
+     * Demo only (404 in production): gives every program the cells it is short of.
+     */
+    public function autoFill(FacultyPeriodRequest $request): JsonResponse
+    {
+        abort_if(app()->isProduction(), 404);
+        $faculty = $request->faculty();
+        $this->authorize('manageRoomSlots', $faculty);
+        $period = $request->period();
+
+        return $this->response([
+            'programs' => $this->demoFill->fill($request->user(), $faculty, $period),
+            'grid' => $this->withSufficiency($this->allocations->grid($faculty, $period)),
+        ]);
+    }
+
+    /**
      * Adds whether each program's cells hold its classes, so the faculty sees who is short.
      *
      * @param  array<string, mixed>  $grid
@@ -54,7 +72,7 @@ class RoomSlotAllocationController extends ApiController
         $grid['study_programs'] = array_map(function (array $row) use ($programs, $grid) {
             $check = $this->sufficiency->check($programs[$row['id']], $grid['period']);
 
-            return [...$row, 'required_meetings' => $check['required_meetings'], 'sufficient' => $check['sufficient']];
+            return [...$row, 'required_meetings' => $check['required_meetings'], 'required_by_type' => $check['required_by_type'], 'sufficient' => $check['sufficient']];
         }, $grid['study_programs']);
 
         return $grid;

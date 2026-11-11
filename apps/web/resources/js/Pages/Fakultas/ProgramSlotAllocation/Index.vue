@@ -3,6 +3,7 @@ import Modal from '@/Components/Modal.vue';
 import CellGrid from '@/Components/scheduling/CellGrid.vue';
 import Alert from '@/Components/ui/Alert.vue';
 import Button from '@/Components/ui/Button.vue';
+import ConfirmDialog from '@/Components/ui/ConfirmDialog.vue';
 import { usePeriodPicker } from '@/composables/usePeriodPicker';
 import { onResourcesChanged } from '@/composables/useResourceChanges';
 import AppLayout from '@/Layouts/AppLayout.vue';
@@ -11,16 +12,14 @@ import { DAY_LABELS, formatDateTime } from '@/lib/labels';
 import { programTone as toneOf } from '@/lib/programTone';
 import type { CellChange, CellView, GridRoom, Paginated, RoomSlotGrid, SlotRequest, TimeSlot } from '@/types/models';
 import { Head, Link } from '@inertiajs/vue3';
-import { ClipboardList, Eye, X } from 'lucide-vue-next';
+import { X } from 'lucide-vue-next';
 import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 
-/**
- * POS 040/IT10.1/OT.07/2026 steps 1, 5 and 6: the faculty hands room slots (room × day × session)
- * to its study programs, moves them between programs, and answers requests for more.
- * Changes stay local until saved; one save sends only the changed cells.
- */
 type GridCell = RoomSlotGrid['cells'][number];
 const EMPTY_TONE = 'border border-dashed border-gray-300 bg-white text-gray-400 hover:border-primary hover:text-primary';
+
+/** demoTools: set by the server outside production only. */
+defineProps<{ demoTools?: boolean }>();
 
 const { periods, period, error: periodError } = usePeriodPicker();
 const grid = ref<RoomSlotGrid | null>(null);
@@ -29,7 +28,6 @@ const loadError = ref<ApiError | null>(null);
 const programId = ref<number | null>(null);
 const building = ref('');
 const day = ref(1);
-/** "slot:room" => desired holder, only for cells that differ from the server. */
 const pending = ref(new Map<string, number | null>());
 const cellErrors = ref(new Map<string, string>());
 const saving = ref(false);
@@ -39,8 +37,6 @@ const flash = ref<string | null>(null);
 const requests = ref<SlotRequest[]>([]);
 const requestsError = ref<ApiError | null>(null);
 const activeRequest = ref<SlotRequest | null>(null);
-const detailRequest = ref<SlotRequest | null>(null);
-/** Cells picked to answer activeRequest. */
 const requestCells = ref(new Set<string>());
 const responseNote = ref('');
 const answering = ref<'fulfill' | 'reject' | null>(null);
@@ -60,18 +56,26 @@ const days = computed(() => [...new Set((grid.value?.time_slots ?? []).map((slot
 const slots = computed(() => (grid.value?.time_slots ?? []).filter((slot) => slot.day === day.value).sort((a, b) => a.session - b.session));
 const locked = computed(() => !grid.value || grid.value.tpb_source.type === null || grid.value.published);
 const pendingCount = computed(() => pending.value.size);
-const summarizedRequests = computed(() => requests.value.map((request) => {
-    const capacities = request.needs.map((need) => need.min_capacity);
-    const min = capacities.length ? Math.min(...capacities) : null;
-    const max = capacities.length ? Math.max(...capacities) : null;
 
-    return {
-        request,
-        courses: new Set(request.needs.map((need) => need.course_id)).size,
-        meetings: request.needs.reduce((sum, need) => sum + need.meetings, 0),
-        seats: min === null ? null : min === max ? `${min}` : `${min}–${max}`,
-    };
-}));
+function freeCellsFitting(minCapacity: number): number {
+    let free = 0;
+    for (const slot of grid.value?.time_slots ?? []) {
+        for (const room of grid.value?.rooms ?? []) {
+            if (room.capacity < minCapacity) continue;
+            const cellKey = key(slot.id, room.id);
+            const status = cells.value.get(cellKey)?.status;
+            if (status === 'tpb' || status === 'other_faculty') continue;
+            if (holderOf(cellKey) === null) free++;
+        }
+    }
+    return free;
+}
+
+const requestViews = computed(() => requests.value.map((request) => ({
+    request,
+    meetings: request.needs.reduce((sum, need) => sum + need.meetings, 0),
+    needs: request.needs.map((need) => ({ ...need, fits: freeCellsFitting(need.min_capacity) })),
+})));
 
 /** Cells per program after the unsaved changes. */
 const effectiveCounts = computed(() => {
@@ -83,6 +87,32 @@ const effectiveCounts = computed(() => {
     }
     return counts;
 });
+
+const SLOT_TYPES = [3, 2] as const;
+const MINUTES_PER_SKS = 50;
+
+const effectiveTypeCounts = computed(() => {
+    const typeOfSlot = new Map((grid.value?.time_slots ?? []).map((slot) => [slot.id, slot.type]));
+    const counts = new Map<number, Record<2 | 3, number>>();
+    for (const cellKey of new Set([...cells.value.keys(), ...pending.value.keys()])) {
+        const holder = holderOf(cellKey);
+        const type = typeOfSlot.get(Number(cellKey.split(':')[0]));
+        if (holder === null || type === undefined) continue;
+        const row = counts.get(holder) ?? { 2: 0, 3: 0 };
+        row[type]++;
+        counts.set(holder, row);
+    }
+    return counts;
+});
+
+function typeLines(program: (typeof programs.value)[number]): { type: 2 | 3; label: string; have: number; need: number }[] {
+    return SLOT_TYPES.map((type) => ({
+        type,
+        label: `${type} SKS`,
+        have: effectiveTypeCounts.value.get(program.id)?.[type] ?? 0,
+        need: program.required_by_type?.[type] ?? 0,
+    })).filter((line) => line.have > 0 || line.need > 0);
+}
 
 function originalHolder(cell: GridCell | undefined): number | null {
     return cell && (cell.status === 'allocated' || cell.status === 'conflict') ? cell.study_program_id : null;
@@ -178,7 +208,6 @@ async function loadRequests(): Promise<void> {
         requests.value = response.data.data;
         requestsError.value = null;
         if (activeRequest.value && !requests.value.some((request) => request.id === activeRequest.value?.id)) closeRequest();
-        if (detailRequest.value) detailRequest.value = requests.value.find((request) => request.id === detailRequest.value?.id) ?? null;
     } catch (error) {
         requestsError.value = toApiError(error);
     }
@@ -210,6 +239,28 @@ async function save(): Promise<void> {
         saveError.value = apiError;
     } finally {
         saving.value = false;
+    }
+}
+
+const fillOpen = ref(false);
+const filling = ref(false);
+const fillError = ref<string | null>(null);
+
+/** Demo only: gives every program the cells it is short of. */
+async function demoFill(): Promise<void> {
+    filling.value = true;
+    fillError.value = null;
+    try {
+        const response = await api.post<{ data: { programs: { code: string; added: number; sufficient: boolean }[]; grid: RoomSlotGrid } }>('room-slot-allocations/auto-fill', {}, { params: { period: period.value } });
+        grid.value = response.data.data.grid;
+        const rows = response.data.data.programs;
+        const short = rows.filter((row) => !row.sufficient).map((row) => row.code);
+        flash.value = `${rows.reduce((sum, row) => sum + row.added, 0)} sel diberikan ke ${rows.filter((row) => row.added).length} program studi.${short.length ? ` Masih kurang: ${short.join(', ')}.` : ''}`;
+        fillOpen.value = false;
+    } catch (error) {
+        fillError.value = toApiError(error).message;
+    } finally {
+        filling.value = false;
     }
 }
 
@@ -278,7 +329,6 @@ function warnUnsaved(event: BeforeUnloadEvent): void {
 watch(period, () => {
     discard();
     closeRequest();
-    detailRequest.value = null;
     void load();
     void loadRequests();
 }, { immediate: true });
@@ -294,7 +344,7 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', warnUnsaved));
 <template>
     <Head title="Slot Ruangan Program Studi" />
     <AppLayout>
-        <div class="mx-auto w-full max-w-[1400px] space-y-6 p-5 md:p-6">
+        <div class="space-y-6">
             <header class="flex flex-wrap items-end justify-between gap-4">
                 <div>
                     <h1 class="text-2xl font-bold tracking-tight text-gray-900">Slot Ruangan Program Studi</h1>
@@ -348,6 +398,14 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', warnUnsaved));
                                         <span class="font-semibold text-gray-900">{{ effectiveCounts.get(program.id) ?? 0 }}</span> / {{ program.required_meetings }}
                                     </span>
                                 </span>
+                                <span class="mt-1.5 block space-y-0.5">
+                                    <span v-for="line in typeLines(program)" :key="line.type" class="flex items-baseline justify-between gap-3 tabular-nums">
+                                        <span class="text-gray-500">{{ line.label }}</span>
+                                        <span :class="line.have < line.need ? 'text-amber-700' : 'text-gray-500'">
+                                            <span class="font-semibold" :class="line.have < line.need ? 'text-amber-700' : 'text-gray-900'">{{ line.have }}</span> / {{ line.need }}
+                                        </span>
+                                    </span>
+                                </span>
                                 <span class="mt-2 block h-1 overflow-hidden rounded-full bg-gray-100" aria-hidden="true">
                                     <span
                                         class="block h-full rounded-full"
@@ -382,6 +440,7 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', warnUnsaved));
                         </div>
                         <div class="ml-auto flex items-center gap-2">
                             <span v-if="pendingCount" class="text-sm text-gray-600">{{ pendingCount }} perubahan belum disimpan</span>
+                            <Button v-if="demoTools" variant="secondary" :disabled="locked || pendingCount > 0 || !!activeRequest" title="Khusus demo: beri tiap prodi slot yang kurang" @click="fillOpen = true; fillError = null">Isi otomatis (demo)</Button>
                             <Button variant="secondary" :disabled="!pendingCount || saving" @click="discard">Batalkan</Button>
                             <Button :disabled="!pendingCount || locked" :loading="saving" @click="save">Simpan</Button>
                         </div>
@@ -403,51 +462,51 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', warnUnsaved));
                     </div>
                 </div>
 
-                <aside class="space-y-4">
-                    <div class="flex items-center gap-3">
-                        <span class="flex size-10 shrink-0 items-center justify-center rounded-xl bg-blue-50 text-primary"><ClipboardList class="size-5" aria-hidden="true" /></span>
-                        <div>
-                            <h2 class="text-lg font-bold text-gray-900">Permintaan slot</h2>
-                            <p class="text-sm text-gray-500">{{ requests.length }} menunggu</p>
-                        </div>
+                <aside class="space-y-3">
+                    <div class="flex items-baseline justify-between gap-3">
+                        <h2 class="text-lg font-bold text-gray-900">Permintaan slot</h2>
+                        <span class="text-sm tabular-nums text-gray-500">{{ requests.length }} menunggu</span>
                     </div>
                     <Alert v-if="requestsError" :title="requestsError.message" />
                     <p v-if="!requests.length" class="rounded-lg border border-gray-200 bg-white px-4 py-6 text-center text-sm text-gray-500">Tidak ada permintaan yang menunggu.</p>
                     <article
-                        v-for="{ request, courses, meetings, seats } in summarizedRequests"
+                        v-for="{ request, meetings, needs } in requestViews"
                         :key="request.id"
-                        class="rounded-xl border border-gray-200 bg-white p-5 shadow-sm"
+                        class="rounded-lg border border-gray-200 bg-white"
+                        :class="activeRequest?.id === request.id ? 'ring-1 ring-primary' : ''"
                     >
-                        <div class="flex items-start gap-3">
-                            <span class="flex size-11 shrink-0 items-center justify-center rounded-lg bg-blue-50 text-sm font-bold text-primary">{{ request.study_program.code }}</span>
-                            <div class="min-w-0">
-                                <h3 class="text-base font-bold leading-snug text-gray-900">{{ request.study_program.name }}</h3>
-                                <p class="mt-1 text-sm text-gray-500">{{ formatDateTime(request.created_at) }}</p>
-                                <p class="text-sm text-gray-500">oleh {{ request.requested_by?.name ?? '-' }}</p>
-                            </div>
-                        </div>
-                        <dl class="mt-4 grid grid-cols-3 gap-2">
-                            <div class="rounded-lg bg-gray-50 px-3 py-2.5">
-                                <dt class="text-xs text-gray-600">Mata kuliah</dt>
-                                <dd class="mt-1 text-lg font-bold tabular-nums text-gray-900">{{ courses }}</dd>
-                            </div>
-                            <div class="rounded-lg bg-gray-50 px-3 py-2.5">
-                                <dt class="text-xs text-gray-600">Pertemuan</dt>
-                                <dd class="mt-1 text-lg font-bold tabular-nums text-gray-900">{{ meetings }}</dd>
-                            </div>
-                            <div class="rounded-lg bg-gray-50 px-3 py-2.5">
-                                <dt class="text-xs text-gray-600">Min. kursi</dt>
-                                <dd class="mt-1 text-lg font-bold tabular-nums text-gray-900">{{ seats ?? '—' }}</dd>
-                            </div>
-                        </dl>
-                        <Button variant="secondary" class="mt-4 w-full" @click="detailRequest = request">
-                            <Eye class="size-4" aria-hidden="true" /> Lihat rincian
-                        </Button>
-                        <p v-if="request.note" class="mt-4 max-h-24 overflow-y-auto whitespace-pre-line rounded-lg bg-gray-50 p-3 text-sm text-gray-700">{{ request.note }}</p>
+                        <header class="px-4 pt-4">
+                            <h3 class="flex items-center gap-2 text-sm font-semibold text-gray-900">
+                                <span class="size-2.5 shrink-0 rounded-sm" :class="toneOf(request.study_program.code).dot" aria-hidden="true" />
+                                {{ request.study_program.name }} ({{ request.study_program.code }})
+                            </h3>
+                            <p class="mt-1 text-xs text-gray-500">{{ request.requested_by?.name ?? '-' }}, {{ formatDateTime(request.created_at) }}</p>
+                        </header>
 
-                        <div v-if="activeRequest?.id === request.id" class="mt-4 space-y-3 border-t border-gray-100 pt-4">
+                        <p v-if="request.note" class="mx-4 mt-3 max-h-24 overflow-y-auto whitespace-pre-line text-sm text-gray-700">&ldquo;{{ request.note }}&rdquo;</p>
+
+                        <ul class="mt-3 divide-y divide-gray-100 border-t border-gray-100 text-sm">
+                            <li v-for="need in needs" :key="need.course_id" class="flex items-start justify-between gap-3 px-4 py-2.5">
+                                <div class="min-w-0">
+                                    <p class="font-medium leading-snug text-gray-900">{{ need.name ?? need.code ?? `MK #${need.course_id}` }}</p>
+                                    <p class="text-xs text-gray-500">{{ need.code }}</p>
+                                    <p class="mt-0.5 text-xs text-gray-700">
+                                        <template v-if="need.sks">
+                                            <span>
+                                                <strong class="font-semibold">{{ need.sks }} SKS</strong>, <br>
+                                            </span>
+                                        </template>
+                                        {{ need.meetings }} pertemuan dan min. {{ need.min_capacity }} kursi
+                                    </p>
+                                </div>
+                            </li>
+                        </ul>
+
+                        <div v-if="activeRequest?.id === request.id" class="space-y-3 border-t border-gray-100 p-4">
                             <Alert v-if="requestError" :title="requestError.message" />
-                            <p class="rounded-lg bg-blue-50 px-3 py-2 text-sm text-primary"><strong class="font-bold tabular-nums">{{ requestCells.size }}</strong> sel dipilih di grid</p>
+                            <p class="text-sm text-gray-700">
+                                <strong class="font-semibold tabular-nums text-gray-900">{{ requestCells.size }}</strong> dari {{ meetings }} sel dipilih di grid
+                            </p>
                             <label class="block text-sm font-medium text-gray-700">
                                 Catatan untuk program studi
                                 <textarea v-model="responseNote" rows="2" maxlength="1000" :class="fieldClass" placeholder="Opsional saat memenuhi, wajib saat menolak" />
@@ -460,7 +519,7 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', warnUnsaved));
                                 <X class="size-4" aria-hidden="true" /> Sembunyikan
                             </Button>
                         </div>
-                        <div v-else class="mt-2">
+                        <div v-else class="border-t border-gray-100 p-4">
                             <Button class="w-full" :disabled="locked || pendingCount > 0" :title="pendingCount ? 'Simpan atau batalkan perubahan dulu' : undefined" @click="openRequest(request)">Tanggapi permintaan</Button>
                         </div>
                     </article>
@@ -468,41 +527,18 @@ onBeforeUnmount(() => window.removeEventListener('beforeunload', warnUnsaved));
             </div>
         </div>
 
-        <Modal :show="detailRequest !== null" max-width="lg" close-button @close="detailRequest = null">
-            <div class="border-b border-gray-100 px-6 py-5">
-                <h2 class="text-lg font-semibold text-gray-900">Rincian permintaan</h2>
-                <p class="mt-1 text-sm text-gray-600">
-                    {{ detailRequest?.study_program.code }} {{ detailRequest?.study_program.name }} · {{ formatDateTime(detailRequest?.created_at ?? null) }}
-                </p>
-            </div>
-            <div class="max-h-[60vh] overflow-auto px-6 py-2">
-                <table class="w-full text-sm">
-                    <thead class="sticky top-0 bg-white text-xs text-gray-500">
-                        <tr>
-                            <th scope="col" class="py-3 text-left font-medium">Mata kuliah</th>
-                            <th scope="col" class="py-3 text-right font-medium">Pertemuan</th>
-                            <th scope="col" class="py-3 text-right font-medium">Ruang min.</th>
-                        </tr>
-                    </thead>
-                    <tbody class="divide-y divide-gray-100">
-                        <tr v-if="!detailRequest?.needs.length">
-                            <td colspan="3" class="py-4 text-center text-gray-500">Tidak ada rincian mata kuliah.</td>
-                        </tr>
-                        <tr v-for="need in detailRequest?.needs ?? []" :key="need.course_id">
-                            <td class="py-2.5 pr-4">
-                                <span class="font-medium text-gray-900">{{ need.name ?? need.code ?? `MK #${need.course_id}` }}</span>
-                                <span v-if="need.name && need.code" class="block text-xs text-gray-500">{{ need.code }}</span>
-                            </td>
-                            <td class="py-2.5 text-right tabular-nums text-gray-700">{{ need.meetings }}</td>
-                            <td class="py-2.5 text-right tabular-nums text-gray-700">{{ need.min_capacity }} kursi</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-            <div class="flex justify-end border-t border-gray-100 px-6 py-4">
-                <Button variant="secondary" @click="detailRequest = null">Tutup</Button>
-            </div>
-        </Modal>
+        <ConfirmDialog
+            :show="fillOpen"
+            title="Isi slot otomatis untuk demo?"
+            confirm-label="Isi otomatis"
+            :processing="filling"
+            :error="fillError"
+            @confirm="demoFill"
+            @close="fillOpen = false"
+        >
+            Setiap program studi diberi sel yang kurang untuk pertemuannya: ruang yang muat, sesi sesuai SKS, dan di jam saat dosennya bebas dari TPB.
+            Sel yang sudah dipegang prodi tidak diubah. Fitur ini hanya ada di lingkungan non-produksi.
+        </ConfirmDialog>
 
         <Modal :show="rejectOpen" max-width="md" @close="rejectOpen = false">
             <div class="space-y-4 p-6">

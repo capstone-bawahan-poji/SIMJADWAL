@@ -51,7 +51,7 @@ Route::middleware('auth')->group(function () {
     Route::middleware('role:admin_fakultas')->prefix('fakultas')->name('fakultas.')->group(function () {
         Route::get('/schedule', fn () => inertia('Fakultas/Schedule/Index'))->name('schedule.index');
         Route::get('/tpb-import', fn () => inertia('Fakultas/TpbImport/Index'))->name('tpb-import.index');
-        Route::get('/program-slot-allocation', fn () => inertia('Fakultas/ProgramSlotAllocation/Index'))->name('program-slot-allocation.index');
+        Route::get('/program-slot-allocation', fn () => inertia('Fakultas/ProgramSlotAllocation/Index', ['demoTools' => ! app()->isProduction()]))->name('program-slot-allocation.index');
         Route::get('/review', fn () => inertia('Fakultas/Review/Index'))->name('review.index');
         Route::get('/rooms', fn () => inertia('Fakultas/Room/Index'))->name('rooms.index');
     });

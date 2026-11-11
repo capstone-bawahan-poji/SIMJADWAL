@@ -130,6 +130,7 @@ Route::middleware(['web', 'auth'])->prefix('internal')->name('api.internal.')->g
     Route::delete('tpb-occupancy', [InternalTpbScheduleImportController::class, 'facultyDestroy'])->name('tpb-occupancy.destroy');
     Route::get('room-slot-allocations', [InternalRoomSlotAllocationController::class, 'index'])->name('room-slot-allocations.index');
     Route::put('room-slot-allocations', [InternalRoomSlotAllocationController::class, 'sync'])->name('room-slot-allocations.sync');
+    Route::post('room-slot-allocations/auto-fill', [InternalRoomSlotAllocationController::class, 'autoFill'])->name('room-slot-allocations.auto-fill');
     Route::get('study-programs/{studyProgram}/room-slots', [InternalRoomSlotAllocationController::class, 'program'])->name('study-programs.room-slots');
     Route::get('slot-requests', [InternalSlotRequestController::class, 'index'])->name('slot-requests.index');
     Route::post('slot-requests', [InternalSlotRequestController::class, 'store'])->name('slot-requests.store');
@@ -139,7 +140,6 @@ Route::middleware(['web', 'auth'])->prefix('internal')->name('api.internal.')->g
     Route::get('study-programs/{studyProgram}/schedule-submission', [InternalProgramScheduleController::class, 'show'])->name('study-programs.schedule-submission.show');
     Route::post('study-programs/{studyProgram}/schedule-submission/submit', [InternalProgramScheduleController::class, 'submit'])->name('study-programs.schedule-submission.submit');
     Route::post('study-programs/{studyProgram}/schedule-submission/withdraw', [InternalProgramScheduleController::class, 'withdraw'])->name('study-programs.schedule-submission.withdraw');
-    Route::post('study-programs/{studyProgram}/schedule-submission/accept', [InternalProgramScheduleController::class, 'accept'])->name('study-programs.schedule-submission.accept');
     Route::post('study-programs/{studyProgram}/schedule-submission/return', [InternalProgramScheduleController::class, 'return'])->name('study-programs.schedule-submission.return');
     Route::get('faculties/{faculty}/schedule-submissions', [InternalProgramScheduleController::class, 'faculty'])->name('faculties.schedule-submissions');
     Route::get('faculties/{faculty}/schedule-publication', [InternalSchedulePublicationController::class, 'show'])->name('faculties.schedule-publication.show');
@@ -226,7 +226,6 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('study-programs/{studyProgram}/schedule-submission', [V1ProgramScheduleController::class, 'show'])->name('study-programs.schedule-submission.show');
         Route::post('study-programs/{studyProgram}/schedule-submission/submit', [V1ProgramScheduleController::class, 'submit'])->name('study-programs.schedule-submission.submit');
         Route::post('study-programs/{studyProgram}/schedule-submission/withdraw', [V1ProgramScheduleController::class, 'withdraw'])->name('study-programs.schedule-submission.withdraw');
-        Route::post('study-programs/{studyProgram}/schedule-submission/accept', [V1ProgramScheduleController::class, 'accept'])->name('study-programs.schedule-submission.accept');
         Route::post('study-programs/{studyProgram}/schedule-submission/return', [V1ProgramScheduleController::class, 'return'])->name('study-programs.schedule-submission.return');
         Route::get('faculties/{faculty}/schedule-submissions', [V1ProgramScheduleController::class, 'faculty'])->name('faculties.schedule-submissions');
         Route::get('faculties/{faculty}/schedule-publication', [V1SchedulePublicationController::class, 'show'])->name('faculties.schedule-publication.show');

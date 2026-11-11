@@ -169,16 +169,18 @@ readonly class SlotRequestService
 
     /**
      * @param  list<array{course_id: int, meetings: int, min_capacity: int}>  $needs
-     * @return list<array{course_id: int, code: string|null, name: string|null, meetings: int, min_capacity: int}>
+     * @return list<array{course_id: int, code: string|null, name: string|null, sks: int|null, slot_type: int|null, meetings: int, min_capacity: int}>
      */
     private function describeNeeds(array $needs): array
     {
-        $courses = Course::query()->whereIn('id', array_column($needs, 'course_id'))->get(['id', 'code', 'name'])->keyBy('id');
+        $courses = Course::query()->whereIn('id', array_column($needs, 'course_id'))->get(['id', 'code', 'name', 'sks'])->keyBy('id');
 
         return array_map(fn (array $need) => [
             'course_id' => (int) $need['course_id'],
             'code' => $courses[$need['course_id']]->code ?? null,
             'name' => $courses[$need['course_id']]->name ?? null,
+            'sks' => $courses[$need['course_id']]->sks ?? null,
+            'slot_type' => isset($courses[$need['course_id']]) ? SlotSufficiencyService::slotType($courses[$need['course_id']]->sks) : null,
             'meetings' => (int) $need['meetings'],
             'min_capacity' => (int) $need['min_capacity'],
         ], $needs);

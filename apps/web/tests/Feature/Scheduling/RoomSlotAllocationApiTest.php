@@ -100,6 +100,27 @@ class RoomSlotAllocationApiTest extends TestCase
         $this->assertSame($this->systems->id, RoomSlotAllocation::query()->sole()->study_program_id);
     }
 
+    public function test_demo_fill_gives_each_program_the_cells_it_is_short_of(): void
+    {
+        Course::factory()->create(['study_program_id' => $this->informatics->id, 'semester' => 3, 'sks' => 3, 'parallel_class_count' => 2, 'class_capacity' => 35]);
+
+        $this->postJson('/api/internal/room-slot-allocations/auto-fill?period='.urlencode(self::PERIOD))
+            ->assertOk()
+            ->assertJsonPath('data.programs.0.code', 'IF')
+            ->assertJsonPath('data.programs.0.added', 2)
+            ->assertJsonPath('data.programs.0.sufficient', true)
+            ->assertJsonPath('data.programs.1.added', 0)
+            ->assertJsonPath('data.grid.study_programs.0.sufficient', true);
+
+        // Only the free rooms of a type-3 slot: the TPB room stays TPB's.
+        $this->assertSame(2, RoomSlotAllocation::query()->where('study_program_id', $this->informatics->id)->count());
+        $this->assertSame(0, RoomSlotAllocation::query()->where('room_id', $this->tpbRoom->id)->count());
+
+        // Running it again changes nothing.
+        $this->postJson('/api/internal/room-slot-allocations/auto-fill?period='.urlencode(self::PERIOD))
+            ->assertOk()->assertJsonPath('data.programs.0.added', 0);
+    }
+
     public function test_grid_shows_tpb_other_faculties_and_allocations(): void
     {
         $other = StudyProgram::factory()->create();
