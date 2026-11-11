@@ -5,6 +5,9 @@ namespace App\Services\Catalog;
 use App\Models\MasterData\Course;
 use App\Models\MasterData\CourseLecturer;
 use App\Models\MasterData\Faculty;
+use App\Models\Scheduling\SchedulePublication;
+use App\Models\Scheduling\TpbOccupancyImport;
+use App\Models\Scheduling\TpbOccupancyImportRow;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -12,6 +15,10 @@ use Illuminate\Support\Collection;
 /**
  * Read-only catalog for the public landing page: faculties with their programs, and active courses
  * with their parallel classes. It never exposes capacity, schedule times, rooms or lecturer contact data.
+ *
+ * Only what students can get a schedule for is listed: faculties that published their schedule in the
+ * current period, and TPB courses that have data in the period (a TPB offering, or a course code in
+ * a file a faculty imported). Everything else in the master data stays out until it is published.
  */
 readonly class CatalogService
 {
@@ -21,6 +28,7 @@ readonly class CatalogService
     public function faculties(): Collection
     {
         return Faculty::query()
+            ->whereIn('id', $this->publishedFacultyIds())
             ->with(['studyPrograms' => fn ($query) => $query->orderBy('code')])
             ->orderBy('code')
             ->get()
@@ -49,6 +57,14 @@ readonly class CatalogService
         return Course::query()
             ->with(['studyProgram.faculty', 'courseLecturers' => fn ($query) => $query->with('lecturer')->orderBy('class_number')])
             ->where('is_active', true)
+            ->where(fn (Builder $query) => $query
+                ->whereRelation('studyProgram', fn (Builder $program) => $program->whereIn('faculty_id', $this->publishedFacultyIds()))
+                ->orWhere(fn (Builder $tpb) => $tpb->where('is_tpb', true)->where(fn (Builder $has) => $has
+                    ->whereRelation('tpbOfferings', 'period', $this->period())
+                    ->orWhereIn('code', TpbOccupancyImportRow::query()
+                        ->select('course_code')
+                        ->whereNotNull('course_code')
+                        ->whereIn('tpb_occupancy_import_id', TpbOccupancyImport::query()->select('id')->where('period', $this->period()))))))
             ->when($search, fn (Builder $query) => $query->where(fn (Builder $query) => $query
                 ->whereLike('code', "%{$search}%")
                 ->orWhereLike('name', "%{$search}%")))
@@ -59,6 +75,19 @@ readonly class CatalogService
             ->orderBy('code')
             ->paginate($perPage)
             ->through(fn (Course $course) => $this->course($course));
+    }
+
+    private function period(): string
+    {
+        return config('scheduling.current_period');
+    }
+
+    /**
+     * @return list<int>
+     */
+    private function publishedFacultyIds(): array
+    {
+        return SchedulePublication::query()->where('period', $this->period())->pluck('faculty_id')->all();
     }
 
     /**

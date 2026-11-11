@@ -11,7 +11,9 @@ use App\Models\MasterData\Faculty;
 use App\Models\MasterData\Lecturer;
 use App\Models\MasterData\StudyProgram;
 use App\Models\MasterData\TimeSlot;
+use App\Models\MasterData\TpbOffering;
 use App\Models\Scheduling\ScheduleDetail;
+use App\Models\Scheduling\SchedulePublication;
 use App\Models\Scheduling\SchedulingRun;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -49,6 +51,19 @@ class CatalogApiTest extends TestCase
             'sks' => 3,
             'semester' => 5,
             'parallel_class_count' => 2,
+        ]);
+        $this->publish($this->faculty);
+    }
+
+    /** The catalog lists only faculties that published their schedule in the current period. */
+    private function publish(Faculty $faculty): void
+    {
+        SchedulePublication::query()->create([
+            'faculty_id' => $faculty->id,
+            'period' => self::PERIOD,
+            'published_by' => User::factory()->facultyAdmin($faculty)->create()->id,
+            'published_at' => now(),
+            'checksum' => 'sha256:test',
         ]);
     }
 
@@ -112,7 +127,9 @@ class CatalogApiTest extends TestCase
     public function test_courses_skip_inactive_and_filter(): void
     {
         Course::factory()->create(['study_program_id' => $this->program->id, 'semester' => 5, 'is_active' => false]);
-        $other = StudyProgram::factory()->create(['faculty_id' => Faculty::factory()->create()->id]);
+        $otherFaculty = Faculty::factory()->create();
+        $this->publish($otherFaculty);
+        $other = StudyProgram::factory()->create(['faculty_id' => $otherFaculty->id]);
         Course::factory()->create(['study_program_id' => $other->id, 'name' => 'Kalkulus', 'semester' => 1]);
 
         $this->getJson('/api/public/courses')->assertOk()->assertJsonPath('meta.pagination.total', 2);
@@ -123,9 +140,33 @@ class CatalogApiTest extends TestCase
         $this->getJson('/api/public/courses?per_page=500')->assertUnprocessable();
     }
 
+    public function test_only_published_faculties_and_their_courses_are_listed(): void
+    {
+        $draft = StudyProgram::factory()->create(['faculty_id' => Faculty::factory()->create(['code' => 'FDR'])->id]);
+        Course::factory()->create(['study_program_id' => $draft->id, 'name' => 'Belum Terbit']);
+
+        $this->getJson('/api/public/faculties')->assertOk()->assertJsonCount(1, 'data')->assertJsonPath('data.0.code', 'FTI');
+        $this->getJson('/api/public/courses?q=Belum')->assertOk()->assertJsonPath('meta.pagination.total', 0);
+
+        SchedulePublication::query()->delete();
+        $this->getJson('/api/public/faculties')->assertOk()->assertJsonCount(0, 'data');
+        $this->getJson('/api/public/courses')->assertOk()->assertJsonPath('meta.pagination.total', 0);
+    }
+
+    public function test_tpb_courses_need_data_in_the_period(): void
+    {
+        $withData = Course::factory()->tpb()->create(['code' => 'UM1001', 'name' => 'Pancasila']);
+        Course::factory()->tpb()->create(['code' => 'UM1002', 'name' => 'Kewarganegaraan']);
+        TpbOffering::factory()->create(['course_id' => $withData->id, 'period' => self::PERIOD]);
+
+        $this->getJson('/api/public/courses?q=Pancasila')->assertOk()->assertJsonPath('meta.pagination.total', 1);
+        $this->getJson('/api/public/courses?q=Kewarganegaraan')->assertOk()->assertJsonPath('meta.pagination.total', 0);
+    }
+
     public function test_tpb_courses_have_no_program_or_faculty(): void
     {
-        Course::factory()->tpb()->create(['code' => 'UM1001', 'name' => 'Pancasila']);
+        $tpb = Course::factory()->tpb()->create(['code' => 'UM1001', 'name' => 'Pancasila']);
+        TpbOffering::factory()->create(['course_id' => $tpb->id, 'period' => self::PERIOD]);
 
         $this->getJson('/api/public/courses?q=Pancasila')
             ->assertOk()

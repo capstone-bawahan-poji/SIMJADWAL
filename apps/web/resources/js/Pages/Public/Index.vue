@@ -496,9 +496,15 @@ onMounted(() => {
                             </ul>
 
                             <div v-else-if="!catalogError" class="rounded-lg border border-dashed border-slate-300 px-6 py-14 text-center">
-                                <h3 class="text-base font-semibold text-slate-900">Tidak ada mata kuliah yang cocok</h3>
-                                <p class="mx-auto mt-1.5 max-w-sm text-sm text-slate-600">Ubah fakultas, program studi, semester, atau kata kunci, lalu coba lagi.</p>
-                                <button type="button" @click="resetFilter" class="mt-5 inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-primary hover:text-primary">
+                                <template v-if="!faculties.length">
+                                    <h3 class="text-base font-semibold text-slate-900">Jadwal belum dipublikasikan</h3>
+                                    <p class="mx-auto mt-1.5 max-w-sm text-sm text-slate-600">Mata kuliah tampil di sini setelah fakultasnya mempublikasikan jadwal. Coba lagi nanti.</p>
+                                </template>
+                                <template v-else>
+                                    <h3 class="text-base font-semibold text-slate-900">Tidak ada mata kuliah yang cocok</h3>
+                                    <p class="mx-auto mt-1.5 max-w-sm text-sm text-slate-600">Ubah fakultas, program studi, semester, atau kata kunci, lalu coba lagi.</p>
+                                </template>
+                                <button v-if="faculties.length" type="button" @click="resetFilter" class="mt-5 inline-flex items-center gap-2 rounded-lg border border-slate-300 px-4 py-2 text-sm font-semibold text-slate-800 transition hover:border-primary hover:text-primary">
                                     <RotateCcw class="size-4" aria-hidden="true" />
                                     Atur ulang filter
                                 </button>
