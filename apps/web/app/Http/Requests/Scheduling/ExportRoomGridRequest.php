@@ -19,7 +19,7 @@ class ExportRoomGridRequest extends FormRequest
     {
         return [
             'period' => ['nullable', new PeriodRule],
-            'scope' => ['nullable', Rule::in(['faculty', 'tpb'])],
+            'scope' => ['nullable', Rule::in(['faculty', 'study_program', 'tpb'])],
             'faculty_id' => ['nullable', 'integer', 'exists:faculties,id'],
             ...$this->formatRules(),
         ];

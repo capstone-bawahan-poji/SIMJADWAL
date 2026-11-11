@@ -52,7 +52,7 @@ readonly class ScheduleExportService
         $runs = $this->queryService->visibleRuns($actor, $period)
             ->when($filters['faculty_id'] ?? null, fn (Builder $q, int $id) => $q->where('faculty_id', $id))
             ->when(($filters['scope'] ?? null) === 'tpb', fn (Builder $q) => $q->whereNull('faculty_id'))
-            ->when(($filters['scope'] ?? null) === 'faculty', fn (Builder $q) => $q->whereNotNull('faculty_id'))
+            ->when(in_array($filters['scope'] ?? null, ['faculty', 'study_program'], true), fn (Builder $q) => $q->whereNotNull('faculty_id'))
             ->get(['id', 'published_at']);
 
         $file = $this->render($runs, $period, $filters, $format, true);
@@ -76,7 +76,7 @@ readonly class ScheduleExportService
         $runs = $this->queryService->publishedRuns($period)
             ->when($facultyId, fn (Builder $q, int $id) => $q->where('faculty_id', $id))
             ->when($scope === 'tpb', fn (Builder $q) => $q->whereNull('faculty_id'))
-            ->when($scope === 'faculty', fn (Builder $q) => $q->whereNotNull('faculty_id'))
+            ->when(in_array($scope, ['faculty', 'study_program'], true), fn (Builder $q) => $q->whereNotNull('faculty_id'))
             ->get(['id']);
 
         $details = $this->queryService->details($runs->modelKeys(), [])->get();

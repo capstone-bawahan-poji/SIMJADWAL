@@ -20,8 +20,13 @@ use App\Http\Controllers\Api\Internal\MasterData\TpbGroupController as InternalT
 use App\Http\Controllers\Api\Internal\MasterData\TpbImportController as InternalTpbImportController;
 use App\Http\Controllers\Api\Internal\MasterData\TpbOfferingController as InternalTpbOfferingController;
 use App\Http\Controllers\Api\Internal\Scheduling\GaPresetController as InternalGaPresetController;
+use App\Http\Controllers\Api\Internal\Scheduling\ProgramScheduleController as InternalProgramScheduleController;
+use App\Http\Controllers\Api\Internal\Scheduling\RoomSlotAllocationController as InternalRoomSlotAllocationController;
 use App\Http\Controllers\Api\Internal\Scheduling\ScheduleController as InternalScheduleController;
+use App\Http\Controllers\Api\Internal\Scheduling\SchedulePublicationController as InternalSchedulePublicationController;
 use App\Http\Controllers\Api\Internal\Scheduling\SchedulingRunController as InternalSchedulingRunController;
+use App\Http\Controllers\Api\Internal\Scheduling\SlotRequestController as InternalSlotRequestController;
+use App\Http\Controllers\Api\Internal\Scheduling\TpbScheduleImportController as InternalTpbScheduleImportController;
 use App\Http\Controllers\Api\V1\Account\ActivityLogController as V1ActivityLogController;
 use App\Http\Controllers\Api\V1\Account\AuthController as V1AuthController;
 use App\Http\Controllers\Api\V1\Account\UserController as V1UserController;
@@ -41,9 +46,15 @@ use App\Http\Controllers\Api\V1\MasterData\TpbGroupController as V1TpbGroupContr
 use App\Http\Controllers\Api\V1\MasterData\TpbImportController as V1TpbImportController;
 use App\Http\Controllers\Api\V1\MasterData\TpbOfferingController as V1TpbOfferingController;
 use App\Http\Controllers\Api\V1\Scheduling\GaPresetController as V1GaPresetController;
+use App\Http\Controllers\Api\V1\Scheduling\ProgramScheduleController as V1ProgramScheduleController;
+use App\Http\Controllers\Api\V1\Scheduling\PublishedScheduleController as V1PublishedScheduleController;
+use App\Http\Controllers\Api\V1\Scheduling\RoomSlotAllocationController as V1RoomSlotAllocationController;
 use App\Http\Controllers\Api\V1\Scheduling\ScheduleController as V1ScheduleController;
+use App\Http\Controllers\Api\V1\Scheduling\SchedulePublicationController as V1SchedulePublicationController;
 use App\Http\Controllers\Api\V1\Scheduling\SchedulingDatasetController as V1SchedulingDatasetController;
 use App\Http\Controllers\Api\V1\Scheduling\SchedulingRunController as V1SchedulingRunController;
+use App\Http\Controllers\Api\V1\Scheduling\SlotRequestController as V1SlotRequestController;
+use App\Http\Controllers\Api\V1\Scheduling\TpbScheduleImportController as V1TpbScheduleImportController;
 use App\Http\Controllers\Api\V1\Shared\BroadcastAuthController as V1BroadcastAuthController;
 use Illuminate\Support\Facades\Route;
 
@@ -108,7 +119,32 @@ Route::middleware(['web', 'auth'])->prefix('internal')->name('api.internal.')->g
     Route::get('schedules/room-grid', [InternalScheduleController::class, 'roomGrid'])->name('schedules.room-grid');
     Route::get('schedules/export-room-grid', [InternalScheduleController::class, 'exportRoomGrid'])->name('schedules.export-room-grid');
     Route::get('schedule-details/{scheduleDetail}/options', [InternalScheduleController::class, 'options'])->name('schedule-details.options');
+    Route::post('schedule-details/swap', [InternalScheduleController::class, 'swap'])->name('schedule-details.swap');
     Route::patch('schedule-details/{scheduleDetail}', [InternalScheduleController::class, 'override'])->name('schedule-details.override');
+
+    // POS 040/IT10.1/OT.07/2026: TPB data, room slots per program, slot requests, review and publication
+    Route::get('tpb-schedule/import/template', [InternalTpbScheduleImportController::class, 'template'])->name('tpb-schedule.import.template');
+    Route::post('tpb-schedule/import', [InternalTpbScheduleImportController::class, 'tpbStore'])->name('tpb-schedule.import');
+    Route::get('tpb-occupancy', [InternalTpbScheduleImportController::class, 'facultyShow'])->name('tpb-occupancy.show');
+    Route::post('tpb-occupancy/import', [InternalTpbScheduleImportController::class, 'facultyStore'])->name('tpb-occupancy.import');
+    Route::delete('tpb-occupancy', [InternalTpbScheduleImportController::class, 'facultyDestroy'])->name('tpb-occupancy.destroy');
+    Route::get('room-slot-allocations', [InternalRoomSlotAllocationController::class, 'index'])->name('room-slot-allocations.index');
+    Route::put('room-slot-allocations', [InternalRoomSlotAllocationController::class, 'sync'])->name('room-slot-allocations.sync');
+    Route::get('study-programs/{studyProgram}/room-slots', [InternalRoomSlotAllocationController::class, 'program'])->name('study-programs.room-slots');
+    Route::get('slot-requests', [InternalSlotRequestController::class, 'index'])->name('slot-requests.index');
+    Route::post('slot-requests', [InternalSlotRequestController::class, 'store'])->name('slot-requests.store');
+    Route::post('slot-requests/{slotRequest}/fulfill', [InternalSlotRequestController::class, 'fulfill'])->name('slot-requests.fulfill');
+    Route::post('slot-requests/{slotRequest}/reject', [InternalSlotRequestController::class, 'reject'])->name('slot-requests.reject');
+    Route::delete('slot-requests/{slotRequest}', [InternalSlotRequestController::class, 'destroy'])->name('slot-requests.destroy');
+    Route::get('study-programs/{studyProgram}/schedule-submission', [InternalProgramScheduleController::class, 'show'])->name('study-programs.schedule-submission.show');
+    Route::post('study-programs/{studyProgram}/schedule-submission/submit', [InternalProgramScheduleController::class, 'submit'])->name('study-programs.schedule-submission.submit');
+    Route::post('study-programs/{studyProgram}/schedule-submission/withdraw', [InternalProgramScheduleController::class, 'withdraw'])->name('study-programs.schedule-submission.withdraw');
+    Route::post('study-programs/{studyProgram}/schedule-submission/accept', [InternalProgramScheduleController::class, 'accept'])->name('study-programs.schedule-submission.accept');
+    Route::post('study-programs/{studyProgram}/schedule-submission/return', [InternalProgramScheduleController::class, 'return'])->name('study-programs.schedule-submission.return');
+    Route::get('faculties/{faculty}/schedule-submissions', [InternalProgramScheduleController::class, 'faculty'])->name('faculties.schedule-submissions');
+    Route::get('faculties/{faculty}/schedule-publication', [InternalSchedulePublicationController::class, 'show'])->name('faculties.schedule-publication.show');
+    Route::post('faculties/{faculty}/schedule-publication', [InternalSchedulePublicationController::class, 'store'])->name('faculties.schedule-publication.store');
+    Route::delete('faculties/{faculty}/schedule-publication', [InternalSchedulePublicationController::class, 'destroy'])->name('faculties.schedule-publication.destroy');
 });
 
 Route::prefix('v1')->name('api.v1.')->group(function () {
@@ -123,7 +159,7 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         });
     });
 
-    Route::middleware(['auth:sanctum', 'active'])->group(function () {
+    Route::middleware(['auth:sanctum', 'active', 'no-integration-token'])->group(function () {
         Route::post('broadcasting/auth', V1BroadcastAuthController::class)->name('broadcasting.auth');
 
         Route::apiResource('users', V1UserController::class)->except(['destroy']);
@@ -167,6 +203,37 @@ Route::prefix('v1')->name('api.v1.')->group(function () {
         Route::get('schedules', [V1ScheduleController::class, 'index'])->name('schedules.index');
         Route::get('schedules/export', [V1ScheduleController::class, 'export'])->name('schedules.export');
         Route::get('schedule-details/{scheduleDetail}/options', [V1ScheduleController::class, 'options'])->name('schedule-details.options');
+        Route::post('schedule-details/swap', [V1ScheduleController::class, 'swap'])->name('schedule-details.swap');
         Route::patch('schedule-details/{scheduleDetail}', [V1ScheduleController::class, 'override'])->name('schedule-details.override');
+
+        // POS 040/IT10.1/OT.07/2026: TPB data, room slots per program, slot requests, review and publication
+        Route::get('tpb-schedule/import/template', [V1TpbScheduleImportController::class, 'template'])->name('tpb-schedule.import.template');
+        Route::post('tpb-schedule/import', [V1TpbScheduleImportController::class, 'tpbStore'])->name('tpb-schedule.import');
+        Route::get('tpb-occupancy', [V1TpbScheduleImportController::class, 'facultyShow'])->name('tpb-occupancy.show');
+        Route::post('tpb-occupancy/import', [V1TpbScheduleImportController::class, 'facultyStore'])->name('tpb-occupancy.import');
+        Route::delete('tpb-occupancy', [V1TpbScheduleImportController::class, 'facultyDestroy'])->name('tpb-occupancy.destroy');
+        Route::get('room-slot-allocations', [V1RoomSlotAllocationController::class, 'index'])->name('room-slot-allocations.index');
+        Route::put('room-slot-allocations', [V1RoomSlotAllocationController::class, 'sync'])->name('room-slot-allocations.sync');
+        Route::get('study-programs/{studyProgram}/room-slots', [V1RoomSlotAllocationController::class, 'program'])->name('study-programs.room-slots');
+        Route::get('slot-requests', [V1SlotRequestController::class, 'index'])->name('slot-requests.index');
+        Route::post('slot-requests', [V1SlotRequestController::class, 'store'])->name('slot-requests.store');
+        Route::post('slot-requests/{slotRequest}/fulfill', [V1SlotRequestController::class, 'fulfill'])->name('slot-requests.fulfill');
+        Route::post('slot-requests/{slotRequest}/reject', [V1SlotRequestController::class, 'reject'])->name('slot-requests.reject');
+        Route::delete('slot-requests/{slotRequest}', [V1SlotRequestController::class, 'destroy'])->name('slot-requests.destroy');
+        Route::get('study-programs/{studyProgram}/schedule-submission', [V1ProgramScheduleController::class, 'show'])->name('study-programs.schedule-submission.show');
+        Route::post('study-programs/{studyProgram}/schedule-submission/submit', [V1ProgramScheduleController::class, 'submit'])->name('study-programs.schedule-submission.submit');
+        Route::post('study-programs/{studyProgram}/schedule-submission/withdraw', [V1ProgramScheduleController::class, 'withdraw'])->name('study-programs.schedule-submission.withdraw');
+        Route::post('study-programs/{studyProgram}/schedule-submission/accept', [V1ProgramScheduleController::class, 'accept'])->name('study-programs.schedule-submission.accept');
+        Route::post('study-programs/{studyProgram}/schedule-submission/return', [V1ProgramScheduleController::class, 'return'])->name('study-programs.schedule-submission.return');
+        Route::get('faculties/{faculty}/schedule-submissions', [V1ProgramScheduleController::class, 'faculty'])->name('faculties.schedule-submissions');
+        Route::get('faculties/{faculty}/schedule-publication', [V1SchedulePublicationController::class, 'show'])->name('faculties.schedule-publication.show');
+        Route::post('faculties/{faculty}/schedule-publication', [V1SchedulePublicationController::class, 'store'])->name('faculties.schedule-publication.store');
+        Route::delete('faculties/{faculty}/schedule-publication', [V1SchedulePublicationController::class, 'destroy'])->name('faculties.schedule-publication.destroy');
+    });
+
+    // Integration API for other campus systems: published schedule only. Integration tokens reach nothing else.
+    Route::middleware(['auth:sanctum', 'active', 'throttle:120,1'])->group(function () {
+        Route::get('published-schedules', [V1PublishedScheduleController::class, 'index'])->name('published-schedules.index');
+        Route::get('published-schedules/publications', [V1PublishedScheduleController::class, 'publications'])->name('published-schedules.publications');
     });
 });

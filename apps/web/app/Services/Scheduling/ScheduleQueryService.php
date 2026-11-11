@@ -3,10 +3,11 @@
 namespace App\Services\Scheduling;
 
 use App\Contracts\Account\ResolvesOrgScope;
+use App\Enums\Account\Role;
+use App\Enums\Scheduling\SubmissionStatus;
 use App\Models\Scheduling\ScheduleDetail;
 use App\Models\Scheduling\SchedulingRun;
 use App\Models\User;
-use App\Permissions\Scheduling\SchedulingPermissions;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Query\Builder as QueryBuilder;
 
@@ -17,7 +18,7 @@ use Illuminate\Database\Query\Builder as QueryBuilder;
  * Who sees what:
  *   - faculty: superadmin, TPB admin and lecturers read every faculty (a lecturer may teach in
  *     several); everyone else reads their own faculty only,
- *   - unpublished: an active run that is not published yet is seen only by those who may publish it.
+ *   - unpublished: a program sees its own active run, its faculty the runs handed in for review.
  *
  * Default filters (own classes for lecturers) are a client concern.
  */
@@ -45,7 +46,7 @@ readonly class ScheduleQueryService
             ->with('faculty:id,code,name')
             ->when($filters['faculty_id'] ?? null, fn (Builder $q, int $id) => $q->where('faculty_id', $id))
             ->when(($filters['scope'] ?? null) === 'tpb', fn (Builder $q) => $q->whereNull('faculty_id'))
-            ->when(($filters['scope'] ?? null) === 'faculty', fn (Builder $q) => $q->whereNotNull('faculty_id'))
+            ->when(in_array($filters['scope'] ?? null, ['faculty', 'study_program'], true), fn (Builder $q) => $q->whereNotNull('faculty_id'))
             ->orderBy('faculty_id')
             ->get();
 
@@ -87,16 +88,22 @@ readonly class ScheduleQueryService
             $query->where(fn (Builder $q) => $this->orgScope->applyFacultyScope($q, $actor)->orWhereNull('faculty_id'));
         }
 
-        if (! $actor->can(SchedulingPermissions::PUBLISH_RUN)) {
-            return $query->whereNotNull('published_at');
-        }
-
-        // A publisher sees unpublished runs of the faculties it may publish: its own, or all (no faculty).
-        $ownFacultyId = $this->orgScope->facultyId($actor);
-
-        return $ownFacultyId === null ? $query : $query->where(fn (Builder $q) => $q
-            ->whereNotNull('published_at')
-            ->orWhere('faculty_id', $ownFacultyId));
+        // Unpublished runs: a program sees its own draft, its faculty the ones handed in for review,
+        // superadmin and TPB admin everything (TPB admin publishes the TPB run).
+        return match ($actor->role) {
+            Role::SUPER_ADMIN, Role::TPB_ADMIN => $query,
+            Role::STUDY_PROGRAM_ADMIN => $query->where(fn (Builder $q) => $q
+                ->whereNotNull('published_at')
+                ->orWhere('study_program_id', $actor->study_program_id)),
+            Role::FACULTY_ADMIN => $query->where(fn (Builder $q) => $q
+                ->whereNotNull('published_at')
+                ->orWhereExists(fn (QueryBuilder $sub) => $sub
+                    ->selectRaw('1')
+                    ->from('program_schedule_submissions')
+                    ->whereColumn('program_schedule_submissions.scheduling_run_id', 'scheduling_runs.id')
+                    ->whereIn('program_schedule_submissions.status', [SubmissionStatus::SUBMITTED->value, SubmissionStatus::ACCEPTED->value]))),
+            default => $query->whereNotNull('published_at'),
+        };
     }
 
     /**
