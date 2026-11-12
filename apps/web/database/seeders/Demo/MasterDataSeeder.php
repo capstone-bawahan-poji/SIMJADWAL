@@ -26,7 +26,7 @@ use RuntimeException;
  *
  * Two passes, because a lecturer may teach in another program: all lecturers and courses first,
  * then teaching assignments and preferences with a global lecturer_nip lookup.
- * Every seeded program is marked as submitted.
+ * Every seeded program is marked as submitted. Which files load is set by config('seeding.demo_programs').
  */
 class MasterDataSeeder extends Seeder
 {
@@ -62,7 +62,11 @@ class MasterDataSeeder extends Seeder
     {
         $programs = StudyProgram::query()->get()->keyBy(fn (StudyProgram $program) => Str::slug($program->name));
 
+        $only = config('seeding.demo_programs');
+        $only = $only === 'all' ? null : array_map('trim', explode(',', (string) $only));
+
         return collect(glob(database_path('seeders/data/master/*.json')) ?: [])
+            ->filter(fn (string $path) => $only === null || in_array(basename($path, '.json'), $only, true))
             ->mapWithKeys(function (string $path) use ($programs) {
                 $slug = basename($path, '.json');
 
