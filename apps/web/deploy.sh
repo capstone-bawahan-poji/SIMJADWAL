@@ -38,7 +38,7 @@ if [ "$FRESH" -eq 1 ]; then
     "${DC[@]}" exec simjadwal php artisan migrate:fresh --seed --force
     "${DC[@]}" exec simjadwal php artisan cache:clear
 elif [ "$SEED" -eq 1 ]; then
-    # Demo seeders stay out in production unless SEED_DEMO=true is set in .env.production.
+    # APP_ENV=production in .env.production keeps the Demo seeders out.
     "${DC[@]}" exec simjadwal php artisan db:seed --force
 fi
 
