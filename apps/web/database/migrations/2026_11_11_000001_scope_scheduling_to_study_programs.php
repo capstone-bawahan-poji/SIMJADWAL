@@ -27,7 +27,10 @@ return new class extends Migration
         Schema::table('ga_parameter_presets', function (Blueprint $table) {
             $table->foreignId('study_program_id')->nullable()->after('faculty_id')->index()->constrained()->restrictOnDelete();
         });
-        DB::statement('DROP INDEX uq_ga_parameter_presets_name');
+        // A database created before the create migration was edited has the old Blueprint unique
+        // constraint instead of the expression index. Drop whichever of the two exists.
+        DB::statement('DROP INDEX IF EXISTS uq_ga_parameter_presets_name');
+        DB::statement('ALTER TABLE ga_parameter_presets DROP CONSTRAINT IF EXISTS ga_parameter_presets_faculty_id_name_unique');
         DB::statement('CREATE UNIQUE INDEX uq_ga_parameter_presets_name ON ga_parameter_presets (COALESCE(faculty_id, 0), COALESCE(study_program_id, 0), name)');
     }
 
